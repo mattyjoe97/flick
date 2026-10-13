@@ -1,0 +1,680 @@
+{
+  "name": "FLICK",
+  "asset_count": 12,
+  "weapon_images": 10,
+  "effects": 2,
+  "format": "PNG RGBA",
+  "background": "transparent",
+  "weapon_canvas_px": [
+    2048,
+    1024
+  ],
+  "effect_canvas_px": [
+    1024,
+    1024
+  ],
+  "coordinates": "Pixels from upper-left; x increases right, y increases down.",
+  "alignment": {
+    "wrist_anchor_px": [
+      1836.0,
+      646.0
+    ],
+    "cuff_height_px": 173.16798196166854,
+    "shared_cuff_and_sleeve_pixels_start_x": 1822,
+    "shared_cuff_and_sleeve_identical_across_all_ten_weapons": true,
+    "hand_placement": "Hand poses use a common wrist anchor and cuff scale in the right third of each canvas.",
+    "source_transforms": {
+      "01_finger_flick": {
+        "scale": 0.8875739644970414,
+        "translate": [
+          218.17393213757396,
+          77.17581592085799
+        ],
+        "source_anchor": [
+          1546.0,
+          543.5
+        ],
+        "source_cuff_height": 169.0
+      },
+      "02_ruler_launcher": {
+        "scale": 0.8928571428571429,
+        "translate": [
+          209.11328125,
+          73.85797991071428
+        ],
+        "source_anchor": [
+          1547.0,
+          544.0
+        ],
+        "source_cuff_height": 168.0
+      },
+      "03_clothespin_pistol": {
+        "scale": 0.6122448979591837,
+        "translate": [
+          671.3836894132653,
+          210.28655133928572
+        ],
+        "source_anchor": [
+          1501.0,
+          570.5
+        ],
+        "source_cuff_height": 245.0
+      },
+      "04_binder_clip_repeater": {
+        "scale": 0.7211538461538461,
+        "translate": [
+          501.4209735576924,
+          103.08188100961542
+        ],
+        "source_anchor": [
+          1510.0,
+          633.0
+        ],
+        "source_cuff_height": 208.0
+      },
+      "05_drill_gatling": {
+        "scale": 0.9615384615384616,
+        "translate": [
+          85.55558894230762,
+          36.495342548076906
+        ],
+        "source_anchor": [
+          1565.0,
+          544.0
+        ],
+        "source_cuff_height": 156.0
+      }
+    }
+  },
+  "validation": {
+    "expected_png_count_passed": true,
+    "dimensions_passed": true,
+    "transparency_passed": true,
+    "no_subject_clipping_except_right_sleeve_at_alpha_128": true,
+    "all_pairs_unchanged_outside_transformed_band_masks": true,
+    "band_mask_margin_final_pixels": 7,
+    "pairs": {
+      "01_finger_flick": {
+        "different_pixels": 7881,
+        "different_bbox": [
+          1394,
+          401,
+          1731,
+          574
+        ],
+        "shared_cuff_sleeve_identical": true,
+        "band_mask_dilation_radius_final_pixels": 7,
+        "different_pixels_outside_transformed_band_mask": 0,
+        "unchanged_outside_band": true
+      },
+      "02_ruler_launcher": {
+        "different_pixels": 24871,
+        "different_bbox": [
+          380,
+          490,
+          1512,
+          544
+        ],
+        "shared_cuff_sleeve_identical": true,
+        "band_mask_dilation_radius_final_pixels": 7,
+        "different_pixels_outside_transformed_band_mask": 0,
+        "unchanged_outside_band": true
+      },
+      "03_clothespin_pistol": {
+        "different_pixels": 9551,
+        "different_bbox": [
+          873,
+          407,
+          1505,
+          498
+        ],
+        "shared_cuff_sleeve_identical": true,
+        "band_mask_dilation_radius_final_pixels": 7,
+        "different_pixels_outside_transformed_band_mask": 0,
+        "unchanged_outside_band": true
+      },
+      "04_binder_clip_repeater": {
+        "different_pixels": 39132,
+        "different_bbox": [
+          744,
+          266,
+          1621,
+          510
+        ],
+        "shared_cuff_sleeve_identical": true,
+        "band_mask_dilation_radius_final_pixels": 7,
+        "different_pixels_outside_transformed_band_mask": 0,
+        "unchanged_outside_band": true
+      },
+      "05_drill_gatling": {
+        "different_pixels": 147090,
+        "different_bbox": [
+          202,
+          259,
+          1299,
+          531
+        ],
+        "shared_cuff_sleeve_identical": true,
+        "band_mask_dilation_radius_final_pixels": 7,
+        "different_pixels_outside_transformed_band_mask": 0,
+        "unchanged_outside_band": true
+      }
+    }
+  },
+  "assets": [
+    {
+      "file": "01_finger_flick_empty.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        1368,
+        374,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        1369,
+        375,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1975643,
+      "partially_transparent_pixels": 5755,
+      "opaque_pixels": 115754,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "cc706b9e46b83694b8b835c034c51655de14ed56d5d40c4c79c4f6057c550df6",
+      "weapon": "Finger Flick",
+      "state": "empty",
+      "rubber_band_count": 0,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "01_finger_flick_loaded.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        1368,
+        374,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        1369,
+        375,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1971280,
+      "partially_transparent_pixels": 7533,
+      "opaque_pixels": 118339,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "1c7eabe4f720b9b7bf65dd734039571c32c695c3ad1c741401c203c25f28f1cb",
+      "weapon": "Finger Flick",
+      "state": "loaded",
+      "rubber_band_count": 1,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "02_ruler_launcher_empty.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        361,
+        414,
+        2048,
+        758
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        363,
+        415,
+        2048,
+        757
+      ],
+      "transparent_pixels": 1842889,
+      "partially_transparent_pixels": 13102,
+      "opaque_pixels": 241161,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "a82e2f6d43b22e42cfdc2a973a30b7dcec063cbbbb2bb0df5a0b0ea8ddacfac6",
+      "weapon": "Ruler Launcher",
+      "state": "empty",
+      "rubber_band_count": 0,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "02_ruler_launcher_loaded.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        361,
+        414,
+        2048,
+        758
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        363,
+        415,
+        2048,
+        757
+      ],
+      "transparent_pixels": 1823170,
+      "partially_transparent_pixels": 21639,
+      "opaque_pixels": 252343,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "c76be6f762ed7f45e85833ee8f7499c710ed1f09c6e4574d84a3d9fd1cdca34d",
+      "weapon": "Ruler Launcher",
+      "state": "loaded",
+      "rubber_band_count": 1,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "03_clothespin_pistol_empty.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        852,
+        379,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        853,
+        380,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1922605,
+      "partially_transparent_pixels": 8670,
+      "opaque_pixels": 165877,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "0eaa6c3b8f662e1ca515d85a11c6dfc453a6007cbaa8d465b59ff8e78cd49b12",
+      "weapon": "Clothespin Pistol",
+      "state": "empty",
+      "rubber_band_count": 0,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "03_clothespin_pistol_loaded.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        852,
+        379,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        853,
+        380,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1916449,
+      "partially_transparent_pixels": 12147,
+      "opaque_pixels": 168556,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "0340704ea1f8aa6a5f8a54b312c8025174f9d157529d21bfbb8bba89a5440ac9",
+      "weapon": "Clothespin Pistol",
+      "state": "loaded",
+      "rubber_band_count": 1,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "04_binder_clip_repeater_empty.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        735,
+        221,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        735,
+        222,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1876072,
+      "partially_transparent_pixels": 10247,
+      "opaque_pixels": 210833,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "657f65b9114289397df5365e3828f6aac365fdcf6861bfc9cf150e9bb84cbb59",
+      "weapon": "Binder-Clip Repeater",
+      "state": "empty",
+      "rubber_band_count": 0,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "04_binder_clip_repeater_loaded.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        735,
+        221,
+        2048,
+        750
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        735,
+        222,
+        2048,
+        749
+      ],
+      "transparent_pixels": 1858117,
+      "partially_transparent_pixels": 20877,
+      "opaque_pixels": 218158,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "44664c34483ee98bd5d7a7d6edaaf48e1562f0cffbf3a3a3b2a5403271721282",
+      "weapon": "Binder-Clip Repeater",
+      "state": "loaded",
+      "rubber_band_count": 3,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "05_drill_gatling_empty.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        195,
+        244,
+        2048,
+        885
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        195,
+        245,
+        2048,
+        884
+      ],
+      "transparent_pixels": 1689323,
+      "partially_transparent_pixels": 20205,
+      "opaque_pixels": 387624,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "8be45664968f50f51decac1a3bd1684db9d5fbddcd4c15c2b050406eabb5046c",
+      "weapon": "Drill-Powered Gatling",
+      "state": "empty",
+      "rubber_band_count": 0,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "05_drill_gatling_loaded.png",
+      "type": "weapon",
+      "size": [
+        2048,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        195,
+        244,
+        2048,
+        885
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        195,
+        245,
+        2048,
+        884
+      ],
+      "transparent_pixels": 1658128,
+      "partially_transparent_pixels": 35160,
+      "opaque_pixels": 403864,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 207,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 205,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "a9e39ead715edd56e130b8a0633ecfb1b105353fe219587e36f0c69b49213633",
+      "weapon": "Drill-Powered Gatling",
+      "state": "loaded",
+      "rubber_band_count": 6,
+      "wrist_anchor_px": [
+        1836.0,
+        646.0
+      ]
+    },
+    {
+      "file": "06_band_flying.png",
+      "type": "effect",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        143,
+        448,
+        957,
+        602
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        143,
+        449,
+        956,
+        601
+      ],
+      "transparent_pixels": 993077,
+      "partially_transparent_pixels": 8736,
+      "opaque_pixels": 46763,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "c686d35c140c2b94161f5a38ee25e3d0908fedb08f8c4b4a50f6fc339b7afd04"
+    },
+    {
+      "file": "07_band_snapped.png",
+      "type": "effect",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA",
+      "visible_bbox": [
+        169,
+        392,
+        891,
+        630
+      ],
+      "opaque_subject_bbox_at_alpha_128": [
+        169,
+        393,
+        890,
+        629
+      ],
+      "transparent_pixels": 996316,
+      "partially_transparent_pixels": 3639,
+      "opaque_pixels": 48621,
+      "visible_edge_pixels": {
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "subject_edge_pixels_at_alpha_128": {
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "sha256": "7df414ecbb8a7da603924fb62eece375ce6accbd30736b4ba32aafe8f4ac56a1"
+    }
+  ]
+}

@@ -1,18 +1,41 @@
-// What you shoot with, first-person style: it reaches into the office view
-// from the bottom-right corner and turns to aim at whoever you're flicking.
-// Hold to stretch the band (the thumb or trigger cocks back and the band
-// thins), let go to fire. Hold too long and it shakes, then snaps.
+// What you shoot with, first-person style: your hand (or the DIY gun in it)
+// reaches into the office from the bottom-right corner and turns at the wrist
+// to aim at whoever you're flicking. Hold to stretch (the hand pulls back),
+// let go to fire (the band leaves and a fresh one is loaded). Hold too long and
+// it shakes, then the band snaps and drops.
+//
+// The art is hand-painted sprites (see art/source and tools/prepare-art.py),
+// each in a loaded and an empty version.
 
 import { CHARGE, type WeaponId } from '../sim/content';
-import { launcherArt, type Launcher as Art } from './hand';
+import { SPRITES, BAND_SNAPPED, type LauncherSprite } from './art';
+import flickLoaded from '../assets/art/flick-loaded.webp';
+import flickEmpty from '../assets/art/flick-empty.webp';
+import rulerLoaded from '../assets/art/ruler-loaded.webp';
+import rulerEmpty from '../assets/art/ruler-empty.webp';
+import clothespinLoaded from '../assets/art/clothespin-loaded.webp';
+import clothespinEmpty from '../assets/art/clothespin-empty.webp';
+import repeaterLoaded from '../assets/art/repeater-loaded.webp';
+import repeaterEmpty from '../assets/art/repeater-empty.webp';
+import bandSnapped from '../assets/art/band-snapped.webp';
 
-/** Where your hand is in the scene (bottom-right). Everything turns around this point to aim. */
-const PIVOTS: Record<WeaponId, { x: number; y: number }> = {
-  flick: { x: 736, y: 418 },
-  ruler: { x: 728, y: 346 },
-  clothespin: { x: 712, y: 324 },
-  repeater: { x: 716, y: 328 },
+const ART: Record<WeaponId, { sprite: LauncherSprite; loaded: string; empty: string }> = {
+  flick: { sprite: SPRITES.flick, loaded: flickLoaded, empty: flickEmpty },
+  ruler: { sprite: SPRITES.ruler, loaded: rulerLoaded, empty: rulerEmpty },
+  clothespin: { sprite: SPRITES.clothespin, loaded: clothespinLoaded, empty: clothespinEmpty },
+  repeater: { sprite: SPRITES.repeater, loaded: repeaterLoaded, empty: repeaterEmpty },
 };
+
+/** Where your wrist is in the scene (800 x 420). Everything turns around this point to aim. */
+const PIVOTS: Record<WeaponId, { x: number; y: number }> = {
+  flick: { x: 716, y: 394 },
+  ruler: { x: 774, y: 394 },
+  clothespin: { x: 760, y: 390 },
+  repeater: { x: 764, y: 392 },
+};
+
+/** How long the launcher shows empty after a shot before the next band is on. */
+const RELOAD_MS = 260;
 
 export interface LauncherHooks {
   /** Can we start stretching? Shows a message and returns false if not. */
@@ -22,13 +45,15 @@ export interface LauncherHooks {
   stretchSound(charge: number | null): void;
 }
 
-type Pt = [number, number];
-
-function rot(p: Pt, c: Pt, deg: number): Pt {
-  const a = (deg * Math.PI) / 180;
-  const dx = p[0] - c[0];
-  const dy = p[1] - c[1];
-  return [c[0] + dx * Math.cos(a) - dy * Math.sin(a), c[1] + dx * Math.sin(a) + dy * Math.cos(a)];
+interface Dropped {
+  el: SVGImageElement;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  spin: number;
+  t0: number;
 }
 
 export class Launcher {
@@ -37,14 +62,14 @@ export class Launcher {
   private firedAt = -1e9;
   private snappedAt = -1e9;
   private weaponId: WeaponId | null = null;
-  private art: Art = launcherArt('flick');
   private aimG!: SVGGElement;
   private pullG!: SVGGElement;
-  private movingG!: SVGGElement;
-  private bandEls: SVGPathElement[] = [];
-  private textEls: SVGTextElement[] = [];
-  private flip = 1;
-  private angle = -138;
+  private spriteG!: SVGGElement;
+  private loadedImg!: SVGImageElement;
+  private emptyImg!: SVGImageElement;
+  private fxG!: SVGGElement;
+  private dropped: Dropped[] = [];
+  private angle = -150;
   private lastFrame = performance.now();
   private meter: HTMLElement;
   private fill: HTMLElement;
@@ -103,25 +128,63 @@ export class Launcher {
 
   private build(w: WeaponId) {
     this.weaponId = w;
-    this.art = launcherArt(w);
-    const bands = this.art.bands.map(() => `<path class="lb"/><path class="lb"/>`).join('');
-    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull">${this.art.back}<g class="launch-moving">${this.art.moving}</g>${this.art.front}<g>${bands}</g></g></g>`;
+    const { sprite: sp, loaded, empty } = ART[w];
+    const img = (href: string, cls: string) =>
+      `<image class="${cls}" href="${href}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/>`;
+    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite">${img(loaded, 'ls-loaded')}${img(empty, 'ls-empty')}</g></g></g><g class="launch-fx"></g>`;
     this.aimG = this.layer.querySelector('.launch-aim')!;
     this.pullG = this.layer.querySelector('.launch-pull')!;
-    this.movingG = this.layer.querySelector('.launch-moving')!;
-    this.bandEls = Array.from(this.layer.querySelectorAll<SVGPathElement>('.lb'));
-    this.textEls = Array.from(this.layer.querySelectorAll<SVGTextElement>('text.ft'));
-    this.flip = 0; // force the text orientation to be set on the next frame
+    this.spriteG = this.layer.querySelector('.launch-sprite')!;
+    this.loadedImg = this.layer.querySelector('.ls-loaded')!;
+    this.emptyImg = this.layer.querySelector('.ls-empty')!;
+    this.fxG = this.layer.querySelector('.launch-fx')!;
+    this.dropped = [];
   }
 
-  /** Where the band leaves from, in page coordinates (so shots start at the front of the band). */
-  tipClientPoint(): { x: number; y: number } | null {
-    const ctm = this.pullG?.getScreenCTM();
+  private get sprite() {
+    return ART[this.weaponId ?? 'flick'].sprite;
+  }
+
+  /** A point on the sprite (sprite pixels) in page coordinates. */
+  private spriteToClient(p: [number, number]) {
+    const ctm = this.spriteG?.getScreenCTM();
     if (!ctm) return null;
-    const [a, b] = this.art.bands[0].front;
-    const x = (a[0] + b[0]) / 2;
-    const y = (a[1] + b[1]) / 2;
+    const x = p[0] - this.sprite.wrist[0];
+    const y = p[1] - this.sprite.wrist[1];
     return { x: ctm.a * x + ctm.c * y + ctm.e, y: ctm.b * x + ctm.d * y + ctm.f };
+  }
+
+  /** Where the band leaves from, in page coordinates (so shots start at the muzzle or fingertip). */
+  tipClientPoint(): { x: number; y: number } | null {
+    return this.spriteToClient(this.sprite.tip);
+  }
+
+  /** The snapped band falls off the launcher and drops out of view. */
+  private dropBand() {
+    const ctm = this.spriteG?.getCTM();
+    if (!ctm || !this.fxG) return;
+    const sp = this.sprite;
+    const x = sp.band[0] - sp.wrist[0];
+    const y = sp.band[1] - sp.wrist[1];
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    const w = 46;
+    const h = (w * BAND_SNAPPED.h) / BAND_SNAPPED.w;
+    el.setAttribute('href', bandSnapped);
+    el.setAttribute('x', String(-w / 2));
+    el.setAttribute('y', String(-h / 2));
+    el.setAttribute('width', String(w));
+    el.setAttribute('height', String(h));
+    this.fxG.appendChild(el);
+    this.dropped.push({
+      el,
+      x: ctm.a * x + ctm.c * y + ctm.e,
+      y: ctm.b * x + ctm.d * y + ctm.f,
+      vx: 40 + Math.random() * 40,
+      vy: -120,
+      rot: 0,
+      spin: 260 + Math.random() * 200,
+      t0: performance.now(),
+    });
   }
 
   /** Call every frame with the weapon and the point (in scene units) to aim at. */
@@ -142,56 +205,53 @@ export class Launcher {
         this.snappedAt = now;
         this.hooks.stretchSound(null);
         this.hooks.snap();
+        if (!reduced) this.dropBand();
       } else this.hooks.stretchSound(charge);
     }
 
-    // Turn smoothly toward the target. Flip when aiming left so the launcher stays upright.
+    // Turn smoothly toward the target at the wrist. The art points left; mirror it if we ever aim right.
     const pivot = PIVOTS[w];
     const want = (Math.atan2(aim.y - pivot.y, aim.x - pivot.x) * 180) / Math.PI;
-    this.angle += (want - this.angle) * (reduced ? 1 : Math.min(1, dt * 7));
-    const flip = Math.cos((this.angle * Math.PI) / 180) < 0 ? -1 : 1;
-    const sc = this.art.scale;
-    this.aimG.setAttribute('transform', `translate(${pivot.x} ${pivot.y}) rotate(${this.angle.toFixed(2)}) scale(${sc} ${sc * flip})`);
-    if (flip !== this.flip) {
-      // Mirroring the launcher would mirror its printing too; turn each label back so it reads normally.
-      this.flip = flip;
-      for (const t of this.textEls) {
-        const cx = Number(t.dataset.cx ?? 0);
-        if (flip < 0) t.setAttribute('transform', `translate(${2 * cx} 0) scale(-1 1)`);
-        else t.removeAttribute('transform');
-      }
-    }
+    let diff = want - this.angle;
+    while (diff > 180) diff -= 360;
+    while (diff < -180) diff += 360;
+    this.angle += diff * (reduced ? 1 : Math.min(1, dt * 7));
+    const left = Math.cos((this.angle * Math.PI) / 180) < 0;
+    // Tip up a little as the band stretches, like bracing for the shot.
+    const lift = left ? 4 * charge : -4 * charge;
+    const rot = (left ? this.angle - 180 : this.angle) + lift;
+    this.aimG.setAttribute('transform', `translate(${pivot.x} ${pivot.y}) rotate(${rot.toFixed(2)})`);
+    const unit = this.sprite.unit;
+    this.spriteG.setAttribute('transform', `scale(${left ? unit : -unit} ${unit})`);
 
     // Pull back while stretching, kick forward right after firing, shake when over-held.
     const sinceFire = now - this.firedAt;
     const kick = sinceFire < 140 ? 12 * (1 - sinceFire / 140) : 0;
     const shake = reduced ? 0 : state === 'over' ? (Math.random() - 0.5) * 6 : state === 'perfect' ? (Math.random() - 0.5) * 1.5 : 0;
-    this.pullG.setAttribute('transform', `translate(${(-24 * charge + kick + shake).toFixed(2)} ${(shake * 0.6).toFixed(2)})`);
+    const forward = left ? -1 : 1;
+    const along = forward * (-22 * charge + kick + shake);
+    this.pullG.setAttribute('transform', `translate(${along.toFixed(2)} ${(shake * 0.6).toFixed(2)})`);
 
-    // The thumb (or trigger clip) cocks back as you stretch and snaps forward when you let go.
-    const snapBack = sinceFire < 160 ? 1 - sinceFire / 160 : 0;
-    const cock = this.art.cockDeg * charge - Math.sign(this.art.cockDeg) * 8 * snapBack;
-    const [px, py] = this.art.pivot;
-    this.movingG.setAttribute('transform', `rotate(${cock.toFixed(2)} ${px} ${py})`);
-
-    // Bands: thinner and lighter the more they stretch; gone for a moment after a shot or a snap.
+    // Loaded or empty: the band is gone for a moment after a shot (or a snap), then a fresh one is on.
     const sinceSnap = now - this.snappedAt;
-    const hidden = sinceFire < 150 || sinceSnap < 450;
-    const width = 5.2 - 2.4 * charge;
-    const color = state === 'over' ? '#d0584a' : mix('#a86c36', '#e2bd8a', charge);
-    this.art.bands.forEach((b, i) => {
-      const back: [Pt, Pt] = b.movesWith
-        ? [rot(b.back[0], this.art.pivot, cock), rot(b.back[1], this.art.pivot, cock)]
-        : [[b.back[0][0] - 26 * charge, b.back[0][1]], [b.back[1][0] - 26 * charge, b.back[1][1]]];
-      [this.bandEls[i * 2], this.bandEls[i * 2 + 1]].forEach((el, k) => {
-        const f = b.front[k];
-        const bk = back[k];
-        const sag = 5 * (1 - charge);
-        el.setAttribute('d', `M${f[0]} ${f[1]} Q${((f[0] + bk[0]) / 2).toFixed(1)} ${((f[1] + bk[1]) / 2 + sag).toFixed(1)} ${bk[0].toFixed(1)} ${bk[1].toFixed(1)}`);
-        el.setAttribute('stroke', color);
-        el.setAttribute('stroke-width', width.toFixed(2));
-        el.style.opacity = hidden ? '0' : '1';
-      });
+    const empty = sinceFire < RELOAD_MS || sinceSnap < 600;
+    this.loadedImg.style.visibility = empty ? 'hidden' : 'visible';
+    this.emptyImg.style.visibility = empty ? 'visible' : 'hidden';
+
+    // Snapped bands tumble down and fade.
+    this.dropped = this.dropped.filter((d) => {
+      const t = (now - d.t0) / 1000;
+      if (t > 0.9) {
+        d.el.remove();
+        return false;
+      }
+      d.vy += 900 * dt;
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.rot += d.spin * dt;
+      d.el.setAttribute('transform', `translate(${d.x.toFixed(1)} ${d.y.toFixed(1)}) rotate(${d.rot.toFixed(1)})`);
+      d.el.style.opacity = String(Math.min(1, (0.9 - t) / 0.3));
+      return true;
     });
 
     // Tension meter next to the Flick key
@@ -209,10 +269,4 @@ export class Launcher {
               : 'Hold to stretch';
     if (this.label.textContent !== text) this.label.textContent = text;
   }
-}
-
-function mix(a: string, b: string, t: number) {
-  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
-  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
-  return `#${pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('')}`;
 }

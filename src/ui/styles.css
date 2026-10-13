@@ -955,17 +955,14 @@ kbd {
   position: absolute;
   left: 0;
   top: 0;
-  width: max(12px, 2.5cqw);
-  height: max(7px, 1.35cqw);
-  border: max(2px, 0.45cqw) solid #b67b42;
-  border-radius: 50%;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+  width: max(18px, 3.6cqw);
+  aspect-ratio: 180 / 50;
+  background: url('../assets/art/band-flying.webp') center / contain no-repeat;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
 }
 
 .proj.big {
-  width: max(16px, 3.3cqw);
-  height: max(9px, 1.8cqw);
-  border-width: max(3px, 0.6cqw);
+  width: max(24px, 4.8cqw);
 }
 
 .burst.big {

@@ -7,7 +7,6 @@ import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { drawPerson, PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
-import { HAND_DEFS } from './hand';
 
 const W = 800;
 const H = 420;
@@ -186,7 +185,7 @@ export class Scene {
     wrap.querySelector('.hand-svg')?.remove();
     wrap.insertAdjacentHTML(
       'beforeend',
-      `<svg class="hand-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${HAND_DEFS}</defs><g id="hand-layer"></g></svg>`,
+      `<svg class="hand-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g id="hand-layer"></g></svg>`,
     );
     this.svg = this.root.querySelector('svg')!;
     this.peopleLayer = this.svg.querySelector('#people')!;
