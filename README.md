@@ -64,7 +64,7 @@ The simulation never touches the page, so tests can play the whole game in about
 
 ## Art
 
-The hands, weapons and rubber bands are painted sprites. The full-size originals live in `art/source/` (each weapon comes as a loaded and an empty version on a shared canvas, with the wrist at the same spot). `python3 tools/prepare-art.py` (needs Pillow) crops them, extends the shirt sleeve, scales them to what the game draws and writes WebP sprites to `src/assets/art/` plus their anchor points to `src/ui/art.ts`. Re-run it after replacing any source image. The Drill-Powered Gatling is already prepared for Stage 3.
+The hands, weapons and rubber bands are painted sprites. The full-size originals live in `art/source/` (each weapon comes as a loaded and an empty version on a shared canvas, with the wrist at the same spot; the script snaps the ruler in half and draws every weapon at the same scale so your hand never changes size). `python3 tools/prepare-art.py` (needs Pillow) crops them, extends the shirt sleeve, scales them to what the game draws and writes WebP sprites to `src/assets/art/` plus their anchor points to `src/ui/art.ts`. Re-run it after replacing any source image. The Drill-Powered Gatling is already prepared for Stage 3.
 
 ## Design
 

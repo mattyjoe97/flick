@@ -11,7 +11,7 @@ Run: python3 tools/prepare-art.py
 import json
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "art" / "source"
@@ -21,13 +21,15 @@ OUT.mkdir(parents=True, exist_ok=True)
 manifest = json.loads((SRC / "asset-manifest.json").read_text())
 WRIST = manifest["alignment"]["wrist_anchor_px"]  # shared by every weapon
 
-# Scene units per source pixel: how big each weapon is drawn in the 800 x 420 scene.
+# Scene units per source pixel. Every weapon uses the same scale so your hand is
+# always the same size, whether it's empty or holding something.
+UNIT = 0.31
 WEAPONS = {
-    "flick": ("01_finger_flick", 0.56),
-    "ruler": ("02_ruler_launcher", 0.235),
-    "clothespin": ("03_clothespin_pistol", 0.31),
-    "repeater": ("04_binder_clip_repeater", 0.285),
-    "gatling": ("05_drill_gatling", 0.21),
+    "flick": "01_finger_flick",
+    "ruler": "02_ruler_launcher",
+    "clothespin": "03_clothespin_pistol",
+    "repeater": "04_binder_clip_repeater",
+    "gatling": "05_drill_gatling",
 }
 SLEEVE_EXTRA = 900  # source px of sleeve added past the right edge
 SHARPNESS = 1.9  # sprite px per scene unit (covers large screens at 2x)
@@ -40,6 +42,51 @@ def extend_sleeve(im: Image.Image) -> Image.Image:
     col = im.crop((w - 6, 0, w - 5, h))
     for x in range(w - 6, w + SLEEVE_EXTRA):
         out.paste(col, (x, 0))
+    return out
+
+
+INK = (34, 24, 17, 255)
+BAND = (226, 182, 120, 255)
+RAW_WOOD = (250, 224, 172, 255)
+
+# The ruler is snapped in half: everything left of this jagged line is gone.
+# Points run from the top splinter (where the band hooks) down to the bottom edge.
+SNAP = [(986, 515), (1008, 530), (990, 548), (1014, 566), (996, 588), (1018, 606), (1000, 626), (1010, 640)]
+
+
+def snap_ruler(im: Image.Image, loaded: bool) -> Image.Image:
+    """Break the ruler off at about 6.5 inches, with a splintered end and the band hooked over the top splinter."""
+    ss = 4  # draw at 4x and scale down for smooth edges
+    w, h = im.size
+    big = lambda pts: [(x * ss, y * ss) for x, y in pts]
+    # Keep only what's right of the break (extended straight up and down past the ruler).
+    keep = Image.new("L", (w * ss, h * ss), 0)
+    d = ImageDraw.Draw(keep)
+    poly = [(SNAP[0][0], 0)] + SNAP + [(SNAP[-1][0], h), (w, h), (w, 0)]
+    d.polygon(big(poly), fill=255)
+    keep = keep.resize((w, h), Image.LANCZOS)
+    out = im.copy()
+    out.putalpha(ImageChops.multiply(im.getchannel("A"), keep))
+
+    over = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(over)
+    inner = SNAP[1:-1]
+    # A strip of raw, lighter wood just inside the break, then splinter lines and the ink outline.
+    d.line(big([(x + 9, y) for x, y in inner]), fill=RAW_WOOD, width=9 * ss, joint="curve")
+    for (x0, y0), (x1, y1) in zip(inner, inner[1:]):
+        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+        d.line(big([(mx + 4, my), (mx + 30, my + (y1 - y0) * 0.15)]), fill=INK, width=3 * ss)
+    d.line(big(SNAP), fill=INK, width=7 * ss, joint="curve")
+    for x, y in (SNAP[0], SNAP[-1]):
+        d.ellipse([(x - 3.5) * ss, (y - 3.5) * ss, (x + 3.5) * ss, (y + 3.5) * ss], fill=INK)
+    if loaded:
+        # The band's end, looped over the top splinter.
+        hx, hy = SNAP[0]
+        box = [(hx - 8) * ss, (hy - 16) * ss, (hx + 16) * ss, (hy + 8) * ss]
+        d.arc(box, 95, 290, fill=INK, width=13 * ss)
+        d.arc(box, 95, 290, fill=BAND, width=6 * ss)
+    over = over.resize((w, h), Image.LANCZOS)
+    out.alpha_composite(over)
     return out
 
 
@@ -57,11 +104,17 @@ lines = [
     "",
 ]
 entries = []
-for wid, (stem, units) in WEAPONS.items():
-    loaded = extend_sleeve(Image.open(SRC / f"{stem}_loaded.png").convert("RGBA"))
-    empty = extend_sleeve(Image.open(SRC / f"{stem}_empty.png").convert("RGBA"))
+for wid, stem in WEAPONS.items():
+    units = UNIT
+    loaded = Image.open(SRC / f"{stem}_loaded.png").convert("RGBA")
+    empty = Image.open(SRC / f"{stem}_empty.png").convert("RGBA")
+    if wid == "ruler":
+        loaded, empty = snap_ruler(loaded, True), snap_ruler(empty, False)
+    loaded, empty = extend_sleeve(loaded), extend_sleeve(empty)
     tip = tip_of(empty)
     band = manifest["validation"]["pairs"][stem]["different_bbox"]
+    if wid == "ruler":
+        band = [SNAP[0][0], band[1], band[2], band[3]]
     box = loaded.getbbox()
     eb = empty.getbbox()
     box = (min(box[0], eb[0]) - 4, min(box[1], eb[1]) - 4, max(box[2], eb[2]), max(box[3], eb[3]) + 4)

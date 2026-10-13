@@ -28,10 +28,10 @@ const ART: Record<WeaponId, { sprite: LauncherSprite; loaded: string; empty: str
 
 /** Where your wrist is in the scene (800 x 420). Everything turns around this point to aim. */
 const PIVOTS: Record<WeaponId, { x: number; y: number }> = {
-  flick: { x: 716, y: 394 },
-  ruler: { x: 774, y: 394 },
-  clothespin: { x: 760, y: 390 },
-  repeater: { x: 764, y: 392 },
+  flick: { x: 750, y: 396 },
+  ruler: { x: 764, y: 396 },
+  clothespin: { x: 764, y: 394 },
+  repeater: { x: 762, y: 390 },
 };
 
 /** How long the launcher shows empty after a shot before the next band is on. */
@@ -211,7 +211,13 @@ export class Launcher {
 
     // Turn smoothly toward the target at the wrist. The art points left; mirror it if we ever aim right.
     const pivot = PIVOTS[w];
-    const want = (Math.atan2(aim.y - pivot.y, aim.x - pivot.x) * 180) / Math.PI;
+    const sp = this.sprite;
+    const toTarget = Math.atan2(aim.y - pivot.y, aim.x - pivot.x);
+    // The barrel (or fingertip) sits above the wrist, so turn a little further so that line, not the wrist's, meets the target.
+    const above = (sp.wrist[1] - sp.tip[1]) * sp.unit;
+    const dist = Math.max(1, Math.hypot(aim.x - pivot.x, aim.y - pivot.y));
+    const correction = Math.asin(Math.max(-0.9, Math.min(0.9, above / dist)));
+    const want = ((toTarget + (Math.cos(toTarget) < 0 ? -correction : correction)) * 180) / Math.PI;
     let diff = want - this.angle;
     while (diff > 180) diff -= 360;
     while (diff < -180) diff += 360;
@@ -221,7 +227,7 @@ export class Launcher {
     const lift = left ? 4 * charge : -4 * charge;
     const rot = (left ? this.angle - 180 : this.angle) + lift;
     this.aimG.setAttribute('transform', `translate(${pivot.x} ${pivot.y}) rotate(${rot.toFixed(2)})`);
-    const unit = this.sprite.unit;
+    const unit = sp.unit;
     this.spriteG.setAttribute('transform', `scale(${left ? unit : -unit} ${unit})`);
 
     // Pull back while stretching, kick forward right after firing, shake when over-held.

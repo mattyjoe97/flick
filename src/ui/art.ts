@@ -11,11 +11,11 @@ export interface LauncherSprite {
 }
 
 export const SPRITES = {
-  flick: { w: 1584, h: 384, unit: 0.5600, wrist: [472.0, 276.0], tip: [5.0, 173.6], band: [198.5, 117.5] },
-  ruler: { w: 1157, h: 157, unit: 0.5263, wrist: [660.4, 105.4], tip: [2.7, 72.8], band: [263.0, 47.8] },
+  flick: { w: 933, h: 226, unit: 0.5263, wrist: [278.0, 162.6], tip: [2.9, 102.2], band: [116.9, 69.2] },
+  ruler: { w: 1164, h: 207, unit: 0.5263, wrist: [509.5, 139.0], tip: [6.5, 67.0], band: [163.7, 63.0] },
   clothespin: { w: 1237, h: 223, unit: 0.5263, wrist: [581.9, 159.6], tip: [2.9, 63.0], band: [200.8, 45.6] },
-  repeater: { w: 1201, h: 291, unit: 0.5263, wrist: [598.4, 232.3], tip: [2.2, 142.4], band: [244.5, 92.6] },
-  gatling: { w: 1100, h: 259, unit: 0.5263, wrist: [656.4, 162.0], tip: [1.6, 64.5], band: [223.2, 61.8] },
+  repeater: { w: 1306, h: 316, unit: 0.5263, wrist: [650.8, 252.7], tip: [2.4, 154.8], band: [265.9, 100.7] },
+  gatling: { w: 1624, h: 382, unit: 0.5263, wrist: [968.9, 239.1], tip: [2.4, 95.2], band: [329.5, 91.3] },
 } satisfies Record<string, LauncherSprite>;
 
 export const BAND_FLYING = { w: 180, h: 50 };
