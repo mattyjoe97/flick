@@ -4,6 +4,10 @@ An incremental browser game about an office rubber band war. It starts when Gary
 
 This repo holds the **first playable slice**: Stage 1 (Desk Skirmish) and Stage 2 (Cubicle Alliance), about 45–75 minutes of play.
 
+## Play it online
+
+Every push to `main` builds the game and publishes it with GitHub Pages (see `.github/workflows/deploy.yml`). One-time setup: in the repo, go to **Settings → Pages** and set **Source** to **GitHub Actions**. The game then lives at `https://<your-username>.github.io/flick/`.
+
 ## Play it locally
 
 ```bash
