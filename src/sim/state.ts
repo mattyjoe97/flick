@@ -1,7 +1,7 @@
 import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
 import { newWorkState, type TaskKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 export interface Email {
   id: number;
@@ -22,6 +22,13 @@ export interface Ally {
 
 export function newAlly(id: CoworkerId, role: Role): Ally {
   return { id, role, timer: 0, served: 0, rank: 0 };
+}
+
+export interface ChatMessage {
+  id: number;
+  t: number;
+  from: string;
+  text: string;
 }
 
 export interface Ticker {
@@ -87,7 +94,11 @@ export interface GameState {
     hiddenSince: number | null;
     hustleUntil: number;
     fixes: number;
+    open: boolean; // the Spreadsheet app is open on your computer
   };
+
+  /** Messenger: coworkers (and rivals) messaging you. */
+  chat: { log: ChatMessage[]; unread: number; nextAt: number; used: string[] };
 
   inbox: Email[];
   unread: number;
@@ -144,7 +155,8 @@ export type GameEvent =
   | { type: 'task'; kind: TaskKind; id: number }
   | { type: 'taskDone'; kind: TaskKind; ok: boolean; pay: number; text: string }
   | { type: 'taskAuto'; kind: TaskKind; who: string }
-  | { type: 'callMissed' };
+  | { type: 'callMissed' }
+  | { type: 'chat'; from: string };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
@@ -181,7 +193,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     warned50: false,
     warned75: false,
     outOfAmmoWarnedAt: -999,
-    sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0 },
+    sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0, open: false },
+    chat: { log: [], unread: 0, nextAt: 15, used: [] },
     inbox: [],
     unread: 0,
     ticker: [],

@@ -21,16 +21,16 @@
           </label>
           <button type="button" class="tool-btn" id="sound-btn" aria-pressed="true">Sound on</button>
           <button type="button" class="tool-btn" id="settings-btn">Settings</button>
-          <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false">Look busy <kbd>Esc</kbd></button>
+          <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false">Your computer <kbd>Esc</kbd><span class="hide-badge" id="hide-badge" hidden></span></button>
         </div>
       </header>
 
       <div class="walkby" id="walkby" role="alert" hidden>
-        <p><strong>Footsteps!</strong> Mr. Feeney is coming. Look busy: press <kbd>Esc</kbd>.</p>
+        <p><strong>Footsteps!</strong> Mr. Feeney is coming. Get on your computer: press <kbd>Esc</kbd>.</p>
         <div class="walkby-clock"><span id="walkby-fill"></span></div>
       </div>
       <div class="call-banner" id="call-banner" role="alert" hidden>
-        <p><strong>Ring ring!</strong> Your phone is ringing. <button type="button" class="paper-btn paper-btn-strong" id="call-answer">Answer <kbd>W</kbd></button></p>
+        <p><strong>Ring ring!</strong> Your desk phone is ringing. Answering puts you at your computer. <button type="button" class="paper-btn paper-btn-strong" id="call-answer">Answer <kbd>W</kbd></button></p>
         <div class="walkby-clock"><span id="call-fill"></span></div>
       </div>
       <div class="lockout" id="lockout" role="status" hidden></div>
@@ -83,15 +83,24 @@
             <span class="hr-stamp" id="hr-stamp" hidden>Final warning</span>
           </div>
 
+          <button type="button" class="computer-card" id="work-btn">
+            <svg class="pc-art" viewBox="0 0 120 92" aria-hidden="true">
+              <rect x="10" y="4" width="100" height="66" rx="6" fill="#d9d2c0" stroke="#23272d" stroke-width="3"/>
+              <rect x="19" y="12" width="82" height="50" rx="2" fill="#2a6f8f" stroke="#23272d" stroke-width="2"/>
+              <rect x="25" y="18" width="14" height="11" rx="1" fill="#fff8e8"/><rect x="25" y="34" width="14" height="11" rx="1" fill="#fff8e8"/>
+              <rect x="46" y="22" width="48" height="34" rx="1" fill="#f4f6f8"/><rect x="46" y="22" width="48" height="6" fill="#1f4a9a"/>
+              <path d="M52 34 H88 M52 40 H84 M52 46 H80" stroke="#9aa5b1" stroke-width="2"/>
+              <path d="M44 70 L40 84 H80 L76 70 Z" fill="#c9c1ad" stroke="#23272d" stroke-width="3" stroke-linejoin="round"/>
+            </svg>
+            <span class="pc-text"><span class="card-title">Your computer <kbd>Esc</kbd></span>
+            <small id="work-sub">Email, expenses, the phone. Safe from walk-bys.</small></span>
+            <span class="pc-badges" id="pc-badges" aria-live="polite"></span>
+          </button>
+
           <div class="cards">
             <button type="button" class="card-btn" id="scrounge-btn">
               <span class="card-title">Scrounge drawer <kbd>S</kbd></span>
               <small id="scrounge-sub">+1 band</small>
-            </button>
-            <button type="button" class="card-btn work-card" id="work-btn">
-              <span class="card-title">Do work <kbd>W</kbd></span>
-              <small id="work-sub">Inbox empty</small>
-              <span class="work-icons" id="work-icons" aria-hidden="true"></span>
             </button>
             <button type="button" class="card-btn" id="order-btn">
               <span class="card-title">Order supplies <kbd>O</kbd></span>
@@ -99,11 +108,6 @@
             </button>
           </div>
 
-          <div class="graph-paper" aria-labelledby="floor-h">
-            <h3 id="floor-h">Floor 4, east side</h3>
-            <div class="floorplan" id="floorplan"></div>
-            <p class="floor-note" id="floor-note">0 of 9 desks captured</p>
-          </div>
         </section>
 
         <section class="front" aria-labelledby="stage-line">
@@ -142,7 +146,7 @@
             </div>
             <div class="mini-actions">
               <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
-              <button type="button" class="mini-btn" data-mini="work">Do work</button>
+              <button type="button" class="mini-btn mini-pc" data-mini="work">Computer</button>
               <button type="button" class="mini-btn" data-mini="order">Order</button>
             </div>
           </div>
@@ -150,51 +154,84 @@
           <ol class="receipt" id="ticker" aria-live="polite"></ol>
 
           <div class="folder">
-            <div class="tabs" role="tablist" aria-label="Supplies and team">
-              <button type="button" role="tab" id="tab-armory" aria-controls="pane-armory" aria-selected="true">Armory</button>
-              <button type="button" role="tab" id="tab-reqs" aria-controls="pane-reqs" aria-selected="false">Requisitions</button>
-              <button type="button" role="tab" id="tab-team" aria-controls="pane-team" aria-selected="false" hidden>Team</button>
+            <div class="tabs">
+              <h3 class="drawer-tab" id="drawer-h">Desk drawer</h3>
             </div>
             <div class="folder-body">
-              <div class="pane" role="tabpanel" id="pane-armory" aria-labelledby="tab-armory"></div>
-              <div class="pane" role="tabpanel" id="pane-reqs" aria-labelledby="tab-reqs" hidden></div>
-              <div class="pane" role="tabpanel" id="pane-team" aria-labelledby="tab-team" hidden></div>
+              <div class="pane" id="pane-armory" aria-labelledby="drawer-h"></div>
             </div>
           </div>
         </section>
 
-        <section class="messages" aria-labelledby="inbox-h">
-          <div class="msg-head">
-            <h2 class="tape-label" id="inbox-h">Messages</h2>
-            <button type="button" class="phone-btn" id="phone-btn" aria-label="Desk phone">
-            <svg class="phone" id="phone" viewBox="0 0 90 70" aria-hidden="true">
-              <rect x="6" y="26" width="78" height="40" rx="8" fill="#3a3f45" stroke="#1f2226" stroke-width="3"></rect>
-              <path d="M4 22 Q4 6 20 6 L70 6 Q86 6 86 22 L74 24 L70 16 L20 16 L16 24 Z" fill="#2f3439" stroke="#1f2226" stroke-width="3" class="handset"></path>
-              <g fill="#cfd5db"><rect x="22" y="34" width="10" height="7" rx="2"></rect><rect x="40" y="34" width="10" height="7" rx="2"></rect><rect x="58" y="34" width="10" height="7" rx="2"></rect><rect x="22" y="46" width="10" height="7" rx="2"></rect><rect x="40" y="46" width="10" height="7" rx="2"></rect><rect x="58" y="46" width="10" height="7" rx="2"></rect></g>
-              <circle class="phone-light" cx="76" cy="34" r="3.5" fill="#5a2a2a"></circle>
-            </svg>
-            </button>
-          </div>
-          <ol class="slips" id="mail"></ol>
-        </section>
       </main>
 
-      <div class="sheet" id="sheet" hidden>
-        <div class="sheet-bar">
-          <span class="sheet-title" id="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span>
-          <button type="button" class="sheet-close" id="sheet-close">Close spreadsheet <kbd>Esc</kbd></button>
-        </div>
-        <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">Fix the cells with red corners.</span></div>
-        <div class="sheet-scroll">
-          <table class="sheet-grid" id="sheet-grid"></table>
-        </div>
-        <div class="sheet-foot">
-          <div class="sheet-tabs" id="sheet-tabs"></div>
-          <div class="sheet-status">
-            <span id="sheet-msg">Ready</span>
-            <span class="sheet-streak" id="sheet-streak"></span>
-            <span id="sheet-stats"></span>
+      <div class="computer" id="computer" hidden>
+        <div class="monitor">
+          <div class="screen" id="screen">
+            <div class="desktop" id="desktop" role="toolbar" aria-label="Apps">
+              <button type="button" class="icon" data-app="mail"><span class="ico ico-mail"></span><span class="icon-name">Mail</span><b class="badge" id="badge-mail" hidden></b></button>
+              <button type="button" class="icon" data-app="phone"><span class="ico ico-phone"></span><span class="icon-name">Phone</span><b class="badge" id="badge-phone" hidden></b></button>
+              <button type="button" class="icon" data-app="sheet"><span class="ico ico-sheet"></span><span class="icon-name">Spreadsheet</span></button>
+              <button type="button" class="icon" data-app="expenses"><span class="ico ico-expenses"></span><span class="icon-name">Expenses</span><b class="badge" id="badge-expenses" hidden></b></button>
+              <button type="button" class="icon" data-app="chat"><span class="ico ico-chat"></span><span class="icon-name">Messenger</span><b class="badge" id="badge-chat" hidden></b></button>
+              <button type="button" class="icon" data-app="procure"><span class="ico ico-procure"></span><span class="icon-name">Procurement</span></button>
+              <button type="button" class="icon" data-app="catalog"><span class="ico ico-catalog"></span><span class="icon-name">Supply Catalog</span></button>
+              <button type="button" class="icon" data-app="org"><span class="ico ico-org"></span><span class="icon-name">Org Chart</span></button>
+            </div>
+            <section class="window" id="window" hidden aria-labelledby="win-title">
+              <header class="win-bar">
+                <span class="win-ico" id="win-ico"></span>
+                <h2 class="win-title" id="win-title">Mail</h2>
+                <button type="button" class="win-btn" id="win-close" aria-label="Close window">×</button>
+              </header>
+              <div class="win-body">
+                <div class="app app-mail" data-app="mail" hidden>
+                  <ol class="mail-list" id="mail-list"></ol>
+                  <article class="mail-read" id="mail-read"></article>
+                </div>
+                <div class="app app-phone" data-app="phone" hidden><div id="phone-body"></div></div>
+                <div class="app app-sheet" data-app="sheet" hidden>
+                  <div class="sheet-file"><span class="sheet-title" id="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span></div>
+                  <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">Fix the cells with red corners.</span></div>
+                  <div class="sheet-scroll">
+                    <table class="sheet-grid" id="sheet-grid"></table>
+                  </div>
+                  <div class="sheet-foot">
+                    <div class="sheet-tabs" id="sheet-tabs"></div>
+                    <div class="sheet-status">
+                      <span id="sheet-msg">Ready</span>
+                      <span class="sheet-streak" id="sheet-streak"></span>
+                      <span id="sheet-stats"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="app app-expenses" data-app="expenses" hidden><div id="expenses-body"></div></div>
+                <div class="app app-chat" data-app="chat" hidden><ol class="chat-log" id="chat-log"></ol></div>
+                <div class="app app-procure" data-app="procure" hidden><div class="pane" id="pane-reqs"></div></div>
+                <div class="app app-catalog" data-app="catalog" hidden><div id="catalog-body"></div></div>
+                <div class="app app-org" data-app="org" hidden>
+                  <div class="pane" id="pane-team"></div>
+                  <div class="graph-paper" aria-labelledby="floor-h">
+                    <h3 id="floor-h">Floor 4, east side</h3>
+                    <div class="floorplan" id="floorplan"></div>
+                    <p class="floor-note" id="floor-note">0 of 9 desks captured</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <div class="incoming" id="incoming" role="alert" hidden>
+              <span class="incoming-ring"></span>
+              <p><b>Incoming call</b><span>Line 1</span></p>
+              <button type="button" class="win-action" id="incoming-answer">Answer</button>
+            </div>
+            <div class="reflection" id="reflection" aria-hidden="true"></div>
+            <p class="screen-toast" id="screen-toast" role="status" hidden></p>
           </div>
+          <footer class="taskbar">
+            <button type="button" class="start-btn" id="back-btn">◀ Back to the war <kbd>Esc</kbd></button>
+            <span class="task-open" id="task-open"></span>
+            <span class="tray"><span id="tray-cool"></span><span class="tray-clock" id="tray-clock">9:00 AM</span></span>
+          </footer>
         </div>
       </div>
 
@@ -202,19 +239,6 @@
         <h2 id="stage-dlg-h">Stage 2: Cubicle Alliance</h2>
         <div id="stage-dlg-body"></div>
         <form method="dialog"><button class="paper-btn paper-btn-strong" id="stage-dlg-ok">Back to it</button></form>
-      </dialog>
-
-      <dialog class="dlg dlg-work" id="work-dlg" aria-labelledby="work-h">
-        <h2 id="work-h">Work</h2>
-        <div class="work-fast" id="work-fast" aria-hidden="true"><span id="work-fast-fill"></span><em>Fast bonus</em></div>
-        <div id="work-body" tabindex="-1"></div>
-        <div class="work-result" id="work-result" role="status" hidden></div>
-        <div class="dlg-actions work-actions">
-          <button type="button" class="paper-btn" id="work-later">Put it down</button>
-          <button type="button" class="paper-btn paper-btn-strong" id="work-submit" hidden>Submit</button>
-          <button type="button" class="paper-btn paper-btn-strong" id="work-next" hidden>Next task <kbd>W</kbd></button>
-          <button type="button" class="paper-btn" id="work-close" hidden>Back to it</button>
-        </div>
       </dialog>
 
       <dialog class="dlg dlg-caught" id="caught-dlg" aria-labelledby="caught-h">

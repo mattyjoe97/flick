@@ -22,14 +22,14 @@ import {
 } from '../sim/engine';
 import { has, isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
-import { fmt, money, officeClock, officeTime, rate } from './format';
+import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
 import { SheetView } from './sheet';
 import { Sound } from './sound';
 import { Launcher } from './launcher';
 import { drawPerson, PEOPLE } from './characters';
-import { WorkView } from './workview';
-import { overdueCount, ringingCall } from '../sim/work';
+import { ComputerView } from './computer';
+import { ringingCall, startTask } from '../sim/work';
 
 export interface GameHost {
   state: GameState;
@@ -60,14 +60,13 @@ export class UI {
   private text = new Map<string, string>();
   private keys = new Map<string, string>();
   private flash: { text: string; until: number } | null = null;
-  private tab: 'armory' | 'reqs' | 'team' = 'armory';
   private launcher!: Launcher;
   private lastFrame = performance.now();
-  private seenTeam = false;
   private sound = new Sound();
   private scene: Scene;
   private sheet: SheetView;
-  private work: WorkView;
+  private computer: ComputerView;
+  private lastRing = 0;
 
   constructor(private host: GameHost) {
     this.scene = new Scene(() => this.s, {
@@ -102,7 +101,7 @@ export class UI {
       },
       this.scene.handLayer,
     );
-    this.work = new WorkView(() => this.s, {
+    this.computer = new ComputerView(() => this.s, {
       done: (r) => {
         if (r.ok) this.sound.coins();
         else this.sound.miss();
@@ -111,7 +110,11 @@ export class UI {
       },
       say: (t) => this.say(t),
       ring: () => this.sound.ring(),
-      beforeOpen: () => this.launcher.cancel(),
+      click: () => this.sound.type(),
+      ordered: () => {
+        this.bump('bands');
+        this.sound.coins();
+      },
     });
     this.bind();
     this.syncSound();
@@ -140,11 +143,21 @@ export class UI {
     }
   };
 
-  /** Do work: opens the next task in your queue (a ringing phone first). */
+  /** W, or the computer card: answer a ringing phone, otherwise sit down at your computer. */
   private doWork = () => {
-    this.sound.type();
-    this.work.openNext();
+    if (ringingCall(this.s)) this.answerPhone();
+    else this.toggleHide(true);
   };
+
+  /** Pick up the desk phone: that puts you at your computer, with the call on screen. */
+  private answerPhone() {
+    const call = ringingCall(this.s);
+    if (!call) return;
+    this.launcher.cancel();
+    startTask(this.s, call.id);
+    this.syncComputer();
+    this.computer.answerCall();
+  }
 
   private doOrder = () => {
     if (this.act(orderSupplies)) {
@@ -184,9 +197,8 @@ export class UI {
       if (!b) return;
       ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder })[b.dataset.mini as 'scrounge' | 'work' | 'order']();
     });
-    $('sheet-close').addEventListener('click', () => this.toggleHide(false));
-    $('phone-btn').addEventListener('click', this.doWork);
-    $('call-answer').addEventListener('click', this.doWork);
+    $('back-btn').addEventListener('click', () => this.toggleHide(false));
+    $('call-answer').addEventListener('click', () => this.answerPhone());
 
     // Hold the Flick key (or your hand) to stretch the band; let go to fire.
     for (const el of [$('flick-btn'), $('scene')]) {
@@ -211,11 +223,6 @@ export class UI {
       if (e.key.toLowerCase() === 'f') this.launcher.release();
     });
     window.addEventListener('blur', () => this.launcher.cancel());
-
-    for (const t of ['armory', 'reqs', 'team'] as const) {
-      $(`tab-${t}`).addEventListener('click', () => this.showTab(t));
-    }
-    $('tab-armory').parentElement!.addEventListener('keydown', (e) => this.tabKeys(e));
 
     $('pane-armory').addEventListener('click', (e) => {
       const el = e.target as HTMLElement;
@@ -308,6 +315,12 @@ export class UI {
       this.toggleHide();
       return;
     }
+    if (this.s.lookBusy) {
+      // At your computer: number keys answer emails and calls.
+      if (this.computer.onKey(e)) e.preventDefault();
+      else if (k === 'w' && ringingCall(this.s) && !e.repeat) this.answerPhone();
+      return;
+    }
     if (e.repeat) return;
     if (k === 'f') this.launcher.start();
     else if (k === 's') this.doScrounge();
@@ -315,50 +328,35 @@ export class UI {
     else if (k === 'o') this.doOrder();
   }
 
-  private tabKeys(e: KeyboardEvent) {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const tabs = (['armory', 'reqs', 'team'] as const).filter((t) => !$(`tab-${t}`).hidden);
-    const i = tabs.indexOf(this.tab);
-    const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
-    this.showTab(next);
-    $(`tab-${next}`).focus();
-  }
-
-  private showTab(t: 'armory' | 'reqs' | 'team') {
-    this.tab = t;
-    for (const x of ['armory', 'reqs', 'team'] as const) {
-      $(`tab-${x}`).setAttribute('aria-selected', String(x === t));
-      $(`tab-${x}`).tabIndex = x === t ? 0 : -1;
-      $(`pane-${x}`).hidden = x !== t;
-    }
-    if (t === 'team') {
-      this.seenTeam = true;
-      $('tab-team').classList.remove('fresh');
-    }
-  }
-
+  /** Esc: sit down at your computer, or get back to the war. */
   private toggleHide(force?: boolean) {
     const on = force ?? !this.s.lookBusy;
+    if (on) this.launcher.cancel();
     setLookBusy(this.s, on);
-    this.syncSheet();
+    this.syncComputer();
   }
 
-  private syncSheet() {
+  /** Shows or hides the computer to match the game (answering the phone also sits you down). */
+  private syncComputer() {
     const on = this.s.lookBusy;
-    const sheet = $('sheet');
-    if (sheet.hidden === !on) return;
-    sheet.hidden = !on;
+    const pc = $('computer');
+    if (pc.hidden === !on) return;
+    pc.hidden = !on;
+    document.body.classList.toggle('at-computer', on);
     this.sound.hide();
     $('hide-btn').setAttribute('aria-pressed', String(on));
-    if (on) $('sheet-close').focus();
-    else $('hide-btn').focus();
+    if (on) this.computer.opened();
+    else {
+      this.computer.closed();
+      $('hide-btn').focus();
+    }
   }
 
   /** Clears cached keys so every list rebuilds (after loading or resetting). */
   invalidate() {
     this.keys.clear();
     this.text.clear();
-    this.syncSheet();
+    this.syncComputer();
   }
 
   // ---------------------------------------------------------------- events from the sim
@@ -385,17 +383,14 @@ export class UI {
         this.say(`Your ${WEAPONS.find((w) => w.id === e.weapon)!.name} is back.`);
       } else if (e.type === 'writeUpFaded') {
         this.say('A write-up fell out of your HR file.');
-      } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, look busy when you hear footsteps.');
+      } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, get on your computer (Esc) when you hear footsteps.');
+      else if (e.type === 'hidden') this.computer.reflect();
       else if (e.type === 'stage') this.onStage(e.stage);
       else if (e.type === 'capture') this.sound.capture();
       else if (e.type === 'enemyShot') {
         this.sound.incoming();
         this.bump('bands');
-      } else if (e.type === 'mail' && e.kind !== 'flavor') this.wobblePhone();
-      else if (e.type === 'callMissed') {
-        this.sound.miss();
-        this.say('You missed a call. The whole floor heard it ring out.');
-      }
+      } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
       else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
     }
   }
@@ -422,15 +417,6 @@ export class UI {
     f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
     box.appendChild(f);
     setTimeout(() => f.remove(), 1300);
-  }
-
-  /** New story mail: the phone's message light blinks (calls ring for real; see WorkView). */
-  private wobblePhone() {
-    if (reducedMotion()) return;
-    const ph = $('phone');
-    ph.classList.remove('ring');
-    void (ph as unknown as HTMLElement).getBoundingClientRect();
-    ph.classList.add('ring');
   }
 
   /** The Flick key visibly presses down when you fire. */
@@ -492,10 +478,8 @@ export class UI {
 
   private openDialog(id: string) {
     const dlg = $<HTMLDialogElement>(id);
-    const workDlg = $<HTMLDialogElement>('work-dlg');
-    if (workDlg.open) workDlg.close();
     this.launcher.cancel();
-    if (this.s.lookBusy) this.toggleHide(false);
+    this.syncComputer();
     if (!dlg.open) dlg.showModal();
   }
 
@@ -506,8 +490,8 @@ export class UI {
       $('stage-dlg-h').textContent = 'Stage 2: Cubicle Alliance';
       $('stage-dlg-body').innerHTML = `
         <p>Gary surrendered and joined your side. His desk is your first captured territory.</p>
-        <p>Across the aisle, Brad from Sales is waiting. Open the new <strong>Team</strong> tab to recruit coworkers and give each one a role: Shooter, Gatherer, Lookout, Cover or Engineer.</p>`;
-      $('tab-team').classList.add('fresh');
+        <p>Across the aisle, Brad from Sales is waiting. Open the <strong>Org Chart</strong> on your computer (Esc) to recruit coworkers and give each one a role: Shooter, Gatherer, Lookout, Cover or Engineer.</p>
+        <p>Your Shooters keep firing while you're at your computer, at half speed.</p>`;
     } else if (stage === 3) {
       const mins = Math.round((s.stats.stage2At ?? s.time) / 60);
       $('stage-dlg-h').textContent = 'The department is yours';
@@ -548,7 +532,7 @@ export class UI {
     this.lastFrame = now;
     this.shotsThisFrame = 0;
 
-    this.syncSheet();
+    this.syncComputer();
     this.set('clock', officeClock(s.time));
 
     // Desk
@@ -597,10 +581,12 @@ export class UI {
     this.renderAlerts(s, m.warning);
     this.renderFloor(s);
     this.renderTicker(s);
-    this.renderMail(s);
     this.renderPanes(s);
-    this.sheet.render();
-    this.work.render();
+    this.renderComputerHints(s);
+    if (s.lookBusy) {
+      this.sheet.render();
+      this.computer.render();
+    }
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
     void dt;
@@ -699,26 +685,39 @@ export class UI {
     });
   }
 
-  private renderMail(s: GameState) {
-    this.rebuild('mail', `${s.inbox[0]?.id ?? 0}:${s.inbox.length}`, () => {
-      const newest = s.inbox[0]?.t ?? 0;
-      $('mail').innerHTML = s.inbox
-        .map(
-          (m) => `<li class="${m.kind}${m.t >= newest - 2 && s.time - m.t < 10 ? ' fresh' : ''}">
-          <div class="slip-print"><span>${m.kind === 'flavor' ? 'Memo' : 'While you were out'}${m.kind === 'warning' ? ' <span class="urgent">\u2611 Urgent</span>' : ''}</span><time>${officeTime(m.t)}</time></div>
-          <span class="slip-from">${esc(m.from)}</span>
-          <span class="slip-subj">${esc(m.subject)}</span>
-          <p>${esc(m.body)}</p></li>`,
-        )
-        .join('');
-      setTimeout(() => $('mail').querySelectorAll('.fresh').forEach((el) => el.classList.remove('fresh')), 6000);
-    });
+  /** Badges on the computer card and button, and the phone ringing while you're at war. */
+  private renderComputerHints(s: GameState) {
+    const mail = s.work.queue.filter((t) => t.kind === 'email').length + s.unread;
+    const call = ringingCall(s);
+    const bits: string[] = [];
+    if (call) bits.push('<b class="pcb ring">Phone!</b>');
+    if (mail) bits.push(`<b class="pcb">${mail > 9 ? '9+' : mail} mail</b>`);
+    if (s.chat.unread) bits.push(`<b class="pcb chat">${s.chat.unread} chat</b>`);
+    this.rebuild('pc-badges', bits.join(''), () => ($('pc-badges').innerHTML = bits.join('')));
+    const total = mail + s.chat.unread + (call ? 1 : 0);
+    const hb = $('hide-badge');
+    hb.hidden = total === 0 || s.lookBusy;
+    this.set('hide-badge', total > 9 ? '9+' : String(total));
+
+    // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
+    const banner = $('call-banner');
+    banner.hidden = !call || s.lookBusy;
+    if (call && call.kind === 'call') {
+      const left = Math.max(0, call.data.ringUntil - s.time);
+      $('call-fill').style.width = `${(left / 9) * 100}%`;
+      if (!s.lookBusy) {
+        const now = performance.now();
+        if (now - this.lastRing > 1500) {
+          this.lastRing = now;
+          this.sound.ring();
+        }
+      }
+    }
+    $('work-btn').classList.toggle('alert', !!call);
   }
 
   private renderPanes(s: GameState) {
     const m = mods(s);
-    $('tab-team').hidden = s.stage < 2;
-    if (s.stage >= 2 && !this.seenTeam && !$('tab-team').classList.contains('fresh')) $('tab-team').classList.add('fresh');
 
     const shape = JSON.stringify([
       s.stage,
@@ -858,33 +857,31 @@ function coachHint(s: GameState): string {
   const t = currentTarget(s);
   const w = weapon(s);
   const m = mods(s);
-  if (walkbyCountdown(s) !== null && !s.lookBusy) return 'Footsteps! Press Esc to look busy before Mr. Feeney arrives.';
+  if (walkbyCountdown(s) !== null && !s.lookBusy) return 'Footsteps! Press Esc to get on your computer before Mr. Feeney arrives.';
   if (s.lookBusy && s.walkby.arrivesAt === null && s.suspicion < 10) return '';
   if (!t) return '';
-  if (ringingCall(s)) return 'Your phone is ringing! Press W (or tap the phone) to answer before it rings out.';
+  if (ringingCall(s)) return 'Your desk phone is ringing. Press W to answer: it puts you at your computer.';
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
-  if (s.stats.tasksDone + s.stats.tasksWrong === 0 && s.work.queue.length > 0)
-    return 'You have work waiting. Press W (or Do work) to do it: work pays and lowers Suspicion.';
-  if (overdueCount(s) > 0) return 'Work is overdue: your Suspicion won’t cool down until you catch up. Press W.';
-  if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Look busy when you hear footsteps.";
+  if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Get on your computer (Esc) when you hear footsteps.";
   if (s.hr.confiscated && s.salary >= buyBackPrice(s))
-    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (Armory).`;
+    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (desk drawer).`;
   if (s.bands < w.burst) {
     return s.salary >= m.order.price
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'
-      : 'Out of bands. Scrounge your drawer (S), or do some work (W) to afford a supply order.';
+      : 'Out of bands. Scrounge your drawer (S), or earn some Salary on your computer (Esc) for a supply order.';
   }
-  if (s.suspicion >= 70) return 'Suspicion is high. Do some work (W) or look busy in a spreadsheet (Esc) until it cools.';
+  if (s.suspicion >= 70) return 'Suspicion is high. Get on your computer (Esc) and do some work until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {
     return s.salary >= 15
-      ? 'You can afford the Ruler Launcher. Buy it in the Armory below.'
-      : 'Do your work (W) to earn $15 for the Ruler Launcher. Work also lowers Suspicion.';
+      ? 'You can afford the Ruler Launcher. Buy it in your desk drawer below.'
+      : 'Earn $15 for the Ruler Launcher: press Esc to get on your computer and answer some emails.';
   }
   if (s.stats.shots >= 6 && s.stats.charged === 0)
     return 'Tip: hold Flick (or F) to stretch the band. Let go at full stretch for a Perfect shot: 6\u00d7 damage from one band.';
   if (s.stats.walkbysSpotted + s.stats.hides === 0 && s.time > 60)
-    return 'Mr. Feeney walks the floor every few minutes. When you hear footsteps, press Esc to look busy.';
-  if (s.stage === 2 && s.allies.length < 3) return 'Recruit coworkers on the Team tab. Each one has a role they are best at.';
+    return 'Mr. Feeney walks the floor every few minutes. When you hear footsteps, press Esc to get on your computer.';
+  if (s.stage === 2 && s.allies.length < 3) return 'Recruit coworkers in the Org Chart on your computer (Esc). Each one has a role they are best at.';
+  if (s.stats.tasksDone === 0 && s.time > 90) return 'Your computer (Esc) is where you work: emails and expense reports pay Salary, and Mr. Feeney can’t catch you there.';
   if (s.stage === 2 && w.id !== 'repeater' && s.ownedWeapons.includes('clothespin') && targetDefeated(s, 'printer'))
     return 'Assign Dave as Engineer to unlock the Binder-Clip Repeater.';
   return '';

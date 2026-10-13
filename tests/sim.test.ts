@@ -94,19 +94,20 @@ describe('suspicion', () => {
   });
 });
 
-describe('work queue', () => {
+describe('work at your computer', () => {
   const take = (s: ReturnType<typeof newGame>, t: WorkTask) => {
     startTask(s, t.id);
     return answerTask(s, t.id, correctAnswer(t))!;
   };
 
-  it('tasks arrive on their own, starting with an email', () => {
+  it('work emails, an expense report and the occasional call arrive on their own', () => {
     const s = newGame(1);
-    run(s, WORK.firstTaskAt + 0.2);
-    expect(s.work.queue.length).toBe(1);
-    expect(s.work.queue[0].kind).toBe('email');
-    run(s, 60);
-    expect(s.work.queue.length).toBeGreaterThan(1);
+    run(s, WORK.firstEmailAt + 0.2);
+    expect(s.work.queue.map((t) => t.kind)).toEqual(['email']);
+    run(s, WORK.firstCallAt);
+    const kinds = s.work.queue.map((t) => t.kind);
+    expect(kinds).toContain('expense');
+    expect(s.stats.callsMissed + kinds.filter((k) => k === 'call').length).toBe(1);
   });
 
   it('the right email reply pays and lowers Suspicion; Reply All backfires', () => {
@@ -129,33 +130,24 @@ describe('work queue', () => {
     expect(s.suspicion).toBeCloseTo(before + WORK.replyAllNoise);
   });
 
-  it('a phone left ringing is a missed call; the right extension pays', () => {
+  it('a call left ringing just stops (no penalty); answering puts you at your computer', () => {
     const s = newGame(1);
-    s.work.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
     addTask(s, 'call');
     run(s, WORK.ringSeconds + 0.5);
-    expect(s.work.queue.length).toBe(0);
-    expect(s.suspicion).toBeGreaterThan(WORK.missedCallNoise - 1);
+    expect(s.work.queue.some((t) => t.kind === 'call')).toBe(false);
+    expect(s.stats.callsMissed).toBe(1);
+    expect(s.suspicion).toBe(0);
 
     const t = addTask(s, 'call');
     expect(ringingCall(s)?.id).toBe(t.id);
-    expect(take(s, t).ok).toBe(true);
+    startTask(s, t.id);
+    expect(s.lookBusy).toBe(true);
+    expect(answerTask(s, t.id, correctAnswer(t))!.ok).toBe(true);
     const t2 = addTask(s, 'call');
     startTask(s, t2.id);
     const right = (correctAnswer(t2) as { ext: number }).ext;
     expect(answerTask(s, t2.id, { kind: 'call', ext: right === 2 ? 3 : 2 })!.ok).toBe(false);
-  });
-
-  it('budget sheets need exactly the over-budget lines flagged', () => {
-    const s = newGame(1);
-    const t = addTask(s, 'sheet');
-    if (t.kind !== 'sheet') throw new Error();
-    const over = t.data.rows.filter((r) => r.actual > r.budget).length;
-    expect(over === 1 || over === 2).toBe(true);
-    expect(take(s, t).ok).toBe(true);
-    const t2 = addTask(s, 'sheet');
-    startTask(s, t2.id);
-    expect(answerTask(s, t2.id, { kind: 'sheet', flagged: [0, 1, 2, 3, 4] })!.ok).toBe(false);
   });
 
   it('expense reports follow the rule; approving your own rubber bands pays in bands, and Accounting notices', () => {
@@ -181,35 +173,44 @@ describe('work queue', () => {
     throw new Error('no seed produced your own receipt');
   });
 
-  it('while you work you cannot flick, and a walk-by finds you working', () => {
+  it('nothing goes overdue, and Auto-Reply answers waiting emails', () => {
     const s = newGame(1);
-    s.work.nextAt = 1e9;
-    const t = addTask(s, 'email');
-    s.walkby.nextAt = 1;
-    run(s, 1.2);
-    startTask(s, t.id);
-    expect(flick(s).ok).toBe(false);
-    run(s, 5);
-    expect(s.stats.hides).toBe(1);
-    expect(s.stats.walkbysSpotted).toBe(0);
-  });
-
-  it('work left waiting goes overdue and raises Suspicion; Auto-Reply answers emails', () => {
-    const s = newGame(1);
-    s.work.nextAt = 1e9;
     s.walkby.nextAt = 1e9;
-    addTask(s, 'sheet');
-    addTask(s, 'sheet');
-    run(s, WORK.overdueAfter + 40);
-    expect(s.suspicion).toBeGreaterThan(1);
+    s.work.nextCallAt = 1e9;
+    run(s, 300);
+    expect(s.suspicion).toBe(0);
+    expect(s.work.queue.filter((t) => t.kind === 'email').length).toBeLessThanOrEqual(WORK.maxEmails);
 
     const a = newGame(1);
-    a.work.nextAt = 1e9;
+    a.work.nextCallAt = 1e9;
     a.upgrades.push('autoreply');
     addTask(a, 'email');
     run(a, WORK.autoReplyAfter + 1);
-    expect(a.work.queue.length).toBe(0);
-    expect(a.stats.tasksAuto).toBe(1);
+    expect(a.stats.tasksAuto).toBeGreaterThan(0);
+  });
+
+  it('your Shooters keep firing at half speed while you are at your computer', () => {
+    const shots = (busy: boolean) => {
+      const s = newGame(1);
+      s.stage = 2;
+      s.targetIndex = 4;
+      s.targetResolve = 1e6;
+      s.bands = 1e4;
+      s.allies = [{ id: 'gary', role: 'shooter', timer: 0, served: 0, rank: 0 }];
+      s.walkby.nextAt = 1e9;
+      setLookBusy(s, busy);
+      run(s, 60);
+      return s.stats.shots;
+    };
+    expect(shots(true)).toBeCloseTo(shots(false) / 2, 0);
+  });
+
+  it('coworkers message you when things happen', () => {
+    const s = newGame(1);
+    s.targetResolve = 0.5;
+    flick(s);
+    expect(s.chat.log[s.chat.log.length - 1]?.from).toBe('Gary');
+    expect(s.chat.unread).toBe(1);
   });
 });
 
@@ -262,7 +263,6 @@ describe('HR file', () => {
     addSuspicion(s, 200);
     expect(s.hr.writeUps).toBe(2);
     s.suspicion = 0;
-    s.work.nextAt = 1e9; // no work piling up (ignoring work for 10 minutes would get you caught)
     s.walkby.nextAt = 1e9;
     run(s, TUNING.writeUpFade + 1);
     expect(s.hr.writeUps).toBe(1);
@@ -383,9 +383,12 @@ describe('anti-spam', () => {
 
 describe('spreadsheet mini-game', () => {
   it('flags cells while hidden and pays more with a streak', async () => {
-    const { fixCell } = await import('../src/sim/minigame');
+    const { fixCell, setSheetOpen } = await import('../src/sim/minigame');
     const s = newGame(9);
     setLookBusy(s, true);
+    run(s, 1);
+    expect(s.sheet.flags.length).toBe(0); // only while the Spreadsheet app is open
+    setSheetOpen(s, true);
     run(s, 1);
     expect(s.sheet.flags.length).toBeGreaterThan(0);
     const f1 = s.sheet.flags[0];
@@ -399,9 +402,12 @@ describe('spreadsheet mini-game', () => {
   });
 
   it('a wrong cell or an expired flag breaks the streak', async () => {
-    const { fixCell } = await import('../src/sim/minigame');
+    const { fixCell, setSheetOpen } = await import('../src/sim/minigame');
     const s = newGame(9);
     setLookBusy(s, true);
+    run(s, 1);
+    expect(s.sheet.flags.length).toBe(0); // only while the Spreadsheet app is open
+    setSheetOpen(s, true);
     run(s, 1);
     const f = s.sheet.flags[0];
     fixCell(s, f.row, f.col);

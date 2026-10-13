@@ -11,7 +11,7 @@ import {
   step,
   walkbyCountdown,
 } from '../src/sim/engine';
-import { answerTask, correctAnswer, nextTask, putDown, ringingCall, startTask, type TaskAnswer, type WorkTask } from '../src/sim/work';
+import { answerTask, correctAnswer, expenseReport, ringingCall, startTask, workEmails, type TaskAnswer, type WorkTask } from '../src/sim/work';
 import { mods, weapon } from '../src/sim/mods';
 import { newGame, type GameState } from '../src/sim/state';
 
@@ -34,7 +34,7 @@ export const STYLES: BotStyle[] = [
 ];
 
 /** Seconds a bot spends on each kind of task (a human reads, thinks, taps). */
-const TASK_TIME: Record<WorkTask['kind'], number> = { email: 4, call: 5, sheet: 8, expense: 9 };
+const TASK_TIME: Record<WorkTask['kind'], number> = { email: 4, call: 5, expense: 9 };
 
 interface BotMind {
   busyUntil: number;
@@ -70,10 +70,10 @@ export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345): G
   return s;
 }
 
-/** Picks up the next task (a ringing phone first) and works on it for a while. */
-function doTask(s: GameState, style: BotStyle, mind: BotMind): boolean {
+/** Works on a task for a while (a ringing phone first, then email, then expenses). */
+function doTask(s: GameState, style: BotStyle, mind: BotMind, t?: WorkTask | null): boolean {
   if (!style.doesWork) return false;
-  const t = nextTask(s);
+  t = t ?? ringingCall(s) ?? workEmails(s)[0] ?? expenseReport(s);
   if (!t || !startTask(s, t.id).ok) return false;
   mind.coin = (mind.coin * 9301 + 49297) % 233280;
   const right = mind.coin / 233280 < style.accuracy;
@@ -90,34 +90,30 @@ function wrongAnswer(t: WorkTask): TaskAnswer {
       return { kind: 'email', choice: (a.choice + 1) % 3 };
     case 'call':
       return { kind: 'call', ext: a.ext === 2 ? 3 : 2 };
-    case 'sheet':
-      return { kind: 'sheet', flagged: [] };
     case 'expense':
       return { kind: 'expense', approve: a.approve.map((v, i) => (i === 0 ? !v : v)) };
   }
 }
 
+/** Saving up for the first weapon early on. */
+const needsMoney = (s: GameState) => s.salary < 15 && s.ownedWeapons.length < 2 && s.time > 3;
+
 function act(s: GameState, style: BotStyle, mind: BotMind) {
   const countdown = walkbyCountdown(s);
-  // A ringing phone gets answered (that's working, so it also covers a walk-by).
-  if (ringingCall(s) && doTask(s, style, mind)) return;
-  // Reaction time of about a second.
-  if (style.reactsToWalkbys && countdown !== null && countdown < mods(s).warning - 1) {
-    if (doTask(s, style, mind)) return;
-    if (!s.lookBusy) setLookBusy(s, true);
-    return;
-  }
+  // A ringing phone gets answered: that's work, and it puts you at your computer.
+  const call = ringingCall(s);
+  if (call && doTask(s, style, mind, call)) return;
+  const danger = style.reactsToWalkbys && countdown !== null && countdown < mods(s).warning - 1;
+  if (danger || s.suspicion > style.hideAbove) setLookBusy(s, true);
+
   if (s.lookBusy) {
-    if (s.suspicion < style.resumeBelow && countdown === null) setLookBusy(s, false);
-    else {
+    // At the computer: once it's cooled off, go back to the war; until then, work.
+    const done = s.suspicion < style.resumeBelow && countdown === null && !needsMoney(s) && !danger;
+    if (!done) {
       doTask(s, style, mind);
       return;
     }
-  }
-  if (s.suspicion > style.hideAbove) {
-    if (doTask(s, style, mind)) return;
-    setLookBusy(s, true);
-    return;
+    setLookBusy(s, false);
   }
   if (shop(s)) return;
 
@@ -125,22 +121,18 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   if (s.bands < w.burst) {
     const o = mods(s).order;
     if (s.salary >= o.price + 5) orderSupplies(s);
-    else if (doTask(s, style, mind)) return;
+    else if (style.doesWork) setLookBusy(s, true); // go earn
     else scrounge(s);
     return;
   }
-  if (s.suspicion > style.workAbove) {
-    if (doTask(s, style, mind)) return;
-    setLookBusy(s, true);
-    return;
+  if (s.suspicion > style.workAbove || needsMoney(s)) {
+    if (style.doesWork) {
+      setLookBusy(s, true);
+      return;
+    }
   }
-  // Keep the queue from piling up, and earn early money for the first weapon.
-  const early = s.salary < 15 && s.ownedWeapons.length < 2;
-  if ((s.work.queue.length >= 3 || early) && doTask(s, style, mind)) return;
-  if (!flick(s).ok) doTask(s, style, mind);
+  flick(s);
 }
-
-export { putDown };
 
 /** Buys the next sensible thing. Returns true if it bought something. */
 function shop(s: GameState): boolean {

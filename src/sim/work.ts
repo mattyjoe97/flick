@@ -1,17 +1,18 @@
-// Your actual job. Tasks land in your queue on their own: emails to answer, a
-// ringing phone, budget sheets to check, expense reports to approve. Each one is
-// a short mini-game. Doing them well pays Salary and lowers Suspicion; letting
-// them pile up (or letting the phone ring out) makes you look like a slacker.
+// Your actual job, done at your computer. Work emails land in Mail, an expense
+// report is always waiting in the Expenses portal, and now and then the desk
+// phone rings. Each is a short mini-game that pays Salary and cools Suspicion.
+// Nothing piles up and nothing is overdue: work is where you go to cool off and
+// earn, not another thing nagging you during the war. Answering the phone pulls
+// you onto your computer, so it doubles as a quick place to hide.
 //
-// While a task is open you're genuinely working: you can't flick, but a walk-by
-// counts as hidden. Everything here is headless and deterministic so the pacing
-// bots can play it too.
+// Everything here is headless and deterministic so the pacing bots can play it.
 
-import { has, mods, rolePower } from './mods';
+import { fatigue } from './minigame';
+import { has, mods } from './mods';
 import { rand, randRange } from './rng';
-import { pushTicker, type GameState } from './state';
+import type { GameState } from './state';
 
-export type TaskKind = 'email' | 'call' | 'sheet' | 'expense';
+export type TaskKind = 'email' | 'call' | 'expense';
 
 export interface EmailData {
   idx: number; // which prompt from EMAILS
@@ -21,11 +22,6 @@ export interface CallData {
   caller: number; // which request from CALLERS
   ringUntil: number; // game time the phone stops ringing
   answeredAt: number | null;
-}
-export interface SheetRow {
-  name: string;
-  budget: number;
-  actual: number;
 }
 export interface Receipt {
   item: string;
@@ -37,13 +33,11 @@ export interface Receipt {
 export type WorkTask =
   | { id: number; kind: 'email'; arrivedAt: number; data: EmailData }
   | { id: number; kind: 'call'; arrivedAt: number; data: CallData }
-  | { id: number; kind: 'sheet'; arrivedAt: number; data: { rows: SheetRow[] } }
   | { id: number; kind: 'expense'; arrivedAt: number; data: { receipts: Receipt[] } };
 
 export type TaskAnswer =
   | { kind: 'email'; choice: number } // position on screen (0-2)
   | { kind: 'call'; ext: number }
-  | { kind: 'sheet'; flagged: number[] } // row positions
   | { kind: 'expense'; approve: boolean[] }; // one per receipt, in order
 
 export interface TaskResult {
@@ -55,44 +49,41 @@ export interface TaskResult {
 }
 
 export interface WorkState {
-  queue: WorkTask[];
-  nextAt: number;
+  queue: WorkTask[]; // work emails, the expense report, a ringing call
+  nextEmailAt: number;
+  nextCallAt: number;
+  expenseAt: number; // when the next expense report is ready
   activeId: number | null;
   activeSince: number;
   seq: number;
-  coverTimer: number;
   fraudAt: number[]; // game times you approved your own receipt
 }
 
 export function newWorkState(): WorkState {
-  return { queue: [], nextAt: WORK.firstTaskAt, activeId: null, activeSince: 0, seq: 1, coverTimer: 0, fraudAt: [] };
+  return { queue: [], nextEmailAt: WORK.firstEmailAt, nextCallAt: WORK.firstCallAt, expenseAt: WORK.firstExpenseAt, activeId: null, activeSince: 0, seq: 1, fraudAt: [] };
 }
 
 // ---------------------------------------------------------------- tuning
 
 export const WORK = {
-  firstTaskAt: 6,
-  gapStage1: [14, 22] as [number, number],
-  gapStage2: [12, 20] as [number, number],
-  maxQueue: 6,
-  overdueAfter: 75, // seconds a task can wait before people notice
-  overdueRate: 0.1, // Suspicion per second per overdue task (and no cooling while any are overdue)
-  overdueCountCap: 3,
-  droppedNoise: 2, // a task pushed out of a full queue
+  firstEmailAt: 4,
+  emailGap: [25, 40] as [number, number],
+  emailSoon: 5, // at your computer with nothing to answer, a new email lands this fast
+  maxEmails: 4, // unanswered work emails; past this, new ones wait
+  firstCallAt: 50,
+  callGap: [70, 130] as [number, number],
   ringSeconds: 9,
-  missedCallNoise: 4,
-  hangUpNoise: 2,
+  firstExpenseAt: 30,
+  expenseGap: 10, // seconds after filing one before the next report is ready
   wrongNoise: 3,
   replyAllNoise: 8,
   // Pay at Stage 1 (times stageMult), and Suspicion relief, per task done right.
-  pay: { email: 5, call: 6, sheet: 9, expense: 8 } as Record<TaskKind, number>,
-  relief: { email: 10, call: 11, sheet: 15, expense: 13 } as Record<TaskKind, number>,
-  fast: { email: 5, call: 6, sheet: 10, expense: 12 } as Record<TaskKind, number>, // seconds for the speed bonus
+  pay: { email: 5, call: 10, expense: 8 } as Record<TaskKind, number>,
+  relief: { email: 4, call: 6, expense: 6 } as Record<TaskKind, number>,
+  fast: { email: 5, call: 6, expense: 12 } as Record<TaskKind, number>, // seconds for the speed bonus
   fastBonus: 0.5,
   stageMult: [1, 1, 2.5, 2.5],
-  workingCountsFor: 45, // an open task hides you from a walk-by for this long
-  autoReplyAfter: 20, // Email Auto-Reply answers emails that wait this long (half pay)
-  coverEvery: 40, // each point of Cover clears one task this often (half pay)
+  autoReplyAfter: 20, // Email Auto-Reply answers work emails that wait this long (half pay)
   fraudBands: 150, // bands per stage when you approve your own rubber band receipt
   fraudNoise: 3, // Suspicion, times the number of recent approvals
   fraudMemory: 600,
@@ -263,11 +254,6 @@ export const CALLERS: { line: string; dept: string }[] = [
   { line: 'Is Brad there? He promised me a discount.', dept: 'Sales' },
 ];
 
-const BUDGET_LINES = [
-  'Printer toner', 'Team snacks', 'Conference chairs', 'Software licenses', 'Coffee filters', 'Office plants',
-  'Client dinners', 'Paper clips', 'Desk lamps', 'Shipping', 'Whiteboard markers', 'Team offsite', 'Sticky notes',
-];
-
 const RECEIPTS: { item: string; cat: string; lo: number; hi: number }[] = [
   { item: 'Stapler', cat: 'Office supplies', lo: 9, hi: 24 },
   { item: 'Printer paper (10 reams)', cat: 'Office supplies', lo: 32, hi: 48 },
@@ -296,8 +282,6 @@ export function correctAnswer(t: WorkTask): TaskAnswer {
     }
     case 'call':
       return { kind: 'call', ext: DIRECTORY.find((d) => d.name === CALLERS[t.data.caller].dept)!.ext };
-    case 'sheet':
-      return { kind: 'sheet', flagged: t.data.rows.flatMap((r, i) => (r.actual > r.budget ? [i] : [])) };
     case 'expense':
       return { kind: 'expense', approve: t.data.receipts.map((r) => receiptOk(r)) };
   }
@@ -323,20 +307,6 @@ function shuffled(s: GameState, n: number) {
   return a;
 }
 
-function chooseKind(s: GameState): TaskKind {
-  const early = s.stage === 1 && s.time < 180;
-  const weights: [TaskKind, number][] = early
-    ? [['email', 0.55], ['call', 0.45]]
-    : s.stage === 1
-      ? [['email', 0.4], ['call', 0.25], ['sheet', 0.2], ['expense', 0.15]]
-      : [['email', 0.3], ['call', 0.25], ['sheet', 0.25], ['expense', 0.2]];
-  let r = rand(s);
-  for (const [k, w] of weights) {
-    if ((r -= w) <= 0) return k;
-  }
-  return 'email';
-}
-
 export function makeTask(s: GameState, kind: TaskKind): WorkTask {
   const id = s.work.seq++;
   const at = s.time;
@@ -350,17 +320,6 @@ export function makeTask(s: GameState, kind: TaskKind): WorkTask {
     }
     case 'call':
       return { id, kind, arrivedAt: at, data: { caller: Math.floor(rand(s) * CALLERS.length) % CALLERS.length, ringUntil: at + WORK.ringSeconds, answeredAt: null } };
-    case 'sheet': {
-      const names = shuffled(s, BUDGET_LINES.length).slice(0, 5).map((i) => BUDGET_LINES[i]);
-      const over = new Set(shuffled(s, 5).slice(0, rand(s) < 0.5 ? 1 : 2));
-      const rows = names.map((name, i) => {
-        const budget = Math.round(randRange(s, 4, 40)) * 50;
-        const delta = Math.round(randRange(s, 1, 8)) * 25;
-        const actual = over.has(i) ? budget + delta : Math.max(25, budget - delta);
-        return { name, budget, actual };
-      });
-      return { id, kind, arrivedAt: at, data: { rows } };
-    }
     case 'expense': {
       const picks = shuffled(s, RECEIPTS.length).slice(0, 3).map((i) => RECEIPTS[i]);
       const receipts: Receipt[] = picks.map((r) => ({ item: r.item, cat: r.cat, amount: Math.round(randRange(s, r.lo, r.hi)) }));
@@ -379,82 +338,60 @@ export function makeTask(s: GameState, kind: TaskKind): WorkTask {
   }
 }
 
-/** Adds a task to your queue, pushing out the oldest non-call if it's full. */
+/** Adds a task to your queue. */
 export function addTask(s: GameState, kind: TaskKind) {
-  const w = s.work;
-  if (w.queue.length >= WORK.maxQueue) {
-    const i = w.queue.findIndex((t) => t.kind !== 'call' && t.id !== w.activeId);
-    if (i >= 0) {
-      w.queue.splice(i, 1);
-      bump(s, WORK.droppedNoise);
-      pushTicker(s, 'Your inbox overflowed. Something important probably went unanswered.');
-    }
-  }
   const t = makeTask(s, kind);
-  w.queue.push(t);
+  s.work.queue.push(t);
   s.events.push({ type: 'task', kind, id: t.id });
   return t;
 }
 
 // ---------------------------------------------------------------- the step
 
-/** Advances the work queue: arrivals, ringing, overdue pressure, automation. */
-export function stepWork(s: GameState, dt: number) {
+/** Advances work: new emails, the next expense report, the phone, Auto-Reply. */
+export function stepWork(s: GameState) {
   const w = s.work;
   if (s.stage > 2) return; // first slice complete: the office is quiet
+  const count = (k: TaskKind) => w.queue.filter((t) => t.kind === k).length;
 
-  if (s.time >= w.nextAt) {
-    const [lo, hi] = s.stage === 1 ? WORK.gapStage1 : WORK.gapStage2;
-    w.nextAt = s.time + randRange(s, lo, hi);
-    addTask(s, w.queue.length === 0 && s.time < 30 ? 'email' : chooseKind(s));
+  // Work emails. At your computer with nothing to answer, one arrives quickly.
+  if (s.lookBusy && count('email') === 0) w.nextEmailAt = Math.min(w.nextEmailAt, s.time + WORK.emailSoon);
+  if (s.time >= w.nextEmailAt) {
+    w.nextEmailAt = s.time + randRange(s, WORK.emailGap[0], WORK.emailGap[1]);
+    if (count('email') < WORK.maxEmails) addTask(s, 'email');
   }
 
-  // Phones ring out.
+  // One expense report at a time, a fresh one shortly after you file the last.
+  if (count('expense') === 0 && s.time >= w.expenseAt) addTask(s, 'expense');
+
+  // The desk phone rings now and then. Letting it ring out costs nothing.
+  if (s.time >= w.nextCallAt) {
+    w.nextCallAt = s.time + randRange(s, WORK.callGap[0], WORK.callGap[1]);
+    if (count('call') === 0) addTask(s, 'call');
+  }
   for (const t of [...w.queue]) {
     if (t.kind === 'call' && t.data.answeredAt === null && s.time >= t.data.ringUntil) {
       removeTask(s, t.id);
-      bump(s, WORK.missedCallNoise);
-      pushTicker(s, `Your phone rang out. Everyone heard. Suspicion +${WORK.missedCallNoise}.`);
+      s.stats.callsMissed++;
       s.events.push({ type: 'callMissed' });
     }
   }
 
-  // Work left waiting too long makes you look like a slacker (and Suspicion stops cooling: see the engine).
-  const overdue = overdueCount(s);
-  if (overdue > 0) bump(s, Math.min(overdue, WORK.overdueCountCap) * WORK.overdueRate * dt);
-
-  // Automation: Auto-Reply answers emails that wait; Cover coworkers clear tasks.
+  // Email Auto-Reply answers work emails that wait too long.
   if (has(s, 'autoreply')) {
     for (const t of [...w.queue]) {
-      if (t.kind === 'email' && t.id !== w.activeId && s.time - t.arrivedAt >= WORK.autoReplyAfter) autoComplete(s, t, 'Auto-Reply');
+      if (t.kind === 'email' && t.id !== w.activeId && s.time - t.arrivedAt >= WORK.autoReplyAfter) {
+        removeTask(s, t.id);
+        const pay = basePay(s, 'email') * 0.5;
+        s.salary += pay;
+        s.stats.workEarned += pay;
+        s.stats.tasksAuto++;
+        s.events.push({ type: 'taskAuto', kind: 'email', who: 'Auto-Reply' });
+      }
     }
   }
-  const cover = rolePower(s, 'cover');
-  if (cover > 0) {
-    w.coverTimer += dt * cover;
-    while (w.coverTimer >= WORK.coverEvery) {
-      w.coverTimer -= WORK.coverEvery;
-      const t = w.queue.find((x) => x.kind !== 'call' && x.id !== w.activeId);
-      if (t) autoComplete(s, t, 'Your Cover');
-    }
-  } else w.coverTimer = 0;
 
   w.fraudAt = w.fraudAt.filter((t) => s.time - t < WORK.fraudMemory);
-}
-
-/** Tasks that have waited too long. While any are overdue, Suspicion doesn't cool on its own. */
-export function overdueCount(s: GameState) {
-  const w = s.work;
-  return w.queue.filter((t) => t.kind !== 'call' && t.id !== w.activeId && s.time - t.arrivedAt > WORK.overdueAfter).length;
-}
-
-function autoComplete(s: GameState, t: WorkTask, who: string) {
-  removeTask(s, t.id);
-  const pay = basePay(s, t.kind) * 0.5;
-  s.salary += pay;
-  s.stats.workEarned += pay;
-  s.stats.tasksAuto++;
-  s.events.push({ type: 'taskAuto', kind: t.kind, who });
 }
 
 // ---------------------------------------------------------------- doing tasks
@@ -463,45 +400,36 @@ export function findTask(s: GameState, id: number) {
   return s.work.queue.find((t) => t.id === id);
 }
 
-/** The task to do next: a ringing phone first, then the oldest in the queue. */
-export function nextTask(s: GameState) {
-  const q = s.work.queue;
-  return q.find((t) => t.kind === 'call' && t.data.answeredAt === null) ?? q[0];
-}
-
 export function ringingCall(s: GameState) {
   return s.work.queue.find((t) => t.kind === 'call' && t.data.answeredAt === null) ?? null;
 }
 
-/** You're at your desk doing your job (counts as hidden during a walk-by). */
-export function isWorking(s: GameState) {
-  return s.work.activeId !== null && s.time - s.work.activeSince < WORK.workingCountsFor;
+export function workEmails(s: GameState) {
+  return s.work.queue.filter((t): t is Extract<WorkTask, { kind: 'email' }> => t.kind === 'email');
 }
 
-/** Opens a task (picking up the phone for a call). */
+export function expenseReport(s: GameState) {
+  return (s.work.queue.find((t) => t.kind === 'expense') as Extract<WorkTask, { kind: 'expense' }> | undefined) ?? null;
+}
+
+/** Opens a task. Picking up the phone (or any work) puts you at your computer. */
 export function startTask(s: GameState, id: number): { ok: boolean; reason?: string } {
   const t = findTask(s, id);
-  if (!t) return { ok: false, reason: 'That task is gone.' };
+  if (!t) return { ok: false, reason: 'That one is gone.' };
+  s.lookBusy = true;
   s.work.activeId = id;
   s.work.activeSince = s.time;
   if (t.kind === 'call' && t.data.answeredAt === null) t.data.answeredAt = s.time;
   return { ok: true };
 }
 
-/**
- * Close a task without finishing it. Emails and paperwork go back in the queue;
- * hanging up on a caller is rude (and noticed).
- */
+/** Stop working on a task without finishing it (a call just ends). */
 export function putDown(s: GameState) {
   const id = s.work.activeId;
   s.work.activeId = null;
   if (id === null) return;
   const t = findTask(s, id);
-  if (t?.kind === 'call') {
-    removeTask(s, id);
-    bump(s, WORK.hangUpNoise);
-    pushTicker(s, 'You hung up on a caller. They call Mr. Feeney instead.');
-  }
+  if (t?.kind === 'call') removeTask(s, id);
 }
 
 export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskResult | null {
@@ -511,6 +439,7 @@ export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskRe
   const fast = s.time - started <= WORK.fast[t.kind];
   removeTask(s, id);
   if (s.work.activeId === id) s.work.activeId = null;
+  if (t.kind === 'expense') s.work.expenseAt = s.time + WORK.expenseGap;
 
   let ok = false;
   let quality = -1; // share of full pay when not fully right (only expense reports pay partially)
@@ -533,15 +462,6 @@ export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskRe
       const got = DIRECTORY.find((d) => d.ext === a.ext)?.name;
       ok = got === want;
       text = ok ? `Transferred to ${want}. The caller thanks you.` : `You transferred them to ${got ?? 'a dial tone'}. They wanted ${want}.`;
-      if (!ok) noise = WORK.wrongNoise;
-      break;
-    }
-    case 'sheet': {
-      const a = answer as Extract<TaskAnswer, { kind: 'sheet' }>;
-      const want = (correctAnswer(t) as Extract<TaskAnswer, { kind: 'sheet' }>).flagged;
-      const got = [...new Set(a.flagged)].sort();
-      ok = got.length === want.length && got.every((v, i) => v === want[i]);
-      text = ok ? 'Budget review done. Every overrun flagged.' : `You flagged the wrong lines. ${want.length === 1 ? 'One line was' : 'Two lines were'} over budget.`;
       if (!ok) noise = WORK.wrongNoise;
       break;
     }
@@ -575,7 +495,7 @@ export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskRe
   }
 
   const share = ok ? 1 : Math.max(0, quality);
-  const pay = basePay(s, t.kind) * share * (ok && fast ? 1 + WORK.fastBonus : 1);
+  const pay = basePay(s, t.kind) * share * (ok && fast ? 1 + WORK.fastBonus : 1) * fatigue(s);
   const relief = ok ? WORK.relief[t.kind] : 0;
   s.salary += pay;
   s.stats.workEarned += pay;

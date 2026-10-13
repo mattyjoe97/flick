@@ -170,6 +170,7 @@ export const TUNING = {
   idleCool: 0.6, // extra Suspicion/s after 3 s with no shots
   idleCoolDelay: 3,
   lookBusyCool: 3,
+  computerAllySlow: 2, // allies fire this many times slower while you're at your computer
   coverCool: 0.3,
   coverPay: 0.5,
   gathererRate: 0.5,

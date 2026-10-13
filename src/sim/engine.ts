@@ -3,7 +3,8 @@ import { stepSheet } from './minigame';
 import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type GameState } from './state';
-import { isWorking, overdueCount, setSuspicionHook, stepWork } from './work';
+import { setSuspicionHook, stepWork } from './work';
+import { chatEvent, stepChat } from './chat';
 
 // ------------------------------------------------------------------ helpers
 
@@ -73,6 +74,7 @@ function getCaught(s: GameState) {
   }
   pushTicker(s, `Caught. Write-up ${s.hr.writeUps} of ${TUNING.writeUpsToFinal}.${takenName ? ` Mr. Feeney keeps your ${takenName}.` : ''}${t && regrouped >= 1 ? ` ${t.name.split(' ')[0]} regroups while you're gone.` : ''}`);
   s.events.push({ type: 'caught', writeUps: s.hr.writeUps, confiscated: taken, lostBands: lost, regrouped });
+  chatEvent(s, 'caught');
 }
 
 /**
@@ -105,6 +107,7 @@ function getFired(s: GameState) {
   pushEmail(s, 'HR', 'Re: Separation notice', 'Please disregard the previous email. Due to a filing error there is no record of your separation, or of you. Welcome back! Your desk is where you left it. The rubber bands are not.', 'story');
   pushTicker(s, `Fired. You carry a box past every desk on the floor. On Monday, HR has lost the paperwork.`);
   s.events.push({ type: 'fired', lostBands, lostDesks, stage: s.stage });
+  chatEvent(s, 'fired');
 }
 
 /** Write-ups fade with good conduct, and confiscated weapons come back on their own eventually. */
@@ -139,6 +142,7 @@ function stepAllies(s: GameState, dt: number) {
       pushEmail(s, 'HR', `Congratulations, ${c.name}!`, `Please join us in congratulating ${c.name} on their promotion to ${title}. ${cake}`, 'win');
       pushTicker(s, `${c.name} is promoted to ${title}. Better at the job, worse at the job title.`);
       s.events.push({ type: 'promotion', id: a.id, rank: a.rank });
+      chatEvent(s, `promotion:${a.id}`);
     }
   }
 }
@@ -208,6 +212,7 @@ function capture(s: GameState) {
   s.desks += t.desks;
   pushEmail(s, t.defeat.from, t.defeat.subject, t.defeat.body, t.stage === 1 && t.id !== 'gary4' ? 'story' : 'win');
   s.events.push({ type: 'capture', targetId: t.id });
+  chatEvent(s, `capture:${t.id}`);
   if (t.desks > 0) pushTicker(s, `${t.name} surrenders. +${t.desks} desk${t.desks > 1 ? 's' : ''} captured.`);
   else pushTicker(s, `${t.name} falls back.`);
 
@@ -271,20 +276,19 @@ export function step(s: GameState, dt: number) {
 
   // Cooling off
   const idle = s.time - s.lastShotAt >= TUNING.idleCoolDelay;
-  // Overdue work: nobody forgets about you while your inbox is overflowing.
-  const slacking = overdueCount(s) > 0;
-  const cool = (slacking ? 0 : TUNING.baseCool + (idle ? TUNING.idleCool : 0)) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0);
+  const cool = TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0);
   s.suspicion = Math.max(0, s.suspicion - cool * dt);
   checkThresholds(s);
 
-  // Allies fire
-  const shootersActive = t && !s.lookBusy && s.time >= s.shooterLockUntil;
+  // Allies fire (at half speed while you're at your computer: they're covering for you)
+  const shootersActive = t && s.time >= s.shooterLockUntil;
+  const interval = m.allyInterval * (s.lookBusy ? TUNING.computerAllySlow : 1);
   let outOfAmmo = false;
   for (const a of s.allies) {
     if (a.role !== 'shooter' || !shootersActive) continue;
     a.timer += dt;
-    while (a.timer >= m.allyInterval && currentTarget(s)) {
-      a.timer -= m.allyInterval;
+    while (a.timer >= interval && currentTarget(s)) {
+      a.timer -= interval;
       const power = allyPower(a.id, 'shooter', a.rank);
       if (!fire(s, 'ally', power, a.id)) {
         outOfAmmo = true;
@@ -341,7 +345,8 @@ export function step(s: GameState, dt: number) {
   }
   stepHr(s);
   stepAllies(s, dt);
-  stepWork(s, dt);
+  stepWork(s);
+  stepChat(s);
   stepSheet(s);
 }
 
@@ -354,7 +359,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
   if (w.arrivesAt !== null && s.time >= w.arrivesAt) {
     w.arrivesAt = null;
     w.nextAt = s.time + randRange(s, TUNING.walkbyMin, TUNING.walkbyMax) * intervalMult;
-    if (s.lookBusy || isWorking(s)) {
+    if (s.lookBusy) {
       s.stats.hides++;
       s.suspicion = Math.max(0, s.suspicion - TUNING.hideReward);
       const bonus = 5 * s.stage;
@@ -392,8 +397,7 @@ const no = (reason: string): ActionResult => ({ ok: false, reason });
 /** Checks whether you could flick right now (used before starting to stretch the band). */
 export function canFlick(s: GameState): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
-  if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
-  if (s.work.activeId !== null) return no('Finish your task first (or put it down).');
+  if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   return ok;
@@ -405,8 +409,7 @@ export function canFlick(s: GameState): ActionResult {
  */
 export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
-  if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
-  if (s.work.activeId !== null) return no('Finish your task first (or put it down).');
+  if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   const w = weapon(s);
   if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
@@ -519,6 +522,7 @@ export function recruit(s: GameState, id: CoworkerId): ActionResult {
   pushTicker(s, `${c.name} joins your team as ${roleName(c.traitRole)}.`);
   addSuspicion(s, TUNING.recruitNoise);
   s.events.push({ type: 'recruit', id });
+  chatEvent(s, `recruit:${id}`);
   return ok;
 }
 
@@ -551,7 +555,7 @@ export function applyOffline(s: GameState, seconds: number) {
   s.suspicion = Math.max(0, s.suspicion - (TUNING.baseCool + TUNING.idleCool) * secs);
   // Push the next walk-by out so nobody gets spotted the instant they return.
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
-  s.work.nextAt = Math.max(s.work.nextAt, s.time + 8);
+  s.work.nextCallAt = Math.max(s.work.nextCallAt, s.time + 30);
   if (bands >= 1 || salary >= 1) {
     pushEmail(
       s,

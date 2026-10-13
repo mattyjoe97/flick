@@ -310,7 +310,7 @@ export class SheetView {
 
   render() {
     const s = this.getState();
-    if (!s.lookBusy) return;
+    if (!s.lookBusy || !s.sheet.open) return;
     if (this.builtTab !== s.sheet.tab) this.build(s.sheet.tab);
 
     // Flags: red comment corners, with a fuse showing how long each has left.
