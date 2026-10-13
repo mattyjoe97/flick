@@ -1,16 +1,29 @@
 // The supply closet: Dale from Facilities and the office black market.
 //
-// Dale sells every rubber band gun and the band "upgrades" Procurement would never
-// approve, and he can get your weapon back out of Mr. Feeney's drawer. Every few
-// minutes he also leans over your cubicle wall ("Psst") with a deal for 30 seconds.
-// The closet closes the moment Mr. Feeney's footsteps start.
+// Dale stands in his closet with rubber band guns hanging on the pegboard and his band
+// "upgrades" on (and under) the folding table. Tap something and he tells you about it;
+// the tag beside the closet has the price. He also gets confiscated weapons back out of
+// Mr. Feeney's drawer, and every few minutes he leans over your cubicle wall ("Psst")
+// with a deal for 30 seconds. The closet closes the moment Mr. Feeney's footsteps start.
 
-import rulerArt from '../assets/art/ruler-loaded.webp';
-import clothespinArt from '../assets/art/clothespin-loaded.webp';
-import repeaterArt from '../assets/art/repeater-loaded.webp';
+import roomArt from '../assets/art/closet.webp';
+import daleIdle from '../assets/art/dale-idle.webp';
+import daleTalk from '../assets/art/dale-talk.webp';
+import daleOpen from '../assets/art/dale-open.webp';
+import daleHead from '../assets/art/dale-head.webp';
+import dalePsst from '../assets/art/dale-psst.webp';
+import gunRuler from '../assets/art/gun-ruler.webp';
+import gunClothespin from '../assets/art/gun-clothespin.webp';
+import gunRepeater from '../assets/art/gun-repeater.webp';
+import iconSilent from '../assets/art/icon-silent.webp';
+import iconRummage from '../assets/art/icon-rummage.webp';
+import iconTraining from '../assets/art/icon-training.webp';
+import iconCalendar from '../assets/art/icon-calendar.webp';
+import iconKey from '../assets/art/icon-closet.webp';
+import iconThick from '../assets/art/icon-thick.webp';
+import iconWaxed from '../assets/art/icon-waxed.webp';
 
-import { SPRITES } from './art';
-import { drawPerson, PEOPLE, type Mood } from './characters';
+import { CLOSET_ART } from './portrait-art';
 import { DALE, TARGETS, UPGRADES, WEAPONS, type UpgradeId, type WeaponId } from '../sim/content';
 import {
   buyBack,
@@ -29,10 +42,30 @@ import { has, isConfiscated, mods } from '../sim/mods';
 import type { GameState } from '../sim/state';
 import type { Sound } from './sound';
 
-const GUN_ART: Partial<Record<WeaponId, string>> = {
-  ruler: rulerArt,
-  clothespin: clothespinArt,
-  repeater: repeaterArt,
+const GUN_ART: Partial<Record<WeaponId, string>> = { ruler: gunRuler, clothespin: gunClothespin, repeater: gunRepeater };
+const ICON_ART: Partial<Record<UpgradeId, string>> = {
+  rummage: iconRummage,
+  waxed: iconWaxed,
+  silent: iconSilent,
+  closet: iconKey,
+  training: iconTraining,
+  thick: iconThick,
+  calendar: iconCalendar,
+};
+
+/** What Dale says when you pick something up. */
+const PITCH: Record<string, string> = {
+  ruler: 'Twelve inches. Well. Six now.',
+  clothespin: 'Hot-glued it myself. Mostly.',
+  repeater: 'Dave’s design. I just sell it. Three bands a pull.',
+  rummage: 'Bring a light. You’d be amazed what’s back there.',
+  waxed: 'Waxed. Smooth draw, late snap.',
+  silent: 'Fingerless. For the professional.',
+  closet: 'Copy of my key. Don’t lose it. I’ll know.',
+  training: 'Your people shoot faster, or the whistle gets it.',
+  thick: 'Double-thick. Leaves a mark.',
+  calendar: 'Feeney’s got a lot of meetings now. He doesn’t know why.',
+  lost: 'Feeney’s drawer has a lock. Had a lock.',
 };
 
 const LINES = {
@@ -49,6 +82,7 @@ const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const esc = (text: string) =>
   text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`;
+const pct = (n: number) => `${(n * 100).toFixed(2)}%`;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, html = ''): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -57,17 +91,36 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, html = '
   return e;
 }
 
-/** Stand-in for Dale's painted art: the code-drawn bust. */
-const daleBust = (mood: Mood) => `<svg viewBox="0 0 120 150" aria-hidden="true">${drawPerson(PEOPLE.dale, mood)}</svg>`;
-
-/** A held weapon sprite, cropped to just the weapon (left of your wrist). Stand-in until the hand-free art arrives. */
-function gunPicture(id: WeaponId) {
-  const src = GUN_ART[id];
-  const sp = SPRITES[id as keyof typeof SPRITES];
-  if (!src || !sp) return `<div class="gun-pic gun-none" aria-hidden="true"></div>`;
-  const keep = Math.min(sp.w, sp.wrist[0] * 0.64); // just left of your fingers
-  return `<div class="gun-pic" style="padding-top:${((sp.h / keep) * 100).toFixed(2)}%" aria-hidden="true"><img src="${src}" alt="" draggable="false" style="width:${((sp.w / keep) * 100).toFixed(1)}%"></div>`;
+// Where things go in the closet, as fractions of the room picture.
+const ROOM = CLOSET_ART.room;
+const PEG = ROOM.pegboard;
+const TABLE = ROOM.table;
+const AR = ROOM.w / ROOM.h;
+/** Pegboard hooks for the guns: [centre x, centre y, width], as fractions of the room. */
+const GUN_SPOTS: Record<string, [number, number, number]> = {
+  ruler: [PEG[0] + (PEG[2] - PEG[0]) * 0.27, PEG[1] + (PEG[3] - PEG[1]) * 0.25, 0.23],
+  clothespin: [PEG[0] + (PEG[2] - PEG[0]) * 0.73, PEG[1] + (PEG[3] - PEG[1]) * 0.28, 0.23],
+  repeater: [PEG[0] + (PEG[2] - PEG[0]) * 0.32, PEG[1] + (PEG[3] - PEG[1]) * 0.62, 0.18],
+};
+const GUN_ORDER: WeaponId[] = ['ruler', 'clothespin', 'repeater'];
+/** Four things on the table top, three on the floor underneath it. */
+function goodsSpot(i: number): [number, number, number] {
+  const w = 0.075;
+  if (i < 4) {
+    const x = TABLE[0] + (TABLE[2] - TABLE[0]) * (0.13 + i * 0.25);
+    return [x, TABLE[1] + 0.012, w];
+  }
+  const x = TABLE[0] + (TABLE[2] - TABLE[0]) * (0.25 + (i - 4) * 0.25);
+  return [x, 0.93, w];
 }
+
+/** How Dale refers to whoever you have to beat first. */
+function shortName(targetId: string) {
+  const names: Record<string, string> = { printer: 'the Printer', taskforce: 'the Task Force' };
+  return names[targetId] ?? TARGETS.find((t) => t.id === targetId)!.name.split(' ')[0];
+}
+
+type ItemKey = `w:${WeaponId}` | `u:${UpgradeId}` | 'lost';
 
 export interface ClosetHooks {
   say(text: string): void;
@@ -80,13 +133,14 @@ export class ClosetView {
   private root: HTMLElement;
   private dale: HTMLElement;
   private bubble: HTMLElement;
-  private guns: HTMLElement;
-  private goods: HTMLElement;
-  private dealNote: HTMLElement;
+  private items: HTMLElement;
+  private detail: HTMLElement;
   private psst: HTMLElement;
   private open = false;
   private key = '';
+  private selected: ItemKey | null = null;
   private talkUntil = 0;
+  private openUntil = 0;
   private psstShown = false;
 
   constructor(
@@ -100,25 +154,36 @@ export class ClosetView {
       `<div class="closet-room">
         <header class="closet-top"><h2 class="closet-h" id="closet-h">Supply closet</h2>
           <button type="button" class="closet-back" id="closet-back">Back to your desk <kbd>Esc</kbd></button></header>
-        <div class="closet-dale"><div class="dale-art"></div><p class="dale-say" aria-live="polite"></p></div>
-        <section class="closet-guns" aria-label="Rubber band guns"><h3>On the pegboard</h3><div class="peg-items"></div></section>
-        <section class="closet-goods" aria-label="Band upgrades"><h3>Under the table</h3><p class="closet-deal" hidden></p><div class="table-items"></div></section>
+        <div class="closet-stage" style="aspect-ratio:${ROOM.w} / ${ROOM.h}">
+          <img class="closet-bg" src="${roomArt}" alt="" draggable="false">
+          <div class="closet-dale" aria-hidden="true">
+            <img data-pose="idle" src="${daleIdle}" alt="" draggable="false">
+            <img data-pose="talk" src="${daleTalk}" alt="" draggable="false" hidden>
+            <img data-pose="open" src="${daleOpen}" alt="" draggable="false" hidden>
+          </div>
+          <p class="dale-say" aria-live="polite"></p>
+          <div class="closet-items" role="group" aria-label="Dale's goods"></div>
+        </div>
+        <aside class="closet-detail" aria-live="polite"></aside>
       </div>`,
     );
     this.root.id = 'closet';
     this.root.hidden = true;
     this.root.setAttribute('role', 'dialog');
     this.root.setAttribute('aria-labelledby', 'closet-h');
-    this.dale = this.root.querySelector('.dale-art')!;
+    this.dale = this.root.querySelector('.closet-dale')!;
     this.bubble = this.root.querySelector('.dale-say')!;
-    this.guns = this.root.querySelector('.peg-items')!;
-    this.goods = this.root.querySelector('.table-items')!;
-    this.dealNote = this.root.querySelector('.closet-deal')!;
+    this.items = this.root.querySelector('.closet-items')!;
+    this.detail = this.root.querySelector('.closet-detail')!;
+    // Dale stands in front of the shelves, waist-up, about four-fifths of the room tall.
+    const dh = 0.82;
+    this.dale.style.height = pct(dh);
+    this.dale.style.width = pct((dh * CLOSET_ART.dale.w) / CLOSET_ART.dale.h / AR);
 
     this.psst = el(
       'div',
       'psst',
-      `<div class="psst-dale">${daleBust('smug')}</div>
+      `<img class="psst-dale" src="${dalePsst}" alt="" draggable="false">
        <div class="psst-bubble"><p class="psst-text"></p>
          <div class="psst-actions"><button type="button" class="paper-btn paper-btn-strong" data-psst="take"></button><button type="button" class="paper-btn" data-psst="pass">Not now</button></div>
          <div class="psst-clock"><span></span></div></div>`,
@@ -128,7 +193,7 @@ export class ClosetView {
     this.psst.setAttribute('role', 'alert');
     const app = document.getElementById('app')!;
     app.append(this.root, this.psst);
-    document.getElementById('closet-btn')?.insertAdjacentHTML('beforeend', `<span class="card-art dale-card">${daleBust('smug')}</span>`);
+    document.getElementById('closet-btn')?.insertAdjacentHTML('beforeend', `<img class="card-art dale-card" src="${daleHead}" alt="" draggable="false">`);
 
     this.root.querySelector('#closet-back')!.addEventListener('click', () => this.close());
     this.root.addEventListener('click', (e) => this.onClick(e));
@@ -151,7 +216,9 @@ export class ClosetView {
     this.open = true;
     this.root.hidden = false;
     this.key = '';
-    this.talk(pick(LINES.greet), 'smug');
+    this.selected = this.defaultPick(s);
+    this.openUntil = performance.now() + 1800; // he opens his jacket to show you the goods
+    this.talk(pick(LINES.greet));
     this.sound.drawer();
     this.hooks.opened();
     (this.root.querySelector('#closet-back') as HTMLElement).focus();
@@ -171,19 +238,45 @@ export class ClosetView {
     this.hooks.say(`Dale: "${LINES.closed}" Get on your computer (Esc).`);
   }
 
-  private talk(text: string, mood: Mood = 'happy') {
+  private talk(text: string) {
     this.bubble.textContent = text;
-    this.dale.innerHTML = daleBust(mood);
-    this.talkUntil = performance.now() + 2600;
+    this.talkUntil = performance.now() + Math.min(2600, 700 + text.length * 35);
     this.bubble.classList.remove('pop');
     void this.bubble.offsetWidth;
     this.bubble.classList.add('pop');
   }
 
+  /** The deal if there is one, otherwise the first thing you could buy right now. */
+  private defaultPick(s: GameState): ItemKey | null {
+    const deal = s.dale.deal;
+    if (deal) return deal.kind === 'weapon' ? `w:${deal.id as WeaponId}` : `u:${deal.id as UpgradeId}`;
+    if (s.hr.confiscated) return 'lost';
+    for (const id of GUN_ORDER) {
+      const w = WEAPONS.find((x) => x.id === id)!;
+      if (!s.ownedWeapons.includes(id) && w.stage <= s.stage && s.salary >= priceOf(s, w.price)) return `w:${id}`;
+    }
+    for (const u of this.goods(s)) if (!has(s, u.id) && upgradeAvailable(s, u.id) && s.salary >= priceOf(s, u.price)) return `u:${u.id}`;
+    return null;
+  }
+
+  private goods(s: GameState) {
+    return UPGRADES.filter((u) => u.seller === 'dale' && u.stage <= s.stage + 1);
+  }
+
   // ---------------------------------------------------------------- buying
 
   private onClick(e: Event) {
-    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+    const t = e.target as HTMLElement;
+    const item = t.closest<HTMLButtonElement>('button[data-item]');
+    if (item) {
+      this.selected = item.dataset.item as ItemKey;
+      this.key = '';
+      const k = this.selected === 'lost' ? 'lost' : this.selected.slice(2);
+      this.talk(PITCH[k] ?? pick(LINES.greet));
+      this.sound.grab();
+      return;
+    }
+    const b = t.closest<HTMLButtonElement>('.closet-detail button');
     if (!b || b.disabled) return;
     const s = this.get();
     const d = b.dataset;
@@ -191,21 +284,22 @@ export class ClosetView {
       const id = d.weapon as WeaponId;
       const owned = s.ownedWeapons.includes(id);
       const r = buyWeapon(s, id);
-      if (!r.ok) return this.talk(r.reason.startsWith('Costs') ? pick(LINES.poor) : r.reason, 'idle');
+      if (!r.ok) return this.talk(r.reason.startsWith('Costs') ? pick(LINES.poor) : r.reason);
       this.talk(pick(owned ? LINES.equip : LINES.buy));
       this.sound.coins();
       if (!owned) this.hooks.bump('salary');
     } else if (d.upgrade) {
       const r = buyUpgrade(s, d.upgrade as UpgradeId);
-      if (!r.ok) return this.talk(r.reason.startsWith('Costs') ? pick(LINES.poor) : r.reason, 'idle');
+      if (!r.ok) return this.talk(r.reason.startsWith('Costs') ? pick(LINES.poor) : r.reason);
       this.talk(pick(LINES.buy));
       this.sound.coins();
       this.hooks.bump('salary');
     } else if (d.buyback) {
       const r = buyBack(s);
-      if (!r.ok) return this.talk(pick(LINES.poor), 'idle');
+      if (!r.ok) return this.talk(pick(LINES.poor));
       this.talk(pick(LINES.back));
       this.sound.coins();
+      this.selected = null;
     } else if (d.deal) this.take();
   }
 
@@ -214,7 +308,7 @@ export class ClosetView {
     const r = takeDeal(s);
     if (!r.ok) {
       this.hooks.say(r.reason);
-      if (this.open) this.talk(r.reason.startsWith('Dale wants') ? pick(LINES.poor) : r.reason, 'idle');
+      if (this.open) this.talk(r.reason.startsWith('Dale wants') ? pick(LINES.poor) : r.reason);
       return;
     }
     this.sound.coins();
@@ -234,53 +328,111 @@ export class ClosetView {
 
   // ---------------------------------------------------------------- drawing
 
-  private gunItems(s: GameState) {
-    const m = mods(s);
+  /** The little tag hanging off each thing: its price, or what's stopping you. */
+  private sticker(s: GameState, key: ItemKey): { text: string; cls: string } {
     const deal = s.dale.deal;
-    const items: string[] = [];
-    if (s.hr.confiscated) {
-      const w = WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!;
-      const price = buyBackPrice(s);
-      items.push(`<article class="peg-item lost">${gunPicture(w.id)}
-        <div class="hang-tag"><h4>Your ${esc(w.name)}</h4><p>Dale "found" it in Mr. Feeney's drawer. It comes back on its own in <span class="conf-left"></span>.</p>
-        <button type="button" class="buy" data-buyback="1" data-price="${price}">Get it back ${money(price)}</button></div></article>`);
+    if (key === 'lost') return { text: money(buyBackPrice(s)), cls: 'lost' };
+    if (key.startsWith('w:')) {
+      const w = WEAPONS.find((x) => x.id === key.slice(2))!;
+      if (isConfiscated(s, w.id)) return { text: 'Feeney has it', cls: 'gone' };
+      if (s.weapon === w.id) return { text: 'Equipped', cls: 'mine' };
+      if (s.ownedWeapons.includes(w.id)) return { text: 'Yours', cls: 'mine' };
+      if (deal?.kind === 'weapon' && deal.id === w.id) return { text: `Deal ${money(deal.price)}`, cls: 'deal' };
+      if (w.stage > s.stage) return { text: `Stage ${w.stage}`, cls: 'locked' };
+      if (w.needsEngineer && !mods(s).hasEngineer) return { text: 'Needs an Engineer', cls: 'locked' };
+      return { text: money(priceOf(s, w.price)), cls: s.salary >= priceOf(s, w.price) ? 'afford' : '' };
     }
-    for (const w of WEAPONS) {
-      if (w.price === 0 || w.stage > s.stage + 1) continue;
-      const owned = s.ownedWeapons.includes(w.id);
-      const price = priceOf(s, w.price);
-      let act: string;
-      if (isConfiscated(s, w.id)) act = `<span class="tag-note">In Mr. Feeney's drawer</span>`;
-      else if (s.weapon === w.id) act = `<span class="stamp blue">Equipped</span>`;
-      else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
-      else if (w.stage > s.stage) act = `<span class="tag-note">Stage ${w.stage}</span>`;
-      else if (w.needsEngineer && !m.hasEngineer) act = `<span class="tag-note">Needs an Engineer to build it</span>`;
-      else act = `<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}">Buy ${money(price)}</button>`;
-      const onDeal = deal && deal.kind === 'weapon' && deal.id === w.id && !owned;
-      items.push(`<article class="peg-item${owned ? ' owned' : ''}${onDeal ? ' on-deal' : ''}">${gunPicture(w.id)}
-        <div class="hang-tag"><h4>${esc(w.name)}</h4><p>${esc(w.blurb)}</p>
-        <p class="stats">${w.damage * w.burst} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} a shot, noise ${w.noise.toFixed(1)}</p>
-        ${onDeal ? `<button type="button" class="buy deal" data-deal="1" data-price="${deal!.price}">Deal: ${money(deal!.price)}</button>` : ''}${act}</div></article>`);
+    const u = UPGRADES.find((x) => x.id === key.slice(2))!;
+    if (has(s, u.id)) return { text: 'Yours', cls: 'mine' };
+    if (deal?.kind === 'upgrade' && deal.id === u.id) return { text: `${deal.early ? 'Early' : 'Deal'} ${money(deal.price)}`, cls: 'deal' };
+    if (!upgradeAvailable(s, u.id)) {
+      const after = u.unlockAfter ? TARGETS.find((t) => t.id === u.unlockAfter) : undefined;
+      return { text: after && u.stage <= s.stage && !targetDefeated(s, after.id) ? `After ${shortName(after.id)}` : `Stage ${u.stage}`, cls: 'locked' };
     }
-    return items.join('');
+    return { text: money(priceOf(s, u.price)), cls: s.salary >= priceOf(s, u.price) ? 'afford' : '' };
   }
 
-  private goodsItems(s: GameState) {
+  private buildItems(s: GameState) {
+    const html: string[] = [];
+    for (const id of GUN_ORDER) {
+      const w = WEAPONS.find((x) => x.id === id)!;
+      if (w.stage > s.stage + 1) continue;
+      const [cx, cy, wd] = GUN_SPOTS[id];
+      const key: ItemKey = `w:${id}`;
+      const st = this.sticker(s, key);
+      const gone = isConfiscated(s, id);
+      const ar = CLOSET_ART[`gun_${id}` as 'gun_ruler'];
+      const hFrac = (wd * ar.h) / ar.w * AR;
+      html.push(`<button type="button" class="closet-item gun ${st.cls}${this.selected === key ? ' selected' : ''}${gone ? ' missing' : ''}" data-item="${key}"
+        style="left:${pct(cx - wd / 2)};top:${pct(cy - hFrac / 2)};width:${pct(wd)};height:${pct(hFrac)}" aria-label="${esc(w.name)}: ${esc(st.text)}">
+        <span class="hook" aria-hidden="true"></span><img src="${GUN_ART[id]}" alt="" draggable="false"><span class="sticker">${esc(st.text)}</span></button>`);
+    }
+    if (s.hr.confiscated) {
+      const w = WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!;
+      const st = this.sticker(s, 'lost');
+      html.push(`<button type="button" class="closet-item note${this.selected === 'lost' ? ' selected' : ''}" data-item="lost"
+        style="left:${pct(PEG[0] + (PEG[2] - PEG[0]) * 0.64)};top:${pct(PEG[1] + (PEG[3] - PEG[1]) * 0.58)};width:${pct(0.12)}" aria-label="Lost and Found: your ${esc(w.name)}, ${esc(st.text)}">
+        <b>Lost &amp; Found</b><span class="sticker lost">${esc(st.text)}</span></button>`);
+    }
+    this.goods(s).forEach((u, i) => {
+      const [cx, base, wd] = goodsSpot(i);
+      const key: ItemKey = `u:${u.id}`;
+      const st = this.sticker(s, key);
+      const ar = CLOSET_ART[`icon_${u.id}` as 'icon_silent'];
+      const hFrac = (wd * ar.h) / ar.w * AR;
+      html.push(`<button type="button" class="closet-item good ${st.cls}${this.selected === key ? ' selected' : ''}" data-item="${key}"
+        style="left:${pct(cx - wd / 2)};top:${pct(base - hFrac)};width:${pct(wd)};height:${pct(hFrac)}" aria-label="${esc(u.name)}: ${esc(st.text)}">
+        <img src="${ICON_ART[u.id]}" alt="" draggable="false"><span class="sticker">${esc(st.text)}</span></button>`);
+    });
+    this.items.innerHTML = html.join('');
+  }
+
+  private buildDetail(s: GameState): void {
+    const key = this.selected;
     const deal = s.dale.deal;
-    return UPGRADES.filter((u) => u.seller === 'dale' && u.stage <= s.stage)
-      .map((u) => {
-        const owned = has(s, u.id);
-        const price = priceOf(s, u.price);
-        const after = u.unlockAfter ? TARGETS.find((t) => t.id === u.unlockAfter) : undefined;
-        let act: string;
-        if (owned) act = `<span class="stamp">Yours</span>`;
-        else if (!upgradeAvailable(s, u.id)) act = `<span class="tag-note">${after && !targetDefeated(s, after.id) ? `After ${esc(after.name.split(' ')[0])}` : `Stage ${u.stage}`}</span>`;
-        else act = `<button type="button" class="buy" data-upgrade="${u.id}" data-price="${price}">Buy ${money(price)}</button>`;
-        const onDeal = deal && deal.kind === 'upgrade' && deal.id === u.id && !owned;
-        return `<article class="good${owned ? ' owned' : ''}${onDeal ? ' on-deal' : ''}"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p>
-          ${onDeal ? `<button type="button" class="buy deal" data-deal="1" data-price="${deal!.price}">${deal!.early ? 'Early' : 'Deal'}: ${money(deal!.price)}</button>` : ''}${act}</article>`;
-      })
-      .join('');
+    const dealBtn = (on: boolean) =>
+      on && deal ? `<button type="button" class="buy deal" data-deal="1" data-price="${deal.price}">${deal.early ? 'Early' : 'Deal'}: ${money(deal.price)}</button>` : '';
+    if (!key) {
+      this.detail.innerHTML = `<h3>Dale’s</h3><p>Weapons on the pegboard, band upgrades on the table. Tap something to take a look.</p><p class="hint">No refunds. No receipts. No questions.</p>`;
+      return;
+    }
+    if (key === 'lost') {
+      const c = s.hr.confiscated;
+      if (!c) {
+        this.selected = null;
+        return this.buildDetail(s);
+      }
+      const w = WEAPONS.find((x) => x.id === c.weapon)!;
+      const price = buyBackPrice(s);
+      this.detail.innerHTML = `<h3>Your ${esc(w.name)}</h3><p>In Mr. Feeney’s desk drawer. It comes back on its own in <span class="conf-left"></span>, or Dale can fetch it now.</p>
+        <button type="button" class="buy" data-buyback="1" data-price="${price}">Get it back ${money(price)}</button>`;
+      return;
+    }
+    if (key.startsWith('w:')) {
+      const w = WEAPONS.find((x) => x.id === key.slice(2))!;
+      const owned = s.ownedWeapons.includes(w.id);
+      const price = priceOf(s, w.price);
+      const onDeal = !!deal && deal.kind === 'weapon' && deal.id === w.id && !owned;
+      let act = '';
+      if (isConfiscated(s, w.id)) act = `<p class="tag-note">In Mr. Feeney's drawer</p>`;
+      else if (s.weapon === w.id) act = `<span class="stamp blue">Equipped</span>`;
+      else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
+      else if (w.stage > s.stage) act = `<p class="tag-note">Stage ${w.stage}</p>`;
+      else if (w.needsEngineer && !mods(s).hasEngineer) act = `<p class="tag-note">Needs someone assigned as Engineer to build it</p>`;
+      else act = `${dealBtn(onDeal)}<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}">Buy ${money(price)}</button>`;
+      this.detail.innerHTML = `<h3>${esc(w.name)}</h3><p>${esc(w.blurb)}</p>
+        <p class="stats">${w.damage * w.burst} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} a shot, noise ${w.noise.toFixed(1)}</p><div class="detail-act">${act}</div>`;
+      return;
+    }
+    const u = UPGRADES.find((x) => x.id === key.slice(2))!;
+    const owned = has(s, u.id);
+    const price = priceOf(s, u.price);
+    const onDeal = !!deal && deal.kind === 'upgrade' && deal.id === u.id && !owned;
+    let act = '';
+    if (owned) act = `<span class="stamp">Yours</span>`;
+    else if (!upgradeAvailable(s, u.id)) act = `${dealBtn(onDeal)}<p class="tag-note">${esc(this.sticker(s, key).text)}</p>`;
+    else act = `${dealBtn(onDeal)}<button type="button" class="buy" data-upgrade="${u.id}" data-price="${price}">Buy ${money(price)}</button>`;
+    this.detail.innerHTML = `<h3>${esc(u.name)}</h3><p>${esc(u.effect)}</p><div class="detail-act">${act}</div>`;
   }
 
   render() {
@@ -292,6 +444,7 @@ export class ClosetView {
 
     const deal = s.dale.deal;
     const key = [
+      this.selected,
       s.stage,
       s.targetIndex,
       s.weapon,
@@ -300,16 +453,15 @@ export class ClosetView {
       s.hr.confiscated?.weapon ?? '',
       mods(s).hasEngineer,
       mods(s).priceMult,
+      Math.floor(s.salary / 5), // affordability stickers
       deal ? `${deal.id}:${deal.price}` : '',
     ].join('|');
     if (key !== this.key) {
       this.key = key;
-      this.guns.innerHTML = this.gunItems(s);
-      this.goods.innerHTML = this.goodsItems(s);
-      this.dealNote.hidden = !deal;
-      if (deal) this.dealNote.textContent = deal.early ? `Psst: the ${dealName(deal)}, before Procurement would ever let you have it.` : `Today only: the ${dealName(deal)}.`;
+      this.buildItems(s);
+      this.buildDetail(s);
     }
-    this.root.querySelectorAll<HTMLButtonElement>('button[data-price]').forEach((b) => {
+    this.root.querySelectorAll<HTMLButtonElement>('.closet-detail button[data-price]').forEach((b) => {
       b.disabled = s.salary < Number(b.dataset.price);
     });
     const left = confiscatedLeft(s);
@@ -317,10 +469,15 @@ export class ClosetView {
       const t = left === null ? '' : clock(left);
       if (e.textContent !== t) e.textContent = t;
     });
-    if (this.talkUntil && performance.now() > this.talkUntil) {
-      this.talkUntil = 0;
-      this.dale.innerHTML = daleBust('smug');
-    }
+
+    // Dale: jacket open when he's showing off (or has a deal), mouth moving while he talks.
+    const now = performance.now();
+    const pose = now < this.talkUntil && Math.floor(now / 140) % 2 === 0 ? 'talk' : now < this.openUntil || deal ? 'open' : 'idle';
+    this.dale.querySelectorAll<HTMLImageElement>('img').forEach((img) => {
+      const on = img.dataset.pose === pose;
+      if (img.hidden === on) img.hidden = !on;
+    });
+    this.bubble.hidden = now > this.talkUntil + 2500;
   }
 
   /** "Psst": Dale leans in from the left with a deal while it lasts. */

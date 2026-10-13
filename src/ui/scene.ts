@@ -6,7 +6,8 @@
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
-import { drawPerson, PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
+import { PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
+import { portrait, portraitStack, setPortraitMood, warmPortraits } from './portraits';
 
 const W = 800;
 const H = 420;
@@ -97,6 +98,7 @@ export class Scene {
   ) {
     this.root = document.getElementById('scene')!;
     this.build();
+    warmPortraits();
   }
 
   // ---------------------------------------------------------------- build
@@ -165,7 +167,7 @@ export class Scene {
           <rect x="702" y="98" width="52" height="40" rx="3" fill="#1d1f1c"/>
           <text id="incident-days" x="728" y="129" text-anchor="middle" font-family="Libre Franklin, Arial, sans-serif" font-weight="800" font-size="30" fill="#ffd33d">0</text>
         </g>
-        <g id="feeney" class="feeney" transform="translate(-140 0)"><g transform="translate(0 98) scale(0.8)">${drawPerson(PEOPLE.feeney)}</g></g>
+        <g id="feeney" class="feeney" transform="translate(-140 0)"><g transform="translate(0 98) scale(0.8)">${portrait('feeney', 'idle')}</g></g>
         <rect x="0" y="262" width="${W}" height="${H - 262}" fill="#6f7680"/>
         <rect x="0" y="262" width="${W}" height="${H - 262}" fill="url(#carpet)"/>
         <rect x="0" y="192" width="${W}" height="70" fill="url(#fabric-far)"/>
@@ -214,14 +216,19 @@ export class Scene {
   private drawPeople(force = false) {
     const slots = targetSlots(this.people.length);
     const want = this.people.map((p) => this.moodFor(p));
-    if (!force && want.every((m, i) => m === this.moods[i])) return;
+    if (force) {
+      this.peopleLayer.innerHTML = this.people
+        .map((p, i) => `<g transform="translate(${slots[i].x} 70) scale(${slots[i].scale})">${portraitStack(p, want[i])}</g>`)
+        .join('');
+    } else if (want.every((m, i) => m === this.moods[i])) return;
+    else {
+      // Only the face changes: flip to the expression that's already loaded.
+      const stacks = this.peopleLayer.querySelectorAll('[data-person]');
+      this.people.forEach((p, i) => {
+        if (want[i] !== this.moods[i] && stacks[i]) setPortraitMood(stacks[i], p, want[i]);
+      });
+    }
     this.moods = want;
-    this.peopleLayer.innerHTML = this.people
-      .map((p, i) => {
-        const sl = slots[i];
-        return `<g transform="translate(${sl.x} 70) scale(${sl.scale})">${drawPerson(PEOPLE[p], want[i])}</g>`;
-      })
-      .join('');
   }
 
   private moodFor(p: string): Mood {
@@ -423,7 +430,7 @@ export class Scene {
       this.allyKey = key;
       const drawAlly = (a: { id: string }, i: number) => {
         const sl = ALLY_SLOTS[i % ALLY_SLOTS.length];
-        return `<g class="ally" data-ally="${a.id}"><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${drawPerson(PEOPLE[a.id])}</g></g>`;
+        return `<g class="ally" data-ally="${a.id}"><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${portrait(a.id)}</g></g>`;
       };
       // Back row first so the front row overlaps it.
       const order = s.allies.map((a, i) => ({ a, i })).sort((p, q) => Number(ALLY_SLOTS[q.i % 6].back) - Number(ALLY_SLOTS[p.i % 6].back));

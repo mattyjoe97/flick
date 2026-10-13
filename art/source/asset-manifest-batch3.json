@@ -1,0 +1,164 @@
+{
+  "name": "FLICK — Batch 3: Dale's supply closet",
+  "count": 16,
+  "format": "PNG; 15 transparent RGBA sprites and one opaque scene (38_closet.png).",
+  "coordinates": "Pixel coordinates from upper-left; sizes use width, height; rectangles use x, y, width, height.",
+  "assets": [
+    {
+      "file": "34_dale_idle.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "face_center": [
+        512,
+        530
+      ],
+      "eye_line_y": 430
+    },
+    {
+      "file": "35_dale_talk.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "face_center": [
+        512,
+        530
+      ],
+      "eye_line_y": 430
+    },
+    {
+      "file": "36_dale_open.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "face_center": [
+        512,
+        530
+      ],
+      "eye_line_y": 430
+    },
+    {
+      "file": "37_dale_psst.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "38_closet.png",
+      "size": [
+        2048,
+        1152
+      ],
+      "pegboard_rectangle": {
+        "x": 645,
+        "y": 222,
+        "width": 1155,
+        "height": 437
+      },
+      "table_top_rectangle": {
+        "x": 675,
+        "y": 730,
+        "width": 1060,
+        "height": 22
+      },
+      "opaque": true
+    },
+    {
+      "file": "39_ruler.png",
+      "size": [
+        1536,
+        768
+      ],
+      "front_band_hook": [
+        176,
+        324
+      ]
+    },
+    {
+      "file": "40_clothespin.png",
+      "size": [
+        1536,
+        768
+      ],
+      "front_band_hook": [
+        161,
+        290
+      ]
+    },
+    {
+      "file": "41_repeater.png",
+      "size": [
+        1536,
+        768
+      ],
+      "front_band_hook": [
+        138,
+        342
+      ]
+    },
+    {
+      "file": "42_gatling.png",
+      "size": [
+        1536,
+        768
+      ],
+      "front_band_hook": [
+        130,
+        215
+      ]
+    },
+    {
+      "file": "43_icon_silent.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "44_icon_rummage.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "45_icon_training.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "46_icon_calendar.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "47_icon_key.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "48_icon_thick_bands.png",
+      "size": [
+        768,
+        768
+      ]
+    },
+    {
+      "file": "49_icon_waxed_bands.png",
+      "size": [
+        768,
+        768
+      ]
+    }
+  ]
+}

@@ -1,0 +1,439 @@
+{
+  "batch": 4,
+  "generation": "Built-in ImageGen, with authorized scripted finishing for dimensions, transparency, palettes and expression alignment.",
+  "prompt_files": [
+    {
+      "source": "batch4\\group-a\\prompts-final.json",
+      "records": {
+        "tool": "built-in image_gen with authorized scripted normalization/compositing",
+        "records": [
+          {
+            "file": "50_gary_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker portrait. Input1 Dale is STYLE only; input2 office is STYLE/palette only. Create GARY LINDQVIST: male late40s light skin, thinning brown hair in a comb-over, square darkbrown glasses, BUSHY BROWN MUSTACHE, slightly roundface. Beige shortsleeved dressshirt, brown tie, pen inpocket. Petty competitive officeworker. IDLE expression narrowedeyes watchingviewer, small sly smirk belowmustache.\nFRAMING exact1024x1280 transparentPNG. Head-and-shoulders bust facingviewer STRAIGHT ON, shoulderssquare, no3/4turn. Eye pupilsat y560, facecenterx512,y620, chinabouty760. Headear-to-earwidth360px, outerears atx332and692. Topofheadaroundy315. Reservecleartransparentairabovehead (not gianthead). Torso growswide toshoulders and continues toBOTTOMedge, croppedstraightbybottomedgeONLY. Shirtbody andbothshouldersvisible. Hairuncropped. No hands orprops exceptpocketpen.\nMatchDale's polished clean2Dvectorcartoon style, adulte proportions (notchibi), bold even#332A24outline12px. Flat opaque warmmutedfills, skin#F2C9A0 andshadow#DCAA82, onecelshadeshape/onesmallhighlightpershape, upperleftlight. NO gradients,painterlytexture,realism,background,floor,shadow,letters,numbers,text,logos,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4bdf1115-c4a8-4faa-b832-ae1b787ffe72.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4bdf1115-c4a8-4faa-b832-ae1b787ffe72.png"
+          },
+          {
+            "file": "51_gary_hit.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. HIT expression: eyes squeezed shut tightly (visible through existing glasses), mouthopen in an exaggerated silent OW oval BELOWmustache, tiny redwelt onforehead centered[566,445]. No written letters. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4cc9d1ca-8613-4517-b2d6-83e69962e113.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4cc9d1ca-8613-4517-b2d6-83e69962e113.png"
+          },
+          {
+            "file": "52_gary_angry.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. ANGRY expression: eyebrowsfurrowed downward, eyesglare straight atviewer through glasses, mouthshowsgrittedteeth BELOWmustache. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-e6d36ada-9d7d-4853-bdef-d8dc993fe471.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-e6d36ada-9d7d-4853-bdef-d8dc993fe471.png"
+          },
+          {
+            "file": "53_gary_worried.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. WORRIED expression: raised eyebrows pinched together, nervouswobbly mouth BELOWmustache, worriedeyes lookingatviewer throughglasses. ONE small paleblue bead of sweat on RIGHT temple centered[649,516], outsideglasses ifneeded. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-ded12a5a-05fb-4377-a145-f3a8a0652899.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-ded12a5a-05fb-4377-a145-f3a8a0652899.png"
+          },
+          {
+            "file": "54_brad_smug.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker BRAD OKAFOR, male30s Black with darkbrownskin, shortneatblackhair, crisp blue dressshirt, redtie, no glasses/facialhair. Smug confident top-salesman face: half-liddedeyes lookingDIRECTLYATVIEWER, oneraisedeyebrow, lopsidedgrin.\nImage1Dale onlySTYLE, image2office onlySTYLE. Same adult proportions polished vectorcartoon, bold even#332A24outline12px, crispOPAQUE FLATfills with1celshadetone/1smallhighlight, no gradients/texture/realism/chibi. Warmmutedpalette.\nExact1024x1280 transparentcanvas. FRONT-facingheadandshoulders bust, bodyfacingstraightforward, shoulderssquare. Facecenter[512,620],eyesonhorizontal y560, chin760, headear-to-ear360px (332..692). Topheadatabout350. Shoulderswidthabout700, centered, entirelyvisible withroundedouteroutline. Upperarms taper gentlydowntowardbottomand continue offBOTTOMedge; only torso croppedbyBOTTOM. NO armcuts atleft/right canvas, keeptransparentmargin besidearms. Hairuncropped. No hands,props,necklaces,logos,text,labels,background,groundshadow,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-3d620cdd-9cdd-4616-9d3a-586a076f6567.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-3d620cdd-9cdd-4616-9d3a-586a076f6567.png"
+          },
+          {
+            "file": "54_brad_smug.png",
+            "prompt": "Edit target1 Brad, using reference2 Gary ONLY for perfectly straight-on facing direction. Correct ONLY Brad's headorientation and hair: his head must be PERFECTLY FRONTAL, absolutely symmetrical earpositions/earsize, level horizontaleye line, nose centeredexactly betweeneyes, nostrilssymmetrical, no headtilt,nothreequarterview. Short NEAT cropped blackhair (muchshorter than currentspikes). Brad is Black male30s DARKBROWNskin (main#805339,shadow#61402F,smallhighlight#A67551), confident salesman, blue dressshirt/redtie. Keep smughalf-liddedeyes withoneeyebrowup/lopsidedgrin but eyes lookstraightatviewer. Preserve torso/shirt/tie/shoulders/stylisticidentity. Samecleanvectorcartoon bold#332A24outlines,flatfills1celshade,upperleftlight, no gradients. NOglasses,facialhair,props,text. 1024x1280transparentPNG,bustwithtorsooffbottomonly,allheadandshouldersvisible. Headearwidth360,eyes560,chin760,centerx512; transparentairabovehead.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-145cfa03-a4b4-4063-a648-6bac25f1c619.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "revision": "frontal short hair correction",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-145cfa03-a4b4-4063-a648-6bac25f1c619.png"
+          },
+          {
+            "file": "58_janet_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker JANET, woman50s tan skin, BIG CURLY AUBURN HAIR with one yellowpencil stuck in it, rounddarkbrown glasses on a BEADED CHAIN, sagegreen blouse. Fierce printer-corner guardian. IDLE stern and unimpressed, eyelidslow, straightlips, looksdirectlyatviewer. No jewelryexceptglasses chain. No hands.\nImage1Dale STYLEonly;image2GarybaseFRONTAL-FRAMINGonly. STRICTSTRAIGHTONFRONTALhead, level horizontaleyes, identicalearvisibility, nosecenteredbetweeneyes, squareforwardshoulders, no tilt/3quarterview. Exact1024x1280transparentPNG, facecenter[512,620],eyesy560,chin760, earwidth360 (x332..692); bigcurlyhairoutsideheadwidth allowed, fullhairatleast60pxbelowtop. Keep uppertransparentair. Shouldersfullyvisible roundoutlinewidth~700; upperarmscontinueoffBOTTOMonly, cleartransparentmarginsbesidesbody, no sidecropping.\nSame adult cartoonproportions and crisp2Dvectorstyle asDale, bolduniform#332A24outline12px. FLAT OPAQUEfill colors, onecelshadow andsmallhighlightpershape, mutedwarmcolors upperleftlight. No gradients,texture,realism,chibi,words,numbers,text,logos,background,floor,shadow,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-7fc3fcfa-9569-495a-baf2-18516ad06d1d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-7fc3fcfa-9569-495a-baf2-18516ad06d1d.png"
+          },
+          {
+            "file": "62_ron_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker RON, man60s light skin, BALD smoothscalp (no haironhead), shortneatGREYBEARD andgreymustache, tiredfaciallines, greyblue workshirt with breastpocketFULLOFPENS (three plainpens). No glasses. IDLE deadpan/tired, level heavyeyelids, mouthneutral, lookDIRECTLYATVIEWER. No hands.\nInput1Dale STYLEonly;input2Garyframingstraightfrontonly. PerfectlyFRONTALbust, symmetric earsandnose, levelhorizontaleyes, squareforwardshoulders, no3/4headturnortilt.1024x1280transparentcanvas, facecenter[512,620],eyeline560,chin760,headear-to-ear360 (332..692), baldtopabout340. Head-andshoulders, roundedoutershoulders~700pxwide, arms/torsoextendoffBOTTOMonly, transparentmargins beside shouldersandarms, absolutelynosidecropping.\nClean2Dvectorcartoon matchingDale adulte proportions,notrealistic/chibi. Bold uniform#332A24outlines12px, crisp OPAQUEflatfills,onecelshadow/smallhighlightpershape, upperleftlight. Skin#F2C9A0/shadow#DCAA82, shirtmuted#6D8090, beardgrey#9B9C95. NOgradients,texture,letters,numbers,logo,text,border,background,floor,groundshadow.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-1b6b0408-d76d-416f-9a43-f6f9e54572a3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-1b6b0408-d76d-416f-9a43-f6f9e54572a3.png"
+          },
+          {
+            "file": "55_brad_hit.png",
+            "prompt": "Usecase:precise-object-edit. ONLY change expression on supplied immutable BRAD base. SameBlackman30s withdarkbrownskin, shortblackhair, blue dressshirt/redtie. Preserveexactheadshape,nose,ears,hair,neck,shirt,tie,body,colors,position,scaleandcanvas. SAME1024x1280transparentPNG, eyesy560,chin760,earwidth360. Eyelinelevel,lookingdirectlyatviewer. Facialfeaturesonly, no torso edits. Samecrisp2Dvectorcartoon #332A24outline12px, flatfills1celshade,upperleftlight,no text/background/gradient. HIT: eyesSQUEEZEDSHUT, mouthOPENoval silentOW, smallredwelt onforehead. Noletters.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-88069e1d-f1ab-49a7-9f2c-609a2b0732a3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-88069e1d-f1ab-49a7-9f2c-609a2b0732a3.png"
+          },
+          {
+            "file": "56_brad_angry.png",
+            "prompt": "Usecase:precise-object-edit. ONLY change expression on supplied immutable BRAD base. SameBlackman30s withdarkbrownskin, shortblackhair, blue dressshirt/redtie. Preserveexactheadshape,nose,ears,hair,neck,shirt,tie,body,colors,position,scaleandcanvas. SAME1024x1280transparentPNG, eyesy560,chin760,earwidth360. Eyelinelevel,lookingdirectlyatviewer. Facialfeaturesonly, no torso edits. Samecrisp2Dvectorcartoon #332A24outline12px, flatfills1celshade,upperleftlight,no text/background/gradient. ANGRY: stronglyfurrowedbrows, glaringeyes, grittedteeth.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-d3c89b63-9f6f-4c66-9dee-e9457a1f6d9c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-d3c89b63-9f6f-4c66-9dee-e9457a1f6d9c.png"
+          },
+          {
+            "file": "57_brad_worried.png",
+            "prompt": "Usecase:precise-object-edit. ONLY change expression on supplied immutable BRAD base. SameBlackman30s withdarkbrownskin, shortblackhair, blue dressshirt/redtie. Preserveexactheadshape,nose,ears,hair,neck,shirt,tie,body,colors,position,scaleandcanvas. SAME1024x1280transparentPNG, eyesy560,chin760,earwidth360. Eyelinelevel,lookingdirectlyatviewer. Facialfeaturesonly, no torso edits. Samecrisp2Dvectorcartoon #332A24outline12px, flatfills1celshade,upperleftlight,no text/background/gradient. WORRIED: raisedpinchedtogetherbrows, wideworriedeyes, nervousWOBBLYclosedmouth, onebeadofpalebluesweat onRIGHTtemple.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-a44fe9dd-35aa-4b31-8e8e-4ecfc5583138.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-a44fe9dd-35aa-4b31-8e8e-4ecfc5583138.png"
+          },
+          {
+            "file": "59_janet_hit.png",
+            "prompt": "Usecase:precise-object-edit. ONLY facialexpression changes in suppliedJANET immutablebase. Preserve her exacttanwoman50s headshape,nose,ears,largecurlyauburnhairandpencil, ROUNDGLASSES framesandbeadedCHAIN, sageblouse,neck,shoulders,body,pose,position,paletteandcanvas. DoNOT changeglasses/hair/body. Exact1024x1280transparentPNG,eyesy560,chin760,earwidth360,flatfront. Changeeyebrows/eyesINSIDEexistingglasses/mouthonly. Polished2Dvectorcartoon darkbrown#332A24outline,flatopaque warmcolors onecelshade,upperleftlight,no text/background. HIT: eyessqueezedshut, mouthOPENsilentOW oval, ONE smallredforeheadwelt. Noletters.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-03a4511b-ba33-49cc-8512-dc96813dde92.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-03a4511b-ba33-49cc-8512-dc96813dde92.png"
+          },
+          {
+            "file": "60_janet_angry.png",
+            "prompt": "Usecase:precise-object-edit. ONLY facialexpression changes in suppliedJANET immutablebase. Preserve her exacttanwoman50s headshape,nose,ears,largecurlyauburnhairandpencil, ROUNDGLASSES framesandbeadedCHAIN, sageblouse,neck,shoulders,body,pose,position,paletteandcanvas. DoNOT changeglasses/hair/body. Exact1024x1280transparentPNG,eyesy560,chin760,earwidth360,flatfront. Changeeyebrows/eyesINSIDEexistingglasses/mouthonly. Polished2Dvectorcartoon darkbrown#332A24outline,flatopaque warmcolors onecelshade,upperleftlight,no text/background. ANGRY: furrowedbrows, fierceeyesglaringdirectlyatviewer, mouthshowingGRITTEDTEETH.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-d63ade6f-dc46-42b5-b6f0-f1db885727fa.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-d63ade6f-dc46-42b5-b6f0-f1db885727fa.png"
+          },
+          {
+            "file": "61_janet_worried.png",
+            "prompt": "Usecase:precise-object-edit. ONLY facialexpression changes in suppliedJANET immutablebase. Preserve her exacttanwoman50s headshape,nose,ears,largecurlyauburnhairandpencil, ROUNDGLASSES framesandbeadedCHAIN, sageblouse,neck,shoulders,body,pose,position,paletteandcanvas. DoNOT changeglasses/hair/body. Exact1024x1280transparentPNG,eyesy560,chin760,earwidth360,flatfront. Changeeyebrows/eyesINSIDEexistingglasses/mouthonly. Polished2Dvectorcartoon darkbrown#332A24outline,flatopaque warmcolors onecelshade,upperleftlight,no text/background. WORRIED: eyebrowraisedpinchedtogether, nervouswideeyesdirectatviewer, nervouswobblymouth,ONEsmallpalebluesweatbead onRIGHTtemple.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-109b7add-6122-4322-be7b-24672fa74802.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-109b7add-6122-4322-be7b-24672fa74802.png"
+          },
+          {
+            "file": "63_ron_hit.png",
+            "prompt": "Usecase:precise-object-edit. ONLY expression edit in suppliedRON immutablebase. SAMElight-skinnedbaldman60s, shortgreybeardandmustache, greyblueworkshirt pocketwithpens. Preserveexactheadshape,baldscalp,nose,ears,beardandmustachehairshape,neck,shirt,pens,shoulders,body,color,positionandcanvas. EXACT1024x1280transparent,eyeline560,chin760,earwidth360,straightfrontal. Changeonlyeyebrows/eyes/mouthinsidebeard, plusnotedwelt/sweat. Samecleanvectorcartoon darkbrown#332A24outlines12px, crispflatopaque colors1celshade,upperleftlight,no text/background/gradients. HIT: eyessqueezedshut, mouthopenoval silentOW, smallredwelt onforehead. Noletters.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-c004071a-39cf-491b-ab60-cb88644978f1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-c004071a-39cf-491b-ab60-cb88644978f1.png"
+          },
+          {
+            "file": "64_ron_angry.png",
+            "prompt": "Usecase:precise-object-edit. ONLY expression edit in suppliedRON immutablebase. SAMElight-skinnedbaldman60s, shortgreybeardandmustache, greyblueworkshirt pocketwithpens. Preserveexactheadshape,baldscalp,nose,ears,beardandmustachehairshape,neck,shirt,pens,shoulders,body,color,positionandcanvas. EXACT1024x1280transparent,eyeline560,chin760,earwidth360,straightfrontal. Changeonlyeyebrows/eyes/mouthinsidebeard, plusnotedwelt/sweat. Samecleanvectorcartoon darkbrown#332A24outlines12px, crispflatopaque colors1celshade,upperleftlight,no text/background/gradients. ANGRY: browsfurrowed, tirednowfurious glare directlyatviewer, grittedteeth visiblebelowmustache, beardunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-2b87b0ef-73a0-4519-9076-f728db24369c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-2b87b0ef-73a0-4519-9076-f728db24369c.png"
+          },
+          {
+            "file": "65_ron_worried.png",
+            "prompt": "Usecase:precise-object-edit. ONLY expression edit in suppliedRON immutablebase. SAMElight-skinnedbaldman60s, shortgreybeardandmustache, greyblueworkshirt pocketwithpens. Preserveexactheadshape,baldscalp,nose,ears,beardandmustachehairshape,neck,shirt,pens,shoulders,body,color,positionandcanvas. EXACT1024x1280transparent,eyeline560,chin760,earwidth360,straightfrontal. Changeonlyeyebrows/eyes/mouthinsidebeard, plusnotedwelt/sweat. Samecleanvectorcartoon darkbrown#332A24outlines12px, crispflatopaque colors1celshade,upperleftlight,no text/background/gradients. WORRIED: eyebrowraisedpinchedtogether, worriedeyesdirectatviewer, nervouswobblymouthbelowmustache, ONEsmallpalebluesweatbead onRIGHTtemple. Beardunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-c90a00a2-1370-4387-adf3-da3990af2f46.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-c90a00a2-1370-4387-adf3-da3990af2f46.png"
+          }
+        ]
+      }
+    },
+    {
+      "source": "batch4\\group-a\\prompts.json",
+      "records": {
+        "tool": "built-in image_gen with authorized scripted normalization/compositing",
+        "records": [
+          {
+            "file": "50_gary_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker portrait. Input1 Dale is STYLE only; input2 office is STYLE/palette only. Create GARY LINDQVIST: male late40s light skin, thinning brown hair in a comb-over, square darkbrown glasses, BUSHY BROWN MUSTACHE, slightly roundface. Beige shortsleeved dressshirt, brown tie, pen inpocket. Petty competitive officeworker. IDLE expression narrowedeyes watchingviewer, small sly smirk belowmustache.\nFRAMING exact1024x1280 transparentPNG. Head-and-shoulders bust facingviewer STRAIGHT ON, shoulderssquare, no3/4turn. Eye pupilsat y560, facecenterx512,y620, chinabouty760. Headear-to-earwidth360px, outerears atx332and692. Topofheadaroundy315. Reservecleartransparentairabovehead (not gianthead). Torso growswide toshoulders and continues toBOTTOMedge, croppedstraightbybottomedgeONLY. Shirtbody andbothshouldersvisible. Hairuncropped. No hands orprops exceptpocketpen.\nMatchDale's polished clean2Dvectorcartoon style, adulte proportions (notchibi), bold even#332A24outline12px. Flat opaque warmmutedfills, skin#F2C9A0 andshadow#DCAA82, onecelshadeshape/onesmallhighlightpershape, upperleftlight. NO gradients,painterlytexture,realism,background,floor,shadow,letters,numbers,text,logos,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4bdf1115-c4a8-4faa-b832-ae1b787ffe72.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4bdf1115-c4a8-4faa-b832-ae1b787ffe72.png"
+          },
+          {
+            "file": "51_gary_hit.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. HIT expression: eyes squeezed shut tightly (visible through existing glasses), mouthopen in an exaggerated silent OW oval BELOWmustache, tiny redwelt onforehead centered[566,445]. No written letters. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4cc9d1ca-8613-4517-b2d6-83e69962e113.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-4cc9d1ca-8613-4517-b2d6-83e69962e113.png"
+          },
+          {
+            "file": "52_gary_angry.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. ANGRY expression: eyebrowsfurrowed downward, eyesglare straight atviewer through glasses, mouthshowsgrittedteeth BELOWmustache. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-e6d36ada-9d7d-4853-bdef-d8dc993fe471.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-e6d36ada-9d7d-4853-bdef-d8dc993fe471.png"
+          },
+          {
+            "file": "53_gary_worried.png",
+            "prompt": "Usecase:precise-object-edit. Edit ONLY facial expression in supplied GARY base. SAME adult light-skinned Gary with thinning brown comb-over, square glasses, bushy brownmustache and beige shirt/browntie. Keep headshape, nose, glasses frames and lensshape, mustache hair, hair, ears, neck, shirt, tie, pocketpen, torso, outline, colors, shading, framing and position EXACTLY unchanged. Fixed1024x1280transparentcanvas,earwidth360,eyesy560,chin760. Do NOT resize,move,crop,turnhead or redraw body. Changeonly eyebrows, eyes INSIDE existing glasses lenses, and mouthBELOWmustache. Same flat vectorcartoon #332A24outlines/opaque warmfills,upperleftlight. No text orbackground. WORRIED expression: raised eyebrows pinched together, nervouswobbly mouth BELOWmustache, worriedeyes lookingatviewer throughglasses. ONE small paleblue bead of sweat on RIGHT temple centered[649,516], outsideglasses ifneeded. Keepmustacheunchanged.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-ded12a5a-05fb-4377-a145-f3a8a0652899.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-ded12a5a-05fb-4377-a145-f3a8a0652899.png"
+          },
+          {
+            "file": "54_brad_smug.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker BRAD OKAFOR, male30s Black with darkbrownskin, shortneatblackhair, crisp blue dressshirt, redtie, no glasses/facialhair. Smug confident top-salesman face: half-liddedeyes lookingDIRECTLYATVIEWER, oneraisedeyebrow, lopsidedgrin.\nImage1Dale onlySTYLE, image2office onlySTYLE. Same adult proportions polished vectorcartoon, bold even#332A24outline12px, crispOPAQUE FLATfills with1celshadetone/1smallhighlight, no gradients/texture/realism/chibi. Warmmutedpalette.\nExact1024x1280 transparentcanvas. FRONT-facingheadandshoulders bust, bodyfacingstraightforward, shoulderssquare. Facecenter[512,620],eyesonhorizontal y560, chin760, headear-to-ear360px (332..692). Topheadatabout350. Shoulderswidthabout700, centered, entirelyvisible withroundedouteroutline. Upperarms taper gentlydowntowardbottomand continue offBOTTOMedge; only torso croppedbyBOTTOM. NO armcuts atleft/right canvas, keeptransparentmargin besidearms. Hairuncropped. No hands,props,necklaces,logos,text,labels,background,groundshadow,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-3d620cdd-9cdd-4616-9d3a-586a076f6567.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-3d620cdd-9cdd-4616-9d3a-586a076f6567.png"
+          },
+          {
+            "file": "54_brad_smug.png",
+            "prompt": "Edit target1 Brad, using reference2 Gary ONLY for perfectly straight-on facing direction. Correct ONLY Brad's headorientation and hair: his head must be PERFECTLY FRONTAL, absolutely symmetrical earpositions/earsize, level horizontaleye line, nose centeredexactly betweeneyes, nostrilssymmetrical, no headtilt,nothreequarterview. Short NEAT cropped blackhair (muchshorter than currentspikes). Brad is Black male30s DARKBROWNskin (main#805339,shadow#61402F,smallhighlight#A67551), confident salesman, blue dressshirt/redtie. Keep smughalf-liddedeyes withoneeyebrowup/lopsidedgrin but eyes lookstraightatviewer. Preserve torso/shirt/tie/shoulders/stylisticidentity. Samecleanvectorcartoon bold#332A24outlines,flatfills1celshade,upperleftlight, no gradients. NOglasses,facialhair,props,text. 1024x1280transparentPNG,bustwithtorsooffbottomonly,allheadandshouldersvisible. Headearwidth360,eyes560,chin760,centerx512; transparentairabovehead.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-145cfa03-a4b4-4063-a648-6bac25f1c619.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "revision": "frontal short hair correction",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-145cfa03-a4b4-4063-a648-6bac25f1c619.png"
+          },
+          {
+            "file": "58_janet_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker JANET, woman50s tan skin, BIG CURLY AUBURN HAIR with one yellowpencil stuck in it, rounddarkbrown glasses on a BEADED CHAIN, sagegreen blouse. Fierce printer-corner guardian. IDLE stern and unimpressed, eyelidslow, straightlips, looksdirectlyatviewer. No jewelryexceptglasses chain. No hands.\nImage1Dale STYLEonly;image2GarybaseFRONTAL-FRAMINGonly. STRICTSTRAIGHTONFRONTALhead, level horizontaleyes, identicalearvisibility, nosecenteredbetweeneyes, squareforwardshoulders, no tilt/3quarterview. Exact1024x1280transparentPNG, facecenter[512,620],eyesy560,chin760, earwidth360 (x332..692); bigcurlyhairoutsideheadwidth allowed, fullhairatleast60pxbelowtop. Keep uppertransparentair. Shouldersfullyvisible roundoutlinewidth~700; upperarmscontinueoffBOTTOMonly, cleartransparentmarginsbesidesbody, no sidecropping.\nSame adult cartoonproportions and crisp2Dvectorstyle asDale, bolduniform#332A24outline12px. FLAT OPAQUEfill colors, onecelshadow andsmallhighlightpershape, mutedwarmcolors upperleftlight. No gradients,texture,realism,chibi,words,numbers,text,logos,background,floor,shadow,border.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-7fc3fcfa-9569-495a-baf2-18516ad06d1d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-7fc3fcfa-9569-495a-baf2-18516ad06d1d.png"
+          },
+          {
+            "file": "62_ron_idle.png",
+            "prompt": "Usecase:stylized-concept. FLICK coworker RON, man60s light skin, BALD smoothscalp (no haironhead), shortneatGREYBEARD andgreymustache, tiredfaciallines, greyblue workshirt with breastpocketFULLOFPENS (three plainpens). No glasses. IDLE deadpan/tired, level heavyeyelids, mouthneutral, lookDIRECTLYATVIEWER. No hands.\nInput1Dale STYLEonly;input2Garyframingstraightfrontonly. PerfectlyFRONTALbust, symmetric earsandnose, levelhorizontaleyes, squareforwardshoulders, no3/4headturnortilt.1024x1280transparentcanvas, facecenter[512,620],eyeline560,chin760,headear-to-ear360 (332..692), baldtopabout340. Head-andshoulders, roundedoutershoulders~700pxwide, arms/torsoextendoffBOTTOMonly, transparentmargins beside shouldersandarms, absolutelynosidecropping.\nClean2Dvectorcartoon matchingDale adulte proportions,notrealistic/chibi. Bold uniform#332A24outlines12px, crisp OPAQUEflatfills,onecelshadow/smallhighlightpershape, upperleftlight. Skin#F2C9A0/shadow#DCAA82, shirtmuted#6D8090, beardgrey#9B9C95. NOgradients,texture,letters,numbers,logo,text,border,background,floor,groundshadow.",
+            "output_hint": "Generated images are saved to C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13 as C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-1b6b0408-d76d-416f-9a43-f6f9e54572a3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+            "source_path": "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-1b6b0408-d76d-416f-9a43-f6f9e54572a3.png"
+          }
+        ]
+      }
+    },
+    {
+      "source": "batch4\\group-b\\base-prompts.json",
+      "records": {
+        "references": [
+          "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/work/batch3/dale/dale-style-master.png",
+          "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/work/office-reference.png"
+        ],
+        "prompts": [
+          {
+            "id": "taskforce_a",
+            "start": 66,
+            "base": "idle",
+            "detail": "A woman in her30s, brown skin, sleek BLACK BOB hairstyle, a PLUM-PURPLE BLOUSE. Normal adult woman proportions, understated office styling. NO earrings or accessories requested. Idle face: polite corporate smile, direct eye contact.",
+            "file": "66_taskforce_a_idle.png",
+            "prompt": "Use case: stylized-concept. FLICK office-comedy game coworker portrait. Reference1 Dale supplies adult cartoon FACE SHAPE LANGUAGE, simple expressive features, flat muted fills and brown outline style ONLY. Reference2 supplies office cartoon palette ONLY. DO NOT COPY Dale's identity, glasses, pose, angle, clothing or accessories. NEW CHARACTER as described.\nONE adult head-and-shoulders bust, exact1024x1280 PNG, genuine alpha transparency. Directly FRONT-ON, face and nose dead center x512, square level shoulders, eyes directly at viewer, ZERO head tilt or turned head, bilateral ears at same height. Absolute canonical landmarks: ear-to-ear width360pixels, leftmostearx332,rightmostearx692; EYES exactly on horizontal y560; CHIN y760. Face centerx512,y620. Hair top aroundy290..360, at least60px margin above hair. Head occupies only central35% canvas width, plenty of transparent space above and at sides. Natural ADULT PROPORTIONS, not chibi or oversized head. Neck continues belowchin; shoulders startaroundy850 and spreadaboutx120..904; torso extends ALL THE WAY toBOTTOM EDGEy1280 cropped flat there. Nothing else cropped. NO hands or arms raised. No background, no floor/shadow.\nArt: clean polished 2D VECTOR CARTOON matchingDale, bold even darkbrown #332A24 outlines about12px, crisp flat fills, ONE celshade color and ONE small upper-left highlight pershape, upper-leftlight. Absolutely NO gradients, texture, realism, 3Drender. Warm muted colors. Opaque subject, transparent exterior. NO text/logos/numbers/watermarks/border. Shirt and tie plain.\nCharacter: A woman in her30s, brown skin, sleek BLACK BOB hairstyle, a PLUM-PURPLE BLOUSE. Normal adult woman proportions, understated office styling. NO earrings or accessories requested. Idle face: polite corporate smile, direct eye contact."
+          },
+          {
+            "id": "taskforce_b",
+            "start": 70,
+            "base": "idle",
+            "detail": "A man in his30s, LIGHT SKIN, short BLOND HAIR neatly side-parted, NAVY BLUE DRESS SHIRT with a DARK SLATE TIE. One small WIRELESS EARPIECE visible at his ear. Normal adult proportions. Idle face: earnest friendly 'let's circle back' smile, direct eye contact. No facial hair.",
+            "file": "70_taskforce_b_idle.png",
+            "prompt": "Use case: stylized-concept. FLICK office-comedy game coworker portrait. Reference1 Dale supplies adult cartoon FACE SHAPE LANGUAGE, simple expressive features, flat muted fills and brown outline style ONLY. Reference2 supplies office cartoon palette ONLY. DO NOT COPY Dale's identity, glasses, pose, angle, clothing or accessories. NEW CHARACTER as described.\nONE adult head-and-shoulders bust, exact1024x1280 PNG, genuine alpha transparency. Directly FRONT-ON, face and nose dead center x512, square level shoulders, eyes directly at viewer, ZERO head tilt or turned head, bilateral ears at same height. Absolute canonical landmarks: ear-to-ear width360pixels, leftmostearx332,rightmostearx692; EYES exactly on horizontal y560; CHIN y760. Face centerx512,y620. Hair top aroundy290..360, at least60px margin above hair. Head occupies only central35% canvas width, plenty of transparent space above and at sides. Natural ADULT PROPORTIONS, not chibi or oversized head. Neck continues belowchin; shoulders startaroundy850 and spreadaboutx120..904; torso extends ALL THE WAY toBOTTOM EDGEy1280 cropped flat there. Nothing else cropped. NO hands or arms raised. No background, no floor/shadow.\nArt: clean polished 2D VECTOR CARTOON matchingDale, bold even darkbrown #332A24 outlines about12px, crisp flat fills, ONE celshade color and ONE small upper-left highlight pershape, upper-leftlight. Absolutely NO gradients, texture, realism, 3Drender. Warm muted colors. Opaque subject, transparent exterior. NO text/logos/numbers/watermarks/border. Shirt and tie plain.\nCharacter: A man in his30s, LIGHT SKIN, short BLOND HAIR neatly side-parted, NAVY BLUE DRESS SHIRT with a DARK SLATE TIE. One small WIRELESS EARPIECE visible at his ear. Normal adult proportions. Idle face: earnest friendly 'let's circle back' smile, direct eye contact. No facial hair."
+          },
+          {
+            "id": "taskforce_c",
+            "start": 74,
+            "base": "idle",
+            "detail": "A man in his20s, DEEP BROWN SKIN, messy BLACK HAIR, BURNT-ORANGE SHIRT with sleeves rolled up (suggest cuffrolls only if arm visible in bust). Normal adult proportions. Idle face: over-caffeinated enthusiastic grin, alert wide eyes looking directly at viewer. No facial hair.",
+            "file": "74_taskforce_c_idle.png",
+            "prompt": "Use case: stylized-concept. FLICK office-comedy game coworker portrait. Reference1 Dale supplies adult cartoon FACE SHAPE LANGUAGE, simple expressive features, flat muted fills and brown outline style ONLY. Reference2 supplies office cartoon palette ONLY. DO NOT COPY Dale's identity, glasses, pose, angle, clothing or accessories. NEW CHARACTER as described.\nONE adult head-and-shoulders bust, exact1024x1280 PNG, genuine alpha transparency. Directly FRONT-ON, face and nose dead center x512, square level shoulders, eyes directly at viewer, ZERO head tilt or turned head, bilateral ears at same height. Absolute canonical landmarks: ear-to-ear width360pixels, leftmostearx332,rightmostearx692; EYES exactly on horizontal y560; CHIN y760. Face centerx512,y620. Hair top aroundy290..360, at least60px margin above hair. Head occupies only central35% canvas width, plenty of transparent space above and at sides. Natural ADULT PROPORTIONS, not chibi or oversized head. Neck continues belowchin; shoulders startaroundy850 and spreadaboutx120..904; torso extends ALL THE WAY toBOTTOM EDGEy1280 cropped flat there. Nothing else cropped. NO hands or arms raised. No background, no floor/shadow.\nArt: clean polished 2D VECTOR CARTOON matchingDale, bold even darkbrown #332A24 outlines about12px, crisp flat fills, ONE celshade color and ONE small upper-left highlight pershape, upper-leftlight. Absolutely NO gradients, texture, realism, 3Drender. Warm muted colors. Opaque subject, transparent exterior. NO text/logos/numbers/watermarks/border. Shirt and tie plain.\nCharacter: A man in his20s, DEEP BROWN SKIN, messy BLACK HAIR, BURNT-ORANGE SHIRT with sleeves rolled up (suggest cuffrolls only if arm visible in bust). Normal adult proportions. Idle face: over-caffeinated enthusiastic grin, alert wide eyes looking directly at viewer. No facial hair."
+          },
+          {
+            "id": "rick",
+            "start": 78,
+            "base": "smug",
+            "detail": "Rick Dunham, a40s male team lead, LIGHT-MEDIUM SKIN, SPIKY GELLED BROWN HAIR, NAVY BLUE SHIRT with GOLD TIE. Very WHITE TEETH. Normal adult proportions. Smug idle face: half-lidded eyes looking directly at viewer, one eyebrow raised, a lopsided toothy grin. No facial hair.",
+            "file": "78_rick_smug.png",
+            "prompt": "Use case: stylized-concept. FLICK office-comedy game coworker portrait. Reference1 Dale supplies adult cartoon FACE SHAPE LANGUAGE, simple expressive features, flat muted fills and brown outline style ONLY. Reference2 supplies office cartoon palette ONLY. DO NOT COPY Dale's identity, glasses, pose, angle, clothing or accessories. NEW CHARACTER as described.\nONE adult head-and-shoulders bust, exact1024x1280 PNG, genuine alpha transparency. Directly FRONT-ON, face and nose dead center x512, square level shoulders, eyes directly at viewer, ZERO head tilt or turned head, bilateral ears at same height. Absolute canonical landmarks: ear-to-ear width360pixels, leftmostearx332,rightmostearx692; EYES exactly on horizontal y560; CHIN y760. Face centerx512,y620. Hair top aroundy290..360, at least60px margin above hair. Head occupies only central35% canvas width, plenty of transparent space above and at sides. Natural ADULT PROPORTIONS, not chibi or oversized head. Neck continues belowchin; shoulders startaroundy850 and spreadaboutx120..904; torso extends ALL THE WAY toBOTTOM EDGEy1280 cropped flat there. Nothing else cropped. NO hands or arms raised. No background, no floor/shadow.\nArt: clean polished 2D VECTOR CARTOON matchingDale, bold even darkbrown #332A24 outlines about12px, crisp flat fills, ONE celshade color and ONE small upper-left highlight pershape, upper-leftlight. Absolutely NO gradients, texture, realism, 3Drender. Warm muted colors. Opaque subject, transparent exterior. NO text/logos/numbers/watermarks/border. Shirt and tie plain.\nCharacter: Rick Dunham, a40s male team lead, LIGHT-MEDIUM SKIN, SPIKY GELLED BROWN HAIR, NAVY BLUE SHIRT with GOLD TIE. Very WHITE TEETH. Normal adult proportions. Smug idle face: half-lidded eyes looking directly at viewer, one eyebrow raised, a lopsided toothy grin. No facial hair."
+          }
+        ]
+      }
+    },
+    {
+      "source": "batch4\\group-b\\expression-prompts.json",
+      "records": [
+        {
+          "file": "67_taskforce_a_hit.png",
+          "id": "taskforce_a",
+          "state": "hit",
+          "base_file": "66_taskforce_a_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. HIT expression: both eyes tightly squeezed SHUT in pain, both eyebrows reacting upward/inward, mouth OPEN in a rounded 'OW!' shape (no letters or speech bubble), with a small RED WELT on the upper FOREHEAD. Not angry teeth; truly open mouth. No gore, no tears or sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "68_taskforce_a_angry.png",
+          "id": "taskforce_a",
+          "state": "angry",
+          "base_file": "66_taskforce_a_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. ANGRY expression: FURROWED eyebrows slant sharply inward, eyes glaring directly at viewer, mouth shows GRITTED WHITE TEETH in an angry clenched rectangular grimace. No welt, no sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "69_taskforce_a_worried.png",
+          "id": "taskforce_a",
+          "state": "worried",
+          "base_file": "66_taskforce_a_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. WORRIED expression: eyebrows RAISED and PINCHED together, eyes nervous looking directly at viewer, a small NERVOUS WOBBLY MOUTH (closed or slightly parted), ONE clear pale-blue BEAD OF SWEAT on the viewer-right temple within the facial skin. No welt.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "71_taskforce_b_hit.png",
+          "id": "taskforce_b",
+          "state": "hit",
+          "base_file": "70_taskforce_b_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. HIT expression: both eyes tightly squeezed SHUT in pain, both eyebrows reacting upward/inward, mouth OPEN in a rounded 'OW!' shape (no letters or speech bubble), with a small RED WELT on the upper FOREHEAD. Not angry teeth; truly open mouth. No gore, no tears or sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "72_taskforce_b_angry.png",
+          "id": "taskforce_b",
+          "state": "angry",
+          "base_file": "70_taskforce_b_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. ANGRY expression: FURROWED eyebrows slant sharply inward, eyes glaring directly at viewer, mouth shows GRITTED WHITE TEETH in an angry clenched rectangular grimace. No welt, no sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "73_taskforce_b_worried.png",
+          "id": "taskforce_b",
+          "state": "worried",
+          "base_file": "70_taskforce_b_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. WORRIED expression: eyebrows RAISED and PINCHED together, eyes nervous looking directly at viewer, a small NERVOUS WOBBLY MOUTH (closed or slightly parted), ONE clear pale-blue BEAD OF SWEAT on the viewer-right temple within the facial skin. No welt.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "75_taskforce_c_hit.png",
+          "id": "taskforce_c",
+          "state": "hit",
+          "base_file": "74_taskforce_c_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. HIT expression: both eyes tightly squeezed SHUT in pain, both eyebrows reacting upward/inward, mouth OPEN in a rounded 'OW!' shape (no letters or speech bubble), with a small RED WELT on the upper FOREHEAD. Not angry teeth; truly open mouth. No gore, no tears or sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "76_taskforce_c_angry.png",
+          "id": "taskforce_c",
+          "state": "angry",
+          "base_file": "74_taskforce_c_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. ANGRY expression: FURROWED eyebrows slant sharply inward, eyes glaring directly at viewer, mouth shows GRITTED WHITE TEETH in an angry clenched rectangular grimace. No welt, no sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "77_taskforce_c_worried.png",
+          "id": "taskforce_c",
+          "state": "worried",
+          "base_file": "74_taskforce_c_idle.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. WORRIED expression: eyebrows RAISED and PINCHED together, eyes nervous looking directly at viewer, a small NERVOUS WOBBLY MOUTH (closed or slightly parted), ONE clear pale-blue BEAD OF SWEAT on the viewer-right temple within the facial skin. No welt.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "79_rick_hit.png",
+          "id": "rick",
+          "state": "hit",
+          "base_file": "78_rick_smug.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. HIT expression: both eyes tightly squeezed SHUT in pain, both eyebrows reacting upward/inward, mouth OPEN in a rounded 'OW!' shape (no letters or speech bubble), with a small RED WELT on the upper FOREHEAD. Not angry teeth; truly open mouth. No gore, no tears or sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "80_rick_angry.png",
+          "id": "rick",
+          "state": "angry",
+          "base_file": "78_rick_smug.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. ANGRY expression: FURROWED eyebrows slant sharply inward, eyes glaring directly at viewer, mouth shows GRITTED WHITE TEETH in an angry clenched rectangular grimace. No welt, no sweat.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        },
+        {
+          "file": "81_rick_worried.png",
+          "id": "rick",
+          "state": "worried",
+          "base_file": "78_rick_smug.png",
+          "prompt": "Use case: precise-object-edit. This attached PNG is the exact normalized BASE for one FLICK game character. EDIT ONLY FACIAL EXPRESSION inside the existing face. WORRIED expression: eyebrows RAISED and PINCHED together, eyes nervous looking directly at viewer, a small NERVOUS WOBBLY MOUTH (closed or slightly parted), ONE clear pale-blue BEAD OF SWEAT on the viewer-right temple within the facial skin. No welt.\nEvery pixel outside the face must be unchanged: exact hair silhouette/colors/strands, ears, earpiece if present, head shape/outline, chin, neck, body, shirt, tie, collar, wrinkles, shoulders, shadows, highlights, transparency and crop. Do not change the nose or skin tone except expression lines. Face remains dead FRONT-ON, eyes horizontal at y560, chin760, xcenter512, earswidth360, no tilt. Maintain exactly same positions/scales; do not zoom or reframe or redraw body. Preserve exact original1024x1280portrait transparent canvas. This is a tiny facial edit. Clean flat-vector muted-color cartoon style, bold#332A24 lines about12px, same upper-leftlight, no gradients or texture. Make expression clear at small game size. NO text, letters, symbols, border, background, glow or shadow outside subject."
+        }
+      ]
+    },
+    {
+      "source": "batch4\\group-c\\expression-prompts.json",
+      "records": {
+        "common": "Use case: precise-object-edit. EDIT this existing normalized FLICK portrait. Keep exact1024x1280 canvas, the head position/size, eyes on y560, face centered x512, chin y760, every silhouette, grey hair, ears, square glasses frames, grey mustache, shirt, tie, shoulders, flat palette, transparency and all pixels outside face unchanged. Change ONLY facial expression—eyebrows, eyes and mouth. Keep frontal level-head pose. No words, no symbols, no props, no added textures, no gradients, no background or shadows.",
+        "expressions": {
+          "angry": "Furrowed brows, glaring straight at viewer, gritted teeth, angry because he has caught the player.",
+          "happy": "A big genuine approving smile, crinkled happy eyes. Warmly approving, no speech bubble or text."
+        }
+      }
+    },
+    {
+      "source": "batch4\\group-c\\prompts-final.json",
+      "records": {
+        "tool": "built-in imagegen",
+        "references": [
+          "work/batch3/dale/dale-style-master.png",
+          "work/office-reference.png"
+        ],
+        "base_prompt": "Use case: stylized-concept. Asset: FLICK office-comedy 2D game coworker portrait. Image1 is the completed Dale STYLE master, image2 is office STYLE reference only. Match their warm muted palette and clean cartoon character design, but use the NEW character and strict FRONT view described below. Do not copy Dale's pose, stubble, clothes, props, three-quarter angle, or arms. Clean 2D VECTOR CARTOON, expressive adult proportions, bold even #332A24 outlines about12px, crisp FLAT fills, only one distinct cel-shading color and one tiny upper-left highlight per shape. NO gradients, textures, realism, 3D rendering, scenery, text, letters, numbers, logos, symbols, speech bubbles or watermark. Genuine transparent PNG alpha background, no floor or cast shadow. CANVAS exactly1024x1280 portrait, 4:5. IMPORTANT MATCHED FRAMING: frontal head-and-shoulders bust looking straight at viewer, eyes horizontal at y560, face centered x512, chin at y760, head ear-to-ear spans only about360px fromx332 tox692. Head top aroundy360; generous empty transparent space above head. Head must NOT fill most of canvas. Tall hair may rise but never closer than60px to top. Torso and both shoulders front on and level; torso continues down and is cropped ONLY by BOTTOM edge y1280. Keep left/right shoulders withincanvas with clear margins. Arms lowered and no hands or props visible. Framing is intentionally consistent with other swap-in character sprites.",
+        "characters": {
+          "feeney": {
+            "base": "82_feeney_idle.png",
+            "variants": {
+              "angry": "83_feeney_angry.png",
+              "happy": "84_feeney_happy.png"
+            },
+            "description": "Mr. Feeney,60s,light skin,neat GREY side-parted hair,square dark-brown glasses,a neat GREY mustache,crisp white dress shirt with a blue tie. Idle face: neutral,observant,faintly suspicious,closed relaxed mouth and attentive eyes. A mature manager,not a caricature."
+          },
+          "kevin": {
+            "base": "85_kevin_idle.png",
+            "variants": {
+              "happy": "86_kevin_happy.png"
+            },
+            "description": "Kevin,early20s,medium-brown skin,messy dark brown hair,light-blue dress shirt one size too big,red lanyard and completely BLANK off-white rectangular ID badge on chest. Idle face: eager wide-eyed smile. Clearly adult unpaid intern."
+          },
+          "marjorie": {
+            "base": "87_marjorie_idle.png",
+            "variants": {
+              "happy": "88_marjorie_happy.png"
+            },
+            "description": "Marjorie,60s,light skin,GREY hair in tidy bun,round glasses,raspberry cardigan over cream blouse,small pearl stud earrings. Idle face:warm knowing closed-mouth smile. Mature dignified office worker."
+          },
+          "steve": {
+            "base": "89_steve_idle.png",
+            "variants": {
+              "happy": "90_steve_happy.png"
+            },
+            "description": "Steve,30s,light-medium skin,short brown hair,cream dress shirt with olive tie,a black telephone headset with small microphone near mouth. Idle face:distracted mid-call, mouth slightly open. No handheld phone. Front-on level head."
+          },
+          "linda": {
+            "base": "91_linda_idle.png",
+            "variants": {
+              "happy": "92_linda_happy.png"
+            },
+            "description": "Linda,40s,dark brown skin,sleek black bob haircut,teal blouse,small gold hoop earrings. Idle face:cool confident half-smile. Adult senior associate. Front on symmetrical shoulders."
+          },
+          "dave": {
+            "base": "93_dave_idle.png",
+            "variants": {
+              "happy": "94_dave_happy.png"
+            },
+            "description": "Dave,30s,light skin,short dark brown hair,square glasses,a full dark brown beard,charcoal hoodie with plain drawstrings. Idle face:calm and slightly amused small closed-mouth smile. IT coworker,no logo,no props."
+          }
+        },
+        "framing_reference": "outputs/FLICK-batch-4/82_feeney_idle.png",
+        "framing_addendum": "Image3 is the approved Feeney FRAMING template only: match the scale and placement of his eyes/chin/shoulders and his linework weight; create the new person, NOT Feeney. Use smooth broad flat shapes with very few highlights; no dappled highlights.",
+        "happy_prompt": "Use case: precise-object-edit. EDIT this existing normalized FLICK portrait. Keep exact1024x1280 transparent canvas, head position/size, eyes on y560, face centered x512, chin y760, every silhouette, ears, hair, accessories, clothing and shoulders unchanged. Change ONLY eyes, eyebrows, mouth to a BIG happy smile with cheerful crinkled eyes. Preserve identical skin and flat palette, front-on levelhead pose. Keep all pixels outside facial features exactly unchanged. Clean2D cartoon darkbrown #332A24 crispoutlines, FLATfills singlecelshade/tinyhighlight. No textures, gradients, background, shadows, text or symbols. ",
+        "happy_addenda": {
+          "kevin": "Kevin: exuberant beaming smile, visibly happier than eager idle. No glasses. Do not change blank badge or redlanyard.",
+          "marjorie": "Marjorie: warm delighted smile, cheerful eyes. Preserve roundglasses, graybun, pearlstuds.",
+          "steve": "Steve: pleased happy broad smile after a successful call. No glasses. Headset and microphone must remain exactly identical, do not move them.",
+          "linda": "Linda: a warm genuinely happy broad smile and crinkled eyes. Preserve blackbob, goldhoops, tealblouse, identical darkbrown skin shade. No glasses.",
+          "dave": "Dave: happy broad smile visible within beard, crinkled happy eyes behind exactly same square glasses. Keep every beard and moustache edge, hairstyle and hoodie identical."
+        },
+        "repairs": {
+          "kevin": "Remove the eyeglasses entirely. Kevin does not wear glasses. Keep the same face, wide-eyed eager smile, nose, hair, ears, red lanyard, blank ID badge, lightblue oversized shirt. Make the skin a clearly medium brown warm complexion, deeper than pale tan. Keep adult early20s proportions.",
+          "steve": "Remove the eyeglasses entirely. Steve does not wear glasses. Keep eyes, eyebrows, nose, mouth slightly open midcall, shortbrown hair, headset and microphone, creamshirt and olivetie exactly in place. Same light-medium warm skin."
+        },
+        "finishing": "User-approved scripted resizing, alpha cleanup, palette normalization, material-color cleanup, alignment and face-only compositing. Raw images retained in work/batch4/group-c/raw. Feeney expression prompts in expression-prompts.json; alignment and pair proof in validation.json."
+      }
+    },
+    {
+      "source": "batch4\\group-c\\prompts.json",
+      "records": {
+        "method": "built-in imagegen",
+        "common": "Use case: stylized-concept. Asset: FLICK office-comedy 2D game coworker portrait. Image1 is the completed Dale STYLE master, image2 is office STYLE reference only. Match their warm muted palette and clean cartoon character design, but use the NEW character and strict FRONT view described below. Do not copy Dale's pose, stubble, clothes, props, three-quarter angle, or arms. Clean 2D VECTOR CARTOON, expressive adult proportions, bold even #332A24 outlines about12px, crisp FLAT fills, only one distinct cel-shading color and one tiny upper-left highlight per shape. NO gradients, textures, realism, 3D rendering, scenery, text, letters, numbers, logos, symbols, speech bubbles or watermark. Genuine transparent PNG alpha background, no floor or cast shadow. CANVAS exactly1024x1280 portrait, 4:5. IMPORTANT MATCHED FRAMING: frontal head-and-shoulders bust looking straight at viewer, eyes horizontal at y560, face centered x512, chin at y760, head ear-to-ear spans only about360px fromx332 tox692. Head top aroundy360; generous empty transparent space above head. Head must NOT fill most of canvas. Tall hair may rise but never closer than60px to top. Torso and both shoulders front on and level; torso continues down and is cropped ONLY by BOTTOM edge y1280. Keep left/right shoulders withincanvas with clear margins. Arms lowered and no hands or props visible. Framing is intentionally consistent with other swap-in character sprites.",
+        "people": {
+          "feeney": {
+            "base": "82_feeney_idle.png",
+            "variants": {
+              "angry": "83_feeney_angry.png",
+              "happy": "84_feeney_happy.png"
+            },
+            "description": "Mr. Feeney,60s,light skin,neat GREY side-parted hair,square dark-brown glasses,a neat GREY mustache,crisp white dress shirt with a blue tie. Idle face: neutral,observant,faintly suspicious,closed relaxed mouth and attentive eyes. A mature manager,not a caricature."
+          },
+          "kevin": {
+            "base": "85_kevin_idle.png",
+            "variants": {
+              "happy": "86_kevin_happy.png"
+            },
+            "description": "Kevin,early20s,medium-brown skin,messy dark brown hair,light-blue dress shirt one size too big,red lanyard and completely BLANK off-white rectangular ID badge on chest. Idle face: eager wide-eyed smile. Clearly adult unpaid intern."
+          },
+          "marjorie": {
+            "base": "87_marjorie_idle.png",
+            "variants": {
+              "happy": "88_marjorie_happy.png"
+            },
+            "description": "Marjorie,60s,light skin,GREY hair in tidy bun,round glasses,raspberry cardigan over cream blouse,small pearl stud earrings. Idle face:warm knowing closed-mouth smile. Mature dignified office worker."
+          },
+          "steve": {
+            "base": "89_steve_idle.png",
+            "variants": {
+              "happy": "90_steve_happy.png"
+            },
+            "description": "Steve,30s,light-medium skin,short brown hair,cream dress shirt with olive tie,a black telephone headset with small microphone near mouth. Idle face:distracted mid-call, mouth slightly open. No handheld phone. Front-on level head."
+          },
+          "linda": {
+            "base": "91_linda_idle.png",
+            "variants": {
+              "happy": "92_linda_happy.png"
+            },
+            "description": "Linda,40s,dark brown skin,sleek black bob haircut,teal blouse,small gold hoop earrings. Idle face:cool confident half-smile. Adult senior associate. Front on symmetrical shoulders."
+          },
+          "dave": {
+            "base": "93_dave_idle.png",
+            "variants": {
+              "happy": "94_dave_happy.png"
+            },
+            "description": "Dave,30s,light skin,short dark brown hair,square glasses,a full dark brown beard,charcoal hoodie with plain drawstrings. Idle face:calm and slightly amused small closed-mouth smile. IT coworker,no logo,no props."
+          }
+        }
+      }
+    }
+  ]
+}

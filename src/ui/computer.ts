@@ -36,7 +36,7 @@ import {
   type TaskResult,
   type WorkTask,
 } from '../sim/work';
-import { drawPerson, PEOPLE } from './characters';
+import { portraitSvg } from './portraits';
 import { fmt, money, officeTime } from './format';
 
 export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'procure' | 'catalog' | 'org';
@@ -453,7 +453,7 @@ export class ComputerView {
   /** Mr. Feeney walks behind you: you see him in the monitor glass. */
   reflect() {
     const r = $('reflection');
-    r.innerHTML = `<svg viewBox="0 0 120 150">${drawPerson(PEOPLE.feeney, 'happy')}</svg><span class="bubble-reflect">Great hustle.</span>`;
+    r.innerHTML = `${portraitSvg('feeney', 'happy')}<span class="bubble-reflect">Great hustle.</span>`;
     r.classList.remove('pass');
     void r.offsetWidth;
     r.classList.add('pass');

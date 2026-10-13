@@ -26,7 +26,7 @@ import { Scene } from './scene';
 import { SheetView } from './sheet';
 import { Sound } from './sound';
 import { Launcher } from './launcher';
-import { drawPerson, PEOPLE } from './characters';
+import { faceSvg, portrait, portraitViewBox } from './portraits';
 import { ComputerView } from './computer';
 import { ringingCall, startTask } from '../sim/work';
 import { SUPPLIES } from '../sim/supplies';
@@ -472,7 +472,8 @@ export class UI {
   private onCaught(e: Extract<GameEvent, { type: 'caught' }>) {
     const s = this.s;
     const final = e.writeUps >= TUNING.writeUpsToFinal;
-    $('caught-feeney').innerHTML = drawPerson(PEOPLE.feeney, 'angry');
+    $('caught-feeney').setAttribute('viewBox', portraitViewBox('feeney'));
+    $('caught-feeney').innerHTML = portrait('feeney', 'angry');
     const slip = $('caught-slip');
     slip.classList.toggle('final', final);
     slip.innerHTML = final ? 'Final<br>warning' : `Written warning<b>${e.writeUps} of ${TUNING.writeUpsToFinal}</b>`;
@@ -841,21 +842,22 @@ export class UI {
     const cards = COWORKERS.map((c) => {
       const ally = s.allies.find((a) => a.id === c.id);
       const traitRole = ROLES.find((r) => r.id === c.traitRole)!.name;
-      const head = `<h4>${esc(c.name)}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p>`;
+      const face = `<span class="org-face">${faceSvg(c.id, ally ? 'happy' : 'idle')}</span>`;
+      const head = `${face}<h4>${esc(c.name)}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p>`;
       if (ally) {
         const roleName = ROLES.find((r) => r.id === ally.role)!.name;
         const rankTag = ally.rank > 0 ? `<span class="rank">${PROMOTION.titles[ally.rank]} ${roleName}</span>` : '';
-        const headAlly = `<h4>${esc(c.name)}${rankTag}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p><p class="served" id="served-${c.id}"></p>`;
+        const headAlly = `${face}<h4>${esc(c.name)}${rankTag}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p><p class="served" id="served-${c.id}"></p>`;
         const options = ROLES.map(
           (r) => `<option value="${r.id}"${r.id === ally.role ? ' selected' : ''}>${r.name}${r.id === c.traitRole ? ' ★' : ''}</option>`,
         ).join('');
-        return `<div class="item owned">${headAlly}<div class="act"><label class="tag">Role <select class="role-select" data-ally="${c.id}" id="role-${c.id}">${options}</select></label></div></div>`;
+        return `<div class="item has-face owned">${headAlly}<div class="act"><label class="tag">Role <select class="role-select" data-ally="${c.id}" id="role-${c.id}">${options}</select></label></div></div>`;
       }
       if (!coworkerAvailable(s, c.id)) {
         const t = TARGETS.find((t) => t.id === c.unlockAfter);
-        return `<div class="item">${head}<div class="act"><span class="tag">After ${esc(t?.name ?? '')}</span></div></div>`;
+        return `<div class="item has-face">${head}<div class="act"><span class="tag">After ${esc(t?.name ?? '')}</span></div></div>`;
       }
-      return `<div class="item">${head}<div class="act"><button type="button" class="buy" data-recruit="${c.id}" data-price="${c.cost}">Recruit ${money(c.cost)}</button></div></div>`;
+      return `<div class="item has-face">${head}<div class="act"><button type="button" class="buy" data-recruit="${c.id}" data-price="${c.cost}">Recruit ${money(c.cost)}</button></div></div>`;
     });
     const key = ROLES.map((r) => `<dt>${r.name}</dt><dd>${esc(r.effect)}</dd>`).join('');
     $('pane-team').innerHTML =

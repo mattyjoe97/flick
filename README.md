@@ -74,7 +74,8 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `src/sim/chat.ts` | Messenger lines: reactions to events, banter and tips |
 | `src/sim/supplies.ts` | Your desk drawer, supply orders and deliveries |
 | `src/ui/scene.ts` | The office across the aisle: people, cover, flying bands, Mr. Feeney, clock and light |
-| `src/ui/characters.ts` | Every coworker, drawn from shared parts in one style |
+| `src/ui/portraits.ts` | Places the painted coworker portraits in the scene and swaps their expressions |
+| `src/ui/characters.ts` | Each coworker's lines and resting face (plus the old drawn fallback) |
 | `src/ui/sheet.ts` | The spreadsheet view: column-aware numbers, formulas and totals |
 | `src/ui/computer.ts` | Your computer: the desktop, windows, and the Mail, Phone, Expenses, Messenger and Catalog apps |
 | `src/ui/supplies.ts` | The drawer (your hand picking bands out of the junk), the order paperwork and the delivery box |
@@ -90,7 +91,7 @@ The simulation never touches the page, so tests can play the whole game in about
 
 ## Art
 
-The hands, weapons, rubber bands, desk drawer, office junk and delivery boxes are painted sprites. The full-size originals live in `art/source/` (each weapon comes as a loaded and an empty version on a shared canvas, with the wrist at the same spot; the script snaps the ruler in half and draws every weapon at the same scale so your hand never changes size). `python3 tools/prepare-art.py` (needs Pillow) crops them, extends the shirt sleeves, scales them to what the game draws and writes WebP sprites to `src/assets/art/` plus their anchor points to `src/ui/art.ts`. Re-run it after replacing any source image. The Drill-Powered Gatling is already prepared for Stage 3.
+Everything you look at is painted: the hands, weapons and rubber bands, the desk drawer and office junk, the delivery boxes, Dale and his supply closet, and every coworker (a head-and-shoulders portrait per facial expression: idle, hit, angry, worried and so on). The full-size originals live in `art/source/` (each weapon comes as a loaded and an empty version on a shared canvas, with the wrist at the same spot; the script snaps the ruler in half and draws every weapon at the same scale so your hand never changes size). `python3 tools/prepare-art.py` (needs Pillow) crops them, extends the shirt sleeves, scales them to what the game draws and writes WebP sprites to `src/assets/art/` plus their anchor points to `src/ui/art.ts` (and the portraits and closet art to `src/ui/portrait-art.ts`). Re-run it after replacing any source image. The Drill-Powered Gatling is already prepared for Stage 3.
 
 ## Design
 

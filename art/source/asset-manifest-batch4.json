@@ -1,0 +1,1017 @@
+{
+  "title": "FLICK \u2014 Batch 4 coworker portraits",
+  "asset_count": 45,
+  "format": "PNG RGBA",
+  "canvas_size": [
+    1024,
+    1280
+  ],
+  "coordinate_system": "Pixels from the top-left corner. Values refer to full exported canvases.",
+  "common_alignment": {
+    "face_center": [
+      512,
+      620
+    ],
+    "eye_line_y": 560,
+    "chin_y": 760,
+    "ear_to_ear_width": 360
+  },
+  "validation": {
+    "transparent_top_60px_and_sides": true,
+    "torso_cropped_only_at_bottom": true,
+    "expression_pairs_verified": 31,
+    "changed_pixels_outside_expression_masks": 0
+  },
+  "assets": [
+    {
+      "filename": "50_gary_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        109,
+        335,
+        915,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "b27198842a496090866b03234e23407900ef5b1e2df52b675a5ba06bbc0fe116"
+    },
+    {
+      "filename": "51_gary_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        109,
+        335,
+        915,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "8d33e89d9c830a966f4c3fb0194966cd7b81ed02c840bafe0792466181045803"
+    },
+    {
+      "filename": "52_gary_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        109,
+        335,
+        915,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "a1a3d44a3cf2e0f0c6fb450fd51cf68c90c43a9b92dbf51dc2813511d9bfbda1"
+    },
+    {
+      "filename": "53_gary_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        109,
+        335,
+        915,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "a6756dfbcbb0cb33c43313651147ffa548d1d2a23006e76231c06f5be999bf31"
+    },
+    {
+      "filename": "54_brad_smug.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        116,
+        366,
+        909,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "a8d480180d069257a823eb5437d60b1a97add16411df7542286ed5c5ffd71f7f"
+    },
+    {
+      "filename": "55_brad_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        116,
+        366,
+        909,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "08e087de0801bb7f49d67597fa635ad296b8f764c38f48fa4bce8d9bae813355"
+    },
+    {
+      "filename": "56_brad_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        116,
+        366,
+        909,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "cee7954b2c224c49a7721f0bc2d32012f85a7dba9dc7c40588156cf02a74afff"
+    },
+    {
+      "filename": "57_brad_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        116,
+        366,
+        909,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "57e952c9eccf9f79563cd910ac1d01cc557dcf1f3e81ca005ccfbdb6c1ad81f6"
+    },
+    {
+      "filename": "58_janet_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        259,
+        910,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "ced220ccc497fc1bbe83920e43bb134588231f8e7b5a36af083b83e123f3d94c"
+    },
+    {
+      "filename": "59_janet_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        259,
+        910,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "8473570c49682386fd4eb7bd02ae056ad674a9eb4b9c277a4ce3f90b895d39fa"
+    },
+    {
+      "filename": "60_janet_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        259,
+        910,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "6c00ba0fcf5b019aa09a7d02ec9548c34f762eb74ab6a56d01b240104abea908"
+    },
+    {
+      "filename": "61_janet_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        259,
+        910,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "002d3c28bf4b801da7daf07221b00fe68192193e111b9922e4eb9a36010a4194"
+    },
+    {
+      "filename": "62_ron_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        123,
+        388,
+        902,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "5c9bbe7d752a3c4181674cbe7474cfb2f47efa392b24dac46f94b79c5e37ebc7"
+    },
+    {
+      "filename": "63_ron_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        123,
+        388,
+        902,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "6c4a037d9c4529f66d7cf077d6755af67a1ba745ccf9bfd49f2f242e577cac2b"
+    },
+    {
+      "filename": "64_ron_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        123,
+        388,
+        902,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d5c74e3f244bf1c65a3541fb108c746bdff6f5dbcb4aceeaad1d22722f78dbbc"
+    },
+    {
+      "filename": "65_ron_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        123,
+        388,
+        902,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "b472794076c1e2b9bd2946a5329feba1f1113da735a7ef341a1cbef9c9877e12"
+    },
+    {
+      "filename": "66_taskforce_a_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        108,
+        315,
+        906,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "994ea26b0601db44837a34ec88aa83657b69996aad9d000e8ba39bee93c0cbf0"
+    },
+    {
+      "filename": "67_taskforce_a_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        108,
+        315,
+        906,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "c40b4cab3c8e319aa2ece66fcf568503caac2e20f4c8dbc1d30a549da0407d6b"
+    },
+    {
+      "filename": "68_taskforce_a_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        108,
+        315,
+        906,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "ed959741c29451a58e01f1cb2475c93703a0a684feeb63a1fd04ce56aae5e7ab"
+    },
+    {
+      "filename": "69_taskforce_a_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        108,
+        315,
+        906,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "56b04e24c709bf34bef9df2774ffa332b58bb405c423d7125045d350c8789517"
+    },
+    {
+      "filename": "70_taskforce_b_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        340,
+        925,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "0b8361f6ae01f8d7949be88541ada7281cd1c46050e43b8a37d3d230a256175c"
+    },
+    {
+      "filename": "71_taskforce_b_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        340,
+        925,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "675d44d895f0b42b84b52e0294f1239aba1c81b1e569da322657bc73977f93d2"
+    },
+    {
+      "filename": "72_taskforce_b_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        340,
+        925,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "cf8e5c4747a9b0f304781ec554b0c5dbc673fb28a886dfde5f8402275370104e"
+    },
+    {
+      "filename": "73_taskforce_b_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        104,
+        340,
+        925,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "2b5f39fca5348d174680a91485de3d9b4b9d92c1fd20c5d343139f0eab973860"
+    },
+    {
+      "filename": "74_taskforce_c_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        115,
+        307,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d3999c71494acf55329f91468953b9f71fa6e3ea71d72afb0305102685fde8fe"
+    },
+    {
+      "filename": "75_taskforce_c_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        115,
+        307,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "4361988e498670d3060fb9f2f6f02bdc98117e0c4c081c49d26b1c1d87fe69f3"
+    },
+    {
+      "filename": "76_taskforce_c_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        115,
+        307,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "8e3a1776a76af52c7b3d177cf92c903037156624cb0c7961ca1238be2c0d116a"
+    },
+    {
+      "filename": "77_taskforce_c_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        115,
+        307,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "e34ccffb1a3bf85b34df760b43d015508b25a1d4bf6a5909aee7f1a958e23d9b"
+    },
+    {
+      "filename": "78_rick_smug.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        149,
+        326,
+        882,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d3702e0e132e110f49a3eb87641ede3b24a25d2f617e50f80d771d6fcb71f697"
+    },
+    {
+      "filename": "79_rick_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        149,
+        326,
+        882,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d6dabc8fe5a431b8cb2500b169e9a6b64d8a8dac3004c234cc0f65d76ec82eac"
+    },
+    {
+      "filename": "80_rick_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        149,
+        326,
+        882,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "b22cc44812ce4527705791e7f9497f65b28cd982930471bf6c5b7c06dac5fc1b"
+    },
+    {
+      "filename": "81_rick_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        149,
+        326,
+        882,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "8e65b9ec318c790a53ea02d5f2a65848278d7336ebda6f89f60095b09429b42d"
+    },
+    {
+      "filename": "82_feeney_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        131,
+        331,
+        891,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "53e2547116840d142bfc40bfdfdaf22e8886dad28ea1fc44c3a008d76d94788e"
+    },
+    {
+      "filename": "83_feeney_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        131,
+        331,
+        891,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d7de59eaf6dad35ec3f226ae53ad148da8186bbe481967d3c17d2b431e390f96"
+    },
+    {
+      "filename": "84_feeney_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        131,
+        331,
+        891,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "793e01737124f5f767ed047a2fa99b2f2d399e80a71212408f9fda4d6d77f84c"
+    },
+    {
+      "filename": "85_kevin_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        61,
+        303,
+        959,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "2923e6ee149bff925ef0472dec027269a0019fbe498f996acbaf72844917d5b2"
+    },
+    {
+      "filename": "86_kevin_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        61,
+        303,
+        959,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "d40a33bd42234b71f6f96e422d2aea09f0f23f3be34f7a1ef591c9548bdefee9"
+    },
+    {
+      "filename": "87_marjorie_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        111,
+        271,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "8915f8577219df2759621abe4d88cad89b4014454a3d9a9ead5b8a2993cbc14e"
+    },
+    {
+      "filename": "88_marjorie_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        111,
+        271,
+        914,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "e2480b58700f51e875b22db0235cc7dff0dc66fd9140f467c52a8312034dadec"
+    },
+    {
+      "filename": "89_steve_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        98,
+        338,
+        924,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "7bd5577d992b6c964bd482d8f32357785e7045c2cf815b8d277bd55da08ceac6"
+    },
+    {
+      "filename": "90_steve_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        98,
+        338,
+        924,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "23d4a7f884e2f2c792487be8bb3a63f6705fce31b4af1550954e5ec0226fdad5"
+    },
+    {
+      "filename": "91_linda_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        66,
+        322,
+        955,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "c8af07e3a59b41b60ff0b9d74781d91b2b7e6c497d6494941b40b06490ef0d6d"
+    },
+    {
+      "filename": "92_linda_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        66,
+        322,
+        955,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "bfbba0be03f9acc1e922a94a56027a7ab9d206c5ffee1ba1795a0946ee44c131"
+    },
+    {
+      "filename": "93_dave_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        60,
+        344,
+        957,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "aedada743c924245255dd6061382080503c9305ea81f99a329cdcd31316389b5"
+    },
+    {
+      "filename": "94_dave_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "face_center": [
+        512,
+        620
+      ],
+      "eye_line_y": 560,
+      "chin_y": 760,
+      "ear_to_ear_width": 360,
+      "alpha_bbox": [
+        60,
+        344,
+        957,
+        1280
+      ],
+      "transparent": true,
+      "sha256": "2fd6be4b8b41372e7c557aaf236c0b3bb2bd4c9cfd8c73e23f81ba887c2a3efe"
+    }
+  ]
+}
