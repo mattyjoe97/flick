@@ -1,0 +1,208 @@
+{
+  "name": "FLICK \u2014 Batch 2",
+  "count": 26,
+  "format": "PNG RGBA with transparent background",
+  "coordinates": "Pixel coordinates from upper-left; rectangles use x, y, width, height.",
+  "assets": [
+    {
+      "file": "08_drawer_open.png",
+      "size": [
+        2048,
+        1024
+      ],
+      "drawer_floor_rect": {
+        "x": 441,
+        "y": 199,
+        "width": 1424,
+        "height": 585
+      }
+    },
+    {
+      "file": "09_drawer_closed.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "10_band_a.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "11_band_b.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "12_band_c.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "13_band_tangle.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "14_band_ball.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "15_stapler.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "16_paper_clips.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "17_pen.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "18_pencil.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "19_sticky_notes.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "20_takeout_menu.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "21_binder_clip.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "22_eraser.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "23_granola_bar.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "24_loose_change.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "25_hand_reach.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "cuff_center": [
+        560,
+        900
+      ]
+    },
+    {
+      "file": "26_hand_pinch.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "cuff_center": [
+        560,
+        900
+      ],
+      "pinch_point": [
+        500,
+        260
+      ]
+    },
+    {
+      "file": "27_order_form.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "28_rubber_stamp.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "29_envelope.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "30_box_closed.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "31_box_open.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "32_box_bulk_closed.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "33_box_bulk_open.png",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  ]
+}

@@ -41,6 +41,7 @@ function migrate(file: SaveFile): GameState | null {
   s.work = { ...base.work, ...(file.state.work ?? {}), activeId: null };
   s.sheet = { ...base.sheet, ...(file.state.sheet ?? {}), open: false };
   s.chat = { ...base.chat, ...(file.state.chat ?? {}) };
+  s.supplies = { ...base.supplies, ...(file.state.supplies ?? {}) };
   // Allies from version 1 saves have no promotion fields yet.
   s.allies = (file.state.allies ?? []).map((a) => ({ ...a, served: a.served ?? 0, rank: a.rank ?? 0 }));
   s.version = SAVE_VERSION;
@@ -68,6 +69,11 @@ function sanitize(s: GameState): boolean {
   const kinds = ['email', 'call', 'expense'];
   if (!Array.isArray(s.work.queue) || !s.work.queue.every((t) => t && kinds.includes(t.kind) && t.data)) s.work.queue = [];
   if (!Array.isArray(s.work.fraudAt)) s.work.fraudAt = [];
+  const p = s.supplies;
+  p.drawer = Math.max(0, Math.floor(Number(p.drawer) || 0));
+  if (!['tangle', 'ball', 'change', null].includes(p.find)) p.find = null;
+  if (p.order && !(Number(p.order.amount) > 0 && Number.isFinite(p.order.arriveAt))) p.order = null;
+  if (p.box && !(Number(p.box.amount) > 0)) p.box = null;
   if (s.hr.confiscated && !s.ownedWeapons.includes(s.hr.confiscated.weapon)) s.hr.confiscated = null;
   return true;
 }

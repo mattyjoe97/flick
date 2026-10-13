@@ -30,3 +30,39 @@ export const SPRITES = {
 
 export const BAND_FLYING = { w: 180, h: 50 };
 export const BAND_SNAPPED = { w: 200, h: 66 };
+
+/** The open desk drawer. `floor` and `tray` are [x0, y0, x1, y1] as fractions of the sprite. */
+export const DRAWER = { w: 1280, h: 595, floor: [0.2026, 0.157, 0.9291, 0.7991], tray: [0.0673, 0.1251, 0.1643, 0.8057] };
+
+/** Things lying in the drawer. `dw` is the width as a fraction of the drawer's width. */
+export const PROPS = {
+  band_a: { w: 240, h: 148, dw: 0.1097 },
+  band_b: { w: 240, h: 75, dw: 0.1097 },
+  band_c: { w: 240, h: 82, dw: 0.1097 },
+  tangle: { w: 280, h: 246, dw: 0.1352 },
+  ball: { w: 297, h: 300, dw: 0.1514 },
+  stapler: { w: 440, h: 178, dw: 0.2653 },
+  clips: { w: 280, h: 271, dw: 0.1327 },
+  pen: { w: 400, h: 396, dw: 0.2296 },
+  pencil: { w: 320, h: 300, dw: 0.1684 },
+  sticky: { w: 260, h: 259, dw: 0.1276 },
+  menu: { w: 202, h: 380, dw: 0.1168 },
+  binder: { w: 200, h: 176, dw: 0.0893 },
+  eraser: { w: 200, h: 82, dw: 0.0969 },
+  granola: { w: 271, h: 320, dw: 0.1425 },
+  change: { w: 280, h: 256, dw: 0.1429 },
+} as const;
+export type PropId = keyof typeof PROPS;
+
+/** Your hand reaching into the drawer (two frames, same crop). `pinch` is a fraction of the sprite. */
+export const HAND = { w: 412, h: 900, dw: 0.2577, pinch: [0.4619, 0.0761] as P };
+
+/** Order paperwork and delivery boxes, in sprite pixels. */
+export const DESK_ART = {
+  form: { w: 440, h: 460 },
+  stamp: { w: 205, h: 240 },
+  envelope: { w: 304, h: 400 },
+  box: { w: 360, h: 262 },
+  bulk: { w: 480, h: 427 },
+  drawerIcon: { w: 240, h: 71 },
+} as const;

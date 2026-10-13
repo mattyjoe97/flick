@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PROMOTION, TARGETS, TUNING } from '../src/sim/content';
-import { addSuspicion, buyBack, buyBackPrice, buyWeapon, flick, recruit, scrounge, setLookBusy, step } from '../src/sim/engine';
-import { rolePower, weapon } from '../src/sim/mods';
+import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, flick, openBox, orderSupplies, recruit, scrounge, setLookBusy, step } from '../src/sim/engine';
+import { drawerCap, SUPPLIES } from '../src/sim/supplies';
+import { mods, rolePower, weapon } from '../src/sim/mods';
 import { addTask, answerTask, correctAnswer, EMAILS, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
@@ -312,6 +313,91 @@ describe('HR file', () => {
     expect(back?.state.hr.writeUps).toBe(0);
     expect(back?.state.allies[0].rank).toBe(0);
     expect(back?.state.allies[0].served).toBe(0);
+  });
+});
+
+describe('desk drawer and deliveries', () => {
+  it('the drawer runs out, then strays turn up a few seconds apart', () => {
+    const s = newGame(1);
+    s.supplies.refillAt = 1e9; // nothing turns up while we empty it
+    for (let i = 0; i < SUPPLIES.drawerCap; i++) expect(scrounge(s, 'band').ok).toBe(true);
+    expect(s.bands).toBe(TUNING.startBands + SUPPLIES.drawerCap);
+    expect(scrounge(s, 'band').ok).toBe(false);
+    s.supplies.refillAt = s.time;
+    run(s, SUPPLIES.refillEvery * 3 + 0.5);
+    expect(s.supplies.drawer).toBe(4);
+    run(s, 600);
+    expect(s.supplies.drawer).toBe(drawerCap(s)); // and no further
+  });
+
+  it('Rummage Deeper grabs two at a time and doubles the drawer', () => {
+    const s = newGame(1);
+    s.salary = 100;
+    expect(buyUpgrade(s, 'rummage').ok).toBe(true);
+    expect(drawerCap(s)).toBe(SUPPLIES.drawerCap * 2);
+    const before = s.bands;
+    scrounge(s, 'band');
+    expect(s.bands).toBe(before + 2);
+  });
+
+  it('finds come out first: a ball is a pile of bands, loose change is Salary', () => {
+    const s = newGame(1);
+    s.supplies.find = 'ball';
+    const r = scrounge(s);
+    expect(r.ok && r.item).toBe('ball');
+    expect(s.bands).toBe(TUNING.startBands + SUPPLIES.ball[1]);
+    expect(s.supplies.find).toBeNull();
+    s.supplies.find = 'change';
+    scrounge(s);
+    expect(s.salary).toBe(SUPPLIES.change[1]);
+    expect(s.stats.finds).toBe(2);
+  });
+
+  it('an order is paid now and arrives later as a box; orders placed meanwhile ride along', () => {
+    const s = newGame(1);
+    s.salary = 20;
+    expect(orderSupplies(s).ok).toBe(true);
+    expect(orderSupplies(s).ok).toBe(true);
+    expect(s.salary).toBe(10);
+    expect(s.bands).toBe(TUNING.startBands);
+    run(s, SUPPLIES.deliverySeconds + 0.5);
+    expect(s.supplies.order).toBeNull();
+    expect(s.supplies.box?.amount).toBe(100);
+    const r = openBox(s);
+    expect(r.ok).toBe(true);
+    expect(s.bands).toBe(TUNING.startBands + 100);
+    expect(openBox(s).ok).toBe(false);
+  });
+
+  it('Mr. Feeney notices an unopened box, even while you work', () => {
+    const s = newGame(1);
+    setLookBusy(s, true);
+    s.supplies.box = { amount: 50, arrivedAt: 0, free: false };
+    s.walkby.nextAt = 1;
+    s.suspicion = 30;
+    run(s, 1 + mods(s).warning + 0.2);
+    expect(s.stats.hides).toBe(1);
+    expect(s.events.some((e) => e.type === 'boxSpotted')).toBe(true);
+  });
+
+  it('time away fills the drawer and delivers what you ordered', () => {
+    const s = newGame(1);
+    s.salary = 5;
+    orderSupplies(s);
+    s.supplies.drawer = 0;
+    applyOffline(s, 600);
+    expect(s.supplies.drawer).toBe(drawerCap(s));
+    expect(s.supplies.box?.amount).toBe(50);
+  });
+
+  it('old saves get a full drawer and nothing on order', () => {
+    const s = newGame(3);
+    const file = JSON.parse(serialize(s));
+    file.version = 4;
+    delete file.state.supplies;
+    const back = deserialize(JSON.stringify(file));
+    expect(back?.state.supplies.drawer).toBe(SUPPLIES.drawerCap);
+    expect(back?.state.supplies.box).toBeNull();
   });
 });
 

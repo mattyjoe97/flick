@@ -13,7 +13,6 @@ import {
   orderSupplies,
   priceOf,
   recruit,
-  scrounge,
   setLookBusy,
   targetDefeated,
   upgradeAvailable,
@@ -30,6 +29,8 @@ import { Launcher } from './launcher';
 import { drawPerson, PEOPLE } from './characters';
 import { ComputerView } from './computer';
 import { ringingCall, startTask } from '../sim/work';
+import { SUPPLIES } from '../sim/supplies';
+import { DeliveryView, DrawerView } from './supplies';
 
 export interface GameHost {
   state: GameState;
@@ -66,6 +67,8 @@ export class UI {
   private scene: Scene;
   private sheet: SheetView;
   private computer: ComputerView;
+  private drawer: DrawerView;
+  private delivery: DeliveryView;
   private lastRing = 0;
 
   constructor(private host: GameHost) {
@@ -112,10 +115,13 @@ export class UI {
       ring: () => this.sound.ring(),
       click: () => this.sound.type(),
       ordered: () => {
-        this.bump('bands');
         this.sound.coins();
+        this.say(`Ordered. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
       },
     });
+    const supplyHooks = { say: (t: string) => this.say(t), bump: (w: 'bands' | 'salary') => this.bump(w) };
+    this.drawer = new DrawerView(() => this.s, supplyHooks, this.sound);
+    this.delivery = new DeliveryView(() => this.s, supplyHooks, this.sound);
     this.bind();
     this.syncSound();
   }
@@ -136,12 +142,8 @@ export class UI {
     el.classList.add('bump');
   }
 
-  private doScrounge = () => {
-    if (this.act(scrounge)) {
-      this.bump('bands');
-      this.sound.type();
-    }
-  };
+  /** S, or the Scrounge card: the drawer slides out and you pick a band out of the junk. */
+  private doScrounge = () => this.drawer.grab();
 
   /** W, or the computer card: answer a ringing phone, otherwise sit down at your computer. */
   private doWork = () => {
@@ -159,10 +161,14 @@ export class UI {
     this.computer.answerCall();
   }
 
+  /** O, or the Order card: open the box on your desk if there is one, otherwise send off an order. */
   private doOrder = () => {
+    if (this.s.supplies.box) return this.delivery.openIt();
+    const amount = mods(this.s).order.amount;
     if (this.act(orderSupplies)) {
-      this.bump('bands');
       this.sound.coins();
+      void this.delivery.ordered(amount);
+      this.say(`Order sent. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
     }
   };
 
@@ -319,10 +325,14 @@ export class UI {
       // At your computer: number keys answer emails and calls.
       if (this.computer.onKey(e)) e.preventDefault();
       else if (k === 'w' && ringingCall(this.s) && !e.repeat) this.answerPhone();
+      else if (k === 'o' && !e.repeat) this.delivery.openIt(); // the box is on the desk beside your monitor
       return;
     }
     if (e.repeat) return;
-    if (k === 'f') this.launcher.start();
+    if (k === 'f') {
+      this.drawer.close();
+      this.launcher.start();
+    }
     else if (k === 's') this.doScrounge();
     else if (k === 'w') this.doWork();
     else if (k === 'o') this.doOrder();
@@ -331,7 +341,10 @@ export class UI {
   /** Esc: sit down at your computer, or get back to the war. */
   private toggleHide(force?: boolean) {
     const on = force ?? !this.s.lookBusy;
-    if (on) this.launcher.cancel();
+    if (on) {
+      this.launcher.cancel();
+      this.drawer.close();
+    }
     setLookBusy(this.s, on);
     this.syncComputer();
   }
@@ -391,6 +404,7 @@ export class UI {
         this.sound.incoming();
         this.bump('bands');
       } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
+      else if (e.type === 'boxSpotted') this.say('Mr. Feeney eyed that box on your desk. Open deliveries before he walks by.');
       else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
     }
   }
@@ -479,6 +493,7 @@ export class UI {
   private openDialog(id: string) {
     const dlg = $<HTMLDialogElement>(id);
     this.launcher.cancel();
+    this.drawer.close();
     this.syncComputer();
     if (!dlg.open) dlg.showModal();
   }
@@ -552,9 +567,21 @@ export class UI {
     const level = susp >= 75 ? 'danger' : susp >= 50 ? 'caution' : 'calm';
     $('suspicion').dataset.level = level;
     this.set('susp-note', onFinalWarning(s) && susp >= 75 ? "One more and you're fired." : suspicionNote(susp));
-    this.set('scrounge-sub', `+${m.scrounge} band${m.scrounge > 1 ? 's' : ''}`);
-    this.set('order-sub', `$${m.order.price} for ${m.order.amount} bands`);
-    $<HTMLButtonElement>('order-btn').disabled = s.salary < m.order.price;
+    const sup = s.supplies;
+    this.set(
+      'scrounge-sub',
+      sup.find ? 'Something good in there!' : sup.drawer > 0 ? `${fmt(sup.drawer)} stray band${sup.drawer === 1 ? '' : 's'} inside` : 'Empty. More turn up soon.',
+    );
+    this.set(
+      'order-sub',
+      sup.box
+        ? 'It’s sitting on your desk'
+        : sup.order
+          ? `On its way: ${Math.ceil(Math.max(0, sup.order.arriveAt - s.time))} s`
+          : `$${m.order.price} for ${m.order.amount} bands`,
+    );
+    this.set('order-title', sup.box ? 'Open the box' : 'Order supplies');
+    $<HTMLButtonElement>('order-btn').disabled = !sup.box && s.salary < m.order.price;
 
     // HR file
     const ups = s.hr.writeUps;
@@ -587,6 +614,8 @@ export class UI {
       this.sheet.render();
       this.computer.render();
     }
+    this.drawer.render();
+    this.delivery.render();
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
     void dt;
@@ -864,8 +893,10 @@ function coachHint(s: GameState): string {
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
   if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Get on your computer (Esc) when you hear footsteps.";
   if (s.hr.confiscated && s.salary >= buyBackPrice(s))
-    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (desk drawer).`;
+    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (in the Armory).`;
+  if (s.supplies.box) return 'A box of bands is on your desk. Open it (O) before Mr. Feeney walks by and asks about it.';
   if (s.bands < w.burst) {
+    if (s.supplies.order) return 'Your order is on its way. Scrounge your drawer (S) or do some work (Esc) while you wait.';
     return s.salary >= m.order.price
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'
       : 'Out of bands. Scrounge your drawer (S), or earn some Salary on your computer (Esc) for a supply order.';
@@ -873,7 +904,7 @@ function coachHint(s: GameState): string {
   if (s.suspicion >= 70) return 'Suspicion is high. Get on your computer (Esc) and do some work until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {
     return s.salary >= 15
-      ? 'You can afford the Ruler Launcher. Buy it in your desk drawer below.'
+      ? 'You can afford the Ruler Launcher. Buy it in the Armory below.'
       : 'Earn $15 for the Ruler Launcher: press Esc to get on your computer and answer some emails.';
   }
   if (s.stats.shots >= 6 && s.stats.charged === 0)

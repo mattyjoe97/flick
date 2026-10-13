@@ -41,6 +41,8 @@ const EVENT_LINES: Record<string, Line[]> = {
     { id: 'f1', from: 'Gary', text: 'wait you got FIRED?? see you monday I guess' },
     { id: 'f2', from: 'Kevin', text: 'I saved your desk plant. it’s fine. it’s mostly fine' },
   ],
+  'find:ball': [{ id: 'fb', from: 'Gary', text: 'where did you get a rubber band BALL. that’s a war crime' }],
+  boxSpotted: [{ id: 'bx', from: 'Marjorie', text: 'Open your parcels promptly, dear. Mr. Feeney reads labels.' }],
   'promotion:gary': [{ id: 'pg', from: 'Gary', text: 'promoted!! drinks on me (water cooler)' }],
   'promotion:kevin': [{ id: 'pk', from: 'Kevin', text: 'I GOT A TITLE' }],
   'promotion:marjorie': [{ id: 'pm', from: 'Marjorie', text: 'Thirty-one years and a promotion. How lovely.' }],

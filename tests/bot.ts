@@ -4,6 +4,7 @@ import {
   buyWeapon,
   coworkerAvailable,
   flick,
+  openBox,
   orderSupplies,
   recruit,
   scrounge,
@@ -99,6 +100,8 @@ function wrongAnswer(t: WorkTask): TaskAnswer {
 const needsMoney = (s: GameState) => s.salary < 15 && s.ownedWeapons.length < 2 && s.time > 3;
 
 function act(s: GameState, style: BotStyle, mind: BotMind) {
+  // A delivered box gets opened right away (it's on the desk, even from your chair).
+  if (s.supplies.box) openBox(s);
   const countdown = walkbyCountdown(s);
   // A ringing phone gets answered: that's work, and it puts you at your computer.
   const call = ringingCall(s);
@@ -120,9 +123,9 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   const w = weapon(s);
   if (s.bands < w.burst) {
     const o = mods(s).order;
-    if (s.salary >= o.price + 5) orderSupplies(s);
-    else if (style.doesWork) setLookBusy(s, true); // go earn
-    else scrounge(s);
+    if (!s.supplies.order && s.salary >= o.price + 5) orderSupplies(s);
+    else if (s.supplies.drawer > 0 || s.supplies.find) scrounge(s);
+    else if (style.doesWork) setLookBusy(s, true); // go earn while the order is on its way
     return;
   }
   if (s.suspicion > style.workAbove || needsMoney(s)) {

@@ -144,7 +144,7 @@ export interface Upgrade {
 }
 
 export const UPGRADES: Upgrade[] = [
-  { id: 'rummage', name: 'Rummage Deeper', effect: 'Scrounging finds 2 bands instead of 1.', price: 10, stage: 1 },
+  { id: 'rummage', name: 'Rummage Deeper', effect: 'Grab 2 bands at a time, and twice as many turn up in your drawer.', price: 10, stage: 1 },
   { id: 'organizer', name: 'Drawer Organizer', effect: '+0.4 bands/s, automatically.', price: 20, stage: 1 },
   { id: 'autoreply', name: 'Email Auto-Reply', effect: 'Answers emails that wait 20 s (half pay), plus $0.40/s.', price: 35, stage: 1 },
   { id: 'chair', name: 'Ergonomic Chair', effect: 'Work tasks and spreadsheet fixes pay double.', price: 50, stage: 1 },

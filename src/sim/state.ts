@@ -1,7 +1,8 @@
 import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
+import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type TaskKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 export interface Email {
   id: number;
@@ -81,10 +82,10 @@ export interface GameState {
   warned75: boolean;
   outOfAmmoWarnedAt: number;
 
-  /** Your actual job: the queue of emails, calls, budget sheets and expense reports. */
+  /** Your job at your computer: work emails, phone calls and expense reports. */
   work: WorkState;
 
-  /** The Boss Key spreadsheet mini-game. */
+  /** The Spreadsheet app's mini-game. */
   sheet: {
     tab: SheetTabId;
     flags: { id: number; row: number; col: number; expiresAt: number }[];
@@ -99,6 +100,9 @@ export interface GameState {
 
   /** Messenger: coworkers (and rivals) messaging you. */
   chat: { log: ChatMessage[]; unread: number; nextAt: number; used: string[] };
+
+  /** Your desk drawer, supply orders on their way, and a delivered box waiting on your desk. */
+  supplies: SuppliesState;
 
   inbox: Email[];
   unread: number;
@@ -127,6 +131,9 @@ export interface GameState {
     tasksAuto: number;
     callsMissed: number;
     receiptsFudged: number;
+    finds: number;
+    ordersPlaced: number;
+    boxesOpened: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -156,7 +163,10 @@ export type GameEvent =
   | { type: 'taskDone'; kind: TaskKind; ok: boolean; pay: number; text: string }
   | { type: 'taskAuto'; kind: TaskKind; who: string }
   | { type: 'callMissed' }
-  | { type: 'chat'; from: string };
+  | { type: 'chat'; from: string }
+  | { type: 'delivery'; amount: number; free: boolean }
+  | { type: 'find'; kind: FindKind }
+  | { type: 'boxSpotted'; noise: number };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
@@ -195,6 +205,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     outOfAmmoWarnedAt: -999,
     sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0, open: false },
     chat: { log: [], unread: 0, nextAt: 15, used: [] },
+    supplies: newSupplies(),
     inbox: [],
     unread: 0,
     ticker: [],
@@ -221,6 +232,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       tasksAuto: 0,
       callsMissed: 0,
       receiptsFudged: 0,
+      finds: 0,
+      ordersPlaced: 0,
+      boxesOpened: 0,
     },
     events: [],
   };

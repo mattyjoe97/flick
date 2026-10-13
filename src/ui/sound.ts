@@ -227,4 +227,45 @@ export class Sound {
     if (!this.ok('coins', 60)) return;
     this.tone('sine', 1320, 1320, 0.05, 0.06);
   }
+
+  /** The drawer sliding open: a metal rattle. */
+  drawer() {
+    if (!this.ok('drawer', 250)) return;
+    this.noise(700, 1.2, 0.12, 0.12);
+    this.noise(2600, 4, 0.05, 0.05, 0.05);
+  }
+
+  /** Picking a band out of the junk. */
+  grab() {
+    if (!this.ok('grab', 40)) return;
+    this.noise(2800, 5, 0.03, 0.08);
+    this.tone('triangle', 420, 640, 0.06, 0.05, 0.02);
+  }
+
+  /** Something good in the drawer. */
+  find() {
+    if (!this.ok('find', 300)) return;
+    [784, 988, 1319].forEach((f, i) => this.tone('sine', f, f, 0.1, 0.09, i * 0.06));
+  }
+
+  /** A rubber stamp coming down on paper. */
+  stamp() {
+    if (!this.ok('stamp', 150)) return;
+    this.tone('sine', 140, 60, 0.12, 0.3);
+    this.noise(500, 1, 0.06, 0.15);
+  }
+
+  /** A box landing on your desk. */
+  thud() {
+    if (!this.ok('thud', 300)) return;
+    this.tone('sine', 110, 45, 0.22, 0.4);
+    this.noise(260, 0.8, 0.12, 0.2);
+  }
+
+  /** Packing tape ripping off a box. */
+  tear() {
+    if (!this.ok('tear', 300)) return;
+    this.noise(3000, 0.6, 0.22, 0.12);
+    this.noise(1500, 0.9, 0.18, 0.08, 0.06);
+  }
 }

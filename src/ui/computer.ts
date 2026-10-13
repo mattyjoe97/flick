@@ -14,6 +14,7 @@
 
 import { readChat } from '../sim/chat';
 import { orderSupplies } from '../sim/engine';
+import { SUPPLIES } from '../sim/supplies';
 import { setSheetOpen } from '../sim/minigame';
 import { has, mods } from '../sim/mods';
 import { type GameState } from '../sim/state';
@@ -368,11 +369,11 @@ export class ComputerView {
       <div class="product">
         <div class="product-art" aria-hidden="true"></div>
         <div><h3>Rubber bands, assorted (${o.amount})</h3>
-        <p>${bulk ? 'Bulk pricing approved by Procurement.' : 'Standard office pack. Procurement can approve bulk pricing.'} Ordering makes a little noise: someone has to sign for the box.</p>
+        <p>${bulk ? 'Bulk pricing approved by Procurement.' : 'Standard office pack. Procurement can approve bulk pricing.'} It arrives at your desk in a box ${SUPPLIES.deliverySeconds} seconds later. Ordering makes a little noise: someone has to sign for it.</p>
         <p class="price">${money(o.price)}</p>
         <button type="button" class="win-action" data-order="1"${s.salary < o.price ? ' disabled' : ''}>Add to cart and check out</button></div>
       </div>
-      <p class="hint">Shortcut from the war: press O to reorder without opening the catalog.</p>`;
+      <p class="hint">Shortcut from the war: press O to send an order, and O again to open the box when it lands.</p>`;
   }
 
   // ---------------------------------------------------------------- input

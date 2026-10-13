@@ -5,6 +5,9 @@ import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type GameState } from './state';
 import { setSuspicionHook, stepWork } from './work';
 import { chatEvent, stepChat } from './chat';
+import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
+
+export { openBox } from './supplies';
 
 // ------------------------------------------------------------------ helpers
 
@@ -338,16 +341,14 @@ export function step(s: GameState, dt: number) {
   }
   if (s.time >= s.nextShipmentAt) {
     s.nextShipmentAt = s.time + randRange(s, 240, 480);
-    if (rand(s) < 0.35) {
-      s.bands += 25;
-      pushTicker(s, 'A supply shipment arrives addressed to you. 25 bands. Nobody asks.');
-    }
+    if (rand(s) < 0.35) deliver(s, 25, true);
   }
   stepHr(s);
   stepAllies(s, dt);
   stepWork(s);
   stepChat(s);
   stepSheet(s);
+  stepSupplies(s);
 }
 
 function walkbys(s: GameState, warning: number, intervalMult: number) {
@@ -379,6 +380,13 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
       );
       s.events.push({ type: 'spotted' });
       addSuspicion(s, amount);
+    }
+    const boxNoise = boxSpotted(s);
+    if (boxNoise > 0) {
+      pushTicker(s, `Mr. Feeney eyes the unopened box on your desk. "Supplies?" Suspicion +${boxNoise}.`);
+      s.events.push({ type: 'boxSpotted', noise: boxNoise });
+      addSuspicion(s, boxNoise);
+      chatEvent(s, 'boxSpotted');
     }
   }
 }
@@ -435,18 +443,20 @@ export function snapBand(s: GameState): ActionResult {
   return ok;
 }
 
-export function scrounge(s: GameState): ActionResult {
-  const n = mods(s).scrounge;
-  s.bands += n;
-  s.stats.bandsScrounged += n;
-  return ok;
+/** Grab something from your desk drawer: the good stuff first, unless you pick a band. */
+export function scrounge(s: GameState, pick?: 'band' | 'find') {
+  return grab(s, pick);
 }
 
+/** Pays now; the bands arrive in a box a few seconds later (orders placed meanwhile ride along). */
 export function orderSupplies(s: GameState): ActionResult {
   const o = mods(s).order;
   if (s.salary < o.price) return no(`A supply order costs $${o.price}.`);
   s.salary -= o.price;
-  s.bands += o.amount;
+  s.stats.ordersPlaced++;
+  const p = s.supplies;
+  if (p.order) p.order.amount += o.amount;
+  else p.order = { amount: o.amount, arriveAt: s.time + SUPPLIES.deliverySeconds };
   addSuspicion(s, TUNING.orderNoise);
   return ok;
 }
@@ -556,6 +566,7 @@ export function applyOffline(s: GameState, seconds: number) {
   // Push the next walk-by out so nobody gets spotted the instant they return.
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
   s.work.nextCallAt = Math.max(s.work.nextCallAt, s.time + 30);
+  suppliesOffline(s);
   if (bands >= 1 || salary >= 1) {
     pushEmail(
       s,

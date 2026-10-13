@@ -162,6 +162,117 @@ snap.thumbnail((200, 200), Image.LANCZOS)
 snap.save(OUT / "band-snapped.webp", quality=90, method=6)
 print("effects", loop.size, snap.size)
 
+# ---------------------------------------------------------------- batch 2: the drawer and deliveries
+#
+# The drawer is drawn as one sprite; everything that lies in it is sized in "drawer units"
+# (source pixels of 08_drawer_open.png, roughly 32 per cm) so things keep real-world proportions.
+# The game positions them as fractions of the drawer's width.
+
+b2 = json.loads((SRC / "asset-manifest-batch2.json").read_text())
+b2a = {a["file"]: a for a in b2["assets"]}
+
+
+def solid_box(im: Image.Image, pad: int):
+    x0, y0, x1, y1 = im.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox()
+    return (max(0, x0 - pad), max(0, y0 - pad), min(im.width, x1 + pad), min(im.height, y1 + pad))
+
+
+def save_fit(im: Image.Image, box, longest: int, name: str):
+    w, h = box[2] - box[0], box[3] - box[1]
+    r = min(1.0, longest / max(w, h))
+    size = (round(w * r), round(h * r))
+    im.crop(box).resize(size, Image.LANCZOS).save(OUT / f"{name}.webp", quality=88, method=6)
+    return size, r
+
+
+drawer = Image.open(SRC / "08_drawer_open.png").convert("RGBA")
+dbox = solid_box(drawer, 4)
+dsize, dr_ = save_fit(drawer, dbox, 1280, "drawer-open")
+DW = dbox[2] - dbox[0]  # drawer width in drawer units
+DH = dbox[3] - dbox[1]
+fl = b2a["08_drawer_open.png"]["drawer_floor_rect"]
+frac = lambda x, y: [round((x - dbox[0]) / DW, 4), round((y - dbox[1]) / DH, 4)]
+floor = frac(fl["x"], fl["y"]) + frac(fl["x"] + fl["width"], fl["y"] + fl["height"])
+# The pen tray down the left side (measured by eye on the source art).
+tray = frac(176, 170) + frac(366, 790)
+print("drawer", dsize, "floor", floor, "tray", tray)
+
+closed = Image.open(SRC / "09_drawer_closed.png").convert("RGBA")
+icon_size, _ = save_fit(closed, solid_box(closed, 4), 240, "drawer-closed")
+
+# Things in the drawer: (file stem, sprite name, longest side in drawer units, saved longest side in px)
+PROPS = {
+    "band_a": ("10_band_a", 215, 240),
+    "band_b": ("11_band_b", 215, 240),
+    "band_c": ("12_band_c", 215, 240),
+    "tangle": ("13_band_tangle", 265, 280),
+    "ball": ("14_band_ball", 300, 300),
+    "stapler": ("15_stapler", 520, 440),
+    "clips": ("16_paper_clips", 260, 280),
+    "pen": ("17_pen", 450, 400),
+    "pencil": ("18_pencil", 330, 320),
+    "sticky": ("19_sticky_notes", 250, 260),
+    "menu": ("20_takeout_menu", 430, 380),
+    "binder": ("21_binder_clip", 175, 200),
+    "eraser": ("22_eraser", 190, 200),
+    "granola": ("23_granola_bar", 330, 320),
+    "change": ("24_loose_change", 280, 280),
+}
+props = {}
+for name, (stem, units, px) in PROPS.items():
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    box = solid_box(im, 6)
+    size, _ = save_fit(im, box, px, f"prop-{name}")
+    long_src = max(box[2] - box[0], box[3] - box[1])
+    # width in fractions of the drawer's width
+    props[name] = {"w": size[0], "h": size[1], "dw": round(units * (box[2] - box[0]) / long_src / DW, 4)}
+print("props", len(props))
+
+# The hand reaching in: both frames share one crop so they line up at the cuff.
+def extend_down(im: Image.Image, extra: int) -> Image.Image:
+    """Continue the shirt sleeve straight down past the bottom edge, so your arm never ends on screen."""
+    w, h = im.size
+    out = Image.new("RGBA", (w, h + extra), (0, 0, 0, 0))
+    out.paste(im, (0, 0))
+    row = im.crop((0, h - 8, w, h - 7))
+    for y in range(h - 8, h + extra):
+        out.paste(row, (0, y))
+    return out
+
+
+reach = extend_down(Image.open(SRC / "25_hand_reach.png").convert("RGBA"), 560)
+pinch = extend_down(Image.open(SRC / "26_hand_pinch.png").convert("RGBA"), 560)
+rb, pb = solid_box(reach, 4), solid_box(pinch, 4)
+hbox = (min(rb[0], pb[0]), min(rb[1], pb[1]), max(rb[2], pb[2]), max(rb[3], pb[3]))
+hsize, hr_ = save_fit(reach, hbox, 900, "hand-reach")
+save_fit(pinch, hbox, 900, "hand-pinch")
+HAND_UNITS = 0.77  # drawer units per hand source pixel (cuff to fingertip about 18 cm)
+pp = b2a["26_hand_pinch.png"]["pinch_point"]
+hand = {
+    "w": hsize[0],
+    "h": hsize[1],
+    "dw": round((hbox[2] - hbox[0]) * HAND_UNITS / DW, 4),
+    "pinch": [round((pp[0] - hbox[0]) / (hbox[2] - hbox[0]), 4), round((pp[1] - hbox[1]) / (hbox[3] - hbox[1]), 4)],
+}
+print("hand", hand)
+
+# Deliveries and paperwork. Box pairs share a crop so the box body doesn't jump when it opens.
+desk = {}
+for name, stem, px in (("form", "27_order_form", 460), ("stamp", "28_rubber_stamp", 240), ("envelope", "29_envelope", 400)):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    size, _ = save_fit(im, solid_box(im, 6), px, name)
+    desk[name] = {"w": size[0], "h": size[1]}
+for name, a, b, px in (("box", "30_box_closed", "31_box_open", 360), ("bulk", "32_box_bulk_closed", "33_box_bulk_open", 480)):
+    ia = Image.open(SRC / f"{a}.png").convert("RGBA")
+    ib = Image.open(SRC / f"{b}.png").convert("RGBA")
+    ba, bb = solid_box(ia, 6), solid_box(ib, 6)
+    box = (min(ba[0], bb[0]), min(ba[1], bb[1]), max(ba[2], bb[2]), max(ba[3], bb[3]))
+    size, _ = save_fit(ia, box, px, f"{name}-closed")
+    save_fit(ib, box, px, f"{name}-open")
+    desk[name] = {"w": size[0], "h": size[1]}
+desk["drawerIcon"] = {"w": icon_size[0], "h": icon_size[1]}
+print("desk", desk)
+
 lines.append(
     "type P = [number, number];\n\n"
     "/** A band the game draws over the empty art: a loop at the front hook (cx, cy, rx, ry) and two strands to the back. */\n"
@@ -173,4 +284,24 @@ lines += [e.replace("[", "[").replace("]", "]") for e in entries]
 lines.append("} satisfies Record<string, LauncherSprite>;")
 lines.append(f"\nexport const BAND_FLYING = {{ w: {loop.size[0]}, h: {loop.size[1]} }};")
 lines.append(f"export const BAND_SNAPPED = {{ w: {snap.size[0]}, h: {snap.size[1]} }};")
+lines.append(
+    "\n/** The open desk drawer. `floor` and `tray` are [x0, y0, x1, y1] as fractions of the sprite. */\n"
+    f"export const DRAWER = {{ w: {dsize[0]}, h: {dsize[1]}, floor: {json.dumps(floor)}, tray: {json.dumps(tray)} }};"
+)
+lines.append(
+    "\n/** Things lying in the drawer. `dw` is the width as a fraction of the drawer's width. */\n"
+    "export const PROPS = {\n"
+    + "\n".join(f"  {k}: {{ w: {v['w']}, h: {v['h']}, dw: {v['dw']} }}," for k, v in props.items())
+    + "\n} as const;\nexport type PropId = keyof typeof PROPS;"
+)
+lines.append(
+    "\n/** Your hand reaching into the drawer (two frames, same crop). `pinch` is a fraction of the sprite. */\n"
+    f"export const HAND = {{ w: {hand['w']}, h: {hand['h']}, dw: {hand['dw']}, pinch: {json.dumps(hand['pinch'])} as P }};"
+)
+lines.append(
+    "\n/** Order paperwork and delivery boxes, in sprite pixels. */\n"
+    "export const DESK_ART = {\n"
+    + "\n".join(f"  {k}: {{ w: {v['w']}, h: {v['h']} }}," for k, v in desk.items())
+    + "\n} as const;"
+)
 (ROOT / "src" / "ui" / "art.ts").write_text("\n".join(lines) + "\n")
