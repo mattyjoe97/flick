@@ -41,6 +41,7 @@ const EVENT_LINES: Record<string, Line[]> = {
     { id: 'f1', from: 'Gary', text: 'wait you got FIRED?? see you monday I guess' },
     { id: 'f2', from: 'Kevin', text: 'I saved your desk plant. it’s fine. it’s mostly fine' },
   ],
+  'dale:intro': [{ id: 'di', from: 'Dale (Facilities)', text: 'heard you’re in the market. supply closet, end of the hall. come alone.' }],
   'find:ball': [{ id: 'fb', from: 'Gary', text: 'where did you get a rubber band BALL. that’s a war crime' }],
   boxSpotted: [{ id: 'bx', from: 'Marjorie', text: 'Open your parcels promptly, dear. Mr. Feeney reads labels.' }],
   'promotion:gary': [{ id: 'pg', from: 'Gary', text: 'promoted!! drinks on me (water cooler)' }],
@@ -71,6 +72,8 @@ const BANTER: Line[] = [
   { id: 'b-br', from: 'Brad', text: 'Sales doesn’t lose. Sales reframes.', when: (s) => stage2(s) && s.targetIndex <= 4 },
   { id: 'b-ja', from: 'Janet', text: 'Ron says we should stop. I say we continue.', when: (s) => stage2(s) && s.targetIndex === 5 },
   { id: 'b-g5', from: 'Gary', text: 'tip: the expense portal is VERY trusting', when: stage2 },
+  { id: 'b-d1', from: 'Dale (Facilities)', text: 'got something new in. you know where I am', when: (s) => s.dale.introduced },
+  { id: 'b-d2', from: 'Marjorie', text: 'If Dale offers you a deal, dear, count your fingers after.', when: (s) => s.dale.introduced },
   { id: 'b-hr', from: 'HR', text: 'This is an automated reminder that Wellness Wednesday is this Wednesday.' },
 ];
 

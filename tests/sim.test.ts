@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PROMOTION, TARGETS, TUNING } from '../src/sim/content';
-import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, flick, openBox, orderSupplies, recruit, scrounge, setLookBusy, step } from '../src/sim/engine';
+import { DALE, PROMOTION, TARGETS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
 import { addTask, answerTask, correctAnswer, EMAILS, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
@@ -398,6 +398,85 @@ describe('desk drawer and deliveries', () => {
     const back = deserialize(JSON.stringify(file));
     expect(back?.state.supplies.drawer).toBe(SUPPLIES.drawerCap);
     expect(back?.state.supplies.box).toBeNull();
+  });
+});
+
+describe("Dale's black market", () => {
+  const quiet = (s: ReturnType<typeof newGame>) => {
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+  };
+
+  it('sells the rubber band upgrades; Procurement keeps the office ones', () => {
+    expect(daleSells('silent')).toBe(true);
+    expect(daleSells('thick')).toBe(true);
+    expect(daleSells('chair')).toBe(false);
+    expect(daleSells('autoreply')).toBe(false);
+  });
+
+  it('introduces himself, then leans over the wall with a deal that is never cheap', () => {
+    const s = newGame(5);
+    quiet(s);
+    s.salary = 40;
+    run(s, DALE.introAt + 1);
+    expect(s.dale.introduced).toBe(true);
+    expect(s.chat.log.some((m) => m.from.startsWith('Dale'))).toBe(true);
+    run(s, DALE.firstDealAt - s.time + 1);
+    const deal = s.dale.deal!;
+    expect(deal).toBeTruthy();
+    const base =
+      deal.kind === 'weapon' ? priceOf(s, WEAPONS.find((w) => w.id === deal.id)!.price) : priceOf(s, UPGRADES.find((u) => u.id === deal.id)!.price);
+    if (deal.early) expect(deal.price).toBeGreaterThan(base);
+    else expect(deal.price).toBeGreaterThanOrEqual(Math.floor(base * (1 - DALE.discount[1])));
+    run(s, DALE.dealSeconds + 1);
+    expect(s.dale.deal).toBeNull();
+  });
+
+  it('a deal can be taken (or passed), and Dale bolts when Mr. Feeney comes', () => {
+    const s = newGame(6);
+    quiet(s);
+    s.salary = 1000;
+    s.dale.nextDealAt = 0;
+    run(s, 0.2);
+    const deal = s.dale.deal!;
+    const before = s.salary;
+    expect(takeDeal(s).ok).toBe(true);
+    expect(s.salary).toBe(before - deal.price);
+    expect(deal.kind === 'weapon' ? s.ownedWeapons.includes(deal.id as never) : s.upgrades.includes(deal.id as never)).toBe(true);
+    expect(takeDeal(s).ok).toBe(false);
+
+    s.dale.nextDealAt = s.time;
+    run(s, 0.2);
+    expect(s.dale.deal).toBeTruthy();
+    passDeal(s);
+    expect(s.dale.deal).toBeNull();
+
+    s.dale.nextDealAt = s.time;
+    run(s, 0.2);
+    s.walkby.nextAt = s.time;
+    run(s, 0.2);
+    expect(s.dale.deal).toBeNull();
+  });
+
+  it('no deals while you are at your computer', () => {
+    const s = newGame(7);
+    quiet(s);
+    setLookBusy(s, true);
+    s.dale.nextDealAt = 0;
+    run(s, 5);
+    expect(s.dale.deal).toBeNull();
+  });
+
+  it('Double-Thick Bands hit harder; Waxed Bands stretch further', () => {
+    const a = newGame(1);
+    const b = newGame(1);
+    b.upgrades.push('thick');
+    flick(a);
+    flick(b);
+    expect(TARGETS[0].resolve - b.targetResolve).toBeCloseTo((TARGETS[0].resolve - a.targetResolve) * DALE.thickDamage);
+    b.upgrades.push('waxed');
+    expect(mods(b).perfectWindow).toBe(DALE.waxedWindow);
+    expect(mods(b).snapAfter).toBeGreaterThan(mods(a).snapAfter);
   });
 });
 

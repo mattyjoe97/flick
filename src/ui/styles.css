@@ -4036,3 +4036,459 @@ body.at-computer .desk-box.bulk {
     width: 96px;
   }
 }
+
+/* ------------------------------------------------------------ weapon switcher (under the Flick key) */
+
+button.weapon-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.weapon-line:disabled {
+  cursor: default;
+  color: var(--ink);
+}
+
+button.weapon-line:hover:not(:disabled) {
+  background: #f6edcf;
+}
+
+.weapon-next {
+  padding: 0 7px;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------ the supply closet (Dale) */
+
+.dale-card {
+  width: 64px;
+  right: 18px;
+}
+
+.dale-card svg,
+.dale-art svg,
+.psst-dale svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.closet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: auto;
+  padding: 18px 18px 40px;
+  background:
+    radial-gradient(ellipse 60% 45% at 55% 0%, rgba(255, 210, 130, 0.5), transparent 70%),
+    linear-gradient(180deg, #3d2e23, #1c140f);
+  color: var(--ink);
+  padding-top: max(18px, env(safe-area-inset-top, 0px));
+}
+
+.closet-room {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-areas:
+    "top top"
+    "dale guns"
+    "dale goods";
+  gap: 18px 24px;
+  align-items: start;
+}
+
+.closet-top {
+  grid-area: top;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.closet-h {
+  margin: 0;
+  padding: 3px 18px 2px;
+  background: var(--tape);
+  font-family: var(--font-hand);
+  font-size: var(--t-lg);
+  transform: rotate(-1.5deg);
+  clip-path: polygon(0 10%, 4% 0, 96% 6%, 100% 0, 98% 50%, 100% 100%, 3% 94%, 0 100%, 2% 50%);
+}
+
+.closet-back {
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--paper);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.closet-back:hover {
+  background: var(--sticky);
+}
+
+.closet-dale {
+  grid-area: dale;
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 10px;
+  padding: 18px 18px 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, transparent 0 30%, #5a4636 30% 32%, transparent 32% 58%, #5a4636 58% 60%, transparent 60%),
+    linear-gradient(90deg, #4a392c, #3a2c22);
+  overflow: hidden;
+}
+
+.dale-art {
+  width: 100%;
+  max-width: 240px;
+  justify-self: center;
+}
+
+.dale-say {
+  order: -1;
+  position: relative;
+  margin: 0;
+  padding: 10px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  font-family: var(--font-hand);
+  font-size: var(--t-md);
+  line-height: 1.25;
+}
+
+.dale-say::after {
+  content: "";
+  position: absolute;
+  left: 48%;
+  bottom: -12px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-right: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  transform: rotate(45deg);
+}
+
+.dale-say.pop {
+  animation: say-pop 0.25s ease-out;
+}
+
+@keyframes say-pop {
+  from {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+.closet-guns,
+.closet-goods {
+  padding: 14px 16px 18px;
+  border-radius: 6px;
+}
+
+.closet-guns h3,
+.closet-goods h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-hand);
+  font-size: var(--t-md);
+  color: #fff4dc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.closet-guns {
+  grid-area: guns;
+  border: 8px solid #6e4f2f;
+  background:
+    radial-gradient(circle, #6e5232 2.2px, transparent 2.6px) 0 0 / 22px 22px,
+    #c4a06a;
+  box-shadow: inset 0 0 30px rgba(60, 35, 10, 0.35);
+}
+
+.closet-guns h3 {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.closet-goods {
+  grid-area: goods;
+  border-top: 10px solid #9a6d43;
+  background: linear-gradient(180deg, #7a5333, #5e3f27);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.peg-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.peg-item {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  align-content: start;
+  padding-top: 12px;
+}
+
+.peg-item::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: #3b2a1a;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.gun-pic {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  filter: drop-shadow(2px 4px 2px rgba(40, 20, 5, 0.35));
+}
+
+.gun-pic img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: auto;
+  pointer-events: none;
+}
+
+.gun-none {
+  aspect-ratio: 4 / 1;
+}
+
+.hang-tag,
+.good {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 10px 12px 12px;
+  border-radius: 3px;
+  background: #f3e3b6;
+  box-shadow: 0 2px 0 rgba(60, 35, 10, 0.25), 0 6px 10px -6px rgba(0, 0, 0, 0.5);
+}
+
+.good {
+  background: var(--paper);
+}
+
+.hang-tag h4,
+.good h4 {
+  margin: 0;
+  font-size: var(--t-md);
+}
+
+.hang-tag p,
+.good p {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.hang-tag .stats {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+.hang-tag .buy,
+.good .buy,
+.hang-tag .stamp,
+.good .stamp,
+.hang-tag .tag-note,
+.good .tag-note {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.tag-note {
+  margin-top: 4px;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table-items > * {
+  min-width: 0;
+}
+
+.table-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.peg-item.lost .hang-tag {
+  background: #fbd5da;
+}
+
+.on-deal .hang-tag,
+.good.on-deal {
+  outline: 3px dashed var(--marker-red);
+  outline-offset: 3px;
+}
+
+.buy.deal {
+  border-color: var(--marker-red);
+  color: var(--marker-red);
+  box-shadow: 2px 2px 0 var(--marker-red);
+}
+
+.closet-deal {
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  justify-self: start;
+  width: fit-content;
+  background: var(--sticky);
+  font-family: var(--font-hand);
+  transform: rotate(-1deg);
+}
+
+/* "Psst": Dale leaning in from the left with a deal */
+.psst {
+  position: fixed;
+  z-index: 46;
+  left: 0;
+  top: 34%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: min(440px, calc(100vw - 8px));
+  pointer-events: none;
+  animation: psst-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.psst > * {
+  pointer-events: auto;
+}
+
+.psst-dale {
+  flex: none;
+  width: 110px;
+  margin-left: -26px;
+  transform: rotate(10deg);
+  filter: drop-shadow(4px 6px 6px rgba(0, 0, 0, 0.35));
+}
+
+.psst-bubble {
+  padding: 10px 12px 8px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.psst-text {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: var(--t-md);
+  line-height: 1.25;
+}
+
+.psst-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.psst-clock {
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: #ece6d8;
+  overflow: hidden;
+}
+
+.psst-clock span {
+  display: block;
+  height: 100%;
+  background: var(--marker-red);
+}
+
+@keyframes psst-in {
+  from {
+    transform: translateX(-105%);
+  }
+}
+
+@media (max-width: 760px) {
+  .closet {
+    padding-inline: 12px;
+  }
+  .closet-room {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "top"
+      "dale"
+      "guns"
+      "goods";
+  }
+  .closet-dale {
+    position: static;
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: end;
+    padding: 12px 12px 0;
+  }
+  .dale-art {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dale-say {
+    order: 0;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    margin-bottom: 12px;
+  }
+  .dale-say::after {
+    left: -12px;
+    bottom: auto;
+    top: 40%;
+    border: 0;
+    border-left: 3px solid var(--ink);
+    border-bottom: 3px solid var(--ink);
+  }
+  .psst {
+    top: auto;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .psst-dale {
+    width: 86px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psst,
+  .dale-say.pop {
+    animation: none;
+  }
+}

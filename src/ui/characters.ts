@@ -67,6 +67,8 @@ export const PEOPLE: Record<string, Person> = {
   steve: { skin: '#e0ac83', hair: '#6b4a2e', style: 'short', shirt: '#e8e3d8', tie: '#556b2f', headset: true },
   linda: { skin: '#8d5a3b', hair: '#1f1b18', style: 'bob', shirt: '#2e7d6b', earrings: true, rest: 'smug' },
   dave: { skin: '#f2c9a5', hair: '#3b2a1e', style: 'short', shirt: '#555d66', glasses: 'square', beard: true, hoodie: true },
+  // Stand-in until his painted art arrives.
+  dale: { skin: '#d8b08a', hair: '#5c554c', style: 'slick', shirt: '#6e7b43', lanyard: '#3a3f45', glasses: 'square', rest: 'smug' },
 };
 
 /** Which people stand behind each target. */

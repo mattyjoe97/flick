@@ -132,7 +132,8 @@ export const COWORKERS: Coworker[] = [
 
 export type UpgradeId =
   | 'rummage' | 'organizer' | 'autoreply' | 'chair' | 'silent' | 'riser'
-  | 'bulk' | 'closet' | 'training' | 'carpet' | 'macros' | 'walls' | 'calendar';
+  | 'bulk' | 'closet' | 'training' | 'carpet' | 'macros' | 'walls' | 'calendar'
+  | 'waxed' | 'thick';
 
 export interface Upgrade {
   id: UpgradeId;
@@ -141,22 +142,26 @@ export interface Upgrade {
   price: number;
   stage: number;
   unlockAfter?: string; // target id
+  /** Who sells it: Procurement (on your computer) by default, or Dale's black market in the supply closet. */
+  seller?: 'dale';
 }
 
 export const UPGRADES: Upgrade[] = [
-  { id: 'rummage', name: 'Rummage Deeper', effect: 'Grab 2 bands at a time, and twice as many turn up in your drawer.', price: 10, stage: 1 },
+  { id: 'rummage', name: 'Rummage Deeper', effect: 'Grab 2 bands at a time, and twice as many turn up in your drawer.', price: 10, stage: 1, seller: 'dale' },
   { id: 'organizer', name: 'Drawer Organizer', effect: '+0.4 bands/s, automatically.', price: 20, stage: 1 },
   { id: 'autoreply', name: 'Email Auto-Reply', effect: 'Answers emails that wait 20 s (half pay), plus $0.40/s.', price: 35, stage: 1 },
   { id: 'chair', name: 'Ergonomic Chair', effect: 'Work tasks and spreadsheet fixes pay double.', price: 50, stage: 1 },
-  { id: 'silent', name: 'Silent Flick Technique', effect: 'Your shots make 25% less noise.', price: 60, stage: 1 },
+  { id: 'waxed', name: 'Waxed Bands', effect: 'Your bands stretch further before they snap, and the Perfect window is longer.', price: 45, stage: 1, seller: 'dale' },
+  { id: 'silent', name: 'Silent Flick Technique', effect: 'Your shots make 25% less noise.', price: 60, stage: 1, seller: 'dale' },
   { id: 'riser', name: 'Monitor Riser', effect: 'See over the cubicle: +1 s walk-by warning.', price: 90, stage: 1 },
   { id: 'bulk', name: 'Bulk Ordering', effect: 'Supply orders become $12 for 200 bands.', price: 150, stage: 2 },
-  { id: 'closet', name: 'Supply Closet Key', effect: '+1.5 bands/s.', price: 250, stage: 2, unlockAfter: 'brad' },
-  { id: 'training', name: 'Shooter Training', effect: 'Allies fire 30% faster.', price: 300, stage: 2 },
+  { id: 'closet', name: 'Supply Closet Key', effect: 'A copy of Dale’s key: +1.5 bands/s.', price: 250, stage: 2, unlockAfter: 'brad', seller: 'dale' },
+  { id: 'training', name: 'Shooter Training', effect: 'Your Shooters fire 30% faster.', price: 300, stage: 2, seller: 'dale' },
+  { id: 'thick', name: 'Double-Thick Bands', effect: 'Every band hits 25% harder, yours and your Shooters’.', price: 700, stage: 2, unlockAfter: 'printer', seller: 'dale' },
   { id: 'carpet', name: 'Carpet Tiles', effect: 'All shots make 15% less noise.', price: 400, stage: 2 },
   { id: 'macros', name: 'Spreadsheet Macros', effect: 'Passive Salary pays ×3 while you’re at your computer, instead of ×2.', price: 600, stage: 2, unlockAfter: 'printer' },
   { id: 'walls', name: 'Cubicle Wall Extensions', effect: 'All shots make 20% less noise.', price: 900, stage: 2, unlockAfter: 'printer' },
-  { id: 'calendar', name: 'Fake Calendar Invites', effect: 'Mr. Feeney walks by 30% less often.', price: 1200, stage: 2, unlockAfter: 'taskforce' },
+  { id: 'calendar', name: 'Fake Calendar Invites', effect: 'Mr. Feeney walks by 30% less often.', price: 1200, stage: 2, unlockAfter: 'taskforce', seller: 'dale' },
 ];
 
 // ---------------------------------------------------------------- tuning constants
@@ -225,6 +230,19 @@ export const PROMOTION = {
 };
 
 /** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */
+/** Dale from Facilities: the black market in the supply closet. */
+export const DALE = {
+  introAt: 75, // seconds: he messages you about the closet
+  firstDealAt: 270,
+  dealGap: [240, 360] as [number, number], // seconds between "Psst" deals
+  dealSeconds: 30,
+  discount: [0.1, 0.15] as [number, number], // the most he ever takes off
+  earlyMarkup: 1.3, // getting something before it unlocks costs extra
+  waxedWindow: 0.55, // Perfect window with Waxed Bands (seconds)
+  waxedSnap: 2.1, // seconds before a Waxed Band snaps
+  thickDamage: 1.25,
+};
+
 export const CHARGE = {
   deadZone: 0.12, // a tap shorter than this is a normal flick
   fullAfter: 0.9, // seconds of holding (after the dead zone) to reach full stretch

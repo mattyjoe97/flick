@@ -1,4 +1,4 @@
-import { COWORKERS, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import type { GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
@@ -76,6 +76,9 @@ export function mods(s: GameState) {
     bandsPerSec,
     salaryPerSec: basePay * (s.lookBusy ? lookBusyMult : 1),
     coverCool: covers * TUNING.coverCool,
+    bandDamage: has(s, 'thick') ? DALE.thickDamage : 1,
+    perfectWindow: has(s, 'waxed') ? DALE.waxedWindow : CHARGE.perfectWindow,
+    snapAfter: has(s, 'waxed') ? DALE.waxedSnap : CHARGE.snapAfter,
   };
 }
 

@@ -228,6 +228,13 @@ export class Sound {
     this.tone('sine', 1320, 1320, 0.05, 0.06);
   }
 
+  /** Dale, leaning over your cubicle wall. */
+  psst() {
+    if (!this.ok('psst', 1000)) return;
+    this.noise(5200, 2.5, 0.09, 0.09);
+    this.noise(4600, 2.5, 0.12, 0.08, 0.16);
+  }
+
   /** The drawer sliding open: a metal rattle. */
   drawer() {
     if (!this.ok('drawer', 250)) return;

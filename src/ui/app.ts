@@ -1,4 +1,4 @@
-import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from '../sim/content';
+import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId } from '../sim/content';
 import {
   assign,
   buyBack,
@@ -31,6 +31,7 @@ import { ComputerView } from './computer';
 import { ringingCall, startTask } from '../sim/work';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
+import { ClosetView } from './closet';
 
 export interface GameHost {
   state: GameState;
@@ -69,6 +70,7 @@ export class UI {
   private computer: ComputerView;
   private drawer: DrawerView;
   private delivery: DeliveryView;
+  private closet: ClosetView;
   private lastRing = 0;
 
   constructor(private host: GameHost) {
@@ -122,6 +124,18 @@ export class UI {
     const supplyHooks = { say: (t: string) => this.say(t), bump: (w: 'bands' | 'salary') => this.bump(w) };
     this.drawer = new DrawerView(() => this.s, supplyHooks, this.sound);
     this.delivery = new DeliveryView(() => this.s, supplyHooks, this.sound);
+    this.closet = new ClosetView(() => this.s, {
+      ...supplyHooks,
+      opened: () => {
+        this.launcher.cancel();
+        this.drawer.close();
+        document.body.classList.add('in-closet');
+      },
+      closed: () => {
+        document.body.classList.remove('in-closet');
+        $('closet-btn').focus();
+      },
+    }, this.sound);
     this.bind();
     this.syncSound();
   }
@@ -193,6 +207,8 @@ export class UI {
     $('scrounge-btn').addEventListener('click', this.doScrounge);
     $('work-btn').addEventListener('click', this.doWork);
     $('order-btn').addEventListener('click', this.doOrder);
+    $('closet-btn').addEventListener('click', () => this.closet.show());
+    $('weapon-btn').addEventListener('click', () => this.switchWeapon());
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('sound-btn').addEventListener('click', () => {
       this.sound.toggle();
@@ -201,7 +217,7 @@ export class UI {
     $('arena').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-mini]');
       if (!b) return;
-      ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder })[b.dataset.mini as 'scrounge' | 'work' | 'order']();
+      ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder, closet: () => this.closet.show() })[b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet']();
     });
     $('back-btn').addEventListener('click', () => this.toggleHide(false));
     $('call-answer').addEventListener('click', () => this.answerPhone());
@@ -230,15 +246,6 @@ export class UI {
     });
     window.addEventListener('blur', () => this.launcher.cancel());
 
-    $('pane-armory').addEventListener('click', (e) => {
-      const el = e.target as HTMLElement;
-      if (el.closest('button[data-buyback]')) {
-        if (this.act(buyBack)) this.sound.coins();
-        return;
-      }
-      const b = el.closest<HTMLButtonElement>('button[data-weapon]');
-      if (b) this.act((s) => buyWeapon(s, b.dataset.weapon as WeaponId));
-    });
     $('caught-buyback').addEventListener('click', () => {
       if (this.act(buyBack)) {
         this.sound.coins();
@@ -316,6 +323,10 @@ export class UI {
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (document.querySelector('dialog[open]')) return; // dialogs handle their own keys
     const k = e.key.toLowerCase();
+    if (this.closet.isOpen) {
+      if (this.closet.onKey(e)) e.preventDefault();
+      return;
+    }
     if (k === 'escape' || k === 'b') {
       e.preventDefault();
       this.toggleHide();
@@ -336,6 +347,20 @@ export class UI {
     else if (k === 's') this.doScrounge();
     else if (k === 'w') this.doWork();
     else if (k === 'o') this.doOrder();
+    else if (k === 'd') this.closet.show();
+    else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
+  }
+
+  /** The weapon name under the Flick key: click it (or press 1–4) to switch between the weapons you own. */
+  private switchWeapon(index?: number) {
+    const s = this.s;
+    const owned = WEAPONS.filter((w) => s.ownedWeapons.includes(w.id) && !isConfiscated(s, w.id));
+    if (owned.length < 2) return;
+    const cur = owned.findIndex((w) => w.id === s.weapon);
+    const next = index === undefined ? owned[(cur + 1) % owned.length] : owned[index];
+    if (!next || next.id === s.weapon) return;
+    this.act((st) => buyWeapon(st, next.id));
+    this.sound.type();
   }
 
   /** Esc: sit down at your computer, or get back to the war. */
@@ -344,6 +369,7 @@ export class UI {
     if (on) {
       this.launcher.cancel();
       this.drawer.close();
+      this.closet.close();
     }
     setLookBusy(this.s, on);
     this.syncComputer();
@@ -404,6 +430,8 @@ export class UI {
         this.sound.incoming();
         this.bump('bands');
       } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
+      else if (e.type === 'walkby') this.closet.kickOut();
+      else if (e.type === 'dealGone' && e.why === 'walkby') this.say('Dale melted away. Footsteps!');
       else if (e.type === 'boxSpotted') this.say('Mr. Feeney eyed that box on your desk. Open deliveries before he walks by.');
       else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
     }
@@ -467,7 +495,7 @@ export class UI {
     bb.hidden = !e.confiscated;
     if (e.confiscated) {
       const price = buyBackPrice(s);
-      bb.textContent = `Lost and Found: buy it back for ${money(price)}`;
+      bb.textContent = `Have Dale get it back: ${money(price)}`;
       bb.disabled = s.salary < price;
     }
     this.openDialog('caught-dlg');
@@ -616,6 +644,7 @@ export class UI {
     }
     this.drawer.render();
     this.delivery.render();
+    this.closet.render();
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
     void dt;
@@ -654,6 +683,11 @@ export class UI {
         ? `${w.name}: your ${taken} is in Mr. Feeney's drawer (${clock(left)})`
         : `${w.name}: ${total} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} per shot`,
     );
+    const choices = s.ownedWeapons.filter((id) => !isConfiscated(s, id)).length;
+    $('weapon-next').hidden = choices < 2;
+    $<HTMLButtonElement>('weapon-btn').disabled = choices < 2;
+    const deal = s.dale.deal;
+    this.set('closet-sub', deal && !s.lookBusy ? `Dale has a deal: ${Math.ceil(Math.max(0, deal.until - s.time))} s` : s.hr.confiscated ? 'Dale can get your weapon back' : 'Weapons and band “upgrades”. Don’t ask.');
 
     // Coach line: a temporary message wins, then the most useful hint.
     const msg = this.flash && this.flash.until > performance.now() ? this.flash.text : coachHint(s);
@@ -761,7 +795,6 @@ export class UI {
     this.rebuild('panes', shape, () => {
       this.text.delete('conf-left');
       for (const a of s.allies) this.text.delete(`served-${a.id}`);
-      this.buildArmory(s);
       this.buildReqs(s);
       this.buildTeam(s);
     });
@@ -781,37 +814,11 @@ export class UI {
     });
   }
 
-  private buildArmory(s: GameState) {
-    const m = mods(s);
-    const rows = WEAPONS.filter((w) => w.stage <= s.stage + 1).map((w) => {
-      const owned = s.ownedWeapons.includes(w.id);
-      const equipped = s.weapon === w.id;
-      const price = priceOf(s, w.price);
-      let act: string;
-      if (isConfiscated(s, w.id)) {
-        const bb = buyBackPrice(s);
-        act = `<span class="conf">In Mr. Feeney's drawer <span id="conf-left"></span></span> <button type="button" class="buy" data-buyback="1" data-price="${bb}">Lost and Found ${money(bb)}</button>`;
-      } else if (equipped) act = '<span class="stamp blue">Equipped</span>';
-      else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
-      else if (w.stage > s.stage) act = `<span class="tag">Stage ${w.stage}</span>`;
-      else if (w.needsEngineer && !m.hasEngineer)
-        act = `<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}" data-locked="1" title="Assign someone as Engineer first">Needs an Engineer</button>`;
-      else act = `<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}">Buy ${money(price)}</button>`;
-      return `<div class="item${owned ? ' owned' : ''}">
-        <h4>${esc(w.name)}</h4>
-        <p>${esc(w.blurb)}</p>
-        <p class="stats">${w.damage * w.burst} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} per shot, noise ${w.noise.toFixed(1)}</p>
-        <div class="act">${act}</div></div>`;
-    });
-    $('pane-armory').innerHTML =
-      `<p class="pane-note">Your Shooters always use your equipped weapon. Louder weapons raise Suspicion faster.</p>` + rows.join('');
-  }
-
   private buildReqs(s: GameState) {
     const open: string[] = [];
     const done: string[] = [];
     for (const u of UPGRADES) {
-      if (u.stage > s.stage) continue;
+      if (u.stage > s.stage || u.seller === 'dale') continue;
       const price = priceOf(s, u.price);
       if (has(s, u.id)) {
         done.push(`<div class="item owned"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="stamp">Approved</span></div></div>`);
@@ -823,7 +830,7 @@ export class UI {
       }
     }
     $('pane-reqs').innerHTML =
-      `<p class="pane-note">Requisitions are permanent. Procurement approves anything with a form attached.</p>` + open.join('') + done.join('');
+      `<p class="pane-note">Requisitions are permanent. Procurement approves anything with a form attached. For anything rubber band related, there's Dale (supply closet, D).</p>` + open.join('') + done.join('');
   }
 
   private buildTeam(s: GameState) {
@@ -893,7 +900,7 @@ function coachHint(s: GameState): string {
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
   if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Get on your computer (Esc) when you hear footsteps.";
   if (s.hr.confiscated && s.salary >= buyBackPrice(s))
-    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (in the Armory).`;
+    return `Dale can get your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))}. Supply closet (D).`;
   if (s.supplies.box) return 'A box of bands is on your desk. Open it (O) before Mr. Feeney walks by and asks about it.';
   if (s.bands < w.burst) {
     if (s.supplies.order) return 'Your order is on its way. Scrounge your drawer (S) or do some work (Esc) while you wait.';
@@ -904,7 +911,7 @@ function coachHint(s: GameState): string {
   if (s.suspicion >= 70) return 'Suspicion is high. Get on your computer (Esc) and do some work until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {
     return s.salary >= 15
-      ? 'You can afford the Ruler Launcher. Buy it in the Armory below.'
+      ? 'You can afford the Ruler Launcher. Dale sells it in the supply closet: press D.'
       : 'Earn $15 for the Ruler Launcher: press Esc to get on your computer and answer some emails.';
   }
   if (s.stats.shots >= 6 && s.stats.charged === 0)

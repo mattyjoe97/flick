@@ -1,8 +1,8 @@
-import { CHARGE, CHATTER, COWORKERS, PROMOTION, ROLES, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { stepSheet } from './minigame';
 import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
-import { currentTarget, newAlly, pushEmail, pushTicker, type GameState } from './state';
+import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
 import { setSuspicionHook, stepWork } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
@@ -168,12 +168,12 @@ export function buyBack(s: GameState): ActionResult {
   const c = s.hr.confiscated;
   if (!c) return no('Nothing of yours is in Mr. Feeney’s drawer.');
   const price = buyBackPrice(s);
-  if (s.salary < price) return no(`Lost and Found wants $${price}.`);
+  if (s.salary < price) return no(`Dale wants $${price} to get it back.`);
   s.salary -= price;
   const w = WEAPONS.find((w) => w.id === c.weapon)!;
   s.hr.confiscated = null;
   s.stats.buyBacks++;
-  pushTicker(s, `Lost and Found returns your ${w.name}. The form asked for a description. You wrote "${w.name.split(' ')[0].toLowerCase()}".`);
+  pushTicker(s, `Dale comes back from Mr. Feeney's office with your ${w.name}. You don't ask how.`);
   s.events.push({ type: 'weaponBack', weapon: w.id, paid: true });
   return ok;
 }
@@ -195,7 +195,7 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  const dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1);
+  const dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage;
   s.targetResolve -= dmg;
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
@@ -349,6 +349,7 @@ export function step(s: GameState, dt: number) {
   stepChat(s);
   stepSheet(s);
   stepSupplies(s);
+  stepDale(s);
 }
 
 function walkbys(s: GameState, warning: number, intervalMult: number) {
@@ -475,7 +476,7 @@ export function buyWeapon(s: GameState, id: WeaponId): ActionResult {
   const w = WEAPONS.find((w) => w.id === id);
   if (!w) return no('Unknown weapon.');
   if (s.ownedWeapons.includes(id)) {
-    if (isConfiscated(s, id)) return no('It’s in Mr. Feeney’s drawer. Get it back from Lost and Found.');
+    if (isConfiscated(s, id)) return no('It’s in Mr. Feeney’s drawer. Dale can get it back (D).');
     s.weapon = id;
     return ok;
   }
@@ -548,6 +549,88 @@ function roleName(r: Role) {
   return { shooter: 'a Shooter', gatherer: 'a Gatherer', lookout: 'a Lookout', cover: 'Cover', engineer: 'an Engineer' }[r];
 }
 
+// ------------------------------------------------------------------ Dale's black market
+
+/** Dale's goods: every weapon, plus the requisitions Procurement would never approve. */
+export const daleSells = (id: UpgradeId) => UPGRADES.find((u) => u.id === id)?.seller === 'dale';
+
+function dealOptions(s: GameState): DaleDeal[] {
+  const until = s.time + DALE.dealSeconds;
+  const off = () => 1 - randRange(s, DALE.discount[0], DALE.discount[1]);
+  const opts: DaleDeal[] = [];
+  for (const w of WEAPONS) {
+    if (w.price === 0 || s.ownedWeapons.includes(w.id) || w.stage > s.stage) continue;
+    if (w.needsEngineer && !mods(s).hasEngineer) continue;
+    opts.push({ kind: 'weapon', id: w.id, price: Math.ceil(priceOf(s, w.price) * off()), until, early: false });
+  }
+  for (const u of UPGRADES) {
+    if (u.seller !== 'dale' || has(s, u.id) || u.stage > s.stage + 1) continue;
+    const early = !upgradeAvailable(s, u.id);
+    opts.push({ kind: 'upgrade', id: u.id, price: Math.ceil(priceOf(s, u.price) * (early ? DALE.earlyMarkup : off())), until, early });
+  }
+  // Dale reads the room: he leads with things you could actually pay for soon.
+  const reachable = opts.filter((o) => o.price <= s.salary * 2 + 40);
+  return reachable.length ? reachable : opts;
+}
+
+function dealOver(s: GameState, why: 'expired' | 'walkby' | 'taken' | 'passed') {
+  s.dale.deal = null;
+  s.dale.nextDealAt = s.time + randRange(s, DALE.dealGap[0], DALE.dealGap[1]);
+  s.events.push({ type: 'dealGone', why });
+}
+
+function stepDale(s: GameState) {
+  const d = s.dale;
+  if (!d.introduced && s.time >= DALE.introAt) {
+    d.introduced = true;
+    pushTicker(s, 'Someone slipped a note under your keyboard: "Supply closet. Come alone. —D." (Press D.)');
+    chatEvent(s, 'dale:intro');
+  }
+  if (d.deal) {
+    if (s.walkby.arrivesAt !== null) dealOver(s, 'walkby');
+    else if (s.time >= d.deal.until) dealOver(s, 'expired');
+    return;
+  }
+  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.stage > 2) return;
+  const opts = dealOptions(s);
+  if (opts.length === 0) {
+    d.nextDealAt = s.time + 60;
+    return;
+  }
+  d.deal = opts[Math.floor(rand(s) * opts.length) % opts.length];
+  s.stats.dealsOffered++;
+  s.events.push({ type: 'deal' });
+}
+
+export function dealName(deal: DaleDeal) {
+  return deal.kind === 'weapon' ? WEAPONS.find((w) => w.id === deal.id)!.name : UPGRADES.find((u) => u.id === deal.id)!.name;
+}
+
+/** Take Dale up on his offer. */
+export function takeDeal(s: GameState): ActionResult {
+  const deal = s.dale.deal;
+  if (!deal || s.time >= deal.until) return no('Dale’s gone.');
+  const owned = deal.kind === 'weapon' ? s.ownedWeapons.includes(deal.id as WeaponId) : has(s, deal.id as UpgradeId);
+  if (owned) {
+    dealOver(s, 'passed');
+    return no('You already have one of those.');
+  }
+  if (s.salary < deal.price) return no(`Dale wants $${deal.price}. Come back when you’re liquid.`);
+  s.salary -= deal.price;
+  if (deal.kind === 'weapon') {
+    s.ownedWeapons.push(deal.id as WeaponId);
+    s.weapon = deal.id as WeaponId;
+  } else s.upgrades.push(deal.id as UpgradeId);
+  s.stats.dealsTaken++;
+  pushTicker(s, `Dale slips you the ${dealName(deal)} for $${deal.price}. You didn’t get it from him.`);
+  dealOver(s, 'taken');
+  return ok;
+}
+
+export function passDeal(s: GameState) {
+  if (s.dale.deal) dealOver(s, 'passed');
+}
+
 // ------------------------------------------------------------------ offline
 
 /** Applies passive income for time spent away (no fights, no walk-bys). */
@@ -567,6 +650,8 @@ export function applyOffline(s: GameState, seconds: number) {
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
   s.work.nextCallAt = Math.max(s.work.nextCallAt, s.time + 30);
   suppliesOffline(s);
+  s.dale.deal = null;
+  s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);
   if (bands >= 1 || salary >= 1) {
     pushEmail(
       s,

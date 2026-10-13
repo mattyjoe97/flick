@@ -42,6 +42,7 @@ function migrate(file: SaveFile): GameState | null {
   s.sheet = { ...base.sheet, ...(file.state.sheet ?? {}), open: false };
   s.chat = { ...base.chat, ...(file.state.chat ?? {}) };
   s.supplies = { ...base.supplies, ...(file.state.supplies ?? {}) };
+  s.dale = { ...base.dale, ...(file.state.dale ?? {}), deal: null };
   // Allies from version 1 saves have no promotion fields yet.
   s.allies = (file.state.allies ?? []).map((a) => ({ ...a, served: a.served ?? 0, rank: a.rank ?? 0 }));
   s.version = SAVE_VERSION;

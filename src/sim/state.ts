@@ -1,8 +1,8 @@
-import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
+import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type TaskKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 export interface Email {
   id: number;
@@ -30,6 +30,15 @@ export interface ChatMessage {
   t: number;
   from: string;
   text: string;
+}
+
+/** A "Psst" offer from Dale: a little off, or something early at a markup. */
+export interface DaleDeal {
+  kind: 'weapon' | 'upgrade';
+  id: string;
+  price: number;
+  until: number;
+  early: boolean;
 }
 
 export interface Ticker {
@@ -104,6 +113,9 @@ export interface GameState {
   /** Your desk drawer, supply orders on their way, and a delivered box waiting on your desk. */
   supplies: SuppliesState;
 
+  /** Dale from Facilities and his black market in the supply closet. */
+  dale: { deal: DaleDeal | null; nextDealAt: number; introduced: boolean };
+
   inbox: Email[];
   unread: number;
   ticker: Ticker[];
@@ -134,6 +146,8 @@ export interface GameState {
     finds: number;
     ordersPlaced: number;
     boxesOpened: number;
+    dealsOffered: number;
+    dealsTaken: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -166,7 +180,9 @@ export type GameEvent =
   | { type: 'chat'; from: string }
   | { type: 'delivery'; amount: number; free: boolean }
   | { type: 'find'; kind: FindKind }
-  | { type: 'boxSpotted'; noise: number };
+  | { type: 'boxSpotted'; noise: number }
+  | { type: 'deal' }
+  | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
@@ -206,6 +222,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0, open: false },
     chat: { log: [], unread: 0, nextAt: 15, used: [] },
     supplies: newSupplies(),
+    dale: { deal: null, nextDealAt: DALE.firstDealAt, introduced: false },
     inbox: [],
     unread: 0,
     ticker: [],
@@ -235,6 +252,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       finds: 0,
       ordersPlaced: 0,
       boxesOpened: 0,
+      dealsOffered: 0,
+      dealsTaken: 0,
     },
     events: [],
   };

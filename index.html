@@ -102,6 +102,10 @@
               <span class="card-title">Scrounge drawer <kbd>S</kbd></span>
               <small id="scrounge-sub">15 stray bands inside</small>
             </button>
+            <button type="button" class="card-btn has-art" id="closet-btn">
+              <span class="card-title">Supply closet <kbd>D</kbd></span>
+              <small id="closet-sub">Dale from Facilities. Don’t ask.</small>
+            </button>
             <button type="button" class="card-btn has-art" id="order-btn">
               <span class="card-title"><span id="order-title">Order supplies</span> <kbd>O</kbd></span>
               <small id="order-sub">$5 for 50 bands</small>
@@ -142,25 +146,18 @@
               <span class="key-word">Flick</span>
               <span class="key-hint">hold to stretch</span>
             </button>
-            <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
+            <button type="button" class="weapon-line" id="weapon-btn" title="Switch weapons (1–4)"><span id="weapon-line">Finger Flick: 1 damage, 1 band per shot</span><span class="weapon-next" id="weapon-next" hidden>Switch</span></button>
             </div>
             <div class="mini-actions">
               <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
               <button type="button" class="mini-btn mini-pc" data-mini="work">Computer</button>
               <button type="button" class="mini-btn" data-mini="order">Order</button>
+              <button type="button" class="mini-btn" data-mini="closet">Closet</button>
             </div>
           </div>
           <p class="coach" id="coach"></p>
           <ol class="receipt" id="ticker" aria-live="polite"></ol>
 
-          <div class="folder">
-            <div class="tabs">
-              <h3 class="drawer-tab" id="drawer-h">Armory</h3>
-            </div>
-            <div class="folder-body">
-              <div class="pane" id="pane-armory" aria-labelledby="drawer-h"></div>
-            </div>
-          </div>
         </section>
 
       </main>
