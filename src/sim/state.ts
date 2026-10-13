@@ -1,6 +1,7 @@
 import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
+import { newWorkState, type TaskKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export interface Email {
   id: number;
@@ -73,6 +74,9 @@ export interface GameState {
   warned75: boolean;
   outOfAmmoWarnedAt: number;
 
+  /** Your actual job: the queue of emails, calls, budget sheets and expense reports. */
+  work: WorkState;
+
   /** The Boss Key spreadsheet mini-game. */
   sheet: {
     tab: SheetTabId;
@@ -107,6 +111,11 @@ export interface GameState {
     fired: number;
     buyBacks: number;
     promotions: number;
+    tasksDone: number;
+    tasksWrong: number;
+    tasksAuto: number;
+    callsMissed: number;
+    receiptsFudged: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -131,7 +140,11 @@ export type GameEvent =
   | { type: 'recruit'; id: CoworkerId }
   | { type: 'mail'; kind: Email['kind'] }
   | { type: 'fix'; row: number; col: number; pay: number; streak: number; hustle: boolean }
-  | { type: 'sheetMiss'; reason: 'wrong' | 'expired' };
+  | { type: 'sheetMiss'; reason: 'wrong' | 'expired' }
+  | { type: 'task'; kind: TaskKind; id: number }
+  | { type: 'taskDone'; kind: TaskKind; ok: boolean; pay: number; text: string }
+  | { type: 'taskAuto'; kind: TaskKind; who: string }
+  | { type: 'callMissed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
@@ -159,6 +172,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     shooterLockUntil: 0,
     walkby: { nextAt: TUNING.firstWalkby, arrivesAt: null },
     hr: { writeUps: 0, lastWriteUpAt: 0, confiscated: null },
+    work: newWorkState(),
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -189,6 +203,11 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       fired: 0,
       buyBacks: 0,
       promotions: 0,
+      tasksDone: 0,
+      tasksWrong: 0,
+      tasksAuto: 0,
+      callsMissed: 0,
+      receiptsFudged: 0,
     },
     events: [],
   };

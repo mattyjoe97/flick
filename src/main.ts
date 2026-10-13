@@ -11,6 +11,7 @@ import { TUNING } from './sim/content';
 import { applyOffline, step } from './sim/engine';
 import { clearStorage, deserialize, exportSave, importSave, loadFromStorage, saveToStorage, serialize } from './sim/save';
 import { newGame, type GameState } from './sim/state';
+import { addTask, type TaskKind } from './sim/work';
 import { UI, type GameHost } from './ui/app';
 
 interface HotHook {
@@ -113,6 +114,7 @@ function boot(hotData: { save?: string }) {
       },
       setSpeed: (n: number) => (speed = n),
       ui,
+      addTask: (kind: TaskKind) => addTask(state, kind),
     };
   }
 }

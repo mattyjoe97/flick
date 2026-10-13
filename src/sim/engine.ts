@@ -3,6 +3,7 @@ import { stepSheet } from './minigame';
 import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type GameState } from './state';
+import { isWorking, overdueCount, setSuspicionHook, stepWork } from './work';
 
 // ------------------------------------------------------------------ helpers
 
@@ -12,6 +13,9 @@ export function addSuspicion(s: GameState, amount: number) {
   s.suspicion += amount * (1 - m.lookoutCut);
   checkThresholds(s);
 }
+
+// Work tasks raise Suspicion through the same path (Lookouts, warnings, getting caught).
+setSuspicionHook(addSuspicion);
 
 function checkThresholds(s: GameState) {
   if (!s.warned50 && s.suspicion >= 50) {
@@ -40,6 +44,7 @@ function getCaught(s: GameState) {
   s.flickLockUntil = s.time + TUNING.caughtFlickLock;
   s.shooterLockUntil = s.time + TUNING.caughtShooterLock;
   s.lookBusy = false;
+  s.work.activeId = null;
 
   // A write-up goes in your file.
   s.hr.writeUps++;
@@ -92,6 +97,7 @@ function getFired(s: GameState) {
   s.suspicion = 0;
   s.hr = { writeUps: 0, lastWriteUpAt: s.time, confiscated: null };
   s.lookBusy = false;
+  s.work.activeId = null;
   s.flickLockUntil = 0;
   s.shooterLockUntil = 0;
   s.walkby = { nextAt: s.time + TUNING.firstWalkby / 2, arrivesAt: null };
@@ -265,7 +271,9 @@ export function step(s: GameState, dt: number) {
 
   // Cooling off
   const idle = s.time - s.lastShotAt >= TUNING.idleCoolDelay;
-  const cool = TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0);
+  // Overdue work: nobody forgets about you while your inbox is overflowing.
+  const slacking = overdueCount(s) > 0;
+  const cool = (slacking ? 0 : TUNING.baseCool + (idle ? TUNING.idleCool : 0)) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0);
   s.suspicion = Math.max(0, s.suspicion - cool * dt);
   checkThresholds(s);
 
@@ -333,6 +341,7 @@ export function step(s: GameState, dt: number) {
   }
   stepHr(s);
   stepAllies(s, dt);
+  stepWork(s, dt);
   stepSheet(s);
 }
 
@@ -345,7 +354,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
   if (w.arrivesAt !== null && s.time >= w.arrivesAt) {
     w.arrivesAt = null;
     w.nextAt = s.time + randRange(s, TUNING.walkbyMin, TUNING.walkbyMax) * intervalMult;
-    if (s.lookBusy) {
+    if (s.lookBusy || isWorking(s)) {
       s.stats.hides++;
       s.suspicion = Math.max(0, s.suspicion - TUNING.hideReward);
       const bonus = 5 * s.stage;
@@ -384,6 +393,7 @@ const no = (reason: string): ActionResult => ({ ok: false, reason });
 export function canFlick(s: GameState): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
+  if (s.work.activeId !== null) return no('Finish your task first (or put it down).');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   return ok;
@@ -396,6 +406,7 @@ export function canFlick(s: GameState): ActionResult {
 export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
+  if (s.work.activeId !== null) return no('Finish your task first (or put it down).');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   const w = weapon(s);
   if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
@@ -425,16 +436,6 @@ export function scrounge(s: GameState): ActionResult {
   const n = mods(s).scrounge;
   s.bands += n;
   s.stats.bandsScrounged += n;
-  return ok;
-}
-
-export function work(s: GameState): ActionResult {
-  const pay = mods(s).workPay;
-  s.salary += pay;
-  s.suspicion = Math.max(0, s.suspicion - TUNING.workCool);
-  s.stats.workClicks++;
-  s.stats.workEarned += pay;
-  checkThresholds(s);
   return ok;
 }
 
@@ -550,6 +551,7 @@ export function applyOffline(s: GameState, seconds: number) {
   s.suspicion = Math.max(0, s.suspicion - (TUNING.baseCool + TUNING.idleCool) * secs);
   // Push the next walk-by out so nobody gets spotted the instant they return.
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
+  s.work.nextAt = Math.max(s.work.nextAt, s.time + 8);
   if (bands >= 1 || salary >= 1) {
     pushEmail(
       s,

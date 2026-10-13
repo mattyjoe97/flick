@@ -29,6 +29,10 @@
         <p><strong>Footsteps!</strong> Mr. Feeney is coming. Look busy: press <kbd>Esc</kbd>.</p>
         <div class="walkby-clock"><span id="walkby-fill"></span></div>
       </div>
+      <div class="call-banner" id="call-banner" role="alert" hidden>
+        <p><strong>Ring ring!</strong> Your phone is ringing. <button type="button" class="paper-btn paper-btn-strong" id="call-answer">Answer <kbd>W</kbd></button></p>
+        <div class="walkby-clock"><span id="call-fill"></span></div>
+      </div>
       <div class="lockout" id="lockout" role="status" hidden></div>
 
       <main class="desk">
@@ -84,9 +88,10 @@
               <span class="card-title">Scrounge drawer <kbd>S</kbd></span>
               <small id="scrounge-sub">+1 band</small>
             </button>
-            <button type="button" class="card-btn" id="work-btn">
+            <button type="button" class="card-btn work-card" id="work-btn">
               <span class="card-title">Do work <kbd>W</kbd></span>
-              <small id="work-sub">+$1, −1.5 Suspicion</small>
+              <small id="work-sub">Inbox empty</small>
+              <span class="work-icons" id="work-icons" aria-hidden="true"></span>
             </button>
             <button type="button" class="card-btn" id="order-btn">
               <span class="card-title">Order supplies <kbd>O</kbd></span>
@@ -161,12 +166,14 @@
         <section class="messages" aria-labelledby="inbox-h">
           <div class="msg-head">
             <h2 class="tape-label" id="inbox-h">Messages</h2>
+            <button type="button" class="phone-btn" id="phone-btn" aria-label="Desk phone">
             <svg class="phone" id="phone" viewBox="0 0 90 70" aria-hidden="true">
               <rect x="6" y="26" width="78" height="40" rx="8" fill="#3a3f45" stroke="#1f2226" stroke-width="3"></rect>
               <path d="M4 22 Q4 6 20 6 L70 6 Q86 6 86 22 L74 24 L70 16 L20 16 L16 24 Z" fill="#2f3439" stroke="#1f2226" stroke-width="3" class="handset"></path>
               <g fill="#cfd5db"><rect x="22" y="34" width="10" height="7" rx="2"></rect><rect x="40" y="34" width="10" height="7" rx="2"></rect><rect x="58" y="34" width="10" height="7" rx="2"></rect><rect x="22" y="46" width="10" height="7" rx="2"></rect><rect x="40" y="46" width="10" height="7" rx="2"></rect><rect x="58" y="46" width="10" height="7" rx="2"></rect></g>
               <circle class="phone-light" cx="76" cy="34" r="3.5" fill="#5a2a2a"></circle>
             </svg>
+            </button>
           </div>
           <ol class="slips" id="mail"></ol>
         </section>
@@ -195,6 +202,19 @@
         <h2 id="stage-dlg-h">Stage 2: Cubicle Alliance</h2>
         <div id="stage-dlg-body"></div>
         <form method="dialog"><button class="paper-btn paper-btn-strong" id="stage-dlg-ok">Back to it</button></form>
+      </dialog>
+
+      <dialog class="dlg dlg-work" id="work-dlg" aria-labelledby="work-h">
+        <h2 id="work-h">Work</h2>
+        <div class="work-fast" id="work-fast" aria-hidden="true"><span id="work-fast-fill"></span><em>Fast bonus</em></div>
+        <div id="work-body" tabindex="-1"></div>
+        <div class="work-result" id="work-result" role="status" hidden></div>
+        <div class="dlg-actions work-actions">
+          <button type="button" class="paper-btn" id="work-later">Put it down</button>
+          <button type="button" class="paper-btn paper-btn-strong" id="work-submit" hidden>Submit</button>
+          <button type="button" class="paper-btn paper-btn-strong" id="work-next" hidden>Next task <kbd>W</kbd></button>
+          <button type="button" class="paper-btn" id="work-close" hidden>Back to it</button>
+        </div>
       </dialog>
 
       <dialog class="dlg dlg-caught" id="caught-dlg" aria-labelledby="caught-h">

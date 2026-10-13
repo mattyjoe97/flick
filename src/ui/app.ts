@@ -18,7 +18,6 @@ import {
   targetDefeated,
   upgradeAvailable,
   walkbyCountdown,
-  work,
   type ActionResult,
 } from '../sim/engine';
 import { has, isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
@@ -29,6 +28,8 @@ import { SheetView } from './sheet';
 import { Sound } from './sound';
 import { Launcher } from './launcher';
 import { drawPerson, PEOPLE } from './characters';
+import { WorkView } from './workview';
+import { overdueCount, ringingCall } from '../sim/work';
 
 export interface GameHost {
   state: GameState;
@@ -66,6 +67,7 @@ export class UI {
   private sound = new Sound();
   private scene: Scene;
   private sheet: SheetView;
+  private work: WorkView;
 
   constructor(private host: GameHost) {
     this.scene = new Scene(() => this.s, {
@@ -100,6 +102,17 @@ export class UI {
       },
       this.scene.handLayer,
     );
+    this.work = new WorkView(() => this.s, {
+      done: (r) => {
+        if (r.ok) this.sound.coins();
+        else this.sound.miss();
+        if (r.pay > 0) this.bump('salary');
+        if (r.bonusBands) this.bump('bands');
+      },
+      say: (t) => this.say(t),
+      ring: () => this.sound.ring(),
+      beforeOpen: () => this.launcher.cancel(),
+    });
     this.bind();
     this.syncSound();
   }
@@ -127,11 +140,10 @@ export class UI {
     }
   };
 
+  /** Do work: opens the next task in your queue (a ringing phone first). */
   private doWork = () => {
-    if (this.act(work)) {
-      this.bump('salary');
-      this.sound.type();
-    }
+    this.sound.type();
+    this.work.openNext();
   };
 
   private doOrder = () => {
@@ -173,6 +185,8 @@ export class UI {
       ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder })[b.dataset.mini as 'scrounge' | 'work' | 'order']();
     });
     $('sheet-close').addEventListener('click', () => this.toggleHide(false));
+    $('phone-btn').addEventListener('click', this.doWork);
+    $('call-answer').addEventListener('click', this.doWork);
 
     // Hold the Flick key (or your hand) to stretch the band; let go to fire.
     for (const el of [$('flick-btn'), $('scene')]) {
@@ -377,7 +391,11 @@ export class UI {
       else if (e.type === 'enemyShot') {
         this.sound.incoming();
         this.bump('bands');
-      } else if (e.type === 'mail' && e.kind !== 'flavor') this.ringPhone();
+      } else if (e.type === 'mail' && e.kind !== 'flavor') this.wobblePhone();
+      else if (e.type === 'callMissed') {
+        this.sound.miss();
+        this.say('You missed a call. The whole floor heard it ring out.');
+      }
       else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
     }
   }
@@ -406,8 +424,8 @@ export class UI {
     setTimeout(() => f.remove(), 1300);
   }
 
-  private ringPhone() {
-    this.sound.ring();
+  /** New story mail: the phone's message light blinks (calls ring for real; see WorkView). */
+  private wobblePhone() {
     if (reducedMotion()) return;
     const ph = $('phone');
     ph.classList.remove('ring');
@@ -474,6 +492,8 @@ export class UI {
 
   private openDialog(id: string) {
     const dlg = $<HTMLDialogElement>(id);
+    const workDlg = $<HTMLDialogElement>('work-dlg');
+    if (workDlg.open) workDlg.close();
     this.launcher.cancel();
     if (this.s.lookBusy) this.toggleHide(false);
     if (!dlg.open) dlg.showModal();
@@ -549,7 +569,6 @@ export class UI {
     $('suspicion').dataset.level = level;
     this.set('susp-note', onFinalWarning(s) && susp >= 75 ? "One more and you're fired." : suspicionNote(susp));
     this.set('scrounge-sub', `+${m.scrounge} band${m.scrounge > 1 ? 's' : ''}`);
-    this.set('work-sub', `+$${m.workPay}, −1.5 Suspicion`);
     this.set('order-sub', `$${m.order.price} for ${m.order.amount} bands`);
     $<HTMLButtonElement>('order-btn').disabled = s.salary < m.order.price;
 
@@ -581,6 +600,7 @@ export class UI {
     this.renderMail(s);
     this.renderPanes(s);
     this.sheet.render();
+    this.work.render();
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
     void dt;
@@ -841,7 +861,11 @@ function coachHint(s: GameState): string {
   if (walkbyCountdown(s) !== null && !s.lookBusy) return 'Footsteps! Press Esc to look busy before Mr. Feeney arrives.';
   if (s.lookBusy && s.walkby.arrivesAt === null && s.suspicion < 10) return '';
   if (!t) return '';
+  if (ringingCall(s)) return 'Your phone is ringing! Press W (or tap the phone) to answer before it rings out.';
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
+  if (s.stats.tasksDone + s.stats.tasksWrong === 0 && s.work.queue.length > 0)
+    return 'You have work waiting. Press W (or Do work) to do it: work pays and lowers Suspicion.';
+  if (overdueCount(s) > 0) return 'Work is overdue: your Suspicion won’t cool down until you catch up. Press W.';
   if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Look busy when you hear footsteps.";
   if (s.hr.confiscated && s.salary >= buyBackPrice(s))
     return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (Armory).`;
@@ -850,11 +874,11 @@ function coachHint(s: GameState): string {
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'
       : 'Out of bands. Scrounge your drawer (S), or do some work (W) to afford a supply order.';
   }
-  if (s.suspicion >= 70) return 'Suspicion is high. Do some work (W) or hide in a spreadsheet (Esc) until it cools.';
+  if (s.suspicion >= 70) return 'Suspicion is high. Do some work (W) or look busy in a spreadsheet (Esc) until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {
     return s.salary >= 15
       ? 'You can afford the Ruler Launcher. Buy it in the Armory below.'
-      : 'Do some work (W) to earn $15 for the Ruler Launcher. Work also lowers Suspicion.';
+      : 'Do your work (W) to earn $15 for the Ruler Launcher. Work also lowers Suspicion.';
   }
   if (s.stats.shots >= 6 && s.stats.charged === 0)
     return 'Tip: hold Flick (or F) to stretch the band. Let go at full stretch for a Perfect shot: 6\u00d7 damage from one band.';

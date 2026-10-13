@@ -7,7 +7,7 @@ export const ROLES: { id: Role; name: string; effect: string }[] = [
   { id: 'shooter', name: 'Shooter', effect: 'Fires your best weapon every 2 s' },
   { id: 'gatherer', name: 'Gatherer', effect: '+0.5 bands/s' },
   { id: 'lookout', name: 'Lookout', effect: '−12% Suspicion gain, +0.75 s warning' },
-  { id: 'cover', name: 'Cover', effect: 'Does real work: +$0.50/s, −0.3 Suspicion/s' },
+  { id: 'cover', name: 'Cover', effect: 'Does real work: +$0.50/s, −0.3 Suspicion/s, clears a task every 40 s' },
   { id: 'engineer', name: 'Engineer', effect: '−10% weapon and requisition prices' },
 ];
 
@@ -146,8 +146,8 @@ export interface Upgrade {
 export const UPGRADES: Upgrade[] = [
   { id: 'rummage', name: 'Rummage Deeper', effect: 'Scrounging finds 2 bands instead of 1.', price: 10, stage: 1 },
   { id: 'organizer', name: 'Drawer Organizer', effect: '+0.4 bands/s, automatically.', price: 20, stage: 1 },
-  { id: 'autoreply', name: 'Email Auto-Reply', effect: '+$0.40/s while you do anything else.', price: 35, stage: 1 },
-  { id: 'chair', name: 'Ergonomic Chair', effect: 'Do Work pays $2 instead of $1.', price: 50, stage: 1 },
+  { id: 'autoreply', name: 'Email Auto-Reply', effect: 'Answers emails that wait 20 s (half pay), plus $0.40/s.', price: 35, stage: 1 },
+  { id: 'chair', name: 'Ergonomic Chair', effect: 'Work tasks and spreadsheet fixes pay double.', price: 50, stage: 1 },
   { id: 'silent', name: 'Silent Flick Technique', effect: 'Your shots make 25% less noise.', price: 60, stage: 1 },
   { id: 'riser', name: 'Monitor Riser', effect: 'See over the cubicle: +1 s walk-by warning.', price: 90, stage: 1 },
   { id: 'bulk', name: 'Bulk Ordering', effect: 'Supply orders become $12 for 200 bands.', price: 150, stage: 2 },
@@ -166,11 +166,10 @@ export const TUNING = {
   stepSeconds: 0.1,
   noisePerShot: 0.5,
   recoverDelay: 4, // seconds without a hit before a target recovers
-  baseCool: 0.3, // Suspicion/s always
+  baseCool: 0.5, // Suspicion/s always
   idleCool: 0.6, // extra Suspicion/s after 3 s with no shots
   idleCoolDelay: 3,
   lookBusyCool: 3,
-  workCool: 1.5,
   coverCool: 0.3,
   coverPay: 0.5,
   gathererRate: 0.5,

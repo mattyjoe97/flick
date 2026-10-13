@@ -2032,6 +2032,488 @@ kbd {
   font-weight: 700;
 }
 
+/* ------------------------------------------------------------ work: tray, phone, tasks */
+
+.work-card {
+  position: relative;
+}
+
+.work-card.waiting {
+  outline: 2px solid var(--pen);
+  outline-offset: -2px;
+}
+
+.work-card.overdue {
+  outline: 3px solid var(--alarm);
+  outline-offset: -3px;
+}
+
+.work-card.overdue small {
+  color: var(--alarm);
+  font-weight: 700;
+}
+
+.work-icons {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  display: flex;
+  gap: 3px;
+  transform: translateY(-50%);
+}
+
+.work-icons .ic svg {
+  display: block;
+  width: 20px;
+  height: 15px;
+  fill: #fff8e8;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.work-icons .ic-call svg {
+  fill: #ffd9d4;
+  stroke: var(--alarm);
+}
+
+.phone-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.phone-btn.ringing .phone {
+  animation: ring 0.9s ease-in-out infinite;
+}
+
+.phone-btn.ringing .phone-light {
+  fill: #ff4d4d;
+}
+
+.call-banner {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 58px);
+  z-index: 60;
+  background: var(--pen);
+  color: #fff;
+  padding: 8px 20px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 6px 14px rgba(0, 20, 60, 0.4);
+}
+
+.call-banner p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: var(--t-lg);
+}
+
+.call-banner strong {
+  font-family: var(--font-hand);
+  font-size: var(--t-xl);
+}
+
+.call-banner .paper-btn {
+  color: var(--paper);
+  border-color: var(--paper);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.dlg-work {
+  width: min(600px, calc(100vw - 32px));
+}
+
+.work-fast {
+  position: relative;
+  height: 16px;
+  margin: -6px 0 12px;
+  background: rgba(31, 110, 67, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.work-fast span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--sheet-accent);
+  opacity: 0.55;
+}
+
+.work-fast em {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--t-xs);
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.work-fast.gone em::after {
+  content: " missed";
+}
+
+#work-body:focus {
+  outline: none;
+}
+
+.work-ask {
+  margin: 10px 0 8px;
+  font-weight: 600;
+}
+
+.email-card {
+  background: #fff;
+  border: 1px solid var(--ink-3);
+  border-radius: 3px;
+  box-shadow: var(--shadow-low);
+}
+
+.email-head {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--sheet-head);
+  border-bottom: 1px solid var(--sheet-grid);
+  font-size: var(--t-sm);
+}
+
+.email-text {
+  margin: 0;
+  padding: 12px;
+  font-size: var(--t-lg);
+}
+
+.replies {
+  display: grid;
+  gap: 8px;
+}
+
+.reply-btn,
+.key,
+.flag-btn,
+.ok-btn,
+.no-btn {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+}
+
+.reply-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  min-height: 48px;
+}
+
+.reply-btn kbd,
+.flag-btn kbd {
+  flex: none;
+  font-size: var(--t-xs);
+}
+
+.reply-btn:hover,
+.key:hover,
+.flag-btn:hover,
+.ok-btn:hover,
+.no-btn:hover {
+  background: var(--sticky);
+}
+
+.reply-btn:active,
+.key:active,
+.flag-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.reply-all {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--alarm-pale);
+  color: var(--alarm);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.caller {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 14px;
+  border: 2px solid var(--ink);
+  font-size: var(--t-lg);
+  position: relative;
+}
+
+.caller-tag {
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.call-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.directory {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--sticky);
+  box-shadow: var(--shadow-low);
+  transform: rotate(-1.5deg);
+  font-family: var(--font-hand);
+  font-size: var(--t-lg);
+}
+
+.directory span {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--sticky-edge);
+}
+
+.directory i {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--pen);
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: #3a3f45;
+  border-radius: 10px;
+}
+
+.key {
+  min-height: 48px;
+  font-size: var(--t-xl);
+  font-weight: 700;
+  background: #eef1f4;
+}
+
+.budget {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-low);
+}
+
+.budget th,
+.budget td {
+  padding: 6px 10px;
+  border: 1px solid var(--sheet-grid);
+  text-align: right;
+}
+
+.budget th {
+  background: var(--sheet-head);
+  font-size: var(--t-sm);
+}
+
+.budget td:nth-child(2),
+.budget th:nth-child(2) {
+  text-align: left;
+}
+
+.budget td:first-child {
+  width: 1%;
+  padding: 4px;
+}
+
+.flag-btn {
+  width: 40px;
+  height: 36px;
+}
+
+.flag-btn[aria-pressed="true"] {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  color: #fff;
+}
+
+.budget tr.flagged td {
+  background: var(--alarm-pale);
+}
+
+.rule {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  background: var(--manila);
+  font-weight: 700;
+  box-shadow: var(--shadow-low);
+}
+
+.receipts {
+  display: grid;
+  gap: 10px;
+}
+
+.receipt {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "item cat amt" "choice choice choice";
+  gap: 4px 12px;
+  padding: 10px 12px;
+  background: #fff;
+  font-family: "Courier New", ui-monospace, monospace;
+  box-shadow: var(--shadow-low);
+  border-top: 2px dashed var(--sheet-grid);
+  border-bottom: 2px dashed var(--sheet-grid);
+}
+
+.r-item {
+  grid-area: item;
+  font-weight: 700;
+}
+
+.r-cat {
+  grid-area: cat;
+  color: var(--ink-2);
+}
+
+.r-amt {
+  grid-area: amt;
+  font-weight: 700;
+}
+
+.r-choice {
+  grid-area: choice;
+  display: flex;
+  gap: 8px;
+  font-family: var(--font-ui);
+}
+
+.ok-btn,
+.no-btn {
+  flex: 1;
+  min-height: 40px;
+  font-weight: 700;
+}
+
+.ok-btn[aria-pressed="true"] {
+  background: var(--sheet-accent);
+  border-color: var(--sheet-accent);
+  color: #fff;
+}
+
+.no-btn[aria-pressed="true"] {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  color: #fff;
+}
+
+.receipt.yours {
+  background: #fffbea;
+}
+
+.yours-note {
+  position: absolute;
+  right: -6px;
+  top: -14px;
+  padding: 1px 8px;
+  background: var(--sticky);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  box-shadow: var(--shadow-low);
+  transform: rotate(4deg);
+}
+
+.work-result {
+  position: relative;
+  margin-top: 14px;
+  padding: 12px 14px 10px 110px;
+  min-height: 70px;
+  border-radius: 4px;
+  background: rgba(31, 110, 67, 0.1);
+}
+
+.work-result.bad {
+  background: var(--alarm-pale);
+}
+
+.work-result p {
+  margin: 0 0 4px;
+}
+
+.result-bits {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--t-lg);
+  color: var(--pen);
+}
+
+.stamp-big {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  padding: 2px 10px;
+  border: 4px solid var(--sheet-accent);
+  border-radius: 6px;
+  color: var(--sheet-accent);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+}
+
+.work-result.bad .stamp-big {
+  border-color: var(--alarm);
+  color: var(--alarm);
+}
+
+.work-actions {
+  margin-top: 14px;
+}
+
+@media (max-width: 760px) {
+  .call-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .call-banner {
+    top: calc(env(safe-area-inset-top, 0px) + 100px);
+  }
+  .work-result {
+    padding-left: 14px;
+    padding-top: 52px;
+  }
+  .receipt {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "item amt" "cat cat" "choice choice";
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-btn.ringing .phone {
+    animation: none;
+  }
+}
+
 /* ------------------------------------------------------------ dialogs: memos on paper */
 
 .dlg {

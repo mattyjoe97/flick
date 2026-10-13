@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PROMOTION, TARGETS, TUNING } from '../src/sim/content';
-import { addSuspicion, buyBack, buyBackPrice, buyWeapon, flick, recruit, scrounge, setLookBusy, step, work } from '../src/sim/engine';
+import { addSuspicion, buyBack, buyBackPrice, buyWeapon, flick, recruit, scrounge, setLookBusy, step } from '../src/sim/engine';
 import { rolePower, weapon } from '../src/sim/mods';
+import { addTask, answerTask, correctAnswer, EMAILS, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
 import { playBot, STYLES } from './bot';
@@ -27,14 +28,6 @@ describe('core actions', () => {
     setLookBusy(s, false);
     s.bands = 0;
     expect(flick(s).ok).toBe(false);
-  });
-
-  it('work pays salary and lowers suspicion', () => {
-    const s = newGame(1);
-    s.suspicion = 10;
-    work(s);
-    expect(s.salary).toBe(1);
-    expect(s.suspicion).toBe(8.5);
   });
 
   it('weapons need salary', () => {
@@ -101,6 +94,125 @@ describe('suspicion', () => {
   });
 });
 
+describe('work queue', () => {
+  const take = (s: ReturnType<typeof newGame>, t: WorkTask) => {
+    startTask(s, t.id);
+    return answerTask(s, t.id, correctAnswer(t))!;
+  };
+
+  it('tasks arrive on their own, starting with an email', () => {
+    const s = newGame(1);
+    run(s, WORK.firstTaskAt + 0.2);
+    expect(s.work.queue.length).toBe(1);
+    expect(s.work.queue[0].kind).toBe('email');
+    run(s, 60);
+    expect(s.work.queue.length).toBeGreaterThan(1);
+  });
+
+  it('the right email reply pays and lowers Suspicion; Reply All backfires', () => {
+    const s = newGame(1);
+    s.suspicion = 20;
+    const t = addTask(s, 'email');
+    const r = take(s, t);
+    expect(r.ok).toBe(true);
+    expect(s.salary).toBeCloseTo(WORK.pay.email * (1 + WORK.fastBonus)); // answered instantly
+    expect(s.suspicion).toBe(20 - WORK.relief.email);
+
+    const t2 = addTask(s, 'email');
+    if (t2.kind !== 'email') throw new Error();
+    const ra = EMAILS[t2.data.idx].replies.findIndex((x) => x.replyAll);
+    startTask(s, t2.id);
+    const before = s.suspicion;
+    const r2 = answerTask(s, t2.id, { kind: 'email', choice: t2.data.order.indexOf(ra) })!;
+    expect(r2.ok).toBe(false);
+    expect(r2.pay).toBe(0);
+    expect(s.suspicion).toBeCloseTo(before + WORK.replyAllNoise);
+  });
+
+  it('a phone left ringing is a missed call; the right extension pays', () => {
+    const s = newGame(1);
+    s.work.nextAt = 1e9;
+    addTask(s, 'call');
+    run(s, WORK.ringSeconds + 0.5);
+    expect(s.work.queue.length).toBe(0);
+    expect(s.suspicion).toBeGreaterThan(WORK.missedCallNoise - 1);
+
+    const t = addTask(s, 'call');
+    expect(ringingCall(s)?.id).toBe(t.id);
+    expect(take(s, t).ok).toBe(true);
+    const t2 = addTask(s, 'call');
+    startTask(s, t2.id);
+    const right = (correctAnswer(t2) as { ext: number }).ext;
+    expect(answerTask(s, t2.id, { kind: 'call', ext: right === 2 ? 3 : 2 })!.ok).toBe(false);
+  });
+
+  it('budget sheets need exactly the over-budget lines flagged', () => {
+    const s = newGame(1);
+    const t = addTask(s, 'sheet');
+    if (t.kind !== 'sheet') throw new Error();
+    const over = t.data.rows.filter((r) => r.actual > r.budget).length;
+    expect(over === 1 || over === 2).toBe(true);
+    expect(take(s, t).ok).toBe(true);
+    const t2 = addTask(s, 'sheet');
+    startTask(s, t2.id);
+    expect(answerTask(s, t2.id, { kind: 'sheet', flagged: [0, 1, 2, 3, 4] })!.ok).toBe(false);
+  });
+
+  it('expense reports follow the rule; approving your own rubber bands pays in bands, and Accounting notices', () => {
+    for (let seed = 1; seed < 40; seed++) {
+      const s = newGame(seed);
+      s.stage = 2;
+      const t = addTask(s, 'expense');
+      if (t.kind !== 'expense') throw new Error();
+      const yours = t.data.receipts.findIndex((r) => r.yours);
+      if (yours < 0) continue;
+      const by = correctAnswer(t) as { approve: boolean[] };
+      expect(by.approve[yours]).toBe(false); // by the rules, your order is denied
+      startTask(s, t.id);
+      const bands = s.bands;
+      const susp = s.suspicion;
+      const approve = by.approve.map((v, i) => (i === yours ? true : v));
+      const r = answerTask(s, t.id, { kind: 'expense', approve })!;
+      expect(r.ok).toBe(true);
+      expect(s.bands).toBe(bands + WORK.fraudBands * 2);
+      expect(s.suspicion).toBeGreaterThan(susp - WORK.relief.expense);
+      return;
+    }
+    throw new Error('no seed produced your own receipt');
+  });
+
+  it('while you work you cannot flick, and a walk-by finds you working', () => {
+    const s = newGame(1);
+    s.work.nextAt = 1e9;
+    const t = addTask(s, 'email');
+    s.walkby.nextAt = 1;
+    run(s, 1.2);
+    startTask(s, t.id);
+    expect(flick(s).ok).toBe(false);
+    run(s, 5);
+    expect(s.stats.hides).toBe(1);
+    expect(s.stats.walkbysSpotted).toBe(0);
+  });
+
+  it('work left waiting goes overdue and raises Suspicion; Auto-Reply answers emails', () => {
+    const s = newGame(1);
+    s.work.nextAt = 1e9;
+    s.walkby.nextAt = 1e9;
+    addTask(s, 'sheet');
+    addTask(s, 'sheet');
+    run(s, WORK.overdueAfter + 40);
+    expect(s.suspicion).toBeGreaterThan(1);
+
+    const a = newGame(1);
+    a.work.nextAt = 1e9;
+    a.upgrades.push('autoreply');
+    addTask(a, 'email');
+    run(a, WORK.autoReplyAfter + 1);
+    expect(a.work.queue.length).toBe(0);
+    expect(a.stats.tasksAuto).toBe(1);
+  });
+});
+
 describe('HR file', () => {
   /** A game in Stage 2 that has beaten Brad and owns the Clothespin Pistol. */
   function midStage2() {
@@ -150,6 +262,8 @@ describe('HR file', () => {
     addSuspicion(s, 200);
     expect(s.hr.writeUps).toBe(2);
     s.suspicion = 0;
+    s.work.nextAt = 1e9; // no work piling up (ignoring work for 10 minutes would get you caught)
+    s.walkby.nextAt = 1e9;
     run(s, TUNING.writeUpFade + 1);
     expect(s.hr.writeUps).toBe(1);
   });
