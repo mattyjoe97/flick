@@ -19,6 +19,7 @@
               <option value="50">×50</option>
             </select>
           </label>
+          <button type="button" class="tool-btn" id="sound-btn" aria-pressed="true">Sound on</button>
           <button type="button" class="tool-btn" id="settings-btn">Settings</button>
           <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false">Look busy <kbd>Esc</kbd></button>
         </div>
@@ -61,6 +62,8 @@
               <line class="mug-tick" x1="20" y1="66" x2="32" y2="66"></line>
               <line class="mug-tick" x1="20" y1="42" x2="32" y2="42"></line>
               <path class="mug-shine" d="M24 24 V92"></path>
+              <path class="steam s1" d="M46 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
+              <path class="steam s2" d="M70 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
             </svg>
             <div class="mug-tape">
               <span id="susp-label">Suspicion</span>
@@ -94,19 +97,24 @@
         <section class="front" aria-labelledby="stage-line">
           <h2 class="tape-label" id="stage-line">Stage 1: Desk Skirmish</h2>
           <p class="mini" id="mini" aria-hidden="true"></p>
-          <div class="cubicle" id="arena">
-            <div class="plate-wrap">
-              <div class="nameplate" id="nameplate">
-                <span class="np-name" id="np-name">Gary Lindqvist</span>
-                <span class="np-title" id="np-title">Account Coordinator</span>
+          <div class="scene-wrap">
+            <div class="scene" id="scene"></div>
+            <div class="scene-ui">
+              <div class="plate-wrap">
+                <div class="nameplate" id="nameplate">
+                  <span class="np-name" id="np-name">Gary Lindqvist</span>
+                  <span class="np-title" id="np-title">Account Coordinator</span>
+                </div>
+              </div>
+              <p class="position" id="position">Exposed</p>
+              <div class="resolve">
+                <div class="resolve-row"><span>Resolve</span><span id="resolve-num">15 / 15</span></div>
+                <div class="resolve-track"><div class="resolve-fill" id="resolve-fill"></div></div>
               </div>
               <div class="floaters" id="floaters" aria-hidden="true"></div>
             </div>
-            <p class="position" id="position">Exposed</p>
-            <div class="resolve">
-              <div class="resolve-row"><span>Resolve</span><span id="resolve-num">15 / 15</span></div>
-              <div class="resolve-track"><div class="resolve-fill" id="resolve-fill"></div></div>
-            </div>
+          </div>
+          <div class="launcher" id="arena">
             <p class="twist" id="twist" hidden></p>
             <svg class="band" id="band" viewBox="0 0 240 76" aria-hidden="true">
               <path class="band-shadow" id="band-s" d="M50 30 Q120 30 190 30"></path>
@@ -146,23 +154,35 @@
         </section>
 
         <section class="messages" aria-labelledby="inbox-h">
-          <h2 class="tape-label" id="inbox-h">Messages</h2>
+          <div class="msg-head">
+            <h2 class="tape-label" id="inbox-h">Messages</h2>
+            <svg class="phone" id="phone" viewBox="0 0 90 70" aria-hidden="true">
+              <rect x="6" y="26" width="78" height="40" rx="8" fill="#3a3f45" stroke="#1f2226" stroke-width="3"></rect>
+              <path d="M4 22 Q4 6 20 6 L70 6 Q86 6 86 22 L74 24 L70 16 L20 16 L16 24 Z" fill="#2f3439" stroke="#1f2226" stroke-width="3" class="handset"></path>
+              <g fill="#cfd5db"><rect x="22" y="34" width="10" height="7" rx="2"></rect><rect x="40" y="34" width="10" height="7" rx="2"></rect><rect x="58" y="34" width="10" height="7" rx="2"></rect><rect x="22" y="46" width="10" height="7" rx="2"></rect><rect x="40" y="46" width="10" height="7" rx="2"></rect><rect x="58" y="46" width="10" height="7" rx="2"></rect></g>
+              <circle class="phone-light" cx="76" cy="34" r="3.5" fill="#5a2a2a"></circle>
+            </svg>
+          </div>
           <ol class="slips" id="mail"></ol>
         </section>
       </main>
 
       <div class="sheet" id="sheet" hidden>
         <div class="sheet-bar">
-          <span class="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span>
+          <span class="sheet-title" id="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span>
           <button type="button" class="sheet-close" id="sheet-close">Close spreadsheet <kbd>Esc</kbd></button>
         </div>
-        <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">=SUM(B2:B14)*SYNERGY_FACTOR</span></div>
+        <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">Fix the cells with red corners.</span></div>
         <div class="sheet-scroll">
           <table class="sheet-grid" id="sheet-grid"></table>
         </div>
-        <div class="sheet-status">
-          <span id="sheet-msg">Ready</span>
-          <span id="sheet-stats"></span>
+        <div class="sheet-foot">
+          <div class="sheet-tabs" id="sheet-tabs"></div>
+          <div class="sheet-status">
+            <span id="sheet-msg">Ready</span>
+            <span class="sheet-streak" id="sheet-streak"></span>
+            <span id="sheet-stats"></span>
+          </div>
         </div>
       </div>
 

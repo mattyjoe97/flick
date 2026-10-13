@@ -29,6 +29,8 @@ Add `?debug=1` to the URL for a speed control (×1, ×10, ×50) and `window.flic
 | O | Order supplies |
 | Esc or B | Look busy (the Boss Key spreadsheet) |
 
+While you look busy, the spreadsheet is a mini-game: fix cells with red corners before their fuse runs out. Fixes in a row build a streak that pays more, and fixing one right as Mr. Feeney walks past pays double. The Budget and Headcount tabs unlock as you progress and pay more.
+
 ## Commands
 
 | Command | What it does |
@@ -47,7 +49,12 @@ Add `?debug=1` to the URL for a speed control (×1, ×10, ×50) and `window.flic
 | `src/sim/engine.ts` | The simulation step and every player action |
 | `src/sim/mods.ts` | Values derived from upgrades and allies |
 | `src/sim/save.ts` | Saving, loading, migration, export and import |
-| `src/ui/` | The intranet-style interface, the band animation and the Boss Key spreadsheet |
+| `src/sim/minigame.ts` | The spreadsheet mini-game: flags, streaks, fatigue, tabs |
+| `src/ui/scene.ts` | The office across the aisle: people, cover, flying bands, Mr. Feeney, clock and light |
+| `src/ui/characters.ts` | Every coworker, drawn from shared parts in one style |
+| `src/ui/sheet.ts` | The spreadsheet view: column-aware numbers, formulas and totals |
+| `src/ui/sound.ts` | Sound effects synthesized in code |
+| `src/ui/` (other) | The desk layout, panels, dialogs and input |
 | `tests/` | Unit tests and the pacing bots |
 
 The simulation never touches the page, so tests can play the whole game in about a second. Balancing mostly means editing numbers in `content.ts` and running `npm test`, which prints how long each bot took per stage and how often it got caught.

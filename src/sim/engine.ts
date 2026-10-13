@@ -1,4 +1,5 @@
-import { CHATTER, COWORKERS, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { CHATTER, COWORKERS, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { stepSheet } from './minigame';
 import { coworker, has, mods, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, pushEmail, pushTicker, type GameState } from './state';
@@ -28,6 +29,7 @@ function checkThresholds(s: GameState) {
 
 function getCaught(s: GameState) {
   s.stats.caught++;
+  s.lastCaughtAt = s.time;
   const lost = Math.floor(s.bands * TUNING.caughtBandLoss);
   s.bands -= lost;
   s.suspicion = TUNING.caughtResetTo;
@@ -43,7 +45,7 @@ export function priceOf(s: GameState, base: number) {
   return Math.ceil(base * mods(s).priceMult);
 }
 
-function fire(s: GameState, by: 'you' | 'ally', powerMult: number): boolean {
+function fire(s: GameState, by: 'you' | 'ally', powerMult: number, allyId?: CoworkerId): boolean {
   const t = currentTarget(s);
   if (!t) return false;
   const w = weapon(s);
@@ -56,7 +58,7 @@ function fire(s: GameState, by: 'you' | 'ally', powerMult: number): boolean {
   s.lastShotAt = s.time;
   s.stats.shots++;
   s.stats.damage += dmg;
-  s.events.push({ type: 'shot', damage: dmg, by });
+  s.events.push({ type: 'shot', damage: dmg, by, allyId });
   const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * (by === 'you' ? m.yourNoiseMult : 1);
   addSuspicion(s, noise);
   if (s.targetResolve <= 0) capture(s);
@@ -146,7 +148,7 @@ export function step(s: GameState, dt: number) {
       a.timer -= m.allyInterval;
       const c = coworker(a.id);
       const power = c.traitRole === 'shooter' ? c.mult : 1;
-      if (!fire(s, 'ally', power)) {
+      if (!fire(s, 'ally', power, a.id)) {
         outOfAmmo = true;
         a.timer = 0;
         break;
@@ -172,6 +174,7 @@ export function step(s: GameState, dt: number) {
   if (target && target.stage === 1 && s.time >= s.nextGaryFlickAt) {
     s.nextGaryFlickAt = s.time + randRange(s, TUNING.garyFlickMin, TUNING.garyFlickMax);
     s.bands += TUNING.garyFlickBands;
+    s.events.push({ type: 'enemyShot' });
     const lines = [
       'Gary flicks back. Two bands land on your desk. Thanks, Gary.',
       'Gary fires blindly over his monitor. You pocket the ammo.',
@@ -183,6 +186,7 @@ export function step(s: GameState, dt: number) {
     s.nextReviewAt = s.time + TUNING.reviewEvery;
     addSuspicion(s, TUNING.reviewNoise);
     pushTicker(s, 'Rick schedules a performance review. Suspicion +4.');
+    s.events.push({ type: 'review' });
   }
   if (s.time >= s.nextChatterAt) {
     s.nextChatterAt = s.time + randRange(s, 150, 260);
@@ -197,12 +201,14 @@ export function step(s: GameState, dt: number) {
       pushTicker(s, 'A supply shipment arrives addressed to you. 25 bands. Nobody asks.');
     }
   }
+  stepSheet(s);
 }
 
 function walkbys(s: GameState, warning: number, intervalMult: number) {
   const w = s.walkby;
   if (w.arrivesAt === null && s.time >= w.nextAt) {
     w.arrivesAt = s.time + warning;
+    s.events.push({ type: 'walkby' });
   }
   if (w.arrivesAt !== null && s.time >= w.arrivesAt) {
     w.arrivesAt = null;
@@ -213,6 +219,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
       const bonus = 5 * s.stage;
       s.salary += bonus;
       pushTicker(s, `Mr. Feeney glances at your spreadsheet. "Great hustle." Suspicion −${TUNING.hideReward}, +$${bonus}.`);
+      s.sheet.hustleUntil = s.time + SHEET_TUNING.hustleWindow;
       s.events.push({ type: 'hidden' });
     } else {
       s.stats.walkbysSpotted++;
@@ -349,6 +356,7 @@ export function recruit(s: GameState, id: CoworkerId): ActionResult {
   pushEmail(s, c.name, 'Re: Can we talk?', c.joinEmail, 'story');
   pushTicker(s, `${c.name} joins your team as ${roleName(c.traitRole)}.`);
   addSuspicion(s, TUNING.recruitNoise);
+  s.events.push({ type: 'recruit', id });
   return ok;
 }
 

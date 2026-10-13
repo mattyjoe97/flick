@@ -164,3 +164,52 @@ describe('anti-spam', () => {
     expect(flick(s).ok).toBe(true);
   });
 });
+
+describe('spreadsheet mini-game', () => {
+  it('flags cells while hidden and pays more with a streak', async () => {
+    const { fixCell } = await import('../src/sim/minigame');
+    const s = newGame(9);
+    setLookBusy(s, true);
+    run(s, 1);
+    expect(s.sheet.flags.length).toBeGreaterThan(0);
+    const f1 = s.sheet.flags[0];
+    const r1 = fixCell(s, f1.row, f1.col);
+    expect(r1.ok).toBe(true);
+    run(s, 1.2);
+    const f2 = s.sheet.flags[0];
+    const r2 = fixCell(s, f2.row, f2.col);
+    expect(r2.ok && r1.ok && r2.pay > r1.pay).toBe(true);
+    expect(s.sheet.streak).toBe(2);
+  });
+
+  it('a wrong cell or an expired flag breaks the streak', async () => {
+    const { fixCell } = await import('../src/sim/minigame');
+    const s = newGame(9);
+    setLookBusy(s, true);
+    run(s, 1);
+    const f = s.sheet.flags[0];
+    fixCell(s, f.row, f.col);
+    expect(s.sheet.streak).toBe(1);
+    // A label-free cell that can't be flagged (derived YoY column) is always "fine".
+    expect(fixCell(s, 0, 4).ok).toBe(false);
+    expect(s.sheet.streak).toBe(0);
+    run(s, 1);
+    const g = s.sheet.flags[0];
+    fixCell(s, g.row, g.col);
+    expect(s.sheet.streak).toBe(1);
+    run(s, 8); // flags expire
+    expect(s.sheet.streak).toBe(0);
+  });
+
+  it('extra tabs unlock with progress', async () => {
+    const { setSheetTab } = await import('../src/sim/minigame');
+    const s = newGame(9);
+    expect(setSheetTab(s, 'budget')).toBe(false);
+    s.stage = 2;
+    s.targetIndex = 4;
+    expect(setSheetTab(s, 'budget')).toBe(true);
+    expect(setSheetTab(s, 'headcount')).toBe(false);
+    s.targetIndex = 6;
+    expect(setSheetTab(s, 'headcount')).toBe(true);
+  });
+});

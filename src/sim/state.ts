@@ -1,4 +1,4 @@
-import { TARGETS, TUNING, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
 
 export const SAVE_VERSION = 1;
 
@@ -47,6 +47,7 @@ export interface GameState {
   lastShotAt: number;
   nextFlickAt: number; // your weapon's reload
   flickLockUntil: number;
+  lastCaughtAt: number | null;
   shooterLockUntil: number;
 
   walkby: { nextAt: number; arrivesAt: number | null };
@@ -58,6 +59,18 @@ export interface GameState {
   warned50: boolean;
   warned75: boolean;
   outOfAmmoWarnedAt: number;
+
+  /** The Boss Key spreadsheet mini-game. */
+  sheet: {
+    tab: SheetTabId;
+    flags: { id: number; row: number; col: number; expiresAt: number }[];
+    streak: number;
+    best: number;
+    nextFlagAt: number;
+    hiddenSince: number | null;
+    hustleUntil: number;
+    fixes: number;
+  };
 
   inbox: Email[];
   unread: number;
@@ -82,12 +95,19 @@ export interface GameState {
 }
 
 export type GameEvent =
-  | { type: 'shot'; damage: number; by: 'you' | 'ally' }
+  | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId }
   | { type: 'capture'; targetId: string }
   | { type: 'caught' }
   | { type: 'hidden' }
   | { type: 'spotted' }
-  | { type: 'stage'; stage: number };
+  | { type: 'stage'; stage: number }
+  | { type: 'enemyShot' }
+  | { type: 'review' }
+  | { type: 'walkby' }
+  | { type: 'recruit'; id: CoworkerId }
+  | { type: 'mail'; kind: Email['kind'] }
+  | { type: 'fix'; row: number; col: number; pay: number; streak: number; hustle: boolean }
+  | { type: 'sheetMiss'; reason: 'wrong' | 'expired' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
@@ -111,6 +131,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     lastShotAt: -999,
     nextFlickAt: 0,
     flickLockUntil: 0,
+    lastCaughtAt: null,
     shooterLockUntil: 0,
     walkby: { nextAt: TUNING.firstWalkby, arrivesAt: null },
     nextGaryFlickAt: 20,
@@ -121,6 +142,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     warned50: false,
     warned75: false,
     outOfAmmoWarnedAt: -999,
+    sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0 },
     inbox: [],
     unread: 0,
     ticker: [],
@@ -148,6 +170,7 @@ export function pushEmail(s: GameState, from: string, subject: string, body: str
   s.inbox.unshift({ id: s.seq++, t: s.time, from, subject, body, kind });
   if (s.inbox.length > 80) s.inbox.length = 80;
   s.unread++;
+  s.events?.push({ type: 'mail', kind });
 }
 
 export function pushTicker(s: GameState, text: string) {

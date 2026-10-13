@@ -223,3 +223,87 @@ export const CHATTER: { from: string; subject: string; body: string }[] = [
   { from: 'All-Staff', subject: 'Parking', body: 'The silver sedan in spot 14 has its lights on. It has had its lights on since Tuesday.' },
   { from: 'Procurement', subject: 'Unusual orders', body: 'Our rubber band spend is up 900% this quarter. Probably a data error.' },
 ];
+
+// ---------------------------------------------------------------- the Boss Key spreadsheet
+
+export type SheetTabId = 'forecast' | 'budget' | 'headcount';
+
+export interface SheetColumn {
+  name: string;
+  /** input cells can be flagged and fixed; derived cells are formulas of the inputs. */
+  kind: 'input' | 'derived';
+}
+
+export interface SheetTab {
+  id: SheetTabId;
+  name: string; // shown on the sheet tab
+  file: string; // shown in the title bar
+  payMult: number;
+  unlock: { stage?: number; after?: string };
+  rows: string[];
+  columns: SheetColumn[];
+}
+
+export const SHEET_TABS: SheetTab[] = [
+  {
+    id: 'forecast',
+    name: 'Q3 Forecast',
+    file: 'Q3_Synergy_Forecast_FINAL_v7.xlsx',
+    payMult: 1,
+    unlock: {},
+    rows: ['North', 'South', 'East', 'West', 'Central', 'EMEA', 'APAC', 'LATAM', 'Online', 'Partners', 'Channel', 'Strategic'],
+    columns: [
+      { name: 'Q1', kind: 'input' },
+      { name: 'Q2', kind: 'input' },
+      { name: 'Q3', kind: 'input' },
+      { name: 'Q4 (fcst)', kind: 'input' },
+      { name: 'YoY %', kind: 'derived' },
+      { name: 'Variance', kind: 'derived' },
+      { name: 'Synergy idx', kind: 'input' },
+    ],
+  },
+  {
+    id: 'budget',
+    name: 'Budget',
+    file: 'Dept_Budget_FY_DRAFT_do_not_edit.xlsx',
+    payMult: 1.5,
+    unlock: { stage: 2 },
+    rows: ['Office supplies', 'Rubber bands (misc.)', 'Coffee', 'Printer toner', 'Software', 'Travel', 'Training', 'Team building', 'Furniture', 'Snacks'],
+    columns: [
+      { name: 'Budget $', kind: 'input' },
+      { name: 'Actual $', kind: 'input' },
+      { name: 'Remaining $', kind: 'derived' },
+      { name: '% used', kind: 'derived' },
+    ],
+  },
+  {
+    id: 'headcount',
+    name: 'Headcount',
+    file: 'Headcount_Plan_CONFIDENTIAL.xlsx',
+    payMult: 2,
+    unlock: { after: 'printer' },
+    rows: ['Sales', 'Accounting', 'IT', 'Marketing', 'Mailroom', 'Facilities', 'HR', 'Strategic Initiatives', 'Customer Success'],
+    columns: [
+      { name: 'Headcount', kind: 'input' },
+      { name: 'Open roles', kind: 'input' },
+      { name: 'Attrition %', kind: 'input' },
+      { name: 'Avg tenure (yrs)', kind: 'input' },
+      { name: 'Morale (1–10)', kind: 'input' },
+    ],
+  },
+];
+
+export const SHEET_TUNING = {
+  maxFlags: 3,
+  spawnEvery: 1.1, // seconds between new flags while hidden
+  lifetimeStart: 5, // seconds a flag lasts when you first hide
+  lifetimeMin: 1.8,
+  lifetimeShrink: 0.05, // per second spent hidden
+  streakBonus: 0.2, // +20% pay per streak step
+  streakCap: 10,
+  fatigueAfter: 40, // seconds hidden before fixes start paying less
+  fatigueFloor: 0.3,
+  fatigueRate: 0.012, // pay multiplier lost per second after fatigueAfter
+  fixCool: 2, // Suspicion removed per fix
+  hustleWindow: 2.5, // seconds after a walk-by passes where fixes pay double
+};

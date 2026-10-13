@@ -19,6 +19,9 @@ import {
 import { has, mods, weapon } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { fmt, money, officeClock, officeTime, rate } from './format';
+import { Scene } from './scene';
+import { SheetView } from './sheet';
+import { Sound } from './sound';
 
 export interface GameHost {
   state: GameState;
@@ -54,12 +57,63 @@ export class UI {
   private pullVel = 0;
   private holding = false;
   private lastFrame = performance.now();
-  private sheetBuilt = false;
   private seenTeam = false;
+  private sound = new Sound();
+  private scene: Scene;
+  private sheet: SheetView;
 
   constructor(private host: GameHost) {
+    this.scene = new Scene(() => this.s, {
+      footstep: () => this.sound.footstep(),
+      hit: () => this.sound.hit(),
+    });
+    this.sheet = new SheetView(() => this.s, {
+      onFix: (_pay, streak) => {
+        this.sound.fix(streak);
+        this.bump('salary');
+      },
+      onMiss: () => this.sound.miss(),
+    });
     this.bind();
+    this.syncSound();
   }
+
+  private syncSound() {
+    const b = $('sound-btn');
+    b.textContent = this.sound.muted ? 'Sound off' : 'Sound on';
+    b.setAttribute('aria-pressed', String(!this.sound.muted));
+  }
+
+  /** A sticky note gives a little hop when its number jumps. */
+  private bump(which: 'bands' | 'salary') {
+    if (reducedMotion()) return;
+    const el = document.querySelector(which === 'bands' ? '.sticky-bands' : '.sticky-salary');
+    if (!el) return;
+    el.classList.remove('bump');
+    void (el as HTMLElement).offsetWidth;
+    el.classList.add('bump');
+  }
+
+  private doScrounge = () => {
+    if (this.act(scrounge)) {
+      this.bump('bands');
+      this.sound.type();
+    }
+  };
+
+  private doWork = () => {
+    if (this.act(work)) {
+      this.bump('salary');
+      this.sound.type();
+    }
+  };
+
+  private doOrder = () => {
+    if (this.act(orderSupplies)) {
+      this.bump('bands');
+      this.sound.coins();
+    }
+  };
 
   private get s() {
     return this.host.state;
@@ -80,15 +134,18 @@ export class UI {
 
   private bind() {
     $('flick-btn').addEventListener('click', () => this.act(flick));
-    $('scrounge-btn').addEventListener('click', () => this.act(scrounge));
-    $('work-btn').addEventListener('click', () => this.act(work));
-    $('order-btn').addEventListener('click', () => this.act(orderSupplies));
+    $('scrounge-btn').addEventListener('click', this.doScrounge);
+    $('work-btn').addEventListener('click', this.doWork);
+    $('order-btn').addEventListener('click', this.doOrder);
     $('hide-btn').addEventListener('click', () => this.toggleHide());
+    $('sound-btn').addEventListener('click', () => {
+      this.sound.toggle();
+      this.syncSound();
+    });
     $('arena').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-mini]');
       if (!b) return;
-      const fn = { scrounge, work, order: orderSupplies }[b.dataset.mini as 'scrounge' | 'work' | 'order'];
-      this.act(fn);
+      ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder })[b.dataset.mini as 'scrounge' | 'work' | 'order']();
     });
     $('sheet-close').addEventListener('click', () => this.toggleHide(false));
 
@@ -181,9 +238,9 @@ export class UI {
     if (k === 'f') {
       this.act(flick);
       this.kick();
-    } else if (k === 's') this.act(scrounge);
-    else if (k === 'w') this.act(work);
-    else if (k === 'o') this.act(orderSupplies);
+    } else if (k === 's') this.doScrounge();
+    else if (k === 'w') this.doWork();
+    else if (k === 'o') this.doOrder();
   }
 
   private tabKeys(e: KeyboardEvent) {
@@ -218,8 +275,8 @@ export class UI {
     const on = this.s.lookBusy;
     const sheet = $('sheet');
     if (sheet.hidden === !on) return;
-    if (on) this.buildSheet();
     sheet.hidden = !on;
+    this.sound.hide();
     $('hide-btn').setAttribute('aria-pressed', String(on));
     if (on) $('sheet-close').focus();
     else $('hide-btn').focus();
@@ -236,10 +293,22 @@ export class UI {
 
   handleEvents(events: GameEvent[]) {
     for (const e of events) {
-      if (e.type === 'shot') this.onShot(e.damage, e.by);
-      else if (e.type === 'caught') this.say('Caught. Mr. Feeney took 40% of your bands.');
-      else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, look busy when you hear footsteps.');
+      this.scene.handle(e);
+      if (e.type === 'shot') {
+        this.onShot(e.damage, e.by);
+        if (e.by === 'you') this.sound.flick();
+        else this.sound.ally();
+      } else if (e.type === 'caught') {
+        this.say('Caught. Mr. Feeney took 40% of your bands.');
+        this.sound.caught();
+      } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, look busy when you hear footsteps.');
       else if (e.type === 'stage') this.onStage(e.stage);
+      else if (e.type === 'capture') this.sound.capture();
+      else if (e.type === 'enemyShot') {
+        this.sound.incoming();
+        this.bump('bands');
+      } else if (e.type === 'mail' && e.kind !== 'flavor') this.ringPhone();
+      else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
     }
   }
 
@@ -258,9 +327,22 @@ export class UI {
     const f = document.createElement('span');
     f.className = by === 'ally' ? 'floater ally' : 'floater';
     f.textContent = `−${damage % 1 === 0 ? damage : damage.toFixed(1)}`;
-    f.style.left = `${10 + Math.random() * 80}%`;
+    const o = this.scene.floaterOrigin();
+    f.style.left = `${o.left + (Math.random() - 0.5) * 14}%`;
+    f.style.top = `${o.top}%`;
+    // Numbers appear when the band lands, not when it leaves your hand.
+    f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
     box.appendChild(f);
-    setTimeout(() => f.remove(), 950);
+    setTimeout(() => f.remove(), 1300);
+  }
+
+  private ringPhone() {
+    this.sound.ring();
+    if (reducedMotion()) return;
+    const ph = $('phone');
+    ph.classList.remove('ring');
+    void (ph as unknown as HTMLElement).getBoundingClientRect();
+    ph.classList.add('ring');
   }
 
   /** Snaps the band. */
@@ -359,7 +441,8 @@ export class UI {
     this.renderTicker(s);
     this.renderMail(s);
     this.renderPanes(s);
-    this.renderSheetStatus(s);
+    this.sheet.render();
+    this.scene.render();
     this.animateBand(dt);
   }
 
@@ -592,53 +675,6 @@ export class UI {
     $('band-s').setAttribute('d', `M50 30 Q120 ${34 + dy * 2.2} 190 30`);
   }
 
-  // ---------------------------------------------------------------- boss key spreadsheet
-
-  private buildSheet() {
-    if (this.sheetBuilt) return;
-    this.sheetBuilt = true;
-    const cols = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-    const heads = ['Region', 'Q1', 'Q2', 'Q3', 'Q4 (fcst)', 'YoY %', 'Variance', 'Synergy idx'];
-    const regions = ['North', 'South', 'East', 'West', 'Central', 'EMEA', 'APAC', 'LATAM', 'Online', 'Partners', 'Channel', 'Strategic', 'Legacy', 'Other'];
-    let seed = 7;
-    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    let html = `<thead><tr>${cols.map((c) => `<th scope="col">${c}</th>`).join('')}</tr></thead><tbody>`;
-    html += `<tr><th scope="row">1</th>${heads.map((h) => `<td class="label">${h}</td>`).join('')}</tr>`;
-    for (let r = 0; r < 30; r++) {
-      const region = regions[r % regions.length] + (r >= regions.length ? ` ${Math.floor(r / regions.length) + 1}` : '');
-      const cells = [0, 1, 2, 3].map(() => (rnd() * 90000 + 10000).toFixed(0));
-      const yoy = ((rnd() - 0.4) * 30).toFixed(1);
-      const variance = ((rnd() - 0.5) * 8000).toFixed(0);
-      const syn = (rnd() * 2).toFixed(2);
-      const vals = [...cells.map((v) => Number(v).toLocaleString('en-US')), yoy, Number(variance).toLocaleString('en-US'), syn];
-      html += `<tr><th scope="row">${r + 2}</th><td class="label">${region}</td>${vals
-        .map((v, i) => `<td class="cell" data-ref="${cols[i + 2]}${r + 2}">${v}</td>`)
-        .join('')}</tr>`;
-    }
-    html += '</tbody>';
-    const grid = $('sheet-grid');
-    grid.innerHTML = html;
-    grid.addEventListener('click', (e) => {
-      const td = (e.target as HTMLElement).closest<HTMLTableCellElement>('td.cell');
-      if (!td) return;
-      work(this.s);
-      td.textContent = (Math.random() * 90000 + 10000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      td.classList.add('typed');
-      $('sheet-ref').textContent = td.dataset.ref ?? '';
-      $('sheet-fx').textContent = `=ROUND(${td.dataset.ref}*1.07,0)`;
-    });
-  }
-
-  private renderSheetStatus(s: GameState) {
-    if (!s.lookBusy) return;
-    const last = s.ticker[0];
-    const msg = last && s.time - last.t < 8 ? last.text : 'Ready. Click any cell to do some work.';
-    this.set('sheet-msg', msg);
-    this.set(
-      'sheet-stats',
-      `Average: ${Math.min(100, s.suspicion).toFixed(1)}   Count: ${fmt(s.bands)}   Sum: ${money(s.salary)}`,
-    );
-  }
 }
 
 // ------------------------------------------------------------------ copy helpers

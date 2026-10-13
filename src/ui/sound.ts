@@ -1,0 +1,177 @@
+// Sound effects synthesized with Web Audio, so there are no files to ship.
+// Audio starts on the first click or key press (browsers require a gesture).
+
+const KEY = 'flick.muted';
+
+export class Sound {
+  private ctx: AudioContext | null = null;
+  private master: GainNode | null = null;
+  private noiseBuf: AudioBuffer | null = null;
+  private last = new Map<string, number>();
+  muted = false;
+
+  constructor() {
+    try {
+      this.muted = localStorage.getItem(KEY) === '1';
+    } catch {
+      /* storage unavailable: default to sound on */
+    }
+    const unlock = () => {
+      this.ensure();
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+  }
+
+  toggle() {
+    this.muted = !this.muted;
+    try {
+      localStorage.setItem(KEY, this.muted ? '1' : '0');
+    } catch {
+      /* fine: the choice just won't be remembered */
+    }
+    if (this.master) this.master.gain.value = this.muted ? 0 : 0.5;
+    return this.muted;
+  }
+
+  private ensure() {
+    if (this.ctx) return this.ctx;
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return null;
+    try {
+      this.ctx = new AC();
+    } catch {
+      return null;
+    }
+    this.master = this.ctx.createGain();
+    this.master.gain.value = this.muted ? 0 : 0.5;
+    this.master.connect(this.ctx.destination);
+    const len = this.ctx.sampleRate * 0.5;
+    this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = this.noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return this.ctx;
+  }
+
+  /** Skip a sound if the same one played within `gap` ms (keeps rapid fire from turning to mush). */
+  private ok(name: string, gap: number) {
+    if (this.muted || !this.ctx || this.ctx.state !== 'running') {
+      if (this.ctx && this.ctx.state === 'suspended') void this.ctx.resume();
+      if (this.muted || !this.ctx || this.ctx.state !== 'running') return false;
+    }
+    const now = performance.now();
+    if (now - (this.last.get(name) ?? 0) < gap) return false;
+    this.last.set(name, now);
+    return true;
+  }
+
+  private tone(type: OscillatorType, f0: number, f1: number, dur: number, gain: number, delay = 0) {
+    const c = this.ctx!;
+    const t = c.currentTime + delay;
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(this.master!);
+    o.start(t);
+    o.stop(t + dur + 0.02);
+  }
+
+  private noise(freq: number, q: number, dur: number, gain: number, delay = 0) {
+    const c = this.ctx!;
+    const t = c.currentTime + delay;
+    const src = c.createBufferSource();
+    src.buffer = this.noiseBuf;
+    const f = c.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = freq;
+    f.Q.value = q;
+    const g = c.createGain();
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f).connect(g).connect(this.master!);
+    src.start(t, Math.random() * 0.3);
+    src.stop(t + dur + 0.02);
+  }
+
+  flick() {
+    if (!this.ok('flick', 40)) return;
+    this.tone('triangle', 520, 150, 0.1, 0.22);
+    this.noise(2600, 2, 0.03, 0.12);
+  }
+
+  ally() {
+    if (!this.ok('ally', 110)) return;
+    this.tone('triangle', 640, 230, 0.07, 0.08);
+  }
+
+  hit() {
+    if (!this.ok('hit', 60)) return;
+    this.noise(900, 1.4, 0.07, 0.28);
+    this.tone('sine', 160, 70, 0.09, 0.2);
+  }
+
+  incoming() {
+    if (!this.ok('incoming', 200)) return;
+    this.noise(1800, 0.8, 0.18, 0.07);
+    this.tone('triangle', 300, 520, 0.12, 0.06);
+  }
+
+  footstep() {
+    if (!this.ok('step', 200)) return;
+    this.tone('sine', 95, 55, 0.09, 0.32);
+    this.noise(300, 1, 0.05, 0.08);
+  }
+
+  type() {
+    if (!this.ok('type', 30)) return;
+    this.noise(3400, 3, 0.025, 0.14);
+    this.noise(2200, 3, 0.02, 0.08, 0.035);
+  }
+
+  fix(streak: number) {
+    if (!this.ok('fix', 40)) return;
+    this.noise(3400, 3, 0.025, 0.12);
+    this.tone('sine', 520 + Math.min(streak, 12) * 55, 520 + Math.min(streak, 12) * 55, 0.09, 0.12, 0.02);
+  }
+
+  miss() {
+    if (!this.ok('miss', 150)) return;
+    this.tone('square', 190, 120, 0.14, 0.06);
+  }
+
+  ring() {
+    if (!this.ok('ring', 900)) return;
+    for (let i = 0; i < 2; i++) {
+      this.tone('square', 1250, 1250, 0.05, 0.035, i * 0.13);
+      this.tone('square', 950, 950, 0.05, 0.035, i * 0.13 + 0.06);
+    }
+  }
+
+  hide() {
+    if (!this.ok('hide', 200)) return;
+    this.noise(900, 0.7, 0.16, 0.1);
+  }
+
+  caught() {
+    if (!this.ok('caught', 1000)) return;
+    this.tone('triangle', 420, 140, 0.55, 0.2);
+    this.tone('triangle', 330, 110, 0.55, 0.12, 0.12);
+  }
+
+  capture() {
+    if (!this.ok('capture', 600)) return;
+    [523, 659, 784, 1047].forEach((f, i) => this.tone('sine', f, f, 0.14, 0.13, i * 0.08));
+  }
+
+  coins() {
+    if (!this.ok('coins', 60)) return;
+    this.tone('sine', 1320, 1320, 0.05, 0.06);
+  }
+}
