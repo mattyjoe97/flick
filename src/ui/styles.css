@@ -823,9 +823,9 @@ kbd {
 
 .twist {
   position: absolute;
-  left: 0;
-  top: 18px;
-  max-width: 190px;
+  right: 0;
+  top: 22px;
+  max-width: 140px;
   margin: 0;
   padding: 8px 12px 10px;
   background: var(--sticky);
@@ -860,6 +860,13 @@ kbd {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
   animation: float-up 0.9s ease-out both;
   white-space: nowrap;
+}
+
+.floater.perfect {
+  font-size: max(18px, 3.4cqw);
+  color: #b7f08f;
+  -webkit-text-stroke: 1px #1f5c33;
+  z-index: 2;
 }
 
 .floater.ally {
@@ -941,6 +948,18 @@ kbd {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
 }
 
+.proj.big {
+  width: max(16px, 3.3cqw);
+  height: max(9px, 1.8cqw);
+  border-width: max(3px, 0.6cqw);
+}
+
+.burst.big {
+  width: max(30px, 7.5cqw) !important;
+  height: max(30px, 7.5cqw) !important;
+  background: #fff3a6;
+}
+
 .burst {
   position: absolute;
   width: max(18px, 4.5cqw);
@@ -967,40 +986,104 @@ kbd {
 .launcher {
   position: relative;
   display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
   justify-items: center;
-  gap: 8px;
+  align-items: end;
+  column-gap: 22px;
   margin-top: -6px;
 }
 
-.band {
-  width: min(260px, 70%);
+/* Your hand reaches up over the bottom of the scene. */
+.hand {
+  width: 150px;
   height: auto;
+  margin-top: -96px;
+  position: relative;
+  z-index: 3;
   overflow: visible;
+  touch-action: none;
+  cursor: grab;
+  filter: drop-shadow(0 10px 10px rgba(30, 14, 4, 0.45));
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.peg {
-  fill: #e8d6b5;
-  stroke: #b89a6d;
-  stroke-width: 2;
+.hand:active {
+  cursor: grabbing;
 }
 
-.peg-top {
-  fill: #fff6e4;
-  opacity: 0.7;
-}
-
-.band-strand {
+.lb {
   fill: none;
-  stroke: #c08a52;
-  stroke-width: 6;
   stroke-linecap: round;
 }
 
-.band-shadow {
-  fill: none;
-  stroke: rgba(30, 14, 4, 0.35);
-  stroke-width: 10;
-  stroke-linecap: round;
+.launch-controls {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.tension {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 210px;
+}
+
+.tension-track {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  background: var(--paper);
+  border-radius: 99px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), var(--shadow-low);
+}
+
+.tension-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #e2bd8a, #b67b42);
+}
+
+.tension-sweet {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 9%;
+  border-left: 2px solid #1f6e43;
+  background: repeating-linear-gradient(45deg, rgba(31, 110, 67, 0.35) 0 3px, transparent 3px 6px);
+}
+
+.tension[data-state="perfect"] .tension-fill {
+  background: #2f9e5b;
+}
+
+.tension[data-state="over"] .tension-fill {
+  background: #d0584a;
+}
+
+.tension-label {
+  background: var(--tape);
+  padding: 1px 12px 0;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--t-md);
+  color: var(--ink);
+  clip-path: polygon(0 10%, 4% 0, 96% 6%, 100% 0, 98% 50%, 100% 100%, 3% 94%, 0 100%, 2% 50%);
+  min-width: 120px;
+  text-align: center;
+}
+
+.tension[data-state="perfect"] .tension-label {
+  background: #c9ec9c;
+}
+
+.tension[data-state="over"] .tension-label {
+  background: #f7c6c0;
+  color: var(--alarm);
 }
 
 /* The Flick button is a big keyboard key. */
@@ -1050,9 +1133,16 @@ kbd {
   color: var(--ink-3);
 }
 
+.key-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: -4px;
+}
+
 .key-word {
   display: block;
-  margin-top: -8px;
+  margin-top: -2px;
   font-family: var(--font-hand);
   font-weight: 700;
   font-size: var(--t-2xl);
@@ -1071,6 +1161,8 @@ kbd {
 
 .mini-actions {
   display: none;
+  grid-column: 1 / -1;
+  margin-top: 8px;
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
@@ -1938,8 +2030,20 @@ kbd {
   }
   .twist {
     position: static;
+    grid-column: 1 / -1;
     max-width: none;
+    margin-bottom: 8px;
     transform: rotate(-1deg);
+  }
+  .hand {
+    width: 104px;
+    margin-top: -60px;
+  }
+  .launcher {
+    column-gap: 10px;
+  }
+  .tension {
+    width: 180px;
   }
   .mini {
     padding-top: 10px;

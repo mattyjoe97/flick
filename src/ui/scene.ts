@@ -58,6 +58,8 @@ function headPos(slot: Slot) {
 export interface SceneHooks {
   footstep(): void;
   hit(): void;
+  /** Your fingertip in page coordinates, if the hand is on screen. */
+  handTip(): { x: number; y: number } | null;
 }
 
 export class Scene {
@@ -248,17 +250,20 @@ export class Scene {
     const now = performance.now();
     if (e.type === 'shot') {
       const head = this.aimPoint();
-      const from = e.by === 'you' ? { x: 400, y: H + 30 } : this.allyHead(e.allyId);
+      const from = e.by === 'you' ? this.fromHand() : this.allyHead(e.allyId);
       if (e.by === 'ally' && e.allyId) this.recoil(e.allyId);
-      this.launch(from, head, e.by === 'you' ? 260 : 340, () => {
-        this.burst(head.x + (Math.random() - 0.5) * 50, head.y + (Math.random() - 0.5) * 30);
+      const big = e.by === 'you' && ((e.charge ?? 0) > 0.6 || e.perfect);
+      const dur = e.by === 'you' ? 260 - 90 * (e.charge ?? 0) : 340;
+      this.launch(from, head, dur, () => {
+        this.burst(head.x + (Math.random() - 0.5) * 50, head.y + (Math.random() - 0.5) * 30, big);
         this.hitUntil = performance.now() + 260;
         if (e.by === 'you') this.hooks.hit();
-        if (performance.now() - this.lastBubble > 2600 && Math.random() < 0.3) {
+        if (performance.now() - this.lastBubble > 2600 && Math.random() < (big ? 0.8 : 0.3)) {
           const l = this.pickLine('hit');
           if (l) this.say(l, 1400);
         }
-      });
+        if (big) this.duckUntil = performance.now() + 500;
+      }, big);
     } else if (e.type === 'enemyShot') {
       this.duckUntil = 0;
       this.angryUntil = now + 900;
@@ -288,6 +293,14 @@ export class Scene {
     setTimeout(() => (b.hidden = true), 1800);
   }
 
+  /** Your fingertip, converted into scene coordinates. */
+  private fromHand() {
+    const tip = this.hooks.handTip();
+    const r = this.root.getBoundingClientRect();
+    if (!tip || r.width === 0) return { x: 400, y: H + 30 };
+    return { x: ((tip.x - r.left) / r.width) * W, y: ((tip.y - r.top) / r.height) * H };
+  }
+
   private aimPoint() {
     const slots = targetSlots(Math.max(1, this.people.length));
     const sl = slots[Math.floor(Math.random() * slots.length)];
@@ -313,7 +326,7 @@ export class Scene {
 
   // ---------------------------------------------------------------- projectiles
 
-  private launch(from: { x: number; y: number }, to: { x: number; y: number }, dur: number, done: () => void) {
+  private launch(from: { x: number; y: number }, to: { x: number; y: number }, dur: number, done: () => void, big = false) {
     if (reduced()) {
       done();
       return;
@@ -323,7 +336,7 @@ export class Scene {
       return;
     }
     const el = document.createElement('span');
-    el.className = 'proj';
+    el.className = big ? 'proj big' : 'proj';
     this.fx.appendChild(el);
     this.projectiles.push({
       el,
@@ -340,10 +353,10 @@ export class Scene {
     });
   }
 
-  private burst(x: number, y: number) {
+  private burst(x: number, y: number, big = false) {
     if (reduced()) return;
     const b = document.createElement('span');
-    b.className = 'burst';
+    b.className = big ? 'burst big' : 'burst';
     b.style.left = `${(x / W) * 100}%`;
     b.style.top = `${(y / H) * 100}%`;
     this.fx.appendChild(b);

@@ -86,6 +86,9 @@ export interface GameState {
     workClicks: number;
     workEarned: number;
     bandsScrounged: number;
+    charged: number;
+    perfect: number;
+    snapped: number;
     stage1At: number | null;
     stage2At: number | null;
   };
@@ -95,7 +98,8 @@ export interface GameState {
 }
 
 export type GameEvent =
-  | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId }
+  | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId; charge?: number; perfect?: boolean }
+  | { type: 'snap' }
   | { type: 'capture'; targetId: string }
   | { type: 'caught' }
   | { type: 'hidden' }
@@ -156,6 +160,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       workClicks: 0,
       workEarned: 0,
       bandsScrounged: 0,
+      charged: 0,
+      perfect: 0,
+      snapped: 0,
       stage1At: null,
       stage2At: null,
     },

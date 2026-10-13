@@ -1,4 +1,4 @@
-import { CHATTER, COWORKERS, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { CHARGE, CHATTER, COWORKERS, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { stepSheet } from './minigame';
 import { coworker, has, mods, weapon } from './mods';
 import { rand, randRange } from './rng';
@@ -45,7 +45,13 @@ export function priceOf(s: GameState, base: number) {
   return Math.ceil(base * mods(s).priceMult);
 }
 
-function fire(s: GameState, by: 'you' | 'ally', powerMult: number, allyId?: CoworkerId): boolean {
+function fire(
+  s: GameState,
+  by: 'you' | 'ally',
+  powerMult: number,
+  allyId?: CoworkerId,
+  shot: { charge: number; perfect: boolean } = { charge: 0, perfect: false },
+): boolean {
   const t = currentTarget(s);
   if (!t) return false;
   const w = weapon(s);
@@ -58,8 +64,9 @@ function fire(s: GameState, by: 'you' | 'ally', powerMult: number, allyId?: Cowo
   s.lastShotAt = s.time;
   s.stats.shots++;
   s.stats.damage += dmg;
-  s.events.push({ type: 'shot', damage: dmg, by, allyId });
-  const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * (by === 'you' ? m.yourNoiseMult : 1);
+  s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
+  const stretch = 1 + CHARGE.noisePerCharge * shot.charge;
+  const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1);
   addSuspicion(s, noise);
   if (s.targetResolve <= 0) capture(s);
   return true;
@@ -248,7 +255,20 @@ export type ActionResult = { ok: true } | { ok: false; reason: string };
 const ok: ActionResult = { ok: true };
 const no = (reason: string): ActionResult => ({ ok: false, reason });
 
-export function flick(s: GameState): ActionResult {
+/** Checks whether you could flick right now (used before starting to stretch the band). */
+export function canFlick(s: GameState): ActionResult {
+  if (s.stage > 2) return no('There is no one left to flick. For now.');
+  if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
+  if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
+  if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
+  return ok;
+}
+
+/**
+ * Fire your weapon. `charge` (0 to 1) is how far you stretched the band by
+ * holding; `perfect` means you let go in the sweet spot at full stretch.
+ */
+export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
@@ -257,7 +277,22 @@ export function flick(s: GameState): ActionResult {
   // Reloading: silently ignore shots faster than the weapon allows (no message, no spam).
   if (s.time + 1e-6 < s.nextFlickAt) return no('');
   s.nextFlickAt = s.time + w.reload;
-  fire(s, 'you', 1);
+  const c = Math.min(1, Math.max(0, charge));
+  const p = perfect && c >= 1;
+  if (c > 0.05) s.stats.charged++;
+  if (p) s.stats.perfect++;
+  fire(s, 'you', chargeMult(c, p), undefined, { charge: c, perfect: p });
+  return ok;
+}
+
+/** You held the band too long and it snapped: the band is gone and it stung. */
+export function snapBand(s: GameState): ActionResult {
+  const w = weapon(s);
+  s.bands = Math.max(0, s.bands - w.burst);
+  s.stats.snapped++;
+  s.events.push({ type: 'snap' });
+  addSuspicion(s, CHARGE.snapNoise);
+  pushTicker(s, 'You held it too long. The band snaps across your knuckles. Ow.');
   return ok;
 }
 

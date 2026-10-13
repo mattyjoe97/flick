@@ -23,7 +23,7 @@ Add `?debug=1` to the URL for a speed control (×1, ×10, ×50) and `window.flic
 
 | Key | Action |
 | --- | --- |
-| F | Flick at the current target |
+| F | Flick at the current target (hold to stretch the band, let go at full stretch for a Perfect shot) |
 | S | Scrounge your drawer for bands |
 | W | Do work (earns Salary, lowers Suspicion) |
 | O | Order supplies |
@@ -53,6 +53,7 @@ While you look busy, the spreadsheet is a mini-game: fix cells with red corners 
 | `src/ui/scene.ts` | The office across the aisle: people, cover, flying bands, Mr. Feeney, clock and light |
 | `src/ui/characters.ts` | Every coworker, drawn from shared parts in one style |
 | `src/ui/sheet.ts` | The spreadsheet view: column-aware numbers, formulas and totals |
+| `src/ui/launcher.ts` | Your hand and weapon: hold to stretch, Perfect release, snapping |
 | `src/ui/sound.ts` | Sound effects synthesized in code |
 | `src/ui/` (other) | The desk layout, panels, dialogs and input |
 | `tests/` | Unit tests and the pacing bots |

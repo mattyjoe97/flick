@@ -2,6 +2,8 @@ import { COWORKERS, ROLES, TARGETS, UPGRADES, WEAPONS, type CoworkerId, type Rol
 import {
   assign,
   buyUpgrade,
+  canFlick,
+  snapBand,
   buyWeapon,
   coworkerAvailable,
   flick,
@@ -22,6 +24,7 @@ import { fmt, money, officeClock, officeTime, rate } from './format';
 import { Scene } from './scene';
 import { SheetView } from './sheet';
 import { Sound } from './sound';
+import { Launcher } from './launcher';
 
 export interface GameHost {
   state: GameState;
@@ -53,9 +56,7 @@ export class UI {
   private keys = new Map<string, string>();
   private flash: { text: string; until: number } | null = null;
   private tab: 'armory' | 'reqs' | 'team' = 'armory';
-  private pull = 0;
-  private pullVel = 0;
-  private holding = false;
+  private launcher!: Launcher;
   private lastFrame = performance.now();
   private seenTeam = false;
   private sound = new Sound();
@@ -66,6 +67,7 @@ export class UI {
     this.scene = new Scene(() => this.s, {
       footstep: () => this.sound.footstep(),
       hit: () => this.sound.hit(),
+      handTip: () => this.launcher?.tipClientPoint() ?? null,
     });
     this.sheet = new SheetView(() => this.s, {
       onFix: (_pay, streak) => {
@@ -73,6 +75,23 @@ export class UI {
         this.bump('salary');
       },
       onMiss: () => this.sound.miss(),
+    });
+    this.launcher = new Launcher({
+      canStart: () => {
+        const r = canFlick(this.s);
+        if (!r.ok && r.reason) this.say(r.reason);
+        return r.ok;
+      },
+      fire: (charge, perfect) => {
+        this.act((s) => flick(s, charge, perfect));
+        this.pressKey();
+      },
+      snap: () => {
+        snapBand(this.s);
+        this.sound.snap();
+        this.say('The band snapped. Let go when the meter says Perfect.');
+      },
+      stretchSound: (c) => this.sound.stretch(c),
     });
     this.bind();
     this.syncSound();
@@ -133,7 +152,6 @@ export class UI {
   }
 
   private bind() {
-    $('flick-btn').addEventListener('click', () => this.act(flick));
     $('scrounge-btn').addEventListener('click', this.doScrounge);
     $('work-btn').addEventListener('click', this.doWork);
     $('order-btn').addEventListener('click', this.doOrder);
@@ -149,13 +167,29 @@ export class UI {
     });
     $('sheet-close').addEventListener('click', () => this.toggleHide(false));
 
-    // Holding the Flick button pulls the band back; releasing fires.
-    const fb = $('flick-btn');
-    fb.addEventListener('pointerdown', () => (this.holding = true));
-    const release = () => (this.holding = false);
-    fb.addEventListener('pointerup', release);
-    fb.addEventListener('pointerleave', release);
-    fb.addEventListener('pointercancel', release);
+    // Hold the Flick key (or your hand) to stretch the band; let go to fire.
+    for (const el of [$('flick-btn'), $('hand') as unknown as HTMLElement]) {
+      el.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        try {
+          el.setPointerCapture(e.pointerId);
+        } catch {
+          /* capture is a nicety */
+        }
+        this.launcher.start();
+      });
+      el.addEventListener('pointerup', () => this.launcher.release());
+      el.addEventListener('pointercancel', () => this.launcher.cancel());
+    }
+    // Keyboard activation of the button (Enter/Space) is a quick flick.
+    $('flick-btn').addEventListener('click', (e) => {
+      if ((e as MouseEvent).detail === 0) this.launcher.tap();
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.key.toLowerCase() === 'f') this.launcher.release();
+    });
+    window.addEventListener('blur', () => this.launcher.cancel());
 
     for (const t of ['armory', 'reqs', 'team'] as const) {
       $(`tab-${t}`).addEventListener('click', () => this.showTab(t));
@@ -235,10 +269,8 @@ export class UI {
       return;
     }
     if (e.repeat) return;
-    if (k === 'f') {
-      this.act(flick);
-      this.kick();
-    } else if (k === 's') this.doScrounge();
+    if (k === 'f') this.launcher.start();
+    else if (k === 's') this.doScrounge();
     else if (k === 'w') this.doWork();
     else if (k === 'o') this.doOrder();
   }
@@ -295,8 +327,8 @@ export class UI {
     for (const e of events) {
       this.scene.handle(e);
       if (e.type === 'shot') {
-        this.onShot(e.damage, e.by);
-        if (e.by === 'you') this.sound.flick();
+        this.onShot(e.damage, e.by, e.perfect ?? false);
+        if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
         else this.sound.ally();
       } else if (e.type === 'caught') {
         this.say('Caught. Mr. Feeney took 40% of your bands.');
@@ -314,8 +346,7 @@ export class UI {
 
   private shotsThisFrame = 0;
 
-  private onShot(damage: number, by: 'you' | 'ally') {
-    if (by === 'you') this.kick();
+  private onShot(damage: number, by: 'you' | 'ally', perfect: boolean) {
     if (reducedMotion() || this.shotsThisFrame > 3) return;
     this.shotsThisFrame++;
     const plate = $('nameplate');
@@ -325,8 +356,9 @@ export class UI {
     const box = $('floaters');
     if (box.childElementCount > 12) box.firstElementChild?.remove();
     const f = document.createElement('span');
-    f.className = by === 'ally' ? 'floater ally' : 'floater';
-    f.textContent = `−${damage % 1 === 0 ? damage : damage.toFixed(1)}`;
+    f.className = by === 'ally' ? 'floater ally' : perfect ? 'floater perfect' : 'floater';
+    const n = damage % 1 === 0 ? String(damage) : damage.toFixed(1);
+    f.textContent = perfect ? `Perfect! −${n}` : `−${n}`;
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 14}%`;
     f.style.top = `${o.top}%`;
@@ -345,15 +377,11 @@ export class UI {
     ph.classList.add('ring');
   }
 
-  /** Snaps the band. */
-  private kick() {
+  /** The Flick key visibly presses down when you fire. */
+  private pressKey() {
     const key = $('flick-btn');
     key.classList.add('pressed');
     setTimeout(() => key.classList.remove('pressed'), 90);
-    if (reducedMotion()) return;
-    this.pull = Math.max(this.pull, 0.9);
-    this.pullVel = 0;
-    this.holding = false;
   }
 
   private onStage(stage: number) {
@@ -443,7 +471,8 @@ export class UI {
     this.renderPanes(s);
     this.sheet.render();
     this.scene.render();
-    this.animateBand(dt);
+    this.launcher.update(weapon(s).id, reducedMotion());
+    void dt;
   }
 
   private renderFront(s: GameState, _warning: number) {
@@ -648,33 +677,6 @@ export class UI {
       `<dl class="roles-key">${key}</dl>`;
   }
 
-  // ---------------------------------------------------------------- band animation
-
-  private animateBand(dt: number) {
-    if (this.holding) {
-      this.pull += (1 - this.pull) * Math.min(1, dt * 14);
-      this.pullVel = 0;
-    } else {
-      // Damped spring back to rest, with a little overshoot.
-      const k = 520;
-      const c = 16;
-      this.pullVel += (-k * this.pull - c * this.pullVel) * dt;
-      this.pull += this.pullVel * dt;
-      if (Math.abs(this.pull) < 0.002 && Math.abs(this.pullVel) < 0.01) {
-        this.pull = 0;
-        this.pullVel = 0;
-      }
-    }
-    const p = this.pull;
-    const key = p.toFixed(3);
-    if (this.keys.get('band') === key) return;
-    this.keys.set('band', key);
-    const dy = p * 30;
-    $('band-a').setAttribute('d', `M50 18 Q120 ${18 + dy * 2} 190 18`);
-    $('band-b').setAttribute('d', `M50 34 Q120 ${34 + dy * 2} 190 34`);
-    $('band-s').setAttribute('d', `M50 30 Q120 ${34 + dy * 2.2} 190 30`);
-  }
-
 }
 
 // ------------------------------------------------------------------ copy helpers
@@ -706,6 +708,8 @@ function coachHint(s: GameState): string {
       ? 'You can afford the Ruler Launcher. Buy it in the Armory below.'
       : 'Do some work (W) to earn $15 for the Ruler Launcher. Work also lowers Suspicion.';
   }
+  if (s.stats.shots >= 6 && s.stats.charged === 0)
+    return 'Tip: hold Flick (or F) to stretch the band. Let go at full stretch for a Perfect shot: 6\u00d7 damage from one band.';
   if (s.stats.walkbysSpotted + s.stats.hides === 0 && s.time > 60)
     return 'Mr. Feeney walks the floor every few minutes. When you hear footsteps, press Esc to look busy.';
   if (s.stage === 2 && s.allies.length < 3) return 'Recruit coworkers on the Team tab. Each one has a role they are best at.';

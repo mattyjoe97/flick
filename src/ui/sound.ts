@@ -100,10 +100,63 @@ export class Sound {
     src.stop(t + dur + 0.02);
   }
 
-  flick() {
+  /** Release: a stretched band twangs lower and louder; a Perfect adds a bright ping. */
+  flick(charge = 0, perfect = false) {
     if (!this.ok('flick', 40)) return;
-    this.tone('triangle', 520, 150, 0.1, 0.22);
-    this.noise(2600, 2, 0.03, 0.12);
+    this.tone('triangle', 520 - 160 * charge, 150 - 50 * charge, 0.1 + 0.08 * charge, 0.22 + 0.12 * charge);
+    this.noise(2600, 2, 0.03, 0.12 + 0.1 * charge);
+    if (perfect) {
+      this.tone('sine', 1320, 1320, 0.12, 0.12, 0.03);
+      this.tone('sine', 1760, 1760, 0.16, 0.1, 0.09);
+    }
+  }
+
+  private stretchOsc: OscillatorNode | null = null;
+  private stretchGain: GainNode | null = null;
+
+  /** A rising creak while you hold the band; pass null to stop it. */
+  stretch(charge: number | null) {
+    const c = this.ctx;
+    if (!c || !this.master || this.muted || c.state !== 'running') {
+      if (charge === null) this.stopStretch();
+      return;
+    }
+    if (charge === null) {
+      this.stopStretch();
+      return;
+    }
+    if (!this.stretchOsc) {
+      const osc = c.createOscillator();
+      const f = c.createBiquadFilter();
+      const g = c.createGain();
+      osc.type = 'sawtooth';
+      f.type = 'bandpass';
+      f.frequency.value = 900;
+      f.Q.value = 6;
+      g.gain.value = 0.0001;
+      osc.connect(f).connect(g).connect(this.master);
+      osc.start();
+      this.stretchOsc = osc;
+      this.stretchGain = g;
+    }
+    const t = c.currentTime;
+    this.stretchOsc.frequency.setTargetAtTime(70 + charge * 160, t, 0.03);
+    this.stretchGain!.gain.setTargetAtTime(charge > 0 ? 0.015 + charge * 0.05 : 0.0001, t, 0.03);
+  }
+
+  private stopStretch() {
+    if (!this.stretchOsc || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    this.stretchGain!.gain.setTargetAtTime(0.0001, t, 0.02);
+    this.stretchOsc.stop(t + 0.1);
+    this.stretchOsc = null;
+    this.stretchGain = null;
+  }
+
+  snap() {
+    if (!this.ok('snap', 300)) return;
+    this.noise(1400, 1, 0.08, 0.35);
+    this.tone('square', 260, 90, 0.18, 0.08, 0.04);
   }
 
   ally() {

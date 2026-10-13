@@ -213,3 +213,36 @@ describe('spreadsheet mini-game', () => {
     expect(setSheetTab(s, 'headcount')).toBe(true);
   });
 });
+
+describe('hold to charge', () => {
+  it('a full stretch hits much harder from one band, and a Perfect harder still', async () => {
+    const s = newGame(5);
+    s.bands = 10;
+    s.targetIndex = 3; // Gary behind the fan: lots of Resolve
+    s.targetResolve = 1600;
+    const before = s.targetResolve;
+    flick(s, 0);
+    const tap = before - s.targetResolve;
+    step(s, TUNING.stepSeconds);
+    const mid = s.targetResolve;
+    flick(s, 1, false);
+    const full = mid - s.targetResolve;
+    step(s, TUNING.stepSeconds);
+    const mid2 = s.targetResolve;
+    flick(s, 1, true);
+    const perfect = mid2 - s.targetResolve;
+    expect(full / tap).toBeCloseTo(5);
+    expect(perfect / tap).toBeCloseTo(6);
+    expect(s.bands).toBe(7); // three shots, three bands
+    expect(s.stats.perfect).toBe(1);
+  });
+
+  it('holding too long snaps the band', async () => {
+    const { snapBand } = await import('../src/sim/engine');
+    const s = newGame(5);
+    snapBand(s);
+    expect(s.bands).toBe(TUNING.startBands - 1);
+    expect(s.stats.snapped).toBe(1);
+    expect(s.suspicion).toBeGreaterThan(0);
+  });
+});

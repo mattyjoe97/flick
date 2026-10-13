@@ -116,20 +116,19 @@
           </div>
           <div class="launcher" id="arena">
             <p class="twist" id="twist" hidden></p>
-            <svg class="band" id="band" viewBox="0 0 240 76" aria-hidden="true">
-              <path class="band-shadow" id="band-s" d="M50 30 Q120 30 190 30"></path>
-              <path class="band-strand" id="band-a" d="M50 18 Q120 18 190 18"></path>
-              <path class="band-strand" id="band-b" d="M50 34 Q120 34 190 34"></path>
-              <circle class="peg" cx="50" cy="26" r="11"></circle>
-              <circle class="peg" cx="190" cy="26" r="11"></circle>
-              <circle class="peg-top" cx="47" cy="23" r="4"></circle>
-              <circle class="peg-top" cx="187" cy="23" r="4"></circle>
-            </svg>
+            <svg class="hand" id="hand" viewBox="56 -28 150 236" aria-hidden="true"></svg>
+            <div class="launch-controls">
+              <div class="tension" id="tension" data-state="idle">
+                <div class="tension-track"><div class="tension-fill" id="tension-fill"></div><span class="tension-sweet"></span></div>
+                <span class="tension-label" id="tension-label">Hold to stretch</span>
+              </div>
             <button type="button" class="keycap" id="flick-btn" aria-keyshortcuts="F">
               <span class="key-letter" aria-hidden="true">F</span>
               <span class="key-word">Flick</span>
+              <span class="key-hint">hold to stretch</span>
             </button>
             <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
+            </div>
             <div class="mini-actions">
               <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
               <button type="button" class="mini-btn" data-mini="work">Do work</button>

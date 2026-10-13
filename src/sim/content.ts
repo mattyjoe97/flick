@@ -207,6 +207,23 @@ export const TUNING = {
   offlineCapSeconds: 2 * 60 * 60,
 };
 
+/** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */
+export const CHARGE = {
+  deadZone: 0.12, // a tap shorter than this is a normal flick
+  fullAfter: 0.9, // seconds of holding (after the dead zone) to reach full stretch
+  perfectWindow: 0.35, // seconds at full stretch where a release counts as Perfect
+  snapAfter: 1.7, // total seconds of holding before the band snaps on you
+  maxMult: 5, // damage multiplier at full stretch
+  perfectMult: 6, // damage multiplier for a Perfect release
+  noisePerCharge: 0.6, // a full stretch makes 1.6x the noise of a tap
+  snapNoise: 3,
+};
+
+export function chargeMult(charge: number, perfect: boolean) {
+  if (perfect) return CHARGE.perfectMult;
+  return 1 + (CHARGE.maxMult - 1) * Math.min(1, Math.max(0, charge));
+}
+
 // ---------------------------------------------------------------- flavor
 
 export const CHATTER: { from: string; subject: string; body: string }[] = [
