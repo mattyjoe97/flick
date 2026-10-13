@@ -7,6 +7,7 @@ import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { drawPerson, PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
+import { HAND_DEFS } from './hand';
 
 const W = 800;
 const H = 420;
@@ -43,12 +44,12 @@ function targetSlots(n: number): Slot[] {
 }
 
 const ALLY_SLOTS = [
-  { x: 6, y: 268 },
-  { x: 698, y: 268 },
-  { x: 90, y: 276 },
-  { x: 614, y: 276 },
-  { x: 174, y: 284 },
-  { x: 530, y: 284 },
+  { x: 4, y: 270, back: false },
+  { x: 88, y: 276, back: false },
+  { x: 172, y: 282, back: false },
+  { x: 46, y: 236, back: true },
+  { x: 130, y: 242, back: true },
+  { x: 214, y: 248, back: true },
 ];
 
 function headPos(slot: Slot) {
@@ -180,6 +181,13 @@ export class Scene {
       <div class="scene-fx" id="scene-fx"></div>
       <div class="bubble" id="bubble" hidden></div>
       <div class="bubble bubble-feeney" id="feeney-bubble" hidden></div>`;
+    // Your hand sits in its own layer above the nameplate and labels, so it's always in front.
+    const wrap = this.root.parentElement!;
+    wrap.querySelector('.hand-svg')?.remove();
+    wrap.insertAdjacentHTML(
+      'beforeend',
+      `<svg class="hand-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${HAND_DEFS}</defs><g id="hand-layer"></g></svg>`,
+    );
     this.svg = this.root.querySelector('svg')!;
     this.peopleLayer = this.svg.querySelector('#people')!;
     this.duckLayer = this.svg.querySelector('#duck')!;
@@ -414,15 +422,15 @@ export class Scene {
     const key = s.allies.map((a) => a.id).join(',');
     if (key !== this.allyKey) {
       this.allyKey = key;
+      const drawAlly = (a: { id: string }, i: number) => {
+        const sl = ALLY_SLOTS[i % ALLY_SLOTS.length];
+        return `<g class="ally" data-ally="${a.id}"><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${drawPerson(PEOPLE[a.id])}</g></g>`;
+      };
+      // Back row first so the front row overlaps it.
+      const order = s.allies.map((a, i) => ({ a, i })).sort((p, q) => Number(ALLY_SLOTS[q.i % 6].back) - Number(ALLY_SLOTS[p.i % 6].back));
       this.allyLayer.innerHTML =
-        s.allies
-          .map((a, i) => {
-            const sl = ALLY_SLOTS[i % ALLY_SLOTS.length];
-            return `<g class="ally" data-ally="${a.id}"><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${drawPerson(PEOPLE[a.id])}</g></g>`;
-          })
-          .join('') +
-        `<rect x="0" y="356" width="270" height="${H - 356}" fill="url(#fabric)"/><rect x="-4" y="350" width="278" height="9" rx="2" fill="#c9ced4"/>` +
-        `<rect x="530" y="356" width="270" height="${H - 356}" fill="url(#fabric)"/><rect x="526" y="350" width="278" height="9" rx="2" fill="#c9ced4"/>`;
+        order.map(({ a, i }) => drawAlly(a, i)).join('') +
+        `<rect x="0" y="356" width="300" height="${H - 356}" fill="url(#fabric)"/><rect x="-4" y="350" width="308" height="9" rx="2" fill="#c9ced4"/>`;
       this.allyLayer.style.display = s.allies.length ? '' : 'none';
     }
 
@@ -483,6 +491,21 @@ export class Scene {
         setTimeout(() => l.classList.remove('flicker'), 900);
       }
     }
+  }
+
+  /** The layer your hand is drawn into (on top of everything but the evening light). */
+  get handLayer() {
+    return this.root.parentElement!.querySelector<SVGGElement>('#hand-layer')!;
+  }
+
+  /** The point your hand aims at: the middle of the target's heads, or the wall top when they duck. */
+  handAim() {
+    const n = this.people.length;
+    if (!n) return { x: 400, y: 180 };
+    const slots = targetSlots(n);
+    const x = slots.reduce((sum, sl) => sum + headPos(sl).x, 0) / n;
+    const ducked = performance.now() < this.duckUntil;
+    return { x, y: ducked ? WALL_TOP - 10 : headPos(slots[0]).y };
   }
 
   /** Where damage numbers should float, in percent of the scene. */

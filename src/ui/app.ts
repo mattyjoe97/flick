@@ -76,7 +76,8 @@ export class UI {
       },
       onMiss: () => this.sound.miss(),
     });
-    this.launcher = new Launcher({
+    this.launcher = new Launcher(
+      {
       canStart: () => {
         const r = canFlick(this.s);
         if (!r.ok && r.reason) this.say(r.reason);
@@ -92,7 +93,9 @@ export class UI {
         this.say('The band snapped. Let go when the meter says Perfect.');
       },
       stretchSound: (c) => this.sound.stretch(c),
-    });
+      },
+      this.scene.handLayer,
+    );
     this.bind();
     this.syncSound();
   }
@@ -168,7 +171,7 @@ export class UI {
     $('sheet-close').addEventListener('click', () => this.toggleHide(false));
 
     // Hold the Flick key (or your hand) to stretch the band; let go to fire.
-    for (const el of [$('flick-btn'), $('hand') as unknown as HTMLElement]) {
+    for (const el of [$('flick-btn'), $('scene')]) {
       el.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return;
         e.preventDefault();
@@ -471,7 +474,7 @@ export class UI {
     this.renderPanes(s);
     this.sheet.render();
     this.scene.render();
-    this.launcher.update(weapon(s).id, reducedMotion());
+    this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
     void dt;
   }
 

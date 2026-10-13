@@ -657,6 +657,16 @@ kbd {
   display: block;
 }
 
+.hand-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  filter: drop-shadow(-4px 6px 6px rgba(20, 10, 2, 0.35));
+}
+
 .scene-fx,
 .scene-ui {
   position: absolute;
@@ -777,7 +787,7 @@ kbd {
 .position {
   position: absolute;
   left: 50%;
-  top: 82.5%;
+  top: 80%;
   transform: translateX(-50%);
   margin: 0;
   white-space: nowrap;
@@ -787,22 +797,26 @@ kbd {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
+/* Resolve floats above the target like a health bar, clear of your hand. */
 .resolve {
   position: absolute;
-  left: 23%;
-  right: 23%;
-  bottom: 3%;
+  left: 34%;
+  right: 34%;
+  top: 3%;
+  padding: 0.5cqw 1cqw 0.8cqw;
+  background: rgba(30, 40, 51, 0.78);
+  border-radius: 8px;
   color: #fff;
 }
 
 .resolve-row {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   font-size: max(10px, 1.45cqw);
   font-weight: 700;
   margin-bottom: 0.4cqw;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
 .resolve-track {
@@ -893,7 +907,7 @@ kbd {
 .bubble {
   position: absolute;
   left: 63%;
-  top: 4%;
+  top: 14%;
   max-width: 30%;
   padding: 0.5cqw 1.4cqw 0.7cqw;
   background: #fff;
@@ -932,7 +946,7 @@ kbd {
 }
 
 .bubble-feeney {
-  top: 13%;
+  top: 24%;
   max-width: 28%;
   transform: translateX(-10%);
 }
@@ -986,31 +1000,15 @@ kbd {
 .launcher {
   position: relative;
   display: grid;
-  grid-template-columns: auto auto;
-  justify-content: center;
   justify-items: center;
-  align-items: end;
-  column-gap: 22px;
-  margin-top: -6px;
+  gap: 8px;
 }
 
-/* Your hand reaches up over the bottom of the scene. */
-.hand {
-  width: 150px;
-  height: auto;
-  margin-top: -96px;
-  position: relative;
-  z-index: 3;
-  overflow: visible;
+.scene {
+  cursor: crosshair;
   touch-action: none;
-  cursor: grab;
-  filter: drop-shadow(0 10px 10px rgba(30, 14, 4, 0.45));
   -webkit-user-select: none;
   user-select: none;
-}
-
-.hand:active {
-  cursor: grabbing;
 }
 
 .lb {
@@ -2034,13 +2032,6 @@ kbd {
     max-width: none;
     margin-bottom: 8px;
     transform: rotate(-1deg);
-  }
-  .hand {
-    width: 104px;
-    margin-top: -60px;
-  }
-  .launcher {
-    column-gap: 10px;
   }
   .tension {
     width: 180px;
