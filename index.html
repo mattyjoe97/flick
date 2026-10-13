@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>FLICK</title>
+    <meta name="description" content="An incremental game about an office rubber band war." />
+  </head>
+  <body>
+    <div id="app">
+      <header class="portal">
+        <div class="brand">
+          <strong>PSG Connect</strong>
+          <span>Pemberton Solutions Group</span>
+        </div>
+        <div class="portal-right">
+          <span class="clock" id="clock" aria-label="Office clock">Week 1, Mon 9:00 AM</span>
+          <label class="speed" id="speed-wrap" hidden>Speed
+            <select id="speed">
+              <option value="1">×1</option>
+              <option value="10">×10</option>
+              <option value="50">×50</option>
+            </select>
+          </label>
+          <button type="button" class="btn-quiet" id="settings-btn">Settings</button>
+          <button type="button" class="btn-hide" id="hide-btn" aria-pressed="false">Look busy <kbd>Esc</kbd></button>
+        </div>
+      </header>
+
+      <div class="walkby" id="walkby" role="alert" hidden>
+        <p><strong>Footsteps.</strong> Mr. Feeney is coming. Look busy! Press <kbd>Esc</kbd>.</p>
+        <div class="walkby-clock"><span id="walkby-fill"></span></div>
+      </div>
+      <div class="lockout" id="lockout" role="status" hidden></div>
+
+      <main class="grid">
+        <section class="panel desk" aria-labelledby="desk-h">
+          <h2 id="desk-h" class="panel-head">Your desk</h2>
+          <div class="panel-body">
+            <dl class="counts">
+              <div>
+                <dt>Bands</dt>
+                <dd id="bands">10</dd>
+                <dd class="rate" id="bands-rate"></dd>
+              </div>
+              <div>
+                <dt>Salary</dt>
+                <dd id="salary">$0</dd>
+                <dd class="rate" id="salary-rate"></dd>
+              </div>
+            </dl>
+
+            <div class="suspicion" id="suspicion">
+              <div class="susp-row">
+                <span id="susp-label">Suspicion</span>
+                <span class="susp-num" id="susp-num">0</span>
+              </div>
+              <div class="meter" role="meter" aria-labelledby="susp-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="susp-meter">
+                <div class="meter-fill" id="susp-fill"></div>
+                <i class="mark" style="left: 50%"></i>
+                <i class="mark" style="left: 75%"></i>
+              </div>
+              <p class="susp-note" id="susp-note">Nobody suspects a thing.</p>
+            </div>
+
+            <div class="desk-actions">
+              <button type="button" class="btn" id="scrounge-btn">
+                <span>Scrounge drawer <kbd>S</kbd></span>
+                <small id="scrounge-sub">+1 band</small>
+              </button>
+              <button type="button" class="btn" id="work-btn">
+                <span>Do work <kbd>W</kbd></span>
+                <small id="work-sub">+$1, −1.5 Suspicion</small>
+              </button>
+              <button type="button" class="btn" id="order-btn">
+                <span>Order supplies <kbd>O</kbd></span>
+                <small id="order-sub">$5 for 50 bands</small>
+              </button>
+            </div>
+
+            <div class="floor" aria-labelledby="floor-h">
+              <h3 id="floor-h">Floor 4, east side</h3>
+              <div class="floorplan" id="floorplan"></div>
+              <p class="floor-note" id="floor-note">0 of 9 desks captured</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel front" aria-labelledby="stage-line">
+          <h2 class="panel-head" id="stage-line">Stage 1: Desk Skirmish</h2>
+          <div class="panel-body">
+            <p class="mini" id="mini" aria-hidden="true"></p>
+            <div class="arena" id="arena">
+              <div class="plate-wrap">
+                <div class="nameplate" id="nameplate">
+                  <span class="np-name" id="np-name">Gary Lindqvist</span>
+                  <span class="np-title" id="np-title">Account Coordinator</span>
+                </div>
+                <div class="floaters" id="floaters" aria-hidden="true"></div>
+              </div>
+              <p class="position" id="position">Exposed</p>
+              <div class="resolve">
+                <div class="resolve-row"><span>Resolve</span><span id="resolve-num">15 / 15</span></div>
+                <div class="resolve-track"><div class="resolve-fill" id="resolve-fill"></div></div>
+              </div>
+              <p class="twist" id="twist" hidden></p>
+              <svg class="band" id="band" viewBox="0 0 240 70" aria-hidden="true">
+                <circle class="peg" cx="52" cy="24" r="9"></circle>
+                <circle class="peg" cx="188" cy="24" r="9"></circle>
+                <path class="band-strand" id="band-a" d="M52 16 Q120 16 188 16"></path>
+                <path class="band-strand" id="band-b" d="M52 32 Q120 32 188 32"></path>
+              </svg>
+              <button type="button" class="btn-flick" id="flick-btn">Flick <kbd>F</kbd></button>
+              <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
+              <div class="mini-actions">
+                <button type="button" class="buy" data-mini="scrounge">Scrounge</button>
+                <button type="button" class="buy" data-mini="work">Do work</button>
+                <button type="button" class="buy" data-mini="order">Order</button>
+              </div>
+            </div>
+            <p class="coach" id="coach"></p>
+            <ol class="ticker" id="ticker" aria-live="polite"></ol>
+
+            <div class="folders">
+              <div class="tabs" role="tablist" aria-label="Supplies and team">
+                <button type="button" role="tab" id="tab-armory" aria-controls="pane-armory" aria-selected="true">Armory</button>
+                <button type="button" role="tab" id="tab-reqs" aria-controls="pane-reqs" aria-selected="false">Requisitions</button>
+                <button type="button" role="tab" id="tab-team" aria-controls="pane-team" aria-selected="false" hidden>Team</button>
+              </div>
+              <div class="pane" role="tabpanel" id="pane-armory" aria-labelledby="tab-armory"></div>
+              <div class="pane" role="tabpanel" id="pane-reqs" aria-labelledby="tab-reqs" hidden></div>
+              <div class="pane" role="tabpanel" id="pane-team" aria-labelledby="tab-team" hidden></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel inbox" aria-labelledby="inbox-h">
+          <h2 class="panel-head" id="inbox-h">Inbox</h2>
+          <ol class="mail" id="mail"></ol>
+        </section>
+      </main>
+
+      <div class="sheet" id="sheet" hidden>
+        <div class="sheet-bar">
+          <span class="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span>
+          <button type="button" class="sheet-close" id="sheet-close">Close spreadsheet <kbd>Esc</kbd></button>
+        </div>
+        <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">=SUM(B2:B14)*SYNERGY_FACTOR</span></div>
+        <div class="sheet-scroll">
+          <table class="sheet-grid" id="sheet-grid"></table>
+        </div>
+        <div class="sheet-status">
+          <span id="sheet-msg">Ready</span>
+          <span id="sheet-stats"></span>
+        </div>
+      </div>
+
+      <dialog class="dlg" id="stage-dlg" aria-labelledby="stage-dlg-h">
+        <h2 id="stage-dlg-h">Stage 2: Cubicle Alliance</h2>
+        <div id="stage-dlg-body"></div>
+        <form method="dialog"><button class="btn-flick" id="stage-dlg-ok">Back to it</button></form>
+      </dialog>
+
+      <dialog class="dlg" id="settings-dlg" aria-labelledby="settings-h">
+        <h2 id="settings-h">Settings</h2>
+        <section class="set-block">
+          <h3>Export your save</h3>
+          <p>Copy this text somewhere safe. Paste it into Import on any browser to continue.</p>
+          <textarea id="export-text" rows="3" readonly></textarea>
+          <button type="button" class="btn" id="copy-btn"><span>Copy save</span></button>
+        </section>
+        <section class="set-block">
+          <h3>Import a save</h3>
+          <textarea id="import-text" rows="3" placeholder="Paste a save here"></textarea>
+          <button type="button" class="btn" id="import-btn"><span>Load this save</span></button>
+          <p class="set-msg" id="import-msg" role="status"></p>
+        </section>
+        <section class="set-block">
+          <h3>Start over</h3>
+          <p>Deletes your progress on this browser.</p>
+          <button type="button" class="btn btn-danger" id="reset-btn"><span>Start over</span></button>
+          <div class="confirm" id="reset-confirm" hidden>
+            <p>This can't be undone. Start a new game?</p>
+            <button type="button" class="btn btn-danger" id="reset-yes"><span>Yes, start over</span></button>
+            <button type="button" class="btn" id="reset-no"><span>Keep my game</span></button>
+          </div>
+        </section>
+        <p class="set-keys">Keys: <kbd>F</kbd> flick, <kbd>S</kbd> scrounge, <kbd>W</kbd> work, <kbd>O</kbd> order supplies, <kbd>Esc</kbd> or <kbd>B</kbd> look busy.</p>
+        <form method="dialog"><button class="btn-flick">Close</button></form>
+      </dialog>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
