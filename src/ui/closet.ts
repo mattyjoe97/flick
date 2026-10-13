@@ -470,9 +470,10 @@ export class ClosetView {
       if (e.textContent !== t) e.textContent = t;
     });
 
-    // Dale: jacket open when he's showing off (or has a deal), mouth moving while he talks.
+    // Dale holds one pose at a time: jacket open while he greets you, mid-sentence while he's
+    // pitching something, arms crossed otherwise. No flapping between them.
     const now = performance.now();
-    const pose = now < this.talkUntil && Math.floor(now / 140) % 2 === 0 ? 'talk' : now < this.openUntil || deal ? 'open' : 'idle';
+    const pose = now < this.openUntil ? 'open' : now < this.talkUntil ? 'talk' : 'idle';
     this.dale.querySelectorAll<HTMLImageElement>('img').forEach((img) => {
       const on = img.dataset.pose === pose;
       if (img.hidden === on) img.hidden = !on;
