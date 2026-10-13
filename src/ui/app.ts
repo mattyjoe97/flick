@@ -69,7 +69,7 @@ export class UI {
 
   private act(fn: (s: GameState) => ActionResult) {
     const r = fn(this.s);
-    if (!r.ok) this.say(r.reason);
+    if (!r.ok && r.reason) this.say(r.reason);
     else this.flash = null;
     return r.ok;
   }
@@ -123,6 +123,14 @@ export class UI {
     });
 
     document.addEventListener('keydown', (e) => this.onKey(e));
+    // Holding Enter or Space on a focused button would click it ~30 times a second.
+    document.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.repeat && (e.key === 'Enter' || e.key === ' ') && (e.target as HTMLElement).closest('button')) e.preventDefault();
+      },
+      true,
+    );
 
     // Settings
     const dlg = $<HTMLDialogElement>('settings-dlg');
@@ -257,6 +265,9 @@ export class UI {
 
   /** Snaps the band. */
   private kick() {
+    const key = $('flick-btn');
+    key.classList.add('pressed');
+    setTimeout(() => key.classList.remove('pressed'), 90);
     if (reducedMotion()) return;
     this.pull = Math.max(this.pull, 0.9);
     this.pullVel = 0;
@@ -322,8 +333,13 @@ export class UI {
     this.set('salary-rate', m.salaryPerSec > 0 ? `+$${rate(m.salaryPerSec)}/s` : '');
     const susp = Math.min(100, s.suspicion);
     this.set('susp-num', susp.toFixed(0));
-    $('susp-fill').style.width = `${susp}%`;
-    $('susp-meter').setAttribute('aria-valuenow', susp.toFixed(0));
+    // The mug fills from y=114 (empty) to y=18 (full).
+    const liquidY = 114 - 96 * (susp / 100);
+    $('susp-fill').setAttribute('y', liquidY.toFixed(1));
+    $('susp-fill').setAttribute('height', (114 - liquidY).toFixed(1));
+    $('susp-foam').setAttribute('y', (liquidY - 2).toFixed(1));
+    $('susp-foam').setAttribute('height', susp > 1 ? '3' : '0');
+    $('suspicion').setAttribute('aria-valuenow', susp.toFixed(0));
     const level = susp >= 75 ? 'danger' : susp >= 50 ? 'caution' : 'calm';
     $('suspicion').dataset.level = level;
     this.set('susp-note', suspicionNote(susp));
@@ -334,7 +350,7 @@ export class UI {
 
     this.set(
       'mini',
-      `Bands ${fmt(s.bands)}   Salary ${money(s.salary)}   Suspicion ${susp.toFixed(0)}`,
+      `Bands ${fmt(s.bands)}    Salary ${money(s.salary)}    Suspicion ${susp.toFixed(0)}`,
     );
 
     this.renderFront(s, m.warning);
@@ -442,8 +458,9 @@ export class UI {
       $('mail').innerHTML = s.inbox
         .map(
           (m) => `<li class="${m.kind}${m.t >= newest - 2 && s.time - m.t < 10 ? ' fresh' : ''}">
-          <div class="meta"><span>${m.kind === 'warning' ? '<span class="flag" title="High importance">!</span>' : ''}<span class="from">${esc(m.from)}</span></span><time>${officeTime(m.t)}</time></div>
-          <div class="subj">${esc(m.subject)}</div>
+          <div class="slip-print"><span>${m.kind === 'flavor' ? 'Memo' : 'While you were out'}${m.kind === 'warning' ? ' <span class="urgent">\u2611 Urgent</span>' : ''}</span><time>${officeTime(m.t)}</time></div>
+          <span class="slip-from">${esc(m.from)}</span>
+          <span class="slip-subj">${esc(m.subject)}</span>
           <p>${esc(m.body)}</p></li>`,
         )
         .join('');
@@ -485,7 +502,7 @@ export class UI {
       const equipped = s.weapon === w.id;
       const price = priceOf(s, w.price);
       let act: string;
-      if (equipped) act = '<span class="tag">Equipped</span>';
+      if (equipped) act = '<span class="stamp blue">Equipped</span>';
       else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
       else if (w.stage > s.stage) act = `<span class="tag">Stage ${w.stage}</span>`;
       else if (w.needsEngineer && !m.hasEngineer)
@@ -508,7 +525,7 @@ export class UI {
       if (u.stage > s.stage) continue;
       const price = priceOf(s, u.price);
       if (has(s, u.id)) {
-        done.push(`<div class="item owned"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="tag">Approved</span></div></div>`);
+        done.push(`<div class="item owned"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="stamp">Approved</span></div></div>`);
       } else if (!upgradeAvailable(s, u.id)) {
         const t = TARGETS.find((t) => t.id === u.unlockAfter);
         open.push(`<div class="item"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="tag">After ${esc(t?.name ?? '')}</span></div></div>`);
@@ -570,8 +587,9 @@ export class UI {
     if (this.keys.get('band') === key) return;
     this.keys.set('band', key);
     const dy = p * 30;
-    $('band-a').setAttribute('d', `M52 16 Q120 ${16 + dy * 2} 188 16`);
-    $('band-b').setAttribute('d', `M52 32 Q120 ${32 + dy * 2} 188 32`);
+    $('band-a').setAttribute('d', `M50 18 Q120 ${18 + dy * 2} 190 18`);
+    $('band-b').setAttribute('d', `M50 34 Q120 ${34 + dy * 2} 190 34`);
+    $('band-s').setAttribute('d', `M50 30 Q120 ${34 + dy * 2.2} 190 30`);
   }
 
   // ---------------------------------------------------------------- boss key spreadsheet

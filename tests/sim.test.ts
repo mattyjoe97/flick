@@ -50,6 +50,7 @@ describe('core actions', () => {
     for (let i = 0; i < 4; i++) {
       s.bands = 100000;
       s.targetResolve = 0.5;
+      s.nextFlickAt = 0;
       flick(s);
     }
     expect(s.stage).toBe(2);
@@ -142,4 +143,24 @@ describe('pacing (scripted bots)', () => {
       else expect(s.stats.caught).toBeGreaterThan(5); // ignoring Suspicion should hurt
     });
   }
+});
+
+describe('anti-spam', () => {
+  it('ignores shots faster than the weapon reload', () => {
+    const s = newGame(3);
+    s.bands = 100;
+    expect(flick(s).ok).toBe(true);
+    expect(flick(s).ok).toBe(false); // same instant
+    step(s, TUNING.stepSeconds);
+    expect(flick(s).ok).toBe(true); // Finger Flick reloads in 0.1 s
+    s.salary = 1000;
+    buyWeapon(s, 'ruler');
+    buyWeapon(s, 'clothespin');
+    step(s, TUNING.stepSeconds);
+    expect(flick(s).ok).toBe(true);
+    step(s, TUNING.stepSeconds);
+    expect(flick(s).ok).toBe(false); // Clothespin needs 0.2 s
+    step(s, TUNING.stepSeconds);
+    expect(flick(s).ok).toBe(true);
+  });
 });

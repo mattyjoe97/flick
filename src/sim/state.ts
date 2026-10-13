@@ -45,6 +45,7 @@ export interface GameState {
 
   lookBusy: boolean;
   lastShotAt: number;
+  nextFlickAt: number; // your weapon's reload
   flickLockUntil: number;
   shooterLockUntil: number;
 
@@ -108,6 +109,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     allies: [],
     lookBusy: false,
     lastShotAt: -999,
+    nextFlickAt: 0,
     flickLockUntil: 0,
     shooterLockUntil: 0,
     walkby: { nextAt: TUNING.firstWalkby, arrivesAt: null },

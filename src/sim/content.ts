@@ -22,16 +22,17 @@ export interface Weapon {
   damage: number; // per band
   burst: number; // bands fired per shot
   noise: number; // Suspicion per shot = 0.5 × noise (before modifiers)
+  reload: number; // minimum seconds between your shots (multiples of the 0.1 s step)
   price: number;
   stage: number; // first stage it can be bought in
   needsEngineer?: boolean;
 }
 
 export const WEAPONS: Weapon[] = [
-  { id: 'flick', name: 'Finger Flick', blurb: 'The classic. Thumb, finger, regret.', damage: 1, burst: 1, noise: 1.0, price: 0, stage: 1 },
-  { id: 'ruler', name: 'Ruler Launcher', blurb: 'A 12-inch ruler and a confident wrist.', damage: 3, burst: 1, noise: 1.2, price: 15, stage: 1 },
-  { id: 'clothespin', name: 'Clothespin Pistol', blurb: 'Hot-glued. Trigger action. Surprisingly accurate.', damage: 7, burst: 1, noise: 1.4, price: 80, stage: 1 },
-  { id: 'repeater', name: 'Binder-Clip Repeater', blurb: 'Three bands per trigger pull. Dave designed it on a napkin.', damage: 7, burst: 3, noise: 3.0, price: 350, stage: 2, needsEngineer: true },
+  { id: 'flick', name: 'Finger Flick', blurb: 'The classic. Thumb, finger, regret.', damage: 1, burst: 1, noise: 1.0, reload: 0.1, price: 0, stage: 1 },
+  { id: 'ruler', name: 'Ruler Launcher', blurb: 'A 12-inch ruler and a confident wrist.', damage: 3, burst: 1, noise: 1.2, reload: 0.1, price: 15, stage: 1 },
+  { id: 'clothespin', name: 'Clothespin Pistol', blurb: 'Hot-glued. Trigger action. Surprisingly accurate.', damage: 7, burst: 1, noise: 1.4, reload: 0.2, price: 80, stage: 1 },
+  { id: 'repeater', name: 'Binder-Clip Repeater', blurb: 'Three bands per trigger pull. Dave designed it on a napkin.', damage: 7, burst: 3, noise: 3.0, reload: 0.3, price: 350, stage: 2, needsEngineer: true },
 ];
 
 // ---------------------------------------------------------------- targets

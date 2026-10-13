@@ -245,7 +245,11 @@ export function flick(s: GameState): ActionResult {
   if (s.stage > 2) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are looking busy. Close the spreadsheet first.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
-  if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
+  const w = weapon(s);
+  if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
+  // Reloading: silently ignore shots faster than the weapon allows (no message, no spam).
+  if (s.time + 1e-6 < s.nextFlickAt) return no('');
+  s.nextFlickAt = s.time + w.reload;
   fire(s, 'you', 1);
   return ok;
 }

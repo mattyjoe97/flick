@@ -1,4 +1,11 @@
-import '@fontsource/libre-caslon-text/400.css';
+import '@fontsource/libre-caslon-text/latin-400.css';
+import '@fontsource/libre-franklin/latin-400.css';
+import '@fontsource/libre-franklin/latin-500.css';
+import '@fontsource/libre-franklin/latin-600.css';
+import '@fontsource/libre-franklin/latin-700.css';
+import '@fontsource/libre-franklin/latin-800.css';
+import '@fontsource/kalam/latin-400.css';
+import '@fontsource/kalam/latin-700.css';
 import './ui/styles.css';
 import { TUNING } from './sim/content';
 import { applyOffline, step } from './sim/engine';
