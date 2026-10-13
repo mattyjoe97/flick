@@ -7,7 +7,7 @@ export const ROLES: { id: Role; name: string; effect: string }[] = [
   { id: 'shooter', name: 'Shooter', effect: 'Fires your best weapon every 2 s' },
   { id: 'gatherer', name: 'Gatherer', effect: '+0.5 bands/s' },
   { id: 'lookout', name: 'Lookout', effect: '−12% Suspicion gain, +0.75 s warning' },
-  { id: 'cover', name: 'Cover', effect: 'Does real work: +$0.50/s, −0.3 Suspicion/s, clears a task every 40 s' },
+  { id: 'cover', name: 'Cover', effect: 'Does real work: +$0.50/s, −0.3 Suspicion/s' },
   { id: 'engineer', name: 'Engineer', effect: '−10% weapon and requisition prices' },
 ];
 
@@ -154,7 +154,7 @@ export const UPGRADES: Upgrade[] = [
   { id: 'closet', name: 'Supply Closet Key', effect: '+1.5 bands/s.', price: 250, stage: 2, unlockAfter: 'brad' },
   { id: 'training', name: 'Shooter Training', effect: 'Allies fire 30% faster.', price: 300, stage: 2 },
   { id: 'carpet', name: 'Carpet Tiles', effect: 'All shots make 15% less noise.', price: 400, stage: 2 },
-  { id: 'macros', name: 'Spreadsheet Macros', effect: 'Look Busy pays ×3 instead of ×2.', price: 600, stage: 2, unlockAfter: 'printer' },
+  { id: 'macros', name: 'Spreadsheet Macros', effect: 'Passive Salary pays ×3 while you’re at your computer, instead of ×2.', price: 600, stage: 2, unlockAfter: 'printer' },
   { id: 'walls', name: 'Cubicle Wall Extensions', effect: 'All shots make 20% less noise.', price: 900, stage: 2, unlockAfter: 'printer' },
   { id: 'calendar', name: 'Fake Calendar Invites', effect: 'Mr. Feeney walks by 30% less often.', price: 1200, stage: 2, unlockAfter: 'taskforce' },
 ];
