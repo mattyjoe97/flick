@@ -29,6 +29,10 @@ Add `?debug=1` to the URL for a speed control (×1, ×10, ×50) and `window.flic
 | O | Order supplies |
 | Esc or B | Look busy (the Boss Key spreadsheet) |
 
+Getting caught (Suspicion reaches 100) puts a write-up in your HR file, sends your equipped weapon to Mr. Feeney's drawer for 3 minutes (Lost and Found sells it back for half its price), and lets your target regroup. A write-up fades after 10 minutes without getting caught. Three write-ups is Final Warning; get caught again and you're fired: you lose your bands and this stage's progress, keep your weapons, requisitions and team, and HR rehires you on Monday with a clean file.
+
+Coworkers are promoted to Senior and then Lead the longer they're on your team, which makes them better at their role.
+
 While you look busy, the spreadsheet is a mini-game: fix cells with red corners before their fuse runs out. Fixes in a row build a streak that pays more, and fixing one right as Mr. Feeney walks past pays double. The Budget and Headcount tabs unlock as you progress and pay more.
 
 ## Commands

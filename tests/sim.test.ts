@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { TARGETS, TUNING } from '../src/sim/content';
-import { addSuspicion, buyWeapon, flick, recruit, scrounge, setLookBusy, step, work } from '../src/sim/engine';
+import { PROMOTION, TARGETS, TUNING } from '../src/sim/content';
+import { addSuspicion, buyBack, buyBackPrice, buyWeapon, flick, recruit, scrounge, setLookBusy, step, work } from '../src/sim/engine';
+import { rolePower, weapon } from '../src/sim/mods';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
 import { playBot, STYLES } from './bot';
@@ -100,6 +101,106 @@ describe('suspicion', () => {
   });
 });
 
+describe('HR file', () => {
+  /** A game in Stage 2 that has beaten Brad and owns the Clothespin Pistol. */
+  function midStage2() {
+    const s = newGame(3);
+    s.stage = 2;
+    s.targetIndex = TARGETS.findIndex((t) => t.id === 'printer');
+    s.targetResolve = 3000;
+    s.desks = 2; // Gary's desk + Brad's
+    s.ownedWeapons = ['flick', 'ruler', 'clothespin'];
+    s.weapon = 'clothespin';
+    s.bands = 500;
+    s.salary = 200;
+    return s;
+  }
+
+  it('getting caught writes you up, takes your weapon and lets the target regroup', () => {
+    const s = midStage2();
+    addSuspicion(s, 200);
+    expect(s.hr.writeUps).toBe(1);
+    expect(s.hr.confiscated?.weapon).toBe('clothespin');
+    expect(weapon(s).id).toBe('flick'); // you (and your Shooters) are back to the finger
+    expect(buyWeapon(s, 'clothespin').ok).toBe(false); // can't re-equip it
+    expect(s.targetResolve).toBe(3000 + 7000 * TUNING.regroupShare);
+    expect(s.bands).toBe(300);
+  });
+
+  it('Lost and Found sells your weapon back, or it comes back on its own', () => {
+    const a = midStage2();
+    addSuspicion(a, 200);
+    const price = buyBackPrice(a);
+    expect(price).toBe(40); // half the Clothespin's $80
+    expect(buyBack(a).ok).toBe(true);
+    expect(a.salary).toBe(160);
+    expect(weapon(a).id).toBe('clothespin');
+
+    const b = midStage2();
+    addSuspicion(b, 200);
+    b.suspicion = 0;
+    run(b, TUNING.confiscateSeconds + 1);
+    expect(b.hr.confiscated).toBeNull();
+    expect(weapon(b).id).toBe('clothespin');
+  });
+
+  it('write-ups fade after a stretch without being caught', () => {
+    const s = midStage2();
+    addSuspicion(s, 200);
+    addSuspicion(s, 200);
+    expect(s.hr.writeUps).toBe(2);
+    s.suspicion = 0;
+    run(s, TUNING.writeUpFade + 1);
+    expect(s.hr.writeUps).toBe(1);
+  });
+
+  it('three write-ups is Final Warning; the next catch gets you fired', () => {
+    const s = midStage2();
+    for (let i = 0; i < 3; i++) addSuspicion(s, 200);
+    expect(s.hr.writeUps).toBe(3);
+    expect(s.stats.fired).toBe(0);
+    addSuspicion(s, 200);
+    expect(s.stats.fired).toBe(1);
+    // Back to the start of Stage 2: Brad again, his desk handed back, a nearly empty drawer.
+    expect(TARGETS[s.targetIndex].id).toBe('brad');
+    expect(s.desks).toBe(1);
+    expect(s.bands).toBe(TUNING.firedBands);
+    expect(s.stage).toBe(2);
+    // ...but a clean file, and you keep your weapons.
+    expect(s.hr.writeUps).toBe(0);
+    expect(s.hr.confiscated).toBeNull();
+    expect(s.ownedWeapons).toContain('clothespin');
+  });
+
+  it('coworkers get promoted for time served, and get better at their job', () => {
+    const s = midStage2();
+    s.allies = [{ id: 'marjorie', role: 'lookout', timer: 0, served: 0, rank: 0 }];
+    const before = rolePower(s, 'lookout');
+    s.suspicion = 0;
+    setLookBusy(s, true); // stay out of trouble while time passes
+    run(s, PROMOTION.after[0] + 1);
+    expect(s.allies[0].rank).toBe(1);
+    expect(rolePower(s, 'lookout')).toBeCloseTo(before * PROMOTION.bonus[1]);
+    run(s, PROMOTION.after[1] - PROMOTION.after[0]);
+    expect(s.allies[0].rank).toBe(2);
+    expect(s.stats.promotions).toBe(2);
+  });
+
+  it('old saves get a clean HR file and new hires', () => {
+    const s = midStage2();
+    s.allies = [{ id: 'gary', role: 'shooter', timer: 0, served: 0, rank: 0 }];
+    const file = JSON.parse(serialize(s));
+    file.version = 1;
+    delete file.state.hr;
+    delete file.state.allies[0].served;
+    delete file.state.allies[0].rank;
+    const back = deserialize(JSON.stringify(file));
+    expect(back?.state.hr.writeUps).toBe(0);
+    expect(back?.state.allies[0].rank).toBe(0);
+    expect(back?.state.allies[0].served).toBe(0);
+  });
+});
+
 describe('saves', () => {
   it('round-trips through serialize and export', () => {
     const s = newGame(7);
@@ -133,6 +234,7 @@ describe('pacing (scripted bots)', () => {
         stage1Min: s.stats.stage1At && +(s.stats.stage1At / 60).toFixed(1),
         stage2Min: s.stats.stage2At && +(s.stats.stage2At / 60).toFixed(1),
         caught: s.stats.caught,
+        fired: s.stats.fired,
         hides: s.stats.hides,
         spotted: s.stats.walkbysSpotted,
         allies: s.allies.length,
@@ -140,7 +242,7 @@ describe('pacing (scripted bots)', () => {
       console.log(JSON.stringify(report));
       expect(Number.isFinite(s.bands) && s.bands >= 0).toBe(true);
       if (style.reactsToWalkbys) expect(s.stage).toBe(3);
-      else expect(s.stats.caught).toBeGreaterThan(5); // ignoring Suspicion should hurt
+      else expect(s.stats.caught + s.stats.fired).toBeGreaterThan(5); // ignoring Suspicion should hurt
     });
   }
 });

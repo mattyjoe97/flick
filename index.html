@@ -72,6 +72,13 @@
             </div>
           </div>
 
+          <div class="hr-file" id="hr-file" data-level="clean">
+            <span class="hr-tab">HR file</span>
+            <div class="hr-slips" id="hr-slips" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p class="hr-note" id="hr-note">Clean record.</p>
+            <span class="hr-stamp" id="hr-stamp" hidden>Final warning</span>
+          </div>
+
           <div class="cards">
             <button type="button" class="card-btn" id="scrounge-btn">
               <span class="card-title">Scrounge drawer <kbd>S</kbd></span>
@@ -188,6 +195,54 @@
         <h2 id="stage-dlg-h">Stage 2: Cubicle Alliance</h2>
         <div id="stage-dlg-body"></div>
         <form method="dialog"><button class="paper-btn paper-btn-strong" id="stage-dlg-ok">Back to it</button></form>
+      </dialog>
+
+      <dialog class="dlg dlg-caught" id="caught-dlg" aria-labelledby="caught-h">
+        <h2 id="caught-h">My office. Now.</h2>
+        <div class="caught-top">
+          <svg class="caught-feeney" id="caught-feeney" viewBox="0 0 120 150" aria-hidden="true"></svg>
+          <div class="pink-slip" id="caught-slip"></div>
+        </div>
+        <ul class="caught-list" id="caught-list"></ul>
+        <form method="dialog" class="dlg-actions">
+          <button type="button" class="paper-btn" id="caught-buyback" hidden></button>
+          <button class="paper-btn paper-btn-strong" id="caught-ok" autofocus>Back to work</button>
+        </form>
+      </dialog>
+
+      <dialog class="dlg dlg-fired" id="fired-dlg" aria-labelledby="fired-h">
+        <h2 id="fired-h">You're fired.</h2>
+        <div id="fired-page1">
+          <svg class="fired-box" viewBox="0 0 220 150" aria-hidden="true">
+            <g stroke="#23272d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+              <path fill="#3f8a4e" d="M58 58 C48 30 30 26 26 34 C40 36 46 46 50 60 M60 58 C62 26 78 14 86 20 C74 28 68 42 66 60"/>
+              <rect x="44" y="56" width="30" height="24" rx="3" fill="#c96b3b"/>
+              <rect x="88" y="30" width="38" height="46" rx="2" fill="#f4efe2"/>
+              <rect x="95" y="37" width="24" height="26" fill="#9fc6e8"/>
+              <circle cx="107" cy="47" r="5" fill="#f2c9a5"/>
+              <path fill="#ffffff" d="M136 50 h26 v28 q0 6 -6 6 h-14 q-6 0 -6 -6 Z"/>
+              <path fill="none" d="M162 56 q10 0 10 9 q0 9 -10 9"/>
+              <circle cx="186" cy="66" r="13" fill="#d8a46a"/>
+              <path fill="none" stroke="#a8743a" stroke-width="2" d="M175 60 q11 -6 22 2 M174 69 q12 6 24 -3 M180 56 q4 10 0 22"/>
+              <path fill="#c49a5c" d="M20 72 L200 72 L188 140 L32 140 Z"/>
+              <path fill="#d7b072" d="M20 72 L8 58 L44 58 L54 72 Z M200 72 L212 58 L176 58 L166 72 Z"/>
+              <path fill="none" stroke-width="2" d="M60 98 H160"/>
+            </g>
+            <text x="110" y="122" text-anchor="middle" font-family="Kalam, cursive" font-weight="700" font-size="16" fill="#23272d">MY DESK STUFF</text>
+          </svg>
+          <p>Security walks you and a cardboard box past every desk on the floor. Gary waves.</p>
+          <dl id="fired-lost"></dl>
+          <p class="fired-kept">You keep your weapons, requisitions and team. They're in the box.</p>
+        </div>
+        <div id="fired-page2" hidden>
+          <p class="monday">An email from HR, Monday 9:00 AM:</p>
+          <blockquote>"Please disregard the previous email. Due to a filing error there is no record of your separation, or of you. Welcome back!"</blockquote>
+          <p>Your desk is where you left it. The rubber bands are not. Your HR file is clean.</p>
+        </div>
+        <form method="dialog" class="dlg-actions">
+          <button type="button" class="paper-btn paper-btn-strong" id="fired-next">Monday morning</button>
+          <button class="paper-btn paper-btn-strong" id="fired-ok" hidden>Back to work</button>
+        </form>
       </dialog>
 
       <dialog class="dlg" id="settings-dlg" aria-labelledby="settings-h">

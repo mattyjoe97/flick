@@ -1,4 +1,4 @@
-import { COWORKERS, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId } from './content';
+import { COWORKERS, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import type { GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
@@ -11,21 +11,36 @@ export function coworker(id: CoworkerId) {
   return c;
 }
 
-/** How strong one ally is in a role: their trait bonus applies only to their trait's role. */
-export function allyPower(id: CoworkerId, role: Role) {
+/**
+ * How strong one ally is in a role: their trait bonus applies only to their trait's
+ * role, and promotions (Senior, Lead) make them better at whatever they're doing.
+ */
+export function allyPower(id: CoworkerId, role: Role, rank = 0) {
   const c = coworker(id);
-  return c.traitRole === role ? c.mult : 1;
+  return (c.traitRole === role ? c.mult : 1) * PROMOTION.bonus[rank];
 }
 
 /** Sum of power across every ally assigned to a role. */
 export function rolePower(s: GameState, role: Role) {
-  return s.allies.filter((a) => a.role === role).reduce((sum, a) => sum + allyPower(a.id, role), 0);
+  return s.allies.filter((a) => a.role === role).reduce((sum, a) => sum + allyPower(a.id, role, a.rank), 0);
 }
 
+/** Is this weapon sitting in Mr. Feeney's drawer? */
+export function isConfiscated(s: GameState, id: WeaponId) {
+  return s.hr?.confiscated?.weapon === id;
+}
+
+/** The weapon you (and your Shooters) actually fire: the Finger Flick while yours is confiscated. */
 export function weapon(s: GameState) {
-  const w = WEAPONS.find((w) => w.id === s.weapon);
-  if (!w) throw new Error(`Unknown weapon ${s.weapon}`);
+  const id = isConfiscated(s, s.weapon) ? 'flick' : s.weapon;
+  const w = WEAPONS.find((w) => w.id === id);
+  if (!w) throw new Error(`Unknown weapon ${id}`);
   return w;
+}
+
+/** On Final Warning: one more write-up and you're fired. */
+export function onFinalWarning(s: GameState) {
+  return (s.hr?.writeUps ?? 0) >= TUNING.writeUpsToFinal;
 }
 
 /** Everything derived from upgrades and allies, computed fresh each step. */
@@ -57,7 +72,7 @@ export function mods(s: GameState) {
     workPay: has(s, 'chair') ? 2 : 1,
     order: bulk ? { price: 12, amount: 200 } : { price: 5, amount: 50 },
     lookBusyMult,
-    walkbyIntervalMult: has(s, 'calendar') ? 1.3 : 1,
+    walkbyIntervalMult: (has(s, 'calendar') ? 1.3 : 1) * (onFinalWarning(s) ? TUNING.finalWarningWalkbyMult : 1),
     bandsPerSec,
     salaryPerSec: basePay * (s.lookBusy ? lookBusyMult : 1),
     coverCool: covers * TUNING.coverCool,

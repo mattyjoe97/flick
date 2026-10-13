@@ -36,6 +36,9 @@ function migrate(file: SaveFile): GameState | null {
   const s = { ...base, ...file.state, events: [] } as GameState;
   s.stats = { ...base.stats, ...(file.state.stats ?? {}) };
   s.walkby = { ...base.walkby, ...(file.state.walkby ?? {}) };
+  s.hr = { ...base.hr, ...(file.state.hr ?? {}) };
+  // Allies from version 1 saves have no promotion fields yet.
+  s.allies = (file.state.allies ?? []).map((a) => ({ ...a, served: a.served ?? 0, rank: a.rank ?? 0 }));
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
 }
@@ -53,6 +56,12 @@ function sanitize(s: GameState): boolean {
   if (!s.ownedWeapons.includes(s.weapon)) s.weapon = 'flick';
   s.upgrades = s.upgrades.filter((id) => UPGRADES.some((u) => u.id === id));
   s.allies = s.allies.filter((a) => COWORKERS.some((c) => c.id === a.id));
+  for (const a of s.allies) {
+    if (!Number.isFinite(a.served)) a.served = 0;
+    a.rank = Math.min(2, Math.max(0, Math.floor(Number(a.rank) || 0)));
+  }
+  s.hr.writeUps = Math.min(3, Math.max(0, Math.floor(Number(s.hr.writeUps) || 0)));
+  if (s.hr.confiscated && !s.ownedWeapons.includes(s.hr.confiscated.weapon)) s.hr.confiscated = null;
   return true;
 }
 

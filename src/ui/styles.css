@@ -1845,6 +1845,193 @@ kbd {
   color: #1f6e43;
 }
 
+/* ------------------------------------------------------------ HR file */
+
+.hr-file {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 18px 14px 12px;
+  background: var(--manila);
+  border-radius: 2px 6px 4px 4px;
+  box-shadow: var(--shadow-low);
+  transform: rotate(0.6deg);
+}
+
+.hr-tab {
+  position: absolute;
+  top: -12px;
+  left: 10px;
+  padding: 2px 12px 4px;
+  background: var(--manila);
+  border-radius: 6px 6px 0 0;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--t-sm);
+  color: var(--ink);
+}
+
+.hr-slips {
+  display: flex;
+  gap: 5px;
+}
+
+.hr-slips i {
+  width: 22px;
+  height: 28px;
+  border: 2px dashed var(--manila-deep);
+  border-radius: 2px;
+}
+
+.hr-slips i.on {
+  border: none;
+  background:
+    linear-gradient(var(--slip-print), var(--slip-print)) 4px 6px / 14px 2px no-repeat,
+    linear-gradient(var(--slip-print), var(--slip-print)) 4px 12px / 10px 2px no-repeat,
+    linear-gradient(var(--slip-print), var(--slip-print)) 4px 18px / 12px 2px no-repeat,
+    var(--slip);
+  box-shadow: 0 1px 2px rgba(40, 20, 5, 0.35);
+  transform: rotate(-3deg);
+}
+
+.hr-slips i.on:nth-child(2) {
+  transform: rotate(2deg);
+}
+
+.hr-note {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.hr-stamp {
+  position: absolute;
+  right: 8px;
+  top: -24px;
+  padding: 2px 8px;
+  border: 3px solid var(--alarm);
+  border-radius: 4px;
+  color: var(--alarm);
+  font-weight: 800;
+  font-size: var(--t-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(252, 251, 247, 0.85);
+  transform: rotate(-6deg);
+}
+
+.hr-file[data-level="final"] {
+  outline: 3px solid var(--alarm);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ caught and fired */
+
+.dlg-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.caught-top {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+
+.caught-feeney {
+  width: 112px;
+  flex: none;
+  overflow: visible;
+}
+
+.pink-slip {
+  padding: 10px 14px;
+  background: var(--slip);
+  color: var(--slip-print);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--t-sm);
+  line-height: 1.35;
+  box-shadow: var(--shadow-low);
+  transform: rotate(-3deg);
+}
+
+.pink-slip b {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: var(--t-xl);
+  text-transform: none;
+  color: var(--ink);
+}
+
+.pink-slip.final {
+  border: 3px solid var(--alarm);
+  font-size: var(--t-md);
+}
+
+.caught-list {
+  margin: 0 0 6px;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.caught-list li::marker {
+  color: var(--alarm);
+}
+
+.fired-box {
+  display: block;
+  width: min(260px, 70vw);
+  margin: 0 auto 10px;
+}
+
+.dlg-fired blockquote {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--pen);
+  background: rgba(31, 74, 154, 0.06);
+  font-style: italic;
+}
+
+.fired-kept {
+  font-weight: 600;
+}
+
+.monday {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--t-lg);
+}
+
+/* Team cards: promotion titles */
+.rank {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: var(--pen);
+  color: #fff;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  vertical-align: 2px;
+}
+
+.served {
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+}
+
+.conf {
+  color: var(--alarm);
+  font-weight: 700;
+}
+
 /* ------------------------------------------------------------ dialogs: memos on paper */
 
 .dlg {

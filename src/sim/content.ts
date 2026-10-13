@@ -201,10 +201,27 @@ export const TUNING = {
   caughtFlickLock: 30,
   caughtShooterLock: 45,
   caughtResetTo: 35,
+  // Your HR file: each time you're caught you get a write-up. One fades after a stretch
+  // without being caught. At three you're on Final Warning; caught again, you're fired.
+  writeUpsToFinal: 3,
+  writeUpFade: 600,
+  confiscateSeconds: 180, // your equipped weapon sits in Mr. Feeney's drawer
+  buyBackShare: 0.5, // Lost and Found charges this share of the weapon's price
+  buyBackMin: 10,
+  regroupShare: 0.2, // the target rebuilds this share of its Resolve while you're in the meeting
+  finalWarningWalkbyMult: 0.7, // Mr. Feeney walks by more often
+  firedBands: 20, // what's left in your drawer when you come back
   garyFlickMin: 15,
   garyFlickMax: 25,
   garyFlickBands: 2,
   offlineCapSeconds: 2 * 60 * 60,
+};
+
+/** Coworkers get promoted for time served on your team: each rank boosts their role. */
+export const PROMOTION = {
+  after: [480, 1500], // seconds on the team to reach Senior, then Lead
+  bonus: [1, 1.2, 1.4],
+  titles: ['', 'Senior', 'Lead'],
 };
 
 /** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */

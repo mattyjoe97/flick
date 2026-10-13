@@ -1,6 +1,6 @@
 import { TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export interface Email {
   id: number;
@@ -15,6 +15,12 @@ export interface Ally {
   id: CoworkerId;
   role: Role;
   timer: number; // seconds accumulated toward the next shot
+  served: number; // seconds on your team, for promotions
+  rank: number; // 0 = new hire, 1 = Senior, 2 = Lead
+}
+
+export function newAlly(id: CoworkerId, role: Role): Ally {
+  return { id, role, timer: 0, served: 0, rank: 0 };
 }
 
 export interface Ticker {
@@ -51,6 +57,13 @@ export interface GameState {
   shooterLockUntil: number;
 
   walkby: { nextAt: number; arrivesAt: number | null };
+
+  /** Your HR file: write-ups, and the weapon sitting in Mr. Feeney's drawer. */
+  hr: {
+    writeUps: number;
+    lastWriteUpAt: number; // also when the last write-up faded
+    confiscated: { weapon: WeaponId; until: number } | null;
+  };
   nextGaryFlickAt: number;
   nextReviewAt: number;
   nextChatterAt: number;
@@ -91,6 +104,9 @@ export interface GameState {
     snapped: number;
     stage1At: number | null;
     stage2At: number | null;
+    fired: number;
+    buyBacks: number;
+    promotions: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -101,7 +117,11 @@ export type GameEvent =
   | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId; charge?: number; perfect?: boolean }
   | { type: 'snap' }
   | { type: 'capture'; targetId: string }
-  | { type: 'caught' }
+  | { type: 'caught'; writeUps: number; confiscated: WeaponId | null; lostBands: number; regrouped: number }
+  | { type: 'fired'; lostBands: number; lostDesks: number; stage: number }
+  | { type: 'promotion'; id: CoworkerId; rank: number }
+  | { type: 'writeUpFaded'; writeUps: number }
+  | { type: 'weaponBack'; weapon: WeaponId; paid: boolean }
   | { type: 'hidden' }
   | { type: 'spotted' }
   | { type: 'stage'; stage: number }
@@ -138,6 +158,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     lastCaughtAt: null,
     shooterLockUntil: 0,
     walkby: { nextAt: TUNING.firstWalkby, arrivesAt: null },
+    hr: { writeUps: 0, lastWriteUpAt: 0, confiscated: null },
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -165,6 +186,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       snapped: 0,
       stage1At: null,
       stage2At: null,
+      fired: 0,
+      buyBacks: 0,
+      promotions: 0,
     },
     events: [],
   };

@@ -1,7 +1,10 @@
-import { COWORKERS, ROLES, TARGETS, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from '../sim/content';
+import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from '../sim/content';
 import {
   assign,
+  buyBack,
+  buyBackPrice,
   buyUpgrade,
+  confiscatedLeft,
   canFlick,
   snapBand,
   buyWeapon,
@@ -18,13 +21,14 @@ import {
   work,
   type ActionResult,
 } from '../sim/engine';
-import { has, mods, weapon } from '../sim/mods';
+import { has, isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { fmt, money, officeClock, officeTime, rate } from './format';
 import { Scene } from './scene';
 import { SheetView } from './sheet';
 import { Sound } from './sound';
 import { Launcher } from './launcher';
+import { drawPerson, PEOPLE } from './characters';
 
 export interface GameHost {
   state: GameState;
@@ -200,8 +204,27 @@ export class UI {
     $('tab-armory').parentElement!.addEventListener('keydown', (e) => this.tabKeys(e));
 
     $('pane-armory').addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-weapon]');
+      const el = e.target as HTMLElement;
+      if (el.closest('button[data-buyback]')) {
+        if (this.act(buyBack)) this.sound.coins();
+        return;
+      }
+      const b = el.closest<HTMLButtonElement>('button[data-weapon]');
       if (b) this.act((s) => buyWeapon(s, b.dataset.weapon as WeaponId));
+    });
+    $('caught-buyback').addEventListener('click', () => {
+      if (this.act(buyBack)) {
+        this.sound.coins();
+        $<HTMLDialogElement>('caught-dlg').close();
+      }
+    });
+    $('fired-next').addEventListener('click', () => {
+      $('fired-page1').hidden = true;
+      $('fired-page2').hidden = false;
+      $('fired-h').textContent = 'Welcome back';
+      $('fired-next').hidden = true;
+      $('fired-ok').hidden = false;
+      $('fired-ok').focus();
     });
     $('pane-reqs').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-upgrade]');
@@ -334,8 +357,20 @@ export class UI {
         if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
         else this.sound.ally();
       } else if (e.type === 'caught') {
-        this.say('Caught. Mr. Feeney took 40% of your bands.');
+        this.onCaught(e);
         this.sound.caught();
+      } else if (e.type === 'fired') {
+        this.onFired(e);
+        this.sound.caught();
+      } else if (e.type === 'promotion') {
+        const a = this.s.allies.find((x) => x.id === e.id);
+        const role = ROLES.find((r) => r.id === a?.role)?.name ?? '';
+        this.say(`${COWORKERS.find((c) => c.id === e.id)!.name} was promoted to ${PROMOTION.titles[e.rank]} ${role}.`);
+        this.sound.capture();
+      } else if (e.type === 'weaponBack') {
+        this.say(`Your ${WEAPONS.find((w) => w.id === e.weapon)!.name} is back.`);
+      } else if (e.type === 'writeUpFaded') {
+        this.say('A write-up fell out of your HR file.');
       } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, look busy when you hear footsteps.');
       else if (e.type === 'stage') this.onStage(e.stage);
       else if (e.type === 'capture') this.sound.capture();
@@ -385,6 +420,63 @@ export class UI {
     const key = $('flick-btn');
     key.classList.add('pressed');
     setTimeout(() => key.classList.remove('pressed'), 90);
+  }
+
+  /** The caught moment: Mr. Feeney, a pink slip, and exactly what it cost you. */
+  private onCaught(e: Extract<GameEvent, { type: 'caught' }>) {
+    const s = this.s;
+    const final = e.writeUps >= TUNING.writeUpsToFinal;
+    $('caught-feeney').innerHTML = drawPerson(PEOPLE.feeney, 'angry');
+    const slip = $('caught-slip');
+    slip.classList.toggle('final', final);
+    slip.innerHTML = final ? 'Final<br>warning' : `Written warning<b>${e.writeUps} of ${TUNING.writeUpsToFinal}</b>`;
+    const t = currentTarget(s);
+    const items: string[] = [];
+    if (e.lostBands > 0) items.push(`He kept ${fmt(e.lostBands)} of your bands.`);
+    if (e.confiscated) {
+      const w = WEAPONS.find((w) => w.id === e.confiscated)!;
+      items.push(`Your ${esc(w.name)} is in his desk drawer for ${Math.round(TUNING.confiscateSeconds / 60)} minutes. Until then you and your Shooters are back to the Finger Flick.`);
+    }
+    if (t && e.regrouped >= 1) items.push(`${esc(t.name.split(' ')[0])} regrouped while you were gone: +${fmt(Math.round(e.regrouped))} Resolve.`);
+    items.push(`No flicking for ${TUNING.caughtFlickLock} s, and your Shooters are "in a training" for ${TUNING.caughtShooterLock} s.`);
+    items.push(
+      final
+        ? `<strong>You're on Final Warning. Get caught again and you're fired.</strong> A write-up fades after ${Math.round(TUNING.writeUpFade / 60)} minutes without getting caught.`
+        : `A write-up fades after ${Math.round(TUNING.writeUpFade / 60)} minutes without getting caught. At ${TUNING.writeUpsToFinal} you're on Final Warning.`,
+    );
+    $('caught-list').innerHTML = items.map((i) => `<li>${i}</li>`).join('');
+    const bb = $<HTMLButtonElement>('caught-buyback');
+    bb.hidden = !e.confiscated;
+    if (e.confiscated) {
+      const price = buyBackPrice(s);
+      bb.textContent = `Lost and Found: buy it back for ${money(price)}`;
+      bb.disabled = s.salary < price;
+    }
+    this.openDialog('caught-dlg');
+  }
+
+  /** Fired, then (on the next page) rehired on Monday. */
+  private onFired(e: Extract<GameEvent, { type: 'fired' }>) {
+    const caught = $<HTMLDialogElement>('caught-dlg');
+    if (caught.open) caught.close();
+    const first = TARGETS.find((t) => t.stage === e.stage);
+    const rows = [`<dt>Bands left in your drawer</dt><dd>${fmt(TUNING.firedBands)}</dd>`];
+    if (e.lostDesks > 0) rows.push(`<dt>Desks handed back</dt><dd>${e.lostDesks}</dd>`);
+    if (first && e.stage <= 2) rows.push(`<dt>Stage ${e.stage} progress</dt><dd>back to ${esc(first.name.split(' ')[0])}</dd>`);
+    $('fired-lost').innerHTML = rows.join('');
+    $('fired-h').textContent = "You're fired.";
+    $('fired-page1').hidden = false;
+    $('fired-page2').hidden = true;
+    $('fired-next').hidden = false;
+    $('fired-ok').hidden = true;
+    this.openDialog('fired-dlg');
+  }
+
+  private openDialog(id: string) {
+    const dlg = $<HTMLDialogElement>(id);
+    this.launcher.cancel();
+    if (this.s.lookBusy) this.toggleHide(false);
+    if (!dlg.open) dlg.showModal();
   }
 
   private onStage(stage: number) {
@@ -455,15 +547,31 @@ export class UI {
     $('suspicion').setAttribute('aria-valuenow', susp.toFixed(0));
     const level = susp >= 75 ? 'danger' : susp >= 50 ? 'caution' : 'calm';
     $('suspicion').dataset.level = level;
-    this.set('susp-note', suspicionNote(susp));
+    this.set('susp-note', onFinalWarning(s) && susp >= 75 ? "One more and you're fired." : suspicionNote(susp));
     this.set('scrounge-sub', `+${m.scrounge} band${m.scrounge > 1 ? 's' : ''}`);
     this.set('work-sub', `+$${m.workPay}, −1.5 Suspicion`);
     this.set('order-sub', `$${m.order.price} for ${m.order.amount} bands`);
     $<HTMLButtonElement>('order-btn').disabled = s.salary < m.order.price;
 
+    // HR file
+    const ups = s.hr.writeUps;
+    const final = onFinalWarning(s);
+    document.querySelectorAll('#hr-slips i').forEach((el, i) => el.classList.toggle('on', i < ups));
+    $('hr-file').dataset.level = final ? 'final' : ups > 0 ? 'warned' : 'clean';
+    $('hr-stamp').hidden = !final;
+    const fadeIn = Math.max(0, TUNING.writeUpFade - (s.time - s.hr.lastWriteUpAt));
+    this.set(
+      'hr-note',
+      ups === 0
+        ? 'Clean record.'
+        : final
+          ? `One more and you're fired. Next write-up fades in ${clock(fadeIn)}.`
+          : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.`,
+    );
+
     this.set(
       'mini',
-      `Bands ${fmt(s.bands)}    Salary ${money(s.salary)}    Suspicion ${susp.toFixed(0)}`,
+      `Bands ${fmt(s.bands)}    Salary ${money(s.salary)}    Suspicion ${susp.toFixed(0)}${ups ? `    Write-ups ${ups}/${TUNING.writeUpsToFinal}${final ? ' (final!)' : ''}` : ''}`,
     );
 
     this.renderFront(s, m.warning);
@@ -503,9 +611,13 @@ export class UI {
     }
     flickBtn.disabled = !t || s.time < s.flickLockUntil;
     const total = w.damage * w.burst;
+    const left = confiscatedLeft(s);
+    const taken = s.hr.confiscated && isConfiscated(s, s.weapon) ? WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name : null;
     this.set(
       'weapon-line',
-      `${w.name}: ${total} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} per shot`,
+      taken && left !== null
+        ? `${w.name}: your ${taken} is in Mr. Feeney's drawer (${clock(left)})`
+        : `${w.name}: ${total} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} per shot`,
     );
 
     // Coach line: a temporary message wins, then the most useful hint.
@@ -594,14 +706,25 @@ export class UI {
       s.weapon,
       s.ownedWeapons,
       s.upgrades,
-      s.allies.map((a) => a.id + a.role),
+      s.allies.map((a) => a.id + a.role + a.rank),
       m.priceMult,
+      s.hr.confiscated?.weapon ?? null,
     ]);
     this.rebuild('panes', shape, () => {
+      this.text.delete('conf-left');
+      for (const a of s.allies) this.text.delete(`served-${a.id}`);
       this.buildArmory(s);
       this.buildReqs(s);
       this.buildTeam(s);
     });
+
+    // Countdowns tick every frame without rebuilding the lists.
+    const left = confiscatedLeft(s);
+    if (left !== null && document.getElementById('conf-left')) this.set('conf-left', clock(left));
+    for (const a of s.allies) {
+      const el = document.getElementById(`served-${a.id}`);
+      if (el) this.set(`served-${a.id}`, servedNote(a.served, a.rank));
+    }
 
     // Affordability changes every frame; only toggle disabled states.
     document.querySelectorAll<HTMLButtonElement>('.pane button[data-price]').forEach((b) => {
@@ -617,7 +740,10 @@ export class UI {
       const equipped = s.weapon === w.id;
       const price = priceOf(s, w.price);
       let act: string;
-      if (equipped) act = '<span class="stamp blue">Equipped</span>';
+      if (isConfiscated(s, w.id)) {
+        const bb = buyBackPrice(s);
+        act = `<span class="conf">In Mr. Feeney's drawer <span id="conf-left"></span></span> <button type="button" class="buy" data-buyback="1" data-price="${bb}">Lost and Found ${money(bb)}</button>`;
+      } else if (equipped) act = '<span class="stamp blue">Equipped</span>';
       else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
       else if (w.stage > s.stage) act = `<span class="tag">Stage ${w.stage}</span>`;
       else if (w.needsEngineer && !m.hasEngineer)
@@ -662,10 +788,13 @@ export class UI {
       const traitRole = ROLES.find((r) => r.id === c.traitRole)!.name;
       const head = `<h4>${esc(c.name)}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p>`;
       if (ally) {
+        const roleName = ROLES.find((r) => r.id === ally.role)!.name;
+        const rankTag = ally.rank > 0 ? `<span class="rank">${PROMOTION.titles[ally.rank]} ${roleName}</span>` : '';
+        const headAlly = `<h4>${esc(c.name)}${rankTag}</h4><p>${esc(c.who)}. ${esc(c.trait)}: ${traitRole} ×${c.mult}.</p><p class="served" id="served-${c.id}"></p>`;
         const options = ROLES.map(
           (r) => `<option value="${r.id}"${r.id === ally.role ? ' selected' : ''}>${r.name}${r.id === c.traitRole ? ' ★' : ''}</option>`,
         ).join('');
-        return `<div class="item owned">${head}<div class="act"><label class="tag">Role <select class="role-select" data-ally="${c.id}" id="role-${c.id}">${options}</select></label></div></div>`;
+        return `<div class="item owned">${headAlly}<div class="act"><label class="tag">Role <select class="role-select" data-ally="${c.id}" id="role-${c.id}">${options}</select></label></div></div>`;
       }
       if (!coworkerAvailable(s, c.id)) {
         const t = TARGETS.find((t) => t.id === c.unlockAfter);
@@ -675,7 +804,7 @@ export class UI {
     });
     const key = ROLES.map((r) => `<dt>${r.name}</dt><dd>${esc(r.effect)}</dd>`).join('');
     $('pane-team').innerHTML =
-      `<p class="pane-note">Change roles any time. A ★ marks the role each person is best at.</p>` +
+      `<p class="pane-note">Change roles any time. A ★ marks the role each person is best at. Coworkers are promoted to Senior (+${Math.round((PROMOTION.bonus[1] - 1) * 100)}%) and Lead (+${Math.round((PROMOTION.bonus[2] - 1) * 100)}%) the longer they're on your team.</p>` +
       cards.join('') +
       `<dl class="roles-key">${key}</dl>`;
   }
@@ -683,6 +812,19 @@ export class UI {
 }
 
 // ------------------------------------------------------------------ copy helpers
+
+/** 2:05 style countdown. */
+function clock(secs: number) {
+  const t = Math.ceil(secs);
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+}
+
+function servedNote(served: number, rank: number) {
+  const mins = Math.floor(served / 60);
+  if (rank >= PROMOTION.after.length) return `On the team ${mins} min. Top of the org chart.`;
+  const next = Math.ceil((PROMOTION.after[rank] - served) / 60);
+  return `On the team ${mins} min. ${PROMOTION.titles[rank + 1]} in ${next} min.`;
+}
 
 function suspicionNote(v: number) {
   if (v < 20) return 'Nobody suspects a thing.';
@@ -700,6 +842,9 @@ function coachHint(s: GameState): string {
   if (s.lookBusy && s.walkby.arrivesAt === null && s.suspicion < 10) return '';
   if (!t) return '';
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
+  if (onFinalWarning(s)) return "Final Warning: one more catch and you're fired. Look busy when you hear footsteps.";
+  if (s.hr.confiscated && s.salary >= buyBackPrice(s))
+    return `Lost and Found will sell your ${WEAPONS.find((x) => x.id === s.hr.confiscated!.weapon)!.name} back for ${money(buyBackPrice(s))} (Armory).`;
   if (s.bands < w.burst) {
     return s.salary >= m.order.price
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'

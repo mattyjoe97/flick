@@ -89,6 +89,8 @@ export class Launcher {
   /** When the last band was fired, when the next one starts loading, and when one snapped. */
   private releaseAt = -1e9;
   private loadAt = -1e9;
+  /** When the current launcher was put in your hand (it slides up into view). */
+  private enterAt = -1e9;
   private fxG!: SVGGElement;
   private dropped: Dropped[] = [];
   private angle = -150;
@@ -181,9 +183,10 @@ export class Launcher {
       };
     });
     this.dropped = [];
-    // A new weapon comes loaded, with its bands pulled into place.
+    // A new weapon slides into your hand from below, then its bands are pulled into place.
+    this.enterAt = performance.now();
     this.releaseAt = -1e9;
-    this.loadAt = performance.now();
+    this.loadAt = this.enterAt + 260;
   }
 
   /**
@@ -351,7 +354,9 @@ export class Launcher {
     // Tip up a little as the band stretches, like bracing for the shot.
     const lift = left ? 4 * charge : -4 * charge;
     const rot = (left ? this.angle - 180 : this.angle) + lift;
-    this.aimG.setAttribute('transform', `translate(${pivot.x} ${pivot.y}) rotate(${rot.toFixed(2)})`);
+    const entering = Math.min(1, (now - this.enterAt) / 420);
+    const drop = reduced ? 0 : Math.pow(1 - entering, 3) * 170;
+    this.aimG.setAttribute('transform', `translate(${(pivot.x + drop * 0.3).toFixed(1)} ${(pivot.y + drop).toFixed(1)}) rotate(${rot.toFixed(2)})`);
     const unit = sp.unit;
     this.spriteG.setAttribute('transform', `scale(${left ? unit : -unit} ${unit})`);
 
