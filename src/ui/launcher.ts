@@ -8,22 +8,18 @@
 // each in a loaded and an empty version.
 
 import { CHARGE, type WeaponId } from '../sim/content';
-import { SPRITES, BAND_SNAPPED, type LauncherSprite } from './art';
-import flickLoaded from '../assets/art/flick-loaded.webp';
+import { SPRITES, BAND_SNAPPED, type LauncherSprite, type BandRig } from './art';
 import flickEmpty from '../assets/art/flick-empty.webp';
-import rulerLoaded from '../assets/art/ruler-loaded.webp';
 import rulerEmpty from '../assets/art/ruler-empty.webp';
-import clothespinLoaded from '../assets/art/clothespin-loaded.webp';
 import clothespinEmpty from '../assets/art/clothespin-empty.webp';
-import repeaterLoaded from '../assets/art/repeater-loaded.webp';
 import repeaterEmpty from '../assets/art/repeater-empty.webp';
 import bandSnapped from '../assets/art/band-snapped.webp';
 
-const ART: Record<WeaponId, { sprite: LauncherSprite; loaded: string; empty: string }> = {
-  flick: { sprite: SPRITES.flick, loaded: flickLoaded, empty: flickEmpty },
-  ruler: { sprite: SPRITES.ruler, loaded: rulerLoaded, empty: rulerEmpty },
-  clothespin: { sprite: SPRITES.clothespin, loaded: clothespinLoaded, empty: clothespinEmpty },
-  repeater: { sprite: SPRITES.repeater, loaded: repeaterLoaded, empty: repeaterEmpty },
+const ART: Record<WeaponId, { sprite: LauncherSprite; art: string }> = {
+  flick: { sprite: SPRITES.flick, art: flickEmpty },
+  ruler: { sprite: SPRITES.ruler, art: rulerEmpty },
+  clothespin: { sprite: SPRITES.clothespin, art: clothespinEmpty },
+  repeater: { sprite: SPRITES.repeater, art: repeaterEmpty },
 };
 
 /** Where your wrist is in the scene (800 x 420). Everything turns around this point to aim. */
@@ -34,8 +30,32 @@ const PIVOTS: Record<WeaponId, { x: number; y: number }> = {
   repeater: { x: 762, y: 390 },
 };
 
-/** How long the launcher shows empty after a shot before the next band is on. */
-const RELOAD_MS = 260;
+// Band animation timing (ms). After a shot the band springs off the front, then a fresh
+// one is hooked on and pulled back into place. With several bands, each goes in turn.
+const RELEASE_MS = 80;
+const LOAD_DELAY = 110;
+const LOAD_MS = 300;
+const STAGGER = 70;
+const SNAP_RELOAD = 650;
+
+const BAND_INK = '#2b2018';
+const BAND_TAN = '#d9b783';
+const BAND_TAUT = '#f1dcb0';
+const OUTLINE_W = 7.5;
+const INNER_W = 4;
+
+type P = [number, number];
+const lerp = (a: P, b: P, t: number): P => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+const easeIn = (t: number) => t * t;
+const easeOutBack = (t: number) => 1 + 2.4 * Math.pow(t - 1, 3) + 1.4 * Math.pow(t - 1, 2);
+
+interface BandEls {
+  rig: BandRig;
+  loopOut: SVGEllipseElement;
+  loopIn: SVGEllipseElement;
+  out: [SVGPathElement, SVGPathElement];
+  inner: [SVGPathElement, SVGPathElement];
+}
 
 export interface LauncherHooks {
   /** Can we start stretching? Shows a message and returns false if not. */
@@ -65,8 +85,10 @@ export class Launcher {
   private aimG!: SVGGElement;
   private pullG!: SVGGElement;
   private spriteG!: SVGGElement;
-  private loadedImg!: SVGImageElement;
-  private emptyImg!: SVGImageElement;
+  private bands: BandEls[] = [];
+  /** When the last band was fired, when the next one starts loading, and when one snapped. */
+  private releaseAt = -1e9;
+  private loadAt = -1e9;
   private fxG!: SVGGElement;
   private dropped: Dropped[] = [];
   private angle = -150;
@@ -102,7 +124,13 @@ export class Launcher {
     this.hooks.stretchSound(null);
     const { charge, perfect } = this.read(performance.now());
     this.hooks.fire(charge, perfect);
-    this.firedAt = performance.now();
+    this.shot(performance.now());
+  }
+
+  private shot(now: number) {
+    this.firedAt = now;
+    this.releaseAt = now;
+    this.loadAt = now + LOAD_DELAY;
   }
 
   cancel() {
@@ -114,7 +142,7 @@ export class Launcher {
   tap() {
     if (this.holding) return;
     this.hooks.fire(0, false);
-    this.firedAt = performance.now();
+    this.shot(performance.now());
   }
 
   private read(now: number) {
@@ -128,17 +156,112 @@ export class Launcher {
 
   private build(w: WeaponId) {
     this.weaponId = w;
-    const { sprite: sp, loaded, empty } = ART[w];
-    const img = (href: string, cls: string) =>
-      `<image class="${cls}" href="${href}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/>`;
-    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite">${img(loaded, 'ls-loaded')}${img(empty, 'ls-empty')}</g></g></g><g class="launch-fx"></g>`;
+    const { sprite: sp, art } = ART[w];
+    const ellipse = (stroke: string, width: number) => `<ellipse fill="none" stroke="${stroke}" stroke-width="${width}"/>`;
+    const path = (stroke: string, width: number) => `<path fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round"/>`;
+    // Outlines for every band first, then the tan on top, so overlapping strands merge cleanly.
+    const outlines = sp.bands.map(() => `<g class="b-out">${ellipse(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}</g>`).join('');
+    const inners = sp.bands.map(() => `<g class="b-in">${ellipse(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}</g>`).join('');
+    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite"><image href="${art}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/><g transform="translate(${-sp.wrist[0]} ${-sp.wrist[1]})">${outlines}${inners}</g></g></g></g><g class="launch-fx"></g>`;
     this.aimG = this.layer.querySelector('.launch-aim')!;
     this.pullG = this.layer.querySelector('.launch-pull')!;
     this.spriteG = this.layer.querySelector('.launch-sprite')!;
-    this.loadedImg = this.layer.querySelector('.ls-loaded')!;
-    this.emptyImg = this.layer.querySelector('.ls-empty')!;
     this.fxG = this.layer.querySelector('.launch-fx')!;
+    const outs = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-out'));
+    const ins = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-in'));
+    this.bands = sp.bands.map((rig, i) => {
+      const o = outs[i].children;
+      const n = ins[i].children;
+      return {
+        rig,
+        loopOut: o[0] as SVGEllipseElement,
+        loopIn: n[0] as SVGEllipseElement,
+        out: [o[1] as SVGPathElement, o[2] as SVGPathElement],
+        inner: [n[1] as SVGPathElement, n[2] as SVGPathElement],
+      };
+    });
     this.dropped = [];
+    // A new weapon comes loaded, with its bands pulled into place.
+    this.releaseAt = -1e9;
+    this.loadAt = performance.now();
+  }
+
+  /**
+   * Draw one band. `reach` is how far its back end has been pulled toward its anchor
+   * (0 = bunched at the front hook, 1 = in place), `loop` the size of the front loop.
+   */
+  private drawBand(b: BandEls, reach: number, loop: number, sag: number, width: number, color: string) {
+    const { rig } = b;
+    const visible = loop > 0.01;
+    for (const el of [b.loopOut, b.loopIn, ...b.out, ...b.inner]) el.style.visibility = visible ? 'visible' : 'hidden';
+    if (!visible) return;
+    const [cx, cy, rx, ry] = rig.loop;
+    for (const el of [b.loopOut, b.loopIn]) {
+      el.setAttribute('cx', String(cx));
+      el.setAttribute('cy', String(cy));
+      el.setAttribute('rx', (rx * loop).toFixed(2));
+      el.setAttribute('ry', (ry * loop).toFixed(2));
+    }
+    const strands = reach > 0.02;
+    for (let k = 0; k < 2; k++) {
+      const f = rig.front[k];
+      const r = lerp(f, rig.rear[k], reach);
+      const dx = r[0] - f[0];
+      const dy = r[1] - f[1];
+      const len = Math.hypot(dx, dy) || 1;
+      // Slack bows the strand downward (perpendicular to it).
+      const mx = (f[0] + r[0]) / 2 + (-dy / len) * sag * (k === 0 ? 1 : 1.3);
+      const my = (f[1] + r[1]) / 2 + (dx / len) * sag * (k === 0 ? 1 : 1.3);
+      const d = `M${f[0].toFixed(1)} ${f[1].toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${r[0].toFixed(1)} ${r[1].toFixed(1)}`;
+      for (const el of [b.out[k], b.inner[k]]) {
+        el.setAttribute('d', d);
+        el.style.visibility = strands ? 'visible' : 'hidden';
+      }
+      b.out[k].setAttribute('stroke-width', (OUTLINE_W * width).toFixed(2));
+      b.inner[k].setAttribute('stroke-width', (INNER_W * width).toFixed(2));
+      b.inner[k].setAttribute('stroke', color);
+    }
+    b.loopOut.setAttribute('stroke-width', (OUTLINE_W * width).toFixed(2));
+    b.loopIn.setAttribute('stroke-width', (INNER_W * width).toFixed(2));
+    b.loopIn.setAttribute('stroke', color);
+  }
+
+  /** Work out where each band is in its fire / reload cycle and draw it. */
+  private animateBands(now: number, charge: number, state: 'idle' | 'stretch' | 'perfect' | 'over', reduced: boolean) {
+    const color = state === 'over' ? '#e8a07a' : mix(BAND_TAN, BAND_TAUT, charge);
+    const width = 1 - 0.38 * charge;
+    const quiver = reduced ? 0 : state === 'over' ? (Math.random() - 0.5) * 5 : state === 'perfect' ? (Math.random() - 0.5) * 1.6 : 0;
+    this.bands.forEach((b, i) => {
+      const st = i * STAGGER;
+      const tLoad = now - (this.loadAt + st);
+      const tRel = now - (this.releaseAt + st);
+      if (reduced) {
+        // No motion: the band is simply on, or gone for a moment after a shot.
+        const on = tLoad >= 0 || tRel < 0;
+        this.drawBand(b, 1, on ? 1 : 0, 0, 1, BAND_TAN);
+        return;
+      }
+      if (tLoad < 0) {
+        if (this.releaseAt > this.loadAt - LOAD_DELAY - 1 && tRel >= 0 && tRel < RELEASE_MS) {
+          // Fired: the back end lets go and whips forward to the front hook.
+          this.drawBand(b, 1 - easeIn(tRel / RELEASE_MS), 1, 0, 1, BAND_TAN);
+        } else if (tRel < 0 && this.releaseAt > this.loadAt - LOAD_DELAY - 1) {
+          // Still waiting its turn in a burst.
+          this.drawBand(b, 1, 1, 0, width, color);
+        } else this.drawBand(b, 0, 0, 0, 1, BAND_TAN);
+        return;
+      }
+      if (tLoad < LOAD_MS) {
+        // Loading: hook a fresh band on the front, then pull its back end into place.
+        const k = tLoad / LOAD_MS;
+        const loop = Math.min(1, easeOutBack(Math.min(1, k / 0.3)));
+        const q = Math.max(0, (k - 0.3) / 0.7);
+        const reach = q > 0 ? easeOutBack(q) : 0;
+        this.drawBand(b, reach, loop, 7 * (1 - q), 1.12 - 0.12 * q, BAND_TAN);
+        return;
+      }
+      this.drawBand(b, 1, 1, quiver, width, color);
+    });
   }
 
   private get sprite() {
@@ -206,6 +329,8 @@ export class Launcher {
         this.hooks.stretchSound(null);
         this.hooks.snap();
         if (!reduced) this.dropBand();
+        this.releaseAt = -1e9;
+        this.loadAt = now + SNAP_RELOAD;
       } else this.hooks.stretchSound(charge);
     }
 
@@ -238,11 +363,9 @@ export class Launcher {
     const along = forward * (-22 * charge + kick + shake);
     this.pullG.setAttribute('transform', `translate(${along.toFixed(2)} ${(shake * 0.6).toFixed(2)})`);
 
-    // Loaded or empty: the band is gone for a moment after a shot (or a snap), then a fresh one is on.
+    // The band(s): fired, reloaded, stretched.
     const sinceSnap = now - this.snappedAt;
-    const empty = sinceFire < RELOAD_MS || sinceSnap < 600;
-    this.loadedImg.style.visibility = empty ? 'hidden' : 'visible';
-    this.emptyImg.style.visibility = empty ? 'visible' : 'hidden';
+    this.animateBands(now, charge, state, reduced);
 
     // Snapped bands tumble down and fade.
     this.dropped = this.dropped.filter((d) => {
@@ -275,4 +398,10 @@ export class Launcher {
               : 'Hold to stretch';
     if (this.label.textContent !== text) this.label.textContent = text;
   }
+}
+
+function mix(a: string, b: string, t: number) {
+  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+  return `#${pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('')}`;
 }

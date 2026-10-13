@@ -31,6 +31,20 @@ WEAPONS = {
     "repeater": "04_binder_clip_repeater",
     "gatling": "05_drill_gatling",
 }
+# Where each painted band sits, in source pixels, so the game can draw (and animate)
+# its own band on the empty art: the loop at the front hook (cx, cy, rx, ry), and two
+# strands from the front to where the band is held at the back.
+BANDS = {
+    "flick": [{"loop": (1406, 543, 8.5, 25), "front": [(1415, 509), (1415, 531)], "rear": [(1729, 412), (1724, 423)]}],
+    "ruler": [{"loop": (988, 506, 7, 10), "front": [(990, 497), (990, 509)], "rear": [(1504, 500), (1504, 508)]}],
+    "clothespin": [{"loop": (884, 473, 7, 15), "front": [(889, 446), (889, 460)], "rear": [(1500, 414), (1497, 423)]}],
+    "repeater": [
+        {"loop": (750, 448, 5, 8), "front": [(752, 445), (752, 451)], "rear": [(1554, 268), (1554, 281)]},
+        {"loop": (750, 473, 5, 8), "front": [(752, 470), (752, 476)], "rear": [(1580, 334), (1580, 347)]},
+        {"loop": (750, 500, 5, 8), "front": [(752, 497), (752, 503)], "rear": [(1614, 397), (1614, 410)]},
+    ],
+    "gatling": [],
+}
 SLEEVE_EXTRA = 900  # source px of sleeve added past the right edge
 SHARPNESS = 1.9  # sprite px per scene unit (covers large screens at 2x)
 
@@ -123,10 +137,18 @@ for wid, stem in WEAPONS.items():
     for name, im in (("loaded", loaded), ("empty", empty)):
         im.crop(box).resize(size, Image.LANCZOS).save(OUT / f"{wid}-{name}.webp", quality=90, method=6)
     p = lambda x, y: [round((x - box[0]) * r, 1), round((y - box[1]) * r, 1)]
+    bands = [
+        {
+            "loop": p(b["loop"][0], b["loop"][1]) + [round(b["loop"][2] * r, 1), round(b["loop"][3] * r, 1)],
+            "front": [p(*q) for q in b["front"]],
+            "rear": [p(*q) for q in b["rear"]],
+        }
+        for b in BANDS[wid]
+    ]
     entries.append(
-        f"  {wid}: {{ w: {size[0]}, h: {size[1]}, unit: {units / r:.4f}, wrist: {p(*WRIST)}, tip: {p(*tip)}, band: {p((band[0] + band[2]) / 2, (band[1] + band[3]) / 2)} }},"
+        f"  {wid}: {{ w: {size[0]}, h: {size[1]}, unit: {units / r:.4f}, wrist: {p(*WRIST)}, tip: {p(*tip)}, band: {p((band[0] + band[2]) / 2, (band[1] + band[3]) / 2)}, bands: {json.dumps(bands)} }},"
     )
-    print(wid, size, "scale", round(r, 3), "tip", p(*tip))
+    print(wid, size, "scale", round(r, 3), "tip", p(*tip), "box", box)
 
 # Effects: the flying band loop (without its motion lines, since it spins) and the snapped band.
 fly = Image.open(SRC / "06_band_flying.png").convert("RGBA")
@@ -140,7 +162,12 @@ snap.thumbnail((200, 200), Image.LANCZOS)
 snap.save(OUT / "band-snapped.webp", quality=90, method=6)
 print("effects", loop.size, snap.size)
 
-lines.append("export interface LauncherSprite {\n  w: number;\n  h: number;\n  unit: number;\n  wrist: [number, number];\n  tip: [number, number];\n  band: [number, number];\n}\n")
+lines.append(
+    "type P = [number, number];\n\n"
+    "/** A band the game draws over the empty art: a loop at the front hook (cx, cy, rx, ry) and two strands to the back. */\n"
+    "export interface BandRig {\n  loop: [number, number, number, number];\n  front: [P, P];\n  rear: [P, P];\n}\n\n"
+    "export interface LauncherSprite {\n  w: number;\n  h: number;\n  unit: number;\n  wrist: P;\n  tip: P;\n  band: P;\n  bands: BandRig[];\n}\n"
+)
 lines.append("export const SPRITES = {")
 lines += [e.replace("[", "[").replace("]", "]") for e in entries]
 lines.append("} satisfies Record<string, LauncherSprite>;")
