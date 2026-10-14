@@ -1,11 +1,11 @@
 // The Spreadsheet app on your computer as a mini-game: while it's open, cells get
 // flagged with a red comment corner. Fix flagged cells for Salary; fixes in a
-// row build a streak. Clicking a cell that's fine, or letting a flag expire,
-// breaks the streak. The longer you hide, the shorter flags last and the less
-// each fix pays, so hiding stays a break rather than a place to live.
+// row build your work combo. Clicking a cell that's fine, or letting a flag expire,
+// breaks it. The longer you stay, the shorter flags last.
 
 import { SHEET_TABS, SHEET_TUNING as T, TARGETS, type SheetTabId } from './content';
 import { mods } from './mods';
+import { comboMult, payGrade, workCombo } from './work';
 import { rand } from './rng';
 import type { GameState } from './state';
 
@@ -38,15 +38,6 @@ export function flagLifetime(s: GameState) {
   return Math.max(T.lifetimeMin, T.lifetimeStart - T.lifetimeShrink * hiddenFor(s));
 }
 
-/** Pay multiplier from fatigue: 1 at first, falling after a while hidden. */
-export function fatigue(s: GameState) {
-  const over = hiddenFor(s) - T.fatigueAfter;
-  return over <= 0 ? 1 : Math.max(T.fatigueFloor, 1 - over * T.fatigueRate);
-}
-
-export function streakMult(streak: number) {
-  return 1 + T.streakBonus * Math.min(streak, T.streakCap);
-}
 
 /** Called from the main step every tick. */
 export function stepSheet(s: GameState) {
@@ -73,6 +64,7 @@ export function stepSheet(s: GameState) {
   if (sh.flags.length < before) {
     if (sh.streak > 0) s.events.push({ type: 'sheetMiss', reason: 'expired' });
     sh.streak = 0;
+    workCombo(s, false);
   }
   if (s.time >= sh.nextFlagAt && sh.flags.length < T.maxFlags) {
     sh.nextFlagAt = s.time + T.spawnEvery;
@@ -99,6 +91,7 @@ export function fixCell(s: GameState, row: number, col: number): FixResult {
   if (i < 0) {
     if (sh.streak > 0) s.events.push({ type: 'sheetMiss', reason: 'wrong' });
     sh.streak = 0;
+    workCombo(s, false);
     return { ok: false };
   }
   sh.flags.splice(i, 1);
@@ -106,13 +99,15 @@ export function fixCell(s: GameState, row: number, col: number): FixResult {
   sh.best = Math.max(sh.best, sh.streak);
   sh.fixes++;
   const hustle = s.time <= sh.hustleUntil;
-  const pay = mods(s).workPay * sheetTab(sh.tab).payMult * streakMult(sh.streak) * fatigue(s) * (hustle ? 2 : 1);
+  workCombo(s, true);
+  const pay = T.fixPay * payGrade(s).mult * mods(s).workPay * sheetTab(sh.tab).payMult * comboMult(s) * (hustle ? 2 : 1);
   s.salary += pay;
   s.suspicion = Math.max(0, s.suspicion - T.fixCool);
   s.stats.workEarned += pay;
   // A fixed cell makes room for the next flag a little sooner.
   sh.nextFlagAt = Math.min(sh.nextFlagAt, s.time + 0.35);
   s.events.push({ type: 'fix', row, col, pay, streak: sh.streak, hustle });
+  s.events.push({ type: 'pay', amount: pay, source: 'work', combo: s.work.combo });
   return { ok: true, pay, streak: sh.streak, hustle };
 }
 

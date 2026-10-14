@@ -3,7 +3,8 @@
 // the inputs, and the totals row is recalculated whenever a cell changes.
 
 import { SHEET_TABS, type SheetTabId } from '../sim/content';
-import { fatigue, fixCell, setSheetTab, streakMult, tabUnlocked } from '../sim/minigame';
+import { fixCell, setSheetTab, tabUnlocked } from '../sim/minigame';
+import { comboMult, liveCombo } from '../sim/work';
 import type { GameState } from '../sim/state';
 import { money } from './format';
 
@@ -348,19 +349,14 @@ export class SheetView {
     }
 
     // Status bar
-    const streak = s.sheet.streak;
-    const fat = fatigue(s);
+    const combo = liveCombo(s);
     const last = s.ticker[0];
     let msg = 'Fix the cells with red corners before they time out.';
-    if (performance.now() < this.missUntil) msg = 'That cell was fine. Streak lost.';
+    if (performance.now() < this.missUntil) msg = 'That cell was fine. Combo lost.';
     else if (s.time <= s.sheet.hustleUntil) msg = 'Mr. Feeney is watching. Fixes pay double right now!';
     else if (last && s.time - last.t < 4) msg = last.text;
-    else if (fat < 1) msg = 'You are running out of real work. Fixes pay less the longer you hide.';
     setText('sheet-msg', msg);
-    setText(
-      'sheet-streak',
-      streak > 0 ? `Streak ${streak}  (+${Math.round((streakMult(streak) - 1) * 100)}% pay)` : `Best streak ${s.sheet.best}`,
-    );
+    setText('sheet-streak', combo > 1 ? `Combo ${combo}: pays ×${comboMult(s).toFixed(2).replace(/\.?0+$/, '')}` : `Best streak ${s.sheet.best}`);
     setText(
       'sheet-stats',
       `Average: ${Math.min(100, s.suspicion).toFixed(1)}   Count: ${Math.floor(s.bands).toLocaleString('en-US')}   Sum: ${money(s.salary)}`,

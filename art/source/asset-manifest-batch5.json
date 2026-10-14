@@ -1,0 +1,229 @@
+{
+  "game": "FLICK",
+  "batch": 5,
+  "asset_count": 14,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "assets": [
+    {
+      "file": "95_desk_wood.png",
+      "width": 1024,
+      "height": 1024,
+      "size": [
+        1024,
+        1024
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "opaque",
+      "bytes": 82449,
+      "sha256": "2714675a3922505422773f08ae475be3e6f56f68273b3528ed7d807679a2c0ef",
+      "tiles_seamlessly": true,
+      "tile_axes": [
+        "x",
+        "y"
+      ],
+      "opposite_edge_pixel_difference_max": 0,
+      "base_color": "#8D5C34"
+    },
+    {
+      "file": "96_desk_mat.png",
+      "width": 1024,
+      "height": 2048,
+      "size": [
+        1024,
+        2048
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "opaque",
+      "bytes": 46583,
+      "sha256": "552d678ab2c93a4b13ae675bd49caf8889448397aaf38823e65a81d0d061dc2f",
+      "plain_center_insets_px": {
+        "left": 220,
+        "top": 220,
+        "right": 220,
+        "bottom": 220
+      },
+      "plain_center_rectangle_px": {
+        "x": 220,
+        "y": 220,
+        "width": 584,
+        "height": 1608
+      },
+      "plain_center_color": "#304D3C",
+      "stitch_inset_px": 48,
+      "stitch_period_px": 32,
+      "corner_pocket_bounds_px": 220,
+      "stretch_guidance": "Keep each 220 x 220 corner fixed. The rectangle at x=220, y=220, width=584, height=1608 is uniform green. Tile the edge strips to preserve the 32 px stitch spacing when changing the canvas size."
+    },
+    {
+      "file": "97_plant.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 176119,
+      "sha256": "c4b43e133810b05102fa3b8a1105b0eb4705a91e535b1c75adcd4f90cc287420"
+    },
+    {
+      "file": "98_clipboard.png",
+      "width": 768,
+      "height": 1024,
+      "size": [
+        768,
+        1024
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 249783,
+      "sha256": "8eb73ce5441384c72d881fabe9f9b37660f24c7dcd6e286843abac3831775fdc"
+    },
+    {
+      "file": "99_icon_organizer.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 204927,
+      "sha256": "776e5d89d610f66c7c4354b22aab6e0fe62261aae38feb465dfd2d66d09d7af5"
+    },
+    {
+      "file": "100_icon_autoreply.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 99520,
+      "sha256": "0fee534642c7bb3a7a8ef1d83bc6d74cb47c1af74b337a56c632e58dcec12ce0"
+    },
+    {
+      "file": "101_icon_chair.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 144854,
+      "sha256": "5c2d00f8788fb9816162a9492959eb04c3f9fd53f4e8fdaeaf5e21250f5f83fa"
+    },
+    {
+      "file": "102_icon_riser.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 123693,
+      "sha256": "df8854ff77b0e729983c774575a16a485cbd9c334f850e04d6ac3d2423876014"
+    },
+    {
+      "file": "103_icon_bulk.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 150945,
+      "sha256": "153a3ba47053fd17eab80224b2e56df39a018a41ff09c642800899540c048d43"
+    },
+    {
+      "file": "104_icon_carpet.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 123533,
+      "sha256": "2c8bfbb2c05a56badf71223c344b57932227a083efd9f2497755c2756d2ec7e7"
+    },
+    {
+      "file": "105_icon_macros.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 182771,
+      "sha256": "ae64e07e4cd274b4bd4c726d94bd4ecb24d0bdde32a15cd5d35179821b3b0669"
+    },
+    {
+      "file": "106_icon_walls.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 29537,
+      "sha256": "9e8523bd5e23746f359251603b2db71c9b5049e92d0f0abb2da836e4b71e9ac3"
+    },
+    {
+      "file": "107_coin.png",
+      "width": 512,
+      "height": 512,
+      "size": [
+        512,
+        512
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 96735,
+      "sha256": "f4715cab45f3667d6ec939128ac0d681ea64cdfc80da79eab01ac39f609a186c"
+    },
+    {
+      "file": "108_cash.png",
+      "width": 768,
+      "height": 768,
+      "size": [
+        768,
+        768
+      ],
+      "format": "PNG",
+      "color_mode": "RGBA",
+      "background": "transparent",
+      "bytes": 124943,
+      "sha256": "47cc50f9b7d09488ee4f4350e1b72c75fd6c9619fc74211446f8d01e2504bb50"
+    }
+  ]
+}

@@ -11,6 +11,8 @@ export interface Email {
   subject: string;
   body: string;
   kind: 'story' | 'warning' | 'flavor' | 'win';
+  /** A coworker asking to join: Mail shows a Recruit button. */
+  recruit?: CoworkerId;
 }
 
 export interface Ally {
@@ -148,6 +150,8 @@ export interface GameState {
     boxesOpened: number;
     dealsOffered: number;
     dealsTaken: number;
+    bounties: number;
+    bestCombo: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -182,6 +186,7 @@ export type GameEvent =
   | { type: 'find'; kind: FindKind }
   | { type: 'boxSpotted'; noise: number }
   | { type: 'deal' }
+  | { type: 'pay'; amount: number; source: 'work' | 'bounty'; combo?: number; note?: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -254,6 +259,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       boxesOpened: 0,
       dealsOffered: 0,
       dealsTaken: 0,
+      bounties: 0,
+      bestCombo: 0,
     },
     events: [],
   };
@@ -262,8 +269,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
   return s;
 }
 
-export function pushEmail(s: GameState, from: string, subject: string, body: string, kind: Email['kind'] = 'story') {
-  s.inbox.unshift({ id: s.seq++, t: s.time, from, subject, body, kind });
+export function pushEmail(s: GameState, from: string, subject: string, body: string, kind: Email['kind'] = 'story', recruit?: CoworkerId) {
+  s.inbox.unshift({ id: s.seq++, t: s.time, from, subject, body, kind, ...(recruit ? { recruit } : {}) });
   if (s.inbox.length > 80) s.inbox.length = 80;
   s.unread++;
   s.events?.push({ type: 'mail', kind });

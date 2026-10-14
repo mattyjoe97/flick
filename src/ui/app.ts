@@ -1,9 +1,8 @@
-import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, type CoworkerId, type Role, type UpgradeId } from '../sim/content';
+import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
 import {
   assign,
   buyBack,
   buyBackPrice,
-  buyUpgrade,
   confiscatedLeft,
   canFlick,
   snapBand,
@@ -15,11 +14,10 @@ import {
   recruit,
   setLookBusy,
   targetDefeated,
-  upgradeAvailable,
   walkbyCountdown,
   type ActionResult,
 } from '../sim/engine';
-import { has, isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
+import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
@@ -28,10 +26,13 @@ import { Sound } from './sound';
 import { Launcher } from './launcher';
 import { faceSvg, portrait, portraitViewBox } from './portraits';
 import { ComputerView } from './computer';
-import { ringingCall, startTask } from '../sim/work';
+import { payGrade, ringingCall, startTask } from '../sim/work';
+import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
+import { affordable, itemKey, shoppingList } from '../sim/shop';
+import { GUN_ART, ICON_ART } from './goods-art';
 
 export interface GameHost {
   state: GameState;
@@ -72,6 +73,8 @@ export class UI {
   private delivery: DeliveryView;
   private closet: ClosetView;
   private lastRing = 0;
+  private rolePop: HTMLElement;
+  private rolePopFor: CoworkerId | null = null;
 
   constructor(private host: GameHost) {
     this.scene = new Scene(() => this.s, {
@@ -108,7 +111,7 @@ export class UI {
     );
     this.computer = new ComputerView(() => this.s, {
       done: (r) => {
-        if (r.ok) this.sound.coins();
+        if (r.ok) this.sound.kaching();
         else this.sound.miss();
         if (r.pay > 0) this.bump('salary');
         if (r.bonusBands) this.bump('bands');
@@ -119,6 +122,11 @@ export class UI {
       ordered: () => {
         this.sound.coins();
         this.say(`Ordered. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
+      },
+      recruited: (id) => {
+        this.sound.capture();
+        this.bump('salary');
+        this.say(`${COWORKERS.find((c) => c.id === id)!.name} joined your team.`);
       },
     });
     const supplyHooks = { say: (t: string) => this.say(t), bump: (w: 'bands' | 'salary') => this.bump(w) };
@@ -136,6 +144,12 @@ export class UI {
         $('closet-btn').focus();
       },
     }, this.sound);
+    this.rolePop = document.createElement('div');
+    this.rolePop.className = 'role-pop';
+    this.rolePop.id = 'role-pop';
+    this.rolePop.hidden = true;
+    this.rolePop.setAttribute('role', 'dialog');
+    $('app').append(this.rolePop);
     this.bind();
     this.syncSound();
   }
@@ -208,7 +222,37 @@ export class UI {
     $('work-btn').addEventListener('click', this.doWork);
     $('order-btn').addEventListener('click', this.doOrder);
     $('closet-btn').addEventListener('click', () => this.closet.show());
-    $('weapon-btn').addEventListener('click', () => this.switchWeapon());
+    $('rack').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-slot]');
+      if (!b) return;
+      if (b.dataset.slot === 'more') this.closet.show(b.dataset.go);
+      else this.switchWeapon(Number(b.dataset.slot));
+    });
+    $('shop-rows').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-go]');
+      if (b) this.goShop(b.dataset.go!);
+    });
+    // Teammates in the office: click one to change their role.
+    this.rolePop.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!b) return;
+      if (b.dataset.role && this.rolePopFor) {
+        const id = this.rolePopFor;
+        const role = b.dataset.role as Role;
+        if (this.act((s) => assign(s, id, role))) {
+          this.sound.type();
+          this.say(`${COWORKERS.find((c) => c.id === id)!.name} is now your ${ROLES.find((r) => r.id === role)!.name}.`);
+        }
+      }
+      this.closeRolePop();
+    });
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (!this.rolePop.hidden && !this.rolePop.contains(e.target as Node)) this.closeRolePop();
+      },
+      true,
+    );
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('sound-btn').addEventListener('click', () => {
       this.sound.toggle();
@@ -226,6 +270,12 @@ export class UI {
     for (const el of [$('flick-btn'), $('scene')]) {
       el.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return;
+        const ally = (e.target as Element).closest?.<SVGGElement>('.ally[data-ally]');
+        if (ally && !this.launcher.isHolding) {
+          e.preventDefault();
+          this.openRolePop(ally.dataset.ally as CoworkerId, e.clientX, e.clientY);
+          return;
+        }
         e.preventDefault();
         try {
           el.setPointerCapture(e.pointerId);
@@ -259,10 +309,6 @@ export class UI {
       $('fired-next').hidden = true;
       $('fired-ok').hidden = false;
       $('fired-ok').focus();
-    });
-    $('pane-reqs').addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-upgrade]');
-      if (b) this.act((s) => buyUpgrade(s, b.dataset.upgrade as UpgradeId));
     });
     $('pane-team').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-recruit]');
@@ -323,6 +369,11 @@ export class UI {
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (document.querySelector('dialog[open]')) return; // dialogs handle their own keys
     const k = e.key.toLowerCase();
+    if (!this.rolePop.hidden && k === 'escape') {
+      e.preventDefault();
+      this.closeRolePop();
+      return;
+    }
     if (this.closet.isOpen) {
       if (this.closet.onKey(e)) e.preventDefault();
       return;
@@ -351,16 +402,59 @@ export class UI {
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
   }
 
-  /** The weapon name under the Flick key: click it (or press 1–4) to switch between the weapons you own. */
+  /** The weapon rack under the Flick key: click a gun (or press 1–4) to switch; no number cycles. */
   private switchWeapon(index?: number) {
     const s = this.s;
-    const owned = WEAPONS.filter((w) => s.ownedWeapons.includes(w.id) && !isConfiscated(s, w.id));
-    if (owned.length < 2) return;
-    const cur = owned.findIndex((w) => w.id === s.weapon);
-    const next = index === undefined ? owned[(cur + 1) % owned.length] : owned[index];
-    if (!next || next.id === s.weapon) return;
+    const owned = WEAPONS.filter((w) => s.ownedWeapons.includes(w.id));
+    let next = index === undefined ? undefined : owned[index];
+    if (index === undefined) {
+      const usable = owned.filter((w) => !isConfiscated(s, w.id));
+      if (usable.length < 2) return;
+      next = usable[(usable.findIndex((w) => w.id === s.weapon) + 1) % usable.length];
+    }
+    if (!next || next.id === weapon(s).id) return;
+    if (isConfiscated(s, next.id)) return this.say(`Your ${next.name} is in Mr. Feeney's drawer. Dale can get it back (D).`);
     this.act((st) => buyWeapon(st, next.id));
     this.sound.type();
+  }
+
+  /** A row on the shopping list: straight to Dale with it in hand, or the Org Chart for a coworker. */
+  private goShop(go: string) {
+    if (go.startsWith('r:')) {
+      this.toggleHide(true);
+      this.computer.openApp('org');
+    } else this.closet.show(go);
+  }
+
+  /** Click a teammate in the office: pick their role right there. */
+  private openRolePop(id: CoworkerId, x: number, y: number) {
+    const s = this.s;
+    const ally = s.allies.find((a) => a.id === id);
+    if (!ally) return;
+    const c = COWORKERS.find((x) => x.id === id)!;
+    const rank = ally.rank > 0 ? `${PROMOTION.titles[ally.rank]} ` : '';
+    this.rolePopFor = id;
+    this.rolePop.setAttribute('aria-label', `${c.name}'s role`);
+    this.rolePop.innerHTML = `<header><span class="rp-face">${faceSvg(id, 'happy')}</span><div><b>${esc(c.name)}</b>
+        <small>${esc(rank)}${esc(ROLES.find((r) => r.id === ally.role)!.name)} · ${esc(c.trait)}</small></div></header>
+      <div class="rp-roles">${ROLES.map(
+        (r) => `<button type="button" data-role="${r.id}" aria-pressed="${r.id === ally.role}"><b>${r.name}${r.id === c.traitRole ? ` <i title="Best at this">★ ×${c.mult}</i>` : ''}</b><span>${esc(r.effect)}</span></button>`,
+      ).join('')}</div>`;
+    this.rolePop.hidden = false;
+    const w = this.rolePop.offsetWidth;
+    const h = this.rolePop.offsetHeight;
+    const left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2));
+    const top = y - h - 14 > 8 ? y - h - 14 : Math.min(window.innerHeight - h - 8, y + 14);
+    this.rolePop.style.left = `${left}px`;
+    this.rolePop.style.top = `${Math.max(8, top)}px`;
+    this.sound.grab();
+    this.rolePop.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')?.focus({ preventScroll: true });
+  }
+
+  private closeRolePop() {
+    if (this.rolePop.hidden) return;
+    this.rolePop.hidden = true;
+    this.rolePopFor = null;
   }
 
   /** Esc: sit down at your computer, or get back to the war. */
@@ -370,6 +464,7 @@ export class UI {
       this.launcher.cancel();
       this.drawer.close();
       this.closet.close();
+      this.closeRolePop();
     }
     setLookBusy(this.s, on);
     this.syncComputer();
@@ -430,7 +525,11 @@ export class UI {
         this.sound.incoming();
         this.bump('bands');
       } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
-      else if (e.type === 'walkby') this.closet.kickOut();
+      else if (e.type === 'pay') this.onPay(e);
+      else if (e.type === 'walkby') {
+        this.closet.kickOut();
+        this.closeRolePop();
+      }
       else if (e.type === 'dealGone' && e.why === 'walkby') this.say('Dale melted away. Footsteps!');
       else if (e.type === 'boxSpotted') this.say('Mr. Feeney eyed that box on your desk. Open deliveries before he walks by.');
       else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
@@ -438,6 +537,37 @@ export class UI {
   }
 
   private shotsThisFrame = 0;
+
+  /** Where your Salary is on screen right now (the taskbar at your computer, the sticky note at war). */
+  private salaryTarget(): HTMLElement {
+    if (this.s.lookBusy) return $('tray-pay');
+    const note = document.querySelector<HTMLElement>('.sticky-salary');
+    return onScreen(note) ? note : $('mini');
+  }
+
+  /** Money in: coins fly from wherever it came from into your Salary. */
+  private onPay(e: Extract<GameEvent, { type: 'pay' }>) {
+    const to = this.salaryTarget();
+    const hop = () => {
+      if (to.id === 'tray-pay') {
+        to.classList.remove('hop');
+        void to.offsetWidth;
+        to.classList.add('hop');
+      } else this.bump('salary');
+    };
+    if (e.source === 'bounty') {
+      const from = $('nameplate');
+      const g = payGrade(this.s);
+      const note = e.note ? e.note.charAt(0).toUpperCase() + e.note.slice(1) : '';
+      bigFloater(from, `+${money(e.amount)}`, `${esc(note)}<br>Promoted to ${esc(g.title)}: work pays ×${g.mult}`);
+      moneyBurst(from, to, 6, 3, hop);
+      this.sound.kaching();
+      return;
+    }
+    if (!this.s.lookBusy) return;
+    const from = document.querySelector('#window:not([hidden])') ?? $('screen');
+    moneyBurst(from, to, coinsFor(e.amount) + Math.min(3, Math.max(0, (e.combo ?? 0) - 1)), 0, hop);
+  }
 
   private onShot(damage: number, by: 'you' | 'ally', perfect: boolean) {
     if (reducedMotion() || this.shotsThisFrame > 3) return;
@@ -534,7 +664,7 @@ export class UI {
       $('stage-dlg-h').textContent = 'Stage 2: Cubicle Alliance';
       $('stage-dlg-body').innerHTML = `
         <p>Gary surrendered and joined your side. His desk is your first captured territory.</p>
-        <p>Across the aisle, Brad from Sales is waiting. Open the <strong>Org Chart</strong> on your computer (Esc) to recruit coworkers and give each one a role: Shooter, Gatherer, Lookout, Cover or Engineer.</p>
+        <p>Across the aisle, Brad from Sales is waiting. Coworkers will email you asking to join: recruit them from <strong>Mail</strong> or the <strong>Org Chart</strong> on your computer (Esc). Each one gets a role: Shooter, Gatherer, Lookout, Cover or Engineer. Click a teammate in the office to change it.</p>
         <p>Your Shooters keep firing while you're at your computer, at half speed.</p>`;
     } else if (stage === 3) {
       const mins = Math.round((s.stats.stage2At ?? s.time) / 60);
@@ -584,6 +714,8 @@ export class UI {
     this.set('bands-rate', m.bandsPerSec > 0 ? `+${rate(m.bandsPerSec)}/s` : '');
     this.set('salary', money(s.salary));
     this.set('salary-rate', m.salaryPerSec > 0 ? `+$${rate(m.salaryPerSec)}/s` : '');
+    const grade = payGrade(s);
+    this.set('pay-grade', `${grade.title}${grade.mult > 1 ? ` · work ×${grade.mult}` : ''}`);
     const susp = Math.min(100, s.suspicion);
     this.set('susp-num', susp.toFixed(0));
     // The mug fills from y=114 (empty) to y=18 (full).
@@ -642,6 +774,7 @@ export class UI {
     if (s.lookBusy) {
       this.sheet.render();
       this.computer.render();
+      this.closeRolePop();
     }
     this.drawer.render();
     this.delivery.render();
@@ -684,15 +817,74 @@ export class UI {
         ? `${w.name}: your ${taken} is in Mr. Feeney's drawer (${clock(left)})`
         : `${w.name}: ${total} damage, ${w.burst} band${w.burst > 1 ? 's' : ''} per shot`,
     );
-    const choices = s.ownedWeapons.filter((id) => !isConfiscated(s, id)).length;
-    $('weapon-next').hidden = choices < 2;
-    $<HTMLButtonElement>('weapon-btn').disabled = choices < 2;
+    this.renderRack(s, left);
+    this.renderShop(s);
     const deal = s.dale.deal;
     this.set('closet-sub', deal && !s.lookBusy ? `Dale has a deal: ${Math.ceil(Math.max(0, deal.until - s.time))} s` : s.hr.confiscated ? 'Dale can get your weapon back' : 'Weapons and band “upgrades”. Don’t ask.');
 
     // Coach line: a temporary message wins, then the most useful hint.
     const msg = this.flash && this.flash.until > performance.now() ? this.flash.text : coachHint(s);
     this.set('coach', msg);
+  }
+
+  /** Your guns on a little rack under the Flick key, numbered 1–4, plus a slot for the next one. */
+  private renderRack(s: GameState, left: number | null) {
+    const m = mods(s);
+    const owned = WEAPONS.filter((w) => s.ownedWeapons.includes(w.id));
+    const next = WEAPONS.find((w) => w.price > 0 && !s.ownedWeapons.includes(w.id) && w.stage <= s.stage + 1);
+    const locked = next ? (next.stage > s.stage ? `Stage ${next.stage}` : next.needsEngineer && !m.hasEngineer ? 'Engineer' : '') : '';
+    const price = next ? priceOf(s, next.price) : 0;
+    const eff = weapon(s).id;
+    const key = [owned.map((w) => w.id).join(), eff, s.hr.confiscated?.weapon ?? '', left === null ? '' : Math.ceil(left), next?.id ?? '', price, locked].join('|');
+    this.rebuild('rack', key, () => {
+      const slots = owned.map((w, i) => {
+        const gone = isConfiscated(s, w.id);
+        const on = eff === w.id;
+        return `<button type="button" class="rack-slot${on ? ' on' : ''}${gone ? ' gone' : ''}" data-slot="${i}" aria-pressed="${on}" title="${esc(w.name)} (${i + 1})"
+          aria-label="${esc(w.name)}${gone ? ', in Mr. Feeney’s drawer' : ''}"><kbd>${i + 1}</kbd><img src="${GUN_ART[w.id]}" alt="" draggable="false">${gone && left !== null ? `<span class="rack-clock">${clock(left)}</span>` : ''}</button>`;
+      });
+      if (next) {
+        const label = locked || money(price);
+        slots.push(`<button type="button" class="rack-slot more${locked ? ' locked' : ''}" data-slot="more" data-go="w:${next.id}" data-price="${locked ? '' : price}"
+          title="Next: ${esc(next.name)}, from Dale’s closet" aria-label="Next weapon: ${esc(next.name)}, ${esc(label)}"><span class="rack-plus" aria-hidden="true">+</span><img src="${GUN_ART[next.id]}" alt="" draggable="false"><span class="rack-price">${esc(locked && locked === 'Engineer' ? 'Needs Engineer' : label)}</span></button>`);
+      }
+      $('rack').innerHTML = slots.join('');
+      $('rack').hidden = slots.length < 2 && !next;
+    });
+    const more = document.querySelector<HTMLElement>('#rack .more[data-price]:not([data-price=""])');
+    more?.classList.toggle('afford', s.salary >= Number(more.dataset.price));
+  }
+
+  /** The shopping list on your desk: the next weapon, then the cheapest things you could buy. */
+  private renderShop(s: GameState) {
+    const items = shoppingList(s, 3);
+    const key = items.map((i) => `${itemKey(i)}:${i.price}`).join(',');
+    this.rebuild('shop', key, () => {
+      $('shop-rows').innerHTML = items.length
+        ? items
+            .map((i) => {
+              const pic =
+                i.kind === 'recruit'
+                  ? `<span class="shop-pic face">${faceSvg(i.id, 'idle')}</span>`
+                  : `<span class="shop-pic"><img src="${i.kind === 'weapon' ? GUN_ART[i.id] : ICON_ART[i.id]}" alt="" draggable="false"></span>`;
+              const where = i.kind === 'recruit' ? 'the Org Chart' : 'Dale';
+              return `<li><button type="button" class="shop-row ${i.kind}" data-go="${itemKey(i)}" data-price="${i.price}" aria-label="${esc(i.name)}, ${money(i.price)}, from ${where}">
+                ${pic}<span class="shop-name">${esc(i.name)}</span><span class="shop-price">${money(i.price)}</span><i class="shop-bar" aria-hidden="true"><span></span></i></button></li>`;
+            })
+            .join('')
+        : '<li class="shop-empty">Nothing left to buy. Dale is impressed.</li>';
+    });
+    document.querySelectorAll<HTMLElement>('#shop-rows .shop-row').forEach((b) => {
+      const f = Math.min(1, s.salary / Number(b.dataset.price));
+      b.classList.toggle('afford', f >= 1);
+      (b.querySelector('.shop-bar span') as HTMLElement).style.width = `${(f * 100).toFixed(1)}%`;
+    });
+    // How many things in Dale's closet you could buy right now.
+    const n = s.lookBusy ? 0 : affordable(s, 'closet');
+    for (const id of ['closet-badge', 'mini-closet-badge']) {
+      $(id).hidden = n === 0;
+      this.set(id, String(n));
+    }
   }
 
   private renderAlerts(s: GameState, warning: number) {
@@ -796,7 +988,6 @@ export class UI {
     this.rebuild('panes', shape, () => {
       this.text.delete('conf-left');
       for (const a of s.allies) this.text.delete(`served-${a.id}`);
-      this.buildReqs(s);
       this.buildTeam(s);
     });
 
@@ -813,25 +1004,6 @@ export class UI {
       const locked = b.dataset.locked === '1';
       b.disabled = locked || s.salary < Number(b.dataset.price);
     });
-  }
-
-  private buildReqs(s: GameState) {
-    const open: string[] = [];
-    const done: string[] = [];
-    for (const u of UPGRADES) {
-      if (u.stage > s.stage || u.seller === 'dale') continue;
-      const price = priceOf(s, u.price);
-      if (has(s, u.id)) {
-        done.push(`<div class="item owned"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="stamp">Approved</span></div></div>`);
-      } else if (!upgradeAvailable(s, u.id)) {
-        const t = TARGETS.find((t) => t.id === u.unlockAfter);
-        open.push(`<div class="item"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><span class="tag">After ${esc(t?.name ?? '')}</span></div></div>`);
-      } else {
-        open.push(`<div class="item"><h4>${esc(u.name)}</h4><p>${esc(u.effect)}</p><div class="act"><button type="button" class="buy" data-upgrade="${u.id}" data-price="${price}">Approve ${money(price)}</button></div></div>`);
-      }
-    }
-    $('pane-reqs').innerHTML =
-      `<p class="pane-note">Requisitions are permanent. Procurement approves anything with a form attached. For anything rubber band related, there's Dale (supply closet, D).</p>` + open.join('') + done.join('');
   }
 
   private buildTeam(s: GameState) {
@@ -861,7 +1033,7 @@ export class UI {
     });
     const key = ROLES.map((r) => `<dt>${r.name}</dt><dd>${esc(r.effect)}</dd>`).join('');
     $('pane-team').innerHTML =
-      `<p class="pane-note">Change roles any time. A ★ marks the role each person is best at. Coworkers are promoted to Senior (+${Math.round((PROMOTION.bonus[1] - 1) * 100)}%) and Lead (+${Math.round((PROMOTION.bonus[2] - 1) * 100)}%) the longer they're on your team.</p>` +
+      `<p class="pane-note">Change roles any time, here or by clicking someone in the office. A ★ marks the role each person is best at. Coworkers are promoted to Senior (+${Math.round((PROMOTION.bonus[1] - 1) * 100)}%) and Lead (+${Math.round((PROMOTION.bonus[2] - 1) * 100)}%) the longer they're on your team.</p>` +
       cards.join('') +
       `<dl class="roles-key">${key}</dl>`;
   }
@@ -920,7 +1092,8 @@ function coachHint(s: GameState): string {
     return 'Tip: hold Flick (or F) to stretch the band. Let go at full stretch for a Perfect shot: 6\u00d7 damage from one band.';
   if (s.stats.walkbysSpotted + s.stats.hides === 0 && s.time > 60)
     return 'Mr. Feeney walks the floor every few minutes. When you hear footsteps, press Esc to get on your computer.';
-  if (s.stage === 2 && s.allies.length < 3) return 'Recruit coworkers in the Org Chart on your computer (Esc). Each one has a role they are best at.';
+  if (s.stage === 2 && s.allies.length < 3) return 'Coworkers email you when they want in: recruit them from Mail or the Org Chart on your computer (Esc).';
+  if (s.stage === 2 && s.allies.length >= 2 && s.time - (s.stats.stage1At ?? 0) < 240) return 'Tip: click a teammate in the office to change their role.';
   if (s.stats.tasksDone === 0 && s.time > 90) return 'Your computer (Esc) is where you work: emails and expense reports pay Salary, and Mr. Feeney can’t catch you there.';
   if (s.stage === 2 && w.id !== 'repeater' && s.ownedWeapons.includes('clothespin') && targetDefeated(s, 'printer'))
     return 'Assign Dave as Engineer to unlock the Binder-Clip Repeater.';

@@ -7,14 +7,15 @@
 //   Spreadsheet  fix the flagged cells (the old Look Busy game)
 //   Expenses     approve or deny receipts (sometimes your own rubber bands)
 //   Messenger    coworkers and rivals messaging you
-//   Procurement  requisitions;  Supply Catalog  band orders;  Org Chart  your team
+//   Supply Catalog  band orders;  Org Chart  your team
 //
-// The war screen's App renders the Procurement and Org Chart lists into their
-// panes; everything else on the computer lives here.
+// (Everything else you buy comes from Dale's supply closet.) The war screen's App
+// renders the Org Chart into its pane; everything else on the computer lives here.
 
 import { readChat } from '../sim/chat';
-import { orderSupplies } from '../sim/engine';
+import { coworkerAvailable, orderSupplies, recruit } from '../sim/engine';
 import { SUPPLIES } from '../sim/supplies';
+import { COMBO, COWORKERS, ROLES, type CoworkerId } from '../sim/content';
 import { setSheetOpen } from '../sim/minigame';
 import { has, mods } from '../sim/mods';
 import { type GameState } from '../sim/state';
@@ -22,6 +23,8 @@ import {
   answerTask,
   basePay,
   CALLERS,
+  comboMult,
+  liveCombo,
   DIRECTORY,
   EMAILS,
   EXPENSE_RULE,
@@ -39,7 +42,7 @@ import {
 import { portraitSvg } from './portraits';
 import { fmt, money, officeTime } from './format';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'procure' | 'catalog' | 'org';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org';
 
 const APP_TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -47,7 +50,6 @@ const APP_TITLES: Record<AppId, string> = {
   sheet: 'Spreadsheet',
   expenses: 'Expenses',
   chat: 'Messenger',
-  procure: 'Procurement Portal',
   catalog: 'Office Supply Catalog',
   org: 'Org Chart',
 };
@@ -62,6 +64,7 @@ export interface ComputerHooks {
   ring(): void;
   click(): void;
   ordered(): void;
+  recruited(id: CoworkerId): void;
 }
 
 type MailSel = { kind: 'work'; id: number } | { kind: 'story'; id: number } | null;
@@ -201,7 +204,9 @@ export class ComputerView {
 
     const sel = this.mailSel;
     const result = this.lastResult?.app === 'mail' ? this.lastResult : null;
-    const readKey = `${sel?.kind}:${sel?.id}|${result ? 'r' : ''}`;
+    const story = sel?.kind === 'story' ? s.inbox.find((x) => x.id === sel.id) : undefined;
+    const joined = story?.recruit ? s.allies.some((a) => a.id === story.recruit) : false;
+    const readKey = `${sel?.kind}:${sel?.id}|${result ? 'r' : ''}|${joined}`;
     if (this.keys.get('mail-read') === readKey) return;
     this.keys.set('mail-read', readKey);
     const pane = $('mail-read');
@@ -215,9 +220,9 @@ export class ComputerView {
       return;
     }
     if (sel.kind === 'story') {
-      const m = s.inbox.find((x) => x.id === sel.id);
+      const m = story;
       pane.innerHTML = m
-        ? `<header class="mail-head"><span><b>From:</b> ${esc(m.from)}</span><span><b>Subject:</b> ${esc(m.subject)}</span><time>${officeTime(m.t)}</time></header><p class="mail-text">${esc(m.body)}</p>`
+        ? `<header class="mail-head"><span><b>From:</b> ${esc(m.from)}</span><span><b>Subject:</b> ${esc(m.subject)}</span><time>${officeTime(m.t)}</time></header><p class="mail-text">${esc(m.body)}</p>${this.recruitBit(m.recruit)}`
         : '<p class="hint">That email is gone.</p>';
       return;
     }
@@ -238,6 +243,18 @@ export class ComputerView {
         })
         .join('')}</div>
       <div class="fast-bar" data-fast="email"><span></span><em>Fast bonus</em></div>`;
+  }
+
+  /** A coworker asking to join: hire them right from the email. */
+  private recruitBit(id: CoworkerId | undefined) {
+    const s = this.s;
+    if (!id) return '';
+    const c = COWORKERS.find((x) => x.id === id)!;
+    if (s.allies.some((a) => a.id === id))
+      return `<p class="mail-recruit"><span class="stamp blue">On your team</span> Change ${esc(c.name)}’s role in the Org Chart, or click them in the office.</p>`;
+    if (!coworkerAvailable(s, id)) return '';
+    return `<p class="mail-recruit"><button type="button" class="win-action" data-recruit="${id}" data-price="${c.cost}">Recruit ${esc(c.name)}: ${money(c.cost)}</button>
+      <span class="hint">${esc(c.trait)}: best as a ${esc(ROLES.find((r) => r.id === c.traitRole)!.name)}.</span></p>`;
   }
 
   // ---------------------------------------------------------------- phone
@@ -389,6 +406,13 @@ export class ComputerView {
     else if (d.deny !== undefined) this.decide(Number(d.deny), false);
     else if (d.submitExpense !== undefined) this.fileExpense();
     else if (d.nextMail !== undefined) this.selectMail({ kind: 'work', id: Number(d.nextMail) });
+    else if (d.recruit !== undefined) {
+      const id = d.recruit as CoworkerId;
+      const r = recruit(this.s, id);
+      if (r.ok) this.hooks.recruited(id);
+      else this.hooks.say(r.reason);
+      this.keys.delete('mail-read');
+    }
     else if (d.order !== undefined) {
       if (orderSupplies(this.s).ok) this.hooks.ordered();
       this.keys.delete('catalog');
@@ -436,7 +460,7 @@ export class ComputerView {
     if (!r) return;
     this.hooks.done(r);
     const bits = [
-      r.pay > 0 ? `+${money(r.pay)}` : '',
+      r.pay > 0 ? `+${money(r.pay)}${liveCombo(this.s) > 1 ? ` (combo ×${comboMult(this.s).toFixed(2).replace(/\.?0+$/, '')})` : ''}` : '',
       r.suspicion < -0.5 ? `Suspicion ${Math.round(r.suspicion)}` : r.suspicion > 0.5 ? `Suspicion +${Math.round(r.suspicion)}` : '',
       r.bonusBands ? `+${r.bonusBands} bands` : '',
     ]
@@ -486,6 +510,16 @@ export class ComputerView {
     // Taskbar
     setText('tray-clock', officeTime(s.time));
     setText('tray-cool', `Suspicion ${Math.round(Math.min(100, s.suspicion))} and cooling`);
+    setText('tray-pay', money(s.salary));
+    // The work combo: how many in a row, what it pays, and how long you have to keep it going.
+    const combo = liveCombo(s);
+    const chip = $('tray-combo');
+    chip.hidden = combo < 2;
+    if (combo >= 2) {
+      setText('combo-x', `Combo ${combo} · pays ×${comboMult(s).toFixed(2).replace(/\.?0+$/, '')}`);
+      $('combo-fill').style.width = `${Math.max(0, 1 - (s.time - s.work.comboAt) / COMBO.window) * 100}%`;
+      chip.classList.toggle('max', comboMult(s) >= 1 + COMBO.step * COMBO.cap);
+    }
 
     if (this.lastResult && performance.now() > this.lastResult.until && this.app !== 'mail') {
       this.lastResult = null;
@@ -509,6 +543,11 @@ export class ComputerView {
         this.renderCatalog();
         break;
     }
+
+    // Buttons that cost money (Recruit in Mail) grey out until you can afford them.
+    document.querySelectorAll<HTMLButtonElement>('#mail-read button[data-price]').forEach((b) => {
+      b.disabled = s.salary < Number(b.dataset.price);
+    });
 
     // Fast-bonus bars on an open task.
     const bar = document.querySelector<HTMLElement>(`.app:not([hidden]) .fast-bar`);

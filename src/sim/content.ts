@@ -31,8 +31,8 @@ export interface Weapon {
 export const WEAPONS: Weapon[] = [
   { id: 'flick', name: 'Finger Flick', blurb: 'The classic. Thumb, finger, regret.', damage: 1, burst: 1, noise: 1.0, reload: 0.1, price: 0, stage: 1 },
   { id: 'ruler', name: 'Ruler Launcher', blurb: 'A 12-inch ruler and a confident wrist.', damage: 3, burst: 1, noise: 1.2, reload: 0.1, price: 15, stage: 1 },
-  { id: 'clothespin', name: 'Clothespin Pistol', blurb: 'Hot-glued. Trigger action. Surprisingly accurate.', damage: 7, burst: 1, noise: 1.4, reload: 0.2, price: 80, stage: 1 },
-  { id: 'repeater', name: 'Binder-Clip Repeater', blurb: 'Three bands per trigger pull. Dave designed it on a napkin.', damage: 7, burst: 3, noise: 3.0, reload: 0.3, price: 350, stage: 2, needsEngineer: true },
+  { id: 'clothespin', name: 'Clothespin Pistol', blurb: 'Hot-glued. Trigger action. Surprisingly accurate.', damage: 7, burst: 1, noise: 1.4, reload: 0.2, price: 100, stage: 1 },
+  { id: 'repeater', name: 'Binder-Clip Repeater', blurb: 'Three bands per trigger pull. Dave designed it on a napkin.', damage: 7, burst: 3, noise: 3.0, reload: 0.3, price: 420, stage: 2, needsEngineer: true },
 ];
 
 // ---------------------------------------------------------------- targets
@@ -48,6 +48,8 @@ export interface Target {
   desks: number; // desks captured when they surrender
   damageMult?: number; // e.g. Gary's desk fan deflects shots
   twist?: string; // shown under the Resolve bar
+  bounty: number; // Salary you find when they surrender
+  bountyNote: string; // where that money came from
   intro: { from: string; subject: string; body: string };
   defeat: { from: string; subject: string; body: string };
 }
@@ -55,49 +57,49 @@ export interface Target {
 export const TARGETS: Target[] = [
   {
     id: 'gary1', stage: 1, name: 'Gary Lindqvist', title: 'Account Coordinator', position: 'Exposed',
-    resolve: 15, regenPct: 0.02, desks: 0,
+    resolve: 15, regenPct: 0.02, desks: 0, bounty: 10, bountyNote: 'Gary’s lunch money',
     intro: { from: 'Gary', subject: '(no subject)', body: 'oops' },
     defeat: { from: 'Gary', subject: '(no subject)', body: 'Gary has retreated behind his monitor. Gary will remember this.' },
   },
   {
     id: 'gary2', stage: 1, name: 'Gary Lindqvist', title: 'Account Coordinator', position: 'Behind his monitor',
-    resolve: 80, regenPct: 0.02, desks: 0,
+    resolve: 80, regenPct: 0.02, desks: 0, bounty: 20, bountyNote: 'Gary’s jar of quarters',
     intro: { from: 'Gary', subject: 'Re: (no subject)', body: 'I have a 27-inch monitor. You will not get through.' },
     defeat: { from: 'Gary', subject: 'Re: Re: (no subject)', body: 'Fine. Phase two.' },
   },
   {
     id: 'gary3', stage: 1, name: 'Gary Lindqvist', title: 'Account Coordinator', position: "Inside a Post-it fort",
-    resolve: 400, regenPct: 0.02, desks: 0,
+    resolve: 400, regenPct: 0.02, desks: 0, bounty: 45, bountyNote: 'Gary’s Post-it budget',
     intro: { from: 'All-Staff', subject: 'Post-it shortage', body: 'The 4th floor is out of Post-its. If you know why, please tell Facilities.' },
     defeat: { from: 'Gary', subject: 'my fort', body: 'That was three days of work.' },
   },
   {
     id: 'gary4', stage: 1, name: 'Gary Lindqvist', title: 'Account Coordinator', position: 'Behind a desk fan',
-    resolve: 1600, regenPct: 0.02, desks: 1, damageMult: 0.75, twist: 'The desk fan deflects a quarter of every shot.',
+    resolve: 1600, regenPct: 0.02, desks: 1, damageMult: 0.75, bounty: 90, bountyNote: 'Gary’s savings, taped under his desk', twist: 'The desk fan deflects a quarter of every shot.',
     intro: { from: 'Gary', subject: 'Fan', body: 'It is a 3-speed oscillating fan and it is on high.' },
     defeat: { from: 'Gary', subject: 'Truce', body: 'Okay. You win. Honestly, I could use an ally. Brad from Sales has been flicking at both of us for years.' },
   },
   {
     id: 'brad', stage: 2, name: 'Brad Okafor', title: 'Senior Sales Executive', position: 'Leaning back, feet on the desk',
-    resolve: 2500, regenPct: 0.015, desks: 1,
+    resolve: 2500, regenPct: 0.015, desks: 1, bounty: 180, bountyNote: 'Brad’s commission check',
     intro: { from: 'Brad', subject: 'Heard about Gary', body: 'Cute. Sales has been doing this since before you were hired. Bring it.' },
     defeat: { from: 'Brad', subject: 'gg', body: 'Respect. I am still the top seller on this floor, for the record.' },
   },
   {
     id: 'printer', stage: 2, name: 'Janet & Ron', title: 'The Printer Corner', position: 'Behind a wall of toner boxes',
-    resolve: 7000, regenPct: 0.015, desks: 2,
+    resolve: 7000, regenPct: 0.015, desks: 2, bounty: 350, bountyNote: 'the printer’s petty cash',
     intro: { from: 'Janet', subject: 'The printer is ours', body: 'Ron and I control the only color printer on this floor. Think carefully.' },
     defeat: { from: 'Ron', subject: 'PC LOAD LETTER', body: 'We surrender the printer. Nobody knows how to fix it anyway.' },
   },
   {
     id: 'taskforce', stage: 2, name: 'The Q3 Task Force', title: 'Strategic Initiatives', position: 'Barricaded in a pod of three desks',
-    resolve: 18000, regenPct: 0.015, desks: 3,
+    resolve: 18000, regenPct: 0.015, desks: 3, bounty: 600, bountyNote: 'the Task Force’s offsite budget',
     intro: { from: 'Q3 Task Force', subject: 'Meeting invite: Defending the Pod', body: 'Recurring, daily, 9:00 AM. Attendance is mandatory.' },
     defeat: { from: 'Q3 Task Force', subject: 'Canceled: Defending the Pod', body: 'This meeting has been canceled. The task force has been reorganized under you.' },
   },
   {
     id: 'rick', stage: 2, name: 'Rick Dunham', title: 'Team Lead', position: 'In his glass office',
-    resolve: 50000, regenPct: 0.015, desks: 2, twist: 'Rick schedules a performance review every 30 s (+4 Suspicion).',
+    resolve: 50000, regenPct: 0.015, desks: 2, bounty: 1500, bountyNote: 'Rick’s discretionary fund', twist: 'Rick schedules a performance review every 30 s (+4 Suspicion).',
     intro: { from: 'Rick', subject: 'My door is always open', body: 'Metaphorically. The actual door is locked and I have a lot of rubber bands.' },
     defeat: { from: 'Rick', subject: 'Out of office', body: 'I am out of the office indefinitely. Please direct all questions to whoever is in charge now. Apparently that is you.' },
   },
@@ -121,11 +123,11 @@ export interface Coworker {
 
 export const COWORKERS: Coworker[] = [
   { id: 'gary', name: 'Gary', who: 'Your desk neighbor', trait: 'Holds a Grudge', traitRole: 'shooter', mult: 1.5, cost: 0, unlockAfter: 'gary4', joinEmail: 'I am in. Point me at Brad.' },
-  { id: 'kevin', name: 'Kevin', who: 'The unpaid intern', trait: 'Eager', traitRole: 'gatherer', mult: 1.5, cost: 30, unlockAfter: 'stage2', joinEmail: 'omg yes. do I get a title' },
-  { id: 'marjorie', name: 'Marjorie', who: '31 years at the company', trait: 'Sees Everything', traitRole: 'lookout', mult: 2, cost: 80, unlockAfter: 'stage2', joinEmail: 'I will keep an eye out, dear. I always do.' },
-  { id: 'steve', name: 'Steve', who: 'Always on a call', trait: 'Very Loud Calls', traitRole: 'cover', mult: 2, cost: 150, unlockAfter: 'brad', joinEmail: 'Sorry, can you hear me? I am in. Going on mute.' },
-  { id: 'linda', name: 'Linda', who: 'Senior Associate', trait: 'Dead Eye', traitRole: 'shooter', mult: 2, cost: 250, unlockAfter: 'brad', joinEmail: 'I was regional darts champion in 2009. I do not miss.' },
-  { id: 'dave', name: 'Dave', who: 'IT, "temporarily" in your row since 2019', trait: 'Tinkerer', traitRole: 'engineer', mult: 2, cost: 400, unlockAfter: 'printer', joinEmail: 'Have you tried turning the war off and on again? Kidding. I have drawings.' },
+  { id: 'kevin', name: 'Kevin', who: 'The unpaid intern', trait: 'Eager', traitRole: 'gatherer', mult: 1.5, cost: 35, unlockAfter: 'stage2', joinEmail: 'omg yes. do I get a title' },
+  { id: 'marjorie', name: 'Marjorie', who: '31 years at the company', trait: 'Sees Everything', traitRole: 'lookout', mult: 2, cost: 95, unlockAfter: 'stage2', joinEmail: 'I will keep an eye out, dear. I always do.' },
+  { id: 'steve', name: 'Steve', who: 'Always on a call', trait: 'Very Loud Calls', traitRole: 'cover', mult: 2, cost: 180, unlockAfter: 'brad', joinEmail: 'Sorry, can you hear me? I am in. Going on mute.' },
+  { id: 'linda', name: 'Linda', who: 'Senior Associate', trait: 'Dead Eye', traitRole: 'shooter', mult: 2, cost: 300, unlockAfter: 'brad', joinEmail: 'I was regional darts champion in 2009. I do not miss.' },
+  { id: 'dave', name: 'Dave', who: 'IT, "temporarily" in your row since 2019', trait: 'Tinkerer', traitRole: 'engineer', mult: 2, cost: 480, unlockAfter: 'printer', joinEmail: 'Have you tried turning the war off and on again? Kidding. I have drawings.' },
 ];
 
 // ---------------------------------------------------------------- requisitions
@@ -148,20 +150,20 @@ export interface Upgrade {
 
 export const UPGRADES: Upgrade[] = [
   { id: 'rummage', name: 'Rummage Deeper', effect: 'Grab 2 bands at a time, and twice as many turn up in your drawer.', price: 10, stage: 1, seller: 'dale' },
-  { id: 'organizer', name: 'Drawer Organizer', effect: '+0.4 bands/s, automatically.', price: 20, stage: 1 },
-  { id: 'autoreply', name: 'Email Auto-Reply', effect: 'Answers emails that wait 20 s (half pay), plus $0.40/s.', price: 35, stage: 1 },
-  { id: 'chair', name: 'Ergonomic Chair', effect: 'Work tasks and spreadsheet fixes pay double.', price: 50, stage: 1 },
+  { id: 'organizer', name: 'Drawer Organizer', effect: '+0.4 bands/s, automatically.', price: 25, stage: 1 },
+  { id: 'autoreply', name: 'Email Auto-Reply', effect: 'Answers emails that wait 20 s (half pay), plus $0.40/s.', price: 45, stage: 1 },
+  { id: 'chair', name: 'Ergonomic Chair', effect: 'Work tasks and spreadsheet fixes pay double.', price: 65, stage: 1 },
   { id: 'waxed', name: 'Waxed Bands', effect: 'Your bands stretch further before they snap, and the Perfect window is longer.', price: 45, stage: 1, seller: 'dale' },
-  { id: 'silent', name: 'Silent Flick Technique', effect: 'Your shots make 25% less noise.', price: 60, stage: 1, seller: 'dale' },
-  { id: 'riser', name: 'Monitor Riser', effect: 'See over the cubicle: +1 s walk-by warning.', price: 90, stage: 1 },
-  { id: 'bulk', name: 'Bulk Ordering', effect: 'Supply orders become $12 for 200 bands.', price: 150, stage: 2 },
-  { id: 'closet', name: 'Supply Closet Key', effect: 'A copy of Dale’s key: +1.5 bands/s.', price: 250, stage: 2, unlockAfter: 'brad', seller: 'dale' },
-  { id: 'training', name: 'Shooter Training', effect: 'Your Shooters fire 30% faster.', price: 300, stage: 2, seller: 'dale' },
-  { id: 'thick', name: 'Double-Thick Bands', effect: 'Every band hits 25% harder, yours and your Shooters’.', price: 700, stage: 2, unlockAfter: 'printer', seller: 'dale' },
-  { id: 'carpet', name: 'Carpet Tiles', effect: 'All shots make 15% less noise.', price: 400, stage: 2 },
-  { id: 'macros', name: 'Spreadsheet Macros', effect: 'Passive Salary pays ×3 while you’re at your computer, instead of ×2.', price: 600, stage: 2, unlockAfter: 'printer' },
-  { id: 'walls', name: 'Cubicle Wall Extensions', effect: 'All shots make 20% less noise.', price: 900, stage: 2, unlockAfter: 'printer' },
-  { id: 'calendar', name: 'Fake Calendar Invites', effect: 'Mr. Feeney walks by 30% less often.', price: 1200, stage: 2, unlockAfter: 'taskforce', seller: 'dale' },
+  { id: 'silent', name: 'Silent Flick Technique', effect: 'Your shots make 25% less noise.', price: 75, stage: 1, seller: 'dale' },
+  { id: 'riser', name: 'Monitor Riser', effect: 'See over the cubicle: +1 s walk-by warning.', price: 110, stage: 1 },
+  { id: 'bulk', name: 'Bulk Ordering', effect: 'Supply orders become $12 for 200 bands.', price: 180, stage: 2 },
+  { id: 'closet', name: 'Supply Closet Key', effect: 'A copy of Dale’s key: +1.5 bands/s.', price: 300, stage: 2, unlockAfter: 'brad', seller: 'dale' },
+  { id: 'training', name: 'Shooter Training', effect: 'Your Shooters fire 30% faster.', price: 360, stage: 2, seller: 'dale' },
+  { id: 'thick', name: 'Double-Thick Bands', effect: 'Every band hits 25% harder, yours and your Shooters’.', price: 850, stage: 2, unlockAfter: 'printer', seller: 'dale' },
+  { id: 'carpet', name: 'Carpet Tiles', effect: 'All shots make 15% less noise.', price: 480, stage: 2 },
+  { id: 'macros', name: 'Spreadsheet Macros', effect: 'Passive Salary pays ×3 while you’re at your computer, instead of ×2.', price: 720, stage: 2, unlockAfter: 'printer' },
+  { id: 'walls', name: 'Cubicle Wall Extensions', effect: 'All shots make 20% less noise.', price: 1100, stage: 2, unlockAfter: 'printer' },
+  { id: 'calendar', name: 'Fake Calendar Invites', effect: 'Mr. Feeney walks by 30% less often.', price: 1450, stage: 2, unlockAfter: 'taskforce', seller: 'dale' },
 ];
 
 // ---------------------------------------------------------------- tuning constants
@@ -230,6 +232,26 @@ export const PROMOTION = {
 };
 
 /** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */
+/** Your pay grade goes up every time someone surrenders: work pays this many times more. */
+export const PAY_GRADES = [
+  { title: 'Junior Associate', mult: 1 },
+  { title: 'Associate', mult: 1.15 },
+  { title: 'Associate II', mult: 1.3 },
+  { title: 'Senior Associate', mult: 1.5 },
+  { title: 'Specialist', mult: 1.8 },
+  { title: 'Senior Specialist', mult: 2.2 },
+  { title: 'Coordinator', mult: 2.7 },
+  { title: 'Lead Coordinator', mult: 3.3 },
+  { title: 'Floor Manager', mult: 4 },
+];
+
+/** Work combo: things done right back to back pay more. */
+export const COMBO = {
+  window: 15, // seconds you have to finish the next thing to keep it going
+  step: 0.25, // +25% per link
+  cap: 8, // links that count, so ×3 at most
+};
+
 /** Dale from Facilities: the black market in the supply closet. */
 export const DALE = {
   introAt: 75, // seconds: he messages you about the closet
@@ -351,11 +373,7 @@ export const SHEET_TUNING = {
   lifetimeStart: 5, // seconds a flag lasts when you first hide
   lifetimeMin: 1.8,
   lifetimeShrink: 0.05, // per second spent hidden
-  streakBonus: 0.2, // +20% pay per streak step
-  streakCap: 10,
-  fatigueAfter: 40, // seconds hidden before fixes start paying less
-  fatigueFloor: 0.3,
-  fatigueRate: 0.012, // pay multiplier lost per second after fatigueAfter
+  fixPay: 2, // dollars per fixed cell at your first pay grade, before the combo
   fixCool: 2, // Suspicion removed per fix
   hustleWindow: 2.5, // seconds after a walk-by passes where fixes pay double
 };

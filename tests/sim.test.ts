@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { DALE, PROMOTION, TARGETS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { COMBO, DALE, PAY_GRADES, PROMOTION, TARGETS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
-import { addTask, answerTask, correctAnswer, EMAILS, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
+import { addTask, answerTask, basePay, comboMult, correctAnswer, EMAILS, liveCombo, payGrade, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
+import { affordable, forSale, itemKey, shoppingList } from '../src/sim/shop';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
 import { playBot, STYLES } from './bot';
@@ -245,9 +246,11 @@ describe('HR file', () => {
     const a = midStage2();
     addSuspicion(a, 200);
     const price = buyBackPrice(a);
-    expect(price).toBe(40); // half the Clothespin's $80
+    const clothespin = WEAPONS.find((w) => w.id === 'clothespin')!.price;
+    expect(price).toBe(clothespin / 2); // half what the Clothespin costs
+    const before = a.salary;
     expect(buyBack(a).ok).toBe(true);
-    expect(a.salary).toBe(160);
+    expect(a.salary).toBe(before - price);
     expect(weapon(a).id).toBe('clothespin');
 
     const b = midStage2();
@@ -407,7 +410,7 @@ describe("Dale's black market", () => {
     s.work.nextCallAt = 1e9;
   };
 
-  it('sells the rubber band upgrades; Procurement keeps the office ones', () => {
+  it('keeps the rubber band upgrades on his table; office upgrades are Procurement forms', () => {
     expect(daleSells('silent')).toBe(true);
     expect(daleSells('thick')).toBe(true);
     expect(daleSells('chair')).toBe(false);
@@ -477,6 +480,100 @@ describe("Dale's black market", () => {
     b.upgrades.push('waxed');
     expect(mods(b).perfectWindow).toBe(DALE.waxedWindow);
     expect(mods(b).snapAfter).toBeGreaterThan(mods(a).snapAfter);
+  });
+});
+
+describe('money', () => {
+  const take = (s: ReturnType<typeof newGame>, t: WorkTask) => {
+    startTask(s, t.id);
+    return answerTask(s, t.id, correctAnswer(t))!;
+  };
+
+  it('beating someone pays their bounty and promotes you: work pays more', () => {
+    const s = newGame(1);
+    const email = basePay(s, 'email');
+    s.bands = 100;
+    s.targetResolve = 0.5;
+    flick(s);
+    const gary1 = TARGETS[0];
+    expect(s.salary).toBe(gary1.bounty);
+    expect(s.stats.bounties).toBe(gary1.bounty);
+    expect(s.events.some((e) => e.type === 'pay' && e.source === 'bounty' && e.amount === gary1.bounty)).toBe(true);
+    expect(payGrade(s)).toBe(PAY_GRADES[1]);
+    expect(basePay(s, 'email')).toBeCloseTo(email * PAY_GRADES[1].mult);
+  });
+
+  it('bounties grow down the floor, and the last grade is for running it', () => {
+    for (let i = 1; i < TARGETS.length; i++) expect(TARGETS[i].bounty).toBeGreaterThan(TARGETS[i - 1].bounty);
+    const s = newGame(1);
+    s.stage = 3;
+    expect(payGrade(s)).toBe(PAY_GRADES[PAY_GRADES.length - 1]);
+  });
+
+  it('work done in a row builds a combo that pays more; a slip or a long pause ends it', () => {
+    const s = newGame(1);
+    const first = take(s, addTask(s, 'email')).pay;
+    const second = take(s, addTask(s, 'email')).pay;
+    expect(liveCombo(s)).toBe(2);
+    expect(second).toBeCloseTo(first * (1 + COMBO.step));
+    for (let i = 0; i < 20; i++) take(s, addTask(s, 'email'));
+    expect(comboMult(s)).toBe(1 + COMBO.step * COMBO.cap); // capped
+    s.time += COMBO.window + 1;
+    expect(liveCombo(s)).toBe(0);
+
+    take(s, addTask(s, 'email'));
+    take(s, addTask(s, 'email'));
+    const t = addTask(s, 'email');
+    if (t.kind !== 'email') throw new Error();
+    const wrong = EMAILS[t.data.idx].replies.findIndex((x) => x.replyAll);
+    startTask(s, t.id);
+    answerTask(s, t.id, { kind: 'email', choice: t.data.order.indexOf(wrong) });
+    expect(liveCombo(s)).toBe(0);
+    expect(s.stats.bestCombo).toBeGreaterThanOrEqual(COMBO.cap + 1);
+  });
+});
+
+describe('one shop and the shopping list', () => {
+  it('lists the next weapon first, then the cheapest things you could buy', () => {
+    const s = newGame(1);
+    const list = shoppingList(s, 3);
+    expect(list[0]).toMatchObject({ kind: 'weapon', id: 'ruler' });
+    expect(list.slice(1).map((i) => i.price)).toEqual([...list.slice(1).map((i) => i.price)].sort((a, b) => a - b));
+    expect(itemKey(list[0])).toBe('w:ruler');
+    // Owned and locked things never show up.
+    s.ownedWeapons.push('ruler');
+    s.upgrades.push('rummage');
+    const keys = forSale(s).map(itemKey);
+    expect(keys).not.toContain('w:ruler');
+    expect(keys).not.toContain('u:rummage');
+    expect(keys).not.toContain('w:repeater');
+    expect(keys.some((k) => k.startsWith('r:'))).toBe(false);
+  });
+
+  it('counts what you can afford in the closet and in the Org Chart separately', () => {
+    const s = newGame(1);
+    expect(affordable(s)).toBe(0);
+    s.salary = 30; // Ruler $15, Rummage $10, Organizer $25
+    expect(affordable(s, 'closet')).toBe(3);
+    s.stage = 2;
+    s.targetIndex = 4;
+    s.salary = 40;
+    expect(affordable(s, 'org')).toBe(1); // Kevin
+  });
+
+  it('office upgrades are bought the same way, and coworkers who ask to join carry a Recruit button', () => {
+    const s = newGame(1);
+    s.salary = 1000;
+    expect(buyUpgrade(s, 'organizer').ok).toBe(true);
+    for (let i = 0; i < 4; i++) {
+      s.bands = 100000;
+      s.targetResolve = 0.5;
+      s.nextFlickAt = 0;
+      flick(s);
+    }
+    const kevin = s.inbox.find((m) => m.from === 'Kevin');
+    expect(kevin?.recruit).toBe('kevin');
+    expect(s.inbox.find((m) => m.from === 'Marjorie')?.recruit).toBe('marjorie');
   });
 });
 

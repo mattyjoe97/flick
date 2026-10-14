@@ -213,6 +213,11 @@ function capture(s: GameState) {
   const t = currentTarget(s);
   if (!t) return;
   s.desks += t.desks;
+  // They drop whatever money they had stashed, and you get a promotion (work pays more).
+  s.salary += t.bounty;
+  s.stats.bounties += t.bounty;
+  s.events.push({ type: 'pay', amount: t.bounty, source: 'bounty', note: t.bountyNote });
+  pushTicker(s, `You find ${t.bountyNote}: +$${t.bounty}.`);
   pushEmail(s, t.defeat.from, t.defeat.subject, t.defeat.body, t.stage === 1 && t.id !== 'gary4' ? 'story' : 'win');
   s.events.push({ type: 'capture', targetId: t.id });
   chatEvent(s, `capture:${t.id}`);
@@ -222,7 +227,7 @@ function capture(s: GameState) {
   // Newly available coworkers
   for (const c of COWORKERS) {
     if (c.unlockAfter === t.id && c.cost > 0) {
-      pushEmail(s, c.name, 'Can we talk?', `${c.who}. Word gets around. I might be interested in joining you, for the right price ($${c.cost}).`, 'story');
+      pushEmail(s, c.name, 'Can we talk?', `${c.who}. Word gets around. I might be interested in joining you, for the right price ($${c.cost}).`, 'story', c.id);
     }
   }
 
@@ -239,8 +244,8 @@ function capture(s: GameState) {
     s.stage = 2;
     s.allies.push(newAlly('gary', 'shooter'));
     pushEmail(s, 'Gary', 'Re: Truce', COWORKERS[0].joinEmail, 'story');
-    pushEmail(s, 'Kevin', 'hi', 'I am the intern. I saw everything. I want in. ($30, or two donuts)', 'story');
-    pushEmail(s, 'Marjorie', 'A word', 'I have been here 31 years and I see everything. I could see things for you. ($80)', 'story');
+    pushEmail(s, 'Kevin', 'hi', 'I am the intern. I saw everything. I want in. ($35, or two donuts)', 'story', 'kevin');
+    pushEmail(s, 'Marjorie', 'A word', 'I have been here 31 years and I see everything. I could see things for you. ($95)', 'story', 'marjorie');
     s.events.push({ type: 'stage', stage: 2 });
     startTarget(s, s.targetIndex + 1);
     addSuspicion(s, TUNING.captureNoise);

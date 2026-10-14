@@ -7,7 +7,7 @@
 //
 // Everything here is headless and deterministic so the pacing bots can play it.
 
-import { fatigue } from './minigame';
+import { COMBO, PAY_GRADES } from './content';
 import { has, mods } from './mods';
 import { rand, randRange } from './rng';
 import type { GameState } from './state';
@@ -57,10 +57,12 @@ export interface WorkState {
   activeSince: number;
   seq: number;
   fraudAt: number[]; // game times you approved your own receipt
+  combo: number; // things done right back to back (tasks and spreadsheet fixes)
+  comboAt: number; // when the last one was done
 }
 
 export function newWorkState(): WorkState {
-  return { queue: [], nextEmailAt: WORK.firstEmailAt, nextCallAt: WORK.firstCallAt, expenseAt: WORK.firstExpenseAt, activeId: null, activeSince: 0, seq: 1, fraudAt: [] };
+  return { queue: [], nextEmailAt: WORK.firstEmailAt, nextCallAt: WORK.firstCallAt, expenseAt: WORK.firstExpenseAt, activeId: null, activeSince: 0, seq: 1, fraudAt: [], combo: 0, comboAt: -999 };
 }
 
 // ---------------------------------------------------------------- tuning
@@ -82,7 +84,6 @@ export const WORK = {
   relief: { email: 4, call: 6, expense: 6 } as Record<TaskKind, number>,
   fast: { email: 5, call: 6, expense: 12 } as Record<TaskKind, number>, // seconds for the speed bonus
   fastBonus: 0.5,
-  stageMult: [1, 1, 2.5, 2.5],
   autoReplyAfter: 20, // Email Auto-Reply answers work emails that wait this long (half pay)
   fraudBands: 150, // bands per stage when you approve your own rubber band receipt
   fraudNoise: 3, // Suspicion, times the number of recent approvals
@@ -495,7 +496,8 @@ export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskRe
   }
 
   const share = ok ? 1 : Math.max(0, quality);
-  const pay = basePay(s, t.kind) * share * (ok && fast ? 1 + WORK.fastBonus : 1) * fatigue(s);
+  workCombo(s, ok);
+  const pay = basePay(s, t.kind) * share * (ok && fast ? 1 + WORK.fastBonus : 1) * comboMult(s);
   const relief = ok ? WORK.relief[t.kind] : 0;
   s.salary += pay;
   s.stats.workEarned += pay;
@@ -507,11 +509,40 @@ export function answerTask(s: GameState, id: number, answer: TaskAnswer): TaskRe
   if (noise) bump(s, noise);
   const result: TaskResult = { ok, pay, suspicion: s.suspicion - before, text: ok && fast ? `${text} (Fast: +50%)` : text, bonusBands };
   s.events.push({ type: 'taskDone', kind: t.kind, ok, pay, text: result.text });
+  if (pay > 0) s.events.push({ type: 'pay', amount: pay, source: 'work', combo: liveCombo(s) });
   return result;
 }
 
 export function basePay(s: GameState, kind: TaskKind) {
-  return WORK.pay[kind] * WORK.stageMult[s.stage] * mods(s).workPay;
+  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay;
+}
+
+// ---------------------------------------------------------------- pay grade and combo
+
+/** Your pay grade: up one every time someone surrenders. */
+export function payGrade(s: GameState) {
+  const i = s.stage > 2 ? PAY_GRADES.length - 1 : Math.min(PAY_GRADES.length - 1, s.targetIndex);
+  return PAY_GRADES[i];
+}
+
+/** The combo still running (it lapses if you go too long without finishing something). */
+export function liveCombo(s: GameState) {
+  return s.time - s.work.comboAt <= COMBO.window ? s.work.combo : 0;
+}
+
+/** ×1 for the first thing, +25% for each one after it in a row, up to ×3. */
+export function comboMult(s: GameState) {
+  return 1 + COMBO.step * Math.min(COMBO.cap, Math.max(0, liveCombo(s) - 1));
+}
+
+/** Something done right keeps the combo going; a mistake ends it. */
+export function workCombo(s: GameState, ok: boolean) {
+  const w = s.work;
+  if (ok) {
+    w.combo = liveCombo(s) + 1;
+    w.comboAt = s.time;
+    s.stats.bestCombo = Math.max(s.stats.bestCombo ?? 0, w.combo);
+  } else w.combo = 0;
 }
 
 function removeTask(s: GameState, id: number) {

@@ -228,6 +228,14 @@ export class Sound {
     this.tone('sine', 1320, 1320, 0.05, 0.06);
   }
 
+  /** A cash register: money in. */
+  kaching() {
+    if (!this.ok('kaching', 120)) return;
+    this.noise(5000, 3, 0.04, 0.1);
+    this.tone('sine', 1568, 1568, 0.09, 0.12, 0.03);
+    this.tone('sine', 2093, 2093, 0.18, 0.12, 0.1);
+  }
+
   /** Dale, leaning over your cubicle wall. */
   psst() {
     if (!this.ok('psst', 1000)) return;

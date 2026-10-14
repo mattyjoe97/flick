@@ -352,13 +352,32 @@ for uid, stem in (("silent", "43_icon_silent"), ("rummage", "44_icon_rummage"), 
     closet_art[f"icon_{uid}"] = {"w": size[0], "h": size[1]}
 print("closet", closet_art)
 
+# ---------------------------------------------------------------- batch 5: the desk, office upgrades and money
+
+wood = Image.open(SRC / "95_desk_wood.png").convert("RGB")
+wood.resize((512, 512), Image.LANCZOS).save(OUT / "desk-wood.webp", quality=84, method=6)
+mat = Image.open(SRC / "96_desk_mat.png").convert("RGB")
+mat.resize((512, 1024), Image.LANCZOS).save(OUT / "desk-mat.webp", quality=86, method=6)
+b5 = {a["file"]: a for a in json.loads((SRC / "asset-manifest-batch5.json").read_text())["assets"]}
+closet_art["mat"] = {"w": 512, "h": 1024, "slice": b5["96_desk_mat.png"]["plain_center_insets_px"]["left"] // 2}
+for name, stem, px in (("plant", "97_plant", 300), ("clipboard", "98_clipboard", 420), ("coin", "107_coin", 96), ("cash", "108_cash", 160)):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    size, _ = save_fit(im, solid_box(im, 6), px, name)
+    closet_art[name] = {"w": size[0], "h": size[1]}
+for uid, stem in (("organizer", "99_icon_organizer"), ("autoreply", "100_icon_autoreply"), ("chair", "101_icon_chair"), ("riser", "102_icon_riser"),
+                  ("bulk", "103_icon_bulk"), ("carpet", "104_icon_carpet"), ("macros", "105_icon_macros"), ("walls", "106_icon_walls")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    size, _ = save_fit(im, solid_box(im, 6), 240, f"icon-{uid}")
+    closet_art[f"icon_{uid}"] = {"w": size[0], "h": size[1]}
+print("batch 5 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
 # share one crop and the game places them all the same way.
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
-faces = sorted(SRC.glob("[5-9][0-9]_*.png"))
+faces = sorted(f for f in SRC.glob("[5-9][0-9]_*.png") if 50 <= int(f.stem.split("_")[0]) <= 94)
 pboxes = [solid_box(Image.open(f).convert("RGBA"), 4) for f in faces]
 pbox = (min(b[0] for b in pboxes), min(b[1] for b in pboxes), max(b[2] for b in pboxes), max(b[3] for b in pboxes))
 PW = 400

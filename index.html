@@ -47,8 +47,14 @@
               <span class="sticky-label">Salary</span>
               <span class="sticky-num" id="salary">$0</span>
               <span class="sticky-rate" id="salary-rate"></span>
+              <span class="sticky-grade" id="pay-grade">Junior Associate</span>
             </div>
           </div>
+
+          <nav class="shop-list" id="shop-list" aria-labelledby="shop-h">
+            <h2 class="shop-h" id="shop-h">Shopping list</h2>
+            <ol class="shop-rows" id="shop-rows"></ol>
+          </nav>
 
           <div class="suspicion" id="suspicion" data-level="calm" role="meter" aria-labelledby="susp-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <svg class="mug" viewBox="0 0 150 128" aria-hidden="true">
@@ -105,6 +111,7 @@
             <button type="button" class="card-btn has-art" id="closet-btn">
               <span class="card-title">Supply closet <kbd>D</kbd></span>
               <small id="closet-sub">Dale from Facilities. Don’t ask.</small>
+              <b class="card-badge" id="closet-badge" hidden></b>
             </button>
             <button type="button" class="card-btn has-art" id="order-btn">
               <span class="card-title"><span id="order-title">Order supplies</span> <kbd>O</kbd></span>
@@ -146,13 +153,14 @@
               <span class="key-word">Flick</span>
               <span class="key-hint">hold to stretch</span>
             </button>
-            <button type="button" class="weapon-line" id="weapon-btn" title="Switch weapons (1–4)"><span id="weapon-line">Finger Flick: 1 damage, 1 band per shot</span><span class="weapon-next" id="weapon-next" hidden>Switch</span></button>
+            <div class="rack" id="rack" role="group" aria-label="Your weapons: press 1 to 4 to switch"></div>
+            <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
             </div>
             <div class="mini-actions">
               <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
               <button type="button" class="mini-btn mini-pc" data-mini="work">Computer</button>
               <button type="button" class="mini-btn" data-mini="order">Order</button>
-              <button type="button" class="mini-btn" data-mini="closet">Closet</button>
+              <button type="button" class="mini-btn" data-mini="closet">Closet<b class="mini-badge" id="mini-closet-badge" hidden></b></button>
             </div>
           </div>
           <p class="coach" id="coach"></p>
@@ -171,7 +179,6 @@
               <button type="button" class="icon" data-app="sheet"><span class="ico ico-sheet"></span><span class="icon-name">Spreadsheet</span></button>
               <button type="button" class="icon" data-app="expenses"><span class="ico ico-expenses"></span><span class="icon-name">Expenses</span><b class="badge" id="badge-expenses" hidden></b></button>
               <button type="button" class="icon" data-app="chat"><span class="ico ico-chat"></span><span class="icon-name">Messenger</span><b class="badge" id="badge-chat" hidden></b></button>
-              <button type="button" class="icon" data-app="procure"><span class="ico ico-procure"></span><span class="icon-name">Procurement</span></button>
               <button type="button" class="icon" data-app="catalog"><span class="ico ico-catalog"></span><span class="icon-name">Supply Catalog</span></button>
               <button type="button" class="icon" data-app="org"><span class="ico ico-org"></span><span class="icon-name">Org Chart</span></button>
             </div>
@@ -204,7 +211,6 @@
                 </div>
                 <div class="app app-expenses" data-app="expenses" hidden><div id="expenses-body"></div></div>
                 <div class="app app-chat" data-app="chat" hidden><ol class="chat-log" id="chat-log"></ol></div>
-                <div class="app app-procure" data-app="procure" hidden><div class="pane" id="pane-reqs"></div></div>
                 <div class="app app-catalog" data-app="catalog" hidden><div id="catalog-body"></div></div>
                 <div class="app app-org" data-app="org" hidden>
                   <div class="pane" id="pane-team"></div>
@@ -227,7 +233,8 @@
           <footer class="taskbar">
             <button type="button" class="start-btn" id="back-btn">◀ Back to the war <kbd>Esc</kbd></button>
             <span class="task-open" id="task-open"></span>
-            <span class="tray"><span id="tray-cool"></span><span class="tray-clock" id="tray-clock">9:00 AM</span></span>
+            <span class="tray-combo" id="tray-combo" hidden><b id="combo-x">Combo ×1.25</b><i><span id="combo-fill"></span></i></span>
+            <span class="tray"><span id="tray-cool"></span><span class="tray-pay" id="tray-pay">$0</span><span class="tray-clock" id="tray-clock">9:00 AM</span></span>
           </footer>
         </div>
       </div>
@@ -310,7 +317,7 @@
             <button type="button" class="paper-btn" id="reset-no"><span>Keep my game</span></button>
           </div>
         </section>
-        <p class="set-keys">Keys: <kbd>F</kbd> flick, <kbd>Esc</kbd> or <kbd>B</kbd> your computer, <kbd>W</kbd> answer the phone, <kbd>S</kbd> scrounge your drawer, <kbd>O</kbd> order supplies (or open the box), <kbd>1</kbd>–<kbd>9</kbd> replies and extensions.</p>
+        <p class="set-keys">Keys: <kbd>F</kbd> flick, <kbd>Esc</kbd> or <kbd>B</kbd> your computer, <kbd>W</kbd> answer the phone, <kbd>S</kbd> scrounge your drawer, <kbd>O</kbd> order supplies (or open the box), <kbd>D</kbd> Dale’s supply closet, <kbd>1</kbd>–<kbd>4</kbd> switch weapons (at your computer: replies and extensions).</p>
         <form method="dialog"><button class="paper-btn paper-btn-strong">Close</button></form>
       </dialog>
     </div>

@@ -1,8 +1,9 @@
-// The supply closet: Dale from Facilities and the office black market.
+// The supply closet: Dale from Facilities and the office black market, and the only shop.
 //
 // Dale stands in his closet with rubber band guns hanging on the pegboard and his band
-// "upgrades" on (and under) the folding table. Tap something and he tells you about it;
-// the tag beside the closet has the price. He also gets confiscated weapons back out of
+// "upgrades" on (and under) the folding table. Office upgrades are on the Procurement
+// clipboard by the door: forms his cousin pre-stamps. Tap something and he tells you
+// about it; the panel beside the closet has the price. He also gets confiscated weapons back out of
 // Mr. Feeney's drawer, and every few minutes he leans over your cubicle wall ("Psst")
 // with a deal for 30 seconds. The closet closes the moment Mr. Feeney's footsteps start.
 
@@ -12,16 +13,7 @@ import daleTalk from '../assets/art/dale-talk.webp';
 import daleOpen from '../assets/art/dale-open.webp';
 import daleHead from '../assets/art/dale-head.webp';
 import dalePsst from '../assets/art/dale-psst.webp';
-import gunRuler from '../assets/art/gun-ruler.webp';
-import gunClothespin from '../assets/art/gun-clothespin.webp';
-import gunRepeater from '../assets/art/gun-repeater.webp';
-import iconSilent from '../assets/art/icon-silent.webp';
-import iconRummage from '../assets/art/icon-rummage.webp';
-import iconTraining from '../assets/art/icon-training.webp';
-import iconCalendar from '../assets/art/icon-calendar.webp';
-import iconKey from '../assets/art/icon-closet.webp';
-import iconThick from '../assets/art/icon-thick.webp';
-import iconWaxed from '../assets/art/icon-waxed.webp';
+import clipboardArt from '../assets/art/clipboard.webp';
 
 import { CLOSET_ART } from './portrait-art';
 import { DALE, TARGETS, UPGRADES, WEAPONS, type UpgradeId, type WeaponId } from '../sim/content';
@@ -41,17 +33,7 @@ import {
 import { has, isConfiscated, mods } from '../sim/mods';
 import type { GameState } from '../sim/state';
 import type { Sound } from './sound';
-
-const GUN_ART: Partial<Record<WeaponId, string>> = { ruler: gunRuler, clothespin: gunClothespin, repeater: gunRepeater };
-const ICON_ART: Partial<Record<UpgradeId, string>> = {
-  rummage: iconRummage,
-  waxed: iconWaxed,
-  silent: iconSilent,
-  closet: iconKey,
-  training: iconTraining,
-  thick: iconThick,
-  calendar: iconCalendar,
-};
+import { GUN_ART, ICON_ART } from './goods-art';
 
 /** What Dale says when you pick something up. */
 const PITCH: Record<string, string> = {
@@ -66,6 +48,7 @@ const PITCH: Record<string, string> = {
   thick: 'Double-thick. Leaves a mark.',
   calendar: 'Feeney’s got a lot of meetings now. He doesn’t know why.',
   lost: 'Feeney’s drawer has a lock. Had a lock.',
+  forms: 'Procurement forms. Pre-stamped. My cousin’s in Procurement.',
 };
 
 const LINES = {
@@ -120,7 +103,11 @@ function shortName(targetId: string) {
   return names[targetId] ?? TARGETS.find((t) => t.id === targetId)!.name.split(' ')[0];
 }
 
-type ItemKey = `w:${WeaponId}` | `u:${UpgradeId}` | 'lost';
+type ItemKey = `w:${WeaponId}` | `u:${UpgradeId}` | 'lost' | 'forms';
+
+/** Where the Procurement clipboard leans: [centre x, bottom, width], as fractions of the room. */
+const FORMS_SPOT: [number, number, number] = [0.9, 0.95, 0.085];
+const isOffice = (id: string) => UPGRADES.some((u) => u.id === id && u.seller !== 'dale');
 
 export interface ClosetHooks {
   say(text: string): void;
@@ -139,6 +126,8 @@ export class ClosetView {
   private open = false;
   private key = '';
   private selected: ItemKey | null = null;
+  /** The office upgrade to point at on the clipboard (from the shopping list). */
+  private formsFocus: UpgradeId | null = null;
   private talkUntil = 0;
   private openUntil = 0;
   private psstShown = false;
@@ -209,16 +198,27 @@ export class ClosetView {
     return this.open;
   }
 
-  show() {
+  /** Open the closet; `focus` ('w:ruler', 'u:chair') picks something up straight away. */
+  show(focus?: string) {
     const s = this.get();
-    if (this.open || s.lookBusy) return;
+    if (s.lookBusy) return;
     if (s.walkby.arrivesAt !== null) return this.hooks.say('Not now: Mr. Feeney is coming. Get on your computer (Esc).');
+    const wasOpen = this.open;
     this.open = true;
     this.root.hidden = false;
     this.key = '';
-    this.selected = this.defaultPick(s);
+    this.formsFocus = null;
+    if (focus?.startsWith('u:') && isOffice(focus.slice(2))) {
+      this.selected = 'forms';
+      this.formsFocus = focus.slice(2) as UpgradeId;
+    } else if (focus?.startsWith('w:') || focus?.startsWith('u:')) this.selected = focus as ItemKey;
+    else this.selected = this.defaultPick(s);
+    if (focus && this.selected) {
+      const k = this.selected === 'forms' || this.selected === 'lost' ? this.selected : this.selected.slice(2);
+      this.talk(PITCH[k] ?? pick(LINES.greet));
+    } else this.talk(pick(LINES.greet));
+    if (wasOpen) return;
     this.openUntil = performance.now() + 1800; // he opens his jacket to show you the goods
-    this.talk(pick(LINES.greet));
     this.sound.drawer();
     this.hooks.opened();
     (this.root.querySelector('#closet-back') as HTMLElement).focus();
@@ -256,11 +256,17 @@ export class ClosetView {
       if (!s.ownedWeapons.includes(id) && w.stage <= s.stage && s.salary >= priceOf(s, w.price)) return `w:${id}`;
     }
     for (const u of this.goods(s)) if (!has(s, u.id) && upgradeAvailable(s, u.id) && s.salary >= priceOf(s, u.price)) return `u:${u.id}`;
+    if (this.forms(s).some((u) => !has(s, u.id) && upgradeAvailable(s, u.id) && s.salary >= priceOf(s, u.price))) return 'forms';
     return null;
   }
 
   private goods(s: GameState) {
     return UPGRADES.filter((u) => u.seller === 'dale' && u.stage <= s.stage + 1);
+  }
+
+  /** Office upgrades: the forms on the Procurement clipboard. */
+  private forms(s: GameState) {
+    return UPGRADES.filter((u) => u.seller !== 'dale' && u.stage <= s.stage + 1);
   }
 
   // ---------------------------------------------------------------- buying
@@ -270,10 +276,13 @@ export class ClosetView {
     const item = t.closest<HTMLButtonElement>('button[data-item]');
     if (item) {
       this.selected = item.dataset.item as ItemKey;
+      this.formsFocus = null;
       this.key = '';
-      const k = this.selected === 'lost' ? 'lost' : this.selected.slice(2);
+      const k = this.selected === 'lost' || this.selected === 'forms' ? this.selected : this.selected.slice(2);
       this.talk(PITCH[k] ?? pick(LINES.greet));
       this.sound.grab();
+      // On a phone the details are under the picture: bring them into view.
+      if (window.matchMedia?.('(max-width: 900px)').matches) requestAnimationFrame(() => this.detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
       return;
     }
     const b = t.closest<HTMLButtonElement>('.closet-detail button');
@@ -332,6 +341,12 @@ export class ClosetView {
   private sticker(s: GameState, key: ItemKey): { text: string; cls: string } {
     const deal = s.dale.deal;
     if (key === 'lost') return { text: money(buyBackPrice(s)), cls: 'lost' };
+    if (key === 'forms') {
+      const open = this.forms(s).filter((u) => !has(s, u.id) && upgradeAvailable(s, u.id));
+      const can = open.filter((u) => s.salary >= priceOf(s, u.price)).length;
+      if (can) return { text: `${can} you can afford`, cls: 'afford' };
+      return open.length ? { text: `${open.length} form${open.length > 1 ? 's' : ''}`, cls: '' } : { text: 'Office upgrades', cls: 'locked' };
+    }
     if (key.startsWith('w:')) {
       const w = WEAPONS.find((x) => x.id === key.slice(2))!;
       if (isConfiscated(s, w.id)) return { text: 'Feeney has it', cls: 'gone' };
@@ -374,6 +389,14 @@ export class ClosetView {
         style="left:${pct(PEG[0] + (PEG[2] - PEG[0]) * 0.64)};top:${pct(PEG[1] + (PEG[3] - PEG[1]) * 0.58)};width:${pct(0.12)}" aria-label="Lost and Found: your ${esc(w.name)}, ${esc(st.text)}">
         <b>Lost &amp; Found</b><span class="sticker lost">${esc(st.text)}</span></button>`);
     }
+    {
+      const [cx, base, wd] = FORMS_SPOT;
+      const st = this.sticker(s, 'forms');
+      const hFrac = (wd * CLOSET_ART.clipboard.h) / CLOSET_ART.clipboard.w * AR;
+      html.push(`<button type="button" class="closet-item good forms ${st.cls}${this.selected === 'forms' ? ' selected' : ''}" data-item="forms"
+        style="left:${pct(cx - wd / 2)};top:${pct(base - hFrac)};width:${pct(wd)};height:${pct(hFrac)}" aria-label="Procurement forms (office upgrades): ${esc(st.text)}">
+        <img src="${clipboardArt}" alt="" draggable="false"><span class="sticker">${esc(st.text)}</span></button>`);
+    }
     this.goods(s).forEach((u, i) => {
       const [cx, base, wd] = goodsSpot(i);
       const key: ItemKey = `u:${u.id}`;
@@ -393,9 +416,10 @@ export class ClosetView {
     const dealBtn = (on: boolean) =>
       on && deal ? `<button type="button" class="buy deal" data-deal="1" data-price="${deal.price}">${deal.early ? 'Early' : 'Deal'}: ${money(deal.price)}</button>` : '';
     if (!key) {
-      this.detail.innerHTML = `<h3>Dale’s</h3><p>Weapons on the pegboard, band upgrades on the table. Tap something to take a look.</p><p class="hint">No refunds. No receipts. No questions.</p>`;
+      this.detail.innerHTML = `<h3>Dale’s</h3><p>Weapons on the pegboard, band upgrades on the table, office upgrades on the clipboard by the door. Tap something to take a look.</p><p class="hint">No refunds. No receipts. No questions.</p>`;
       return;
     }
+    if (key === 'forms') return this.buildForms(s);
     if (key === 'lost') {
       const c = s.hr.confiscated;
       if (!c) {
@@ -435,6 +459,30 @@ export class ClosetView {
     this.detail.innerHTML = `<h3>${esc(u.name)}</h3><p>${esc(u.effect)}</p><div class="detail-act">${act}</div>`;
   }
 
+  /** The Procurement clipboard: every office upgrade, pre-stamped, with its own Buy button. */
+  private buildForms(s: GameState) {
+    const rows: string[] = [];
+    const done: string[] = [];
+    for (const u of this.forms(s)) {
+      if (has(s, u.id)) {
+        done.push(esc(u.name));
+        continue;
+      }
+      const price = priceOf(s, u.price);
+      const avail = upgradeAvailable(s, u.id);
+      const act = avail
+        ? `<button type="button" class="buy" data-upgrade="${u.id}" data-price="${price}">${money(price)}</button>`
+        : `<span class="tag-note">${esc(this.sticker(s, `u:${u.id}`).text)}</span>`;
+      rows.push(`<li class="form-row${avail ? '' : ' locked'}${this.formsFocus === u.id ? ' focus' : ''}" data-form="${u.id}">
+        <img src="${ICON_ART[u.id]}" alt="" draggable="false"><div><b>${esc(u.name)}</b><span>${esc(u.effect)}</span></div>${act}</li>`);
+    }
+    this.detail.innerHTML = `<h3>Procurement forms</h3><p>Office upgrades. Dale’s cousin pre-stamps them, so nobody asks what they’re for.</p>
+      ${rows.length ? `<ul class="forms-list">${rows.join('')}</ul>` : '<p class="hint">Every form is filed. Procurement is starting to wonder.</p>'}
+      ${done.length ? `<p class="forms-done"><b>Approved:</b> ${done.join(', ')}</p>` : ''}`;
+    const focus = this.formsFocus && this.detail.querySelector('.form-row.focus');
+    if (focus) requestAnimationFrame(() => focus.scrollIntoView({ block: 'nearest' }));
+  }
+
   render() {
     const s = this.get();
     this.renderPsst(s);
@@ -445,6 +493,7 @@ export class ClosetView {
     const deal = s.dale.deal;
     const key = [
       this.selected,
+      this.formsFocus,
       s.stage,
       s.targetIndex,
       s.weapon,

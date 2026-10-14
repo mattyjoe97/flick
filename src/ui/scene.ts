@@ -3,6 +3,7 @@
 // their cubicle wall with whatever they're hiding behind, and your allies at
 // the edges. Rubber bands fly as little spinning loops.
 
+import { COWORKERS } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
@@ -42,6 +43,8 @@ function targetSlots(n: number): Slot[] {
   if (n === 2) return [{ x: 232, scale: 1.3 }, { x: 412, scale: 1.3 }];
   return [{ x: 196, scale: 1.12 }, { x: 333, scale: 1.12 }, { x: 470, scale: 1.12 }];
 }
+
+const COWORKER_NAMES: Record<string, string> = Object.fromEntries(COWORKERS.map((c) => [c.id, c.name]));
 
 const ALLY_SLOTS = [
   { x: 4, y: 270, back: false },
@@ -177,7 +180,7 @@ export class Scene {
         <rect x="150" y="${WALL_TOP + 4}" width="500" height="${H - WALL_TOP}" fill="url(#fabric)"/>
         <rect x="146" y="${WALL_TOP - 4}" width="508" height="10" rx="2" fill="#c9ced4"/>
         <g id="allies"></g>
-        <rect id="dusk" width="${W}" height="${H}" fill="#ff9a3c" opacity="0" style="mix-blend-mode:multiply"/>
+        <rect id="dusk" width="${W}" height="${H}" fill="#ff9a3c" opacity="0" pointer-events="none" style="mix-blend-mode:multiply"/>
       </svg>
       <div class="scene-fx" id="scene-fx"></div>
       <div class="bubble" id="bubble" hidden></div>
@@ -430,7 +433,7 @@ export class Scene {
       this.allyKey = key;
       const drawAlly = (a: { id: string }, i: number) => {
         const sl = ALLY_SLOTS[i % ALLY_SLOTS.length];
-        return `<g class="ally" data-ally="${a.id}"><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${portrait(a.id)}</g></g>`;
+        return `<g class="ally" data-ally="${a.id}"><title>${COWORKER_NAMES[a.id] ?? ''}: click to change role</title><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${portrait(a.id)}</g></g>`;
       };
       // Back row first so the front row overlaps it.
       const order = s.allies.map((a, i) => ({ a, i })).sort((p, q) => Number(ALLY_SLOTS[q.i % 6].back) - Number(ALLY_SLOTS[p.i % 6].back));
