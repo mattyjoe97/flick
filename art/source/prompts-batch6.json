@@ -1,0 +1,591 @@
+{
+  "game": "FLICK",
+  "batch": 6,
+  "mode": "built-in ImageGen",
+  "finishing": "Scripted finishing was authorized by the user. The final pixels include exact resizing, flat palette cleanup, clean alpha, registered pairs, and exact nine-slice geometry.",
+  "assets": [
+    {
+      "file": "109_monitor_bezel.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA square canvas. Straight front view, symmetrical chunky beige 1990s CRT monitor FRONT FRAME ONLY. It is a NINE-SLICE game UI frame. Full canvas bounds are the outer frame, except rounded outer corners radius70. Warm beige #D9D2C0 plastic frame is EXACTLY150pixels thick on ALL FOUR sides. Transparent rounded rectangular hole from (150,150) to(874,874), inner radius40. Dark thin #3A3F45 recessed lip around opening, one darker beige shade along inner and lower edges, small upper-left flat highlight. Corner rounding stays inside each200x200corner square. All four straight strips between corner squares must be COMPLETELY UNIFORM along their length for repeating/stretching. No marks, vents, controls, buttons, stand, monitor back, screws or decorations. No perspective. No margin except transparent outercorner cutouts. The entire middle is fully transparent.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA square canvas. Straight front view, symmetrical chunky beige 1990s CRT monitor FRONT FRAME ONLY. It is a NINE-SLICE game UI frame. Full canvas bounds are the outer frame, except rounded outer corners radius70. Warm beige #D9D2C0 plastic frame is EXACTLY150pixels thick on ALL FOUR sides. Transparent rounded rectangular hole from (150,150) to(874,874), inner radius40. Dark thin #3A3F45 recessed lip around opening, one darker beige shade along inner and lower edges, small upper-left flat highlight. Corner rounding stays inside each200x200corner square. All four straight strips between corner squares must be COMPLETELY UNIFORM along their length for repeating/stretching. No marks, vents, controls, buttons, stand, monitor back, screws or decorations. No perspective. No margin except transparent outercorner cutouts. The entire middle is fully transparent.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "110_monitor_badge.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA very wide 512x160 canvas. One small straight-front CRT monitor control strip: slightly recessed darker beige rounded rectangular inset panel. Left to right inside it: a small BLANK lighter beige brand plate, two small round knobs, a round power button, a tiny flat bright green indicator light beside the power button. Absolutely NO power symbol or glyph anywhere. Simple flat lit dot, no glow gradient. Whole strip fits canvas width with a little transparent padding all sides. Horizontal, no perspective. Outline proportional about5px.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA very wide 512x160 canvas. One small straight-front CRT monitor control strip: slightly recessed darker beige rounded rectangular inset panel. Left to right inside it: a small BLANK lighter beige brand plate, two small round knobs, a round power button, a tiny flat bright green indicator light beside the power button. Absolutely NO power symbol or glyph anywhere. Simple flat lit dot, no glow gradient. Whole strip fits canvas width with a little transparent padding all sides. Horizontal, no perspective. Outline proportional about5px.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "111_keyboard.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA extra-wide 1600x520 canvas. Beige1990s officekeyboard lyingondesktop, front at gentle high angle matching boxreference. Wide horizontal keyboard with rows of chunky BLANK keys, no letters or symbols on anykey; darker beige Enter,spacebar,functionrow. Include recognizablemainkeygrid,arrownavigationcluster andnumericpad allBLANK. A shortcoiledcord leaves the TOPedge of keyboard toward topofcanvas. One smallcoffee-ringstain onframe only, no extra stains. Entire keyboardandcord visible with littlepaddingfillswidth. No mouse, no desk, no props.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA extra-wide 1600x520 canvas. Beige1990s officekeyboard lyingondesktop, front at gentle high angle matching boxreference. Wide horizontal keyboard with rows of chunky BLANK keys, no letters or symbols on anykey; darker beige Enter,spacebar,functionrow. Include recognizablemainkeygrid,arrownavigationcluster andnumericpad allBLANK. A shortcoiledcord leaves the TOPedge of keyboard toward topofcanvas. One smallcoffee-ringstain onframe only, no extra stains. Entire keyboardandcord visible with littlepaddingfillswidth. No mouse, no desk, no props.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "112_mouse.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA square. Matching beige1990s BALLmouse withtwo blankbuttons and nocenterwheel, ononesmallSQUARE plaindark-blue mousepad. Gentlehighangle matchingboxreference, slightperspectiveallows topofmouse andpadvisible. Mousecord curlsfrommouse towardupperedge. Entirepadandcordinsidecanvasclear margin. No print onpad,noicons ormarksonmouse. Groupcentered~84%extent. No desktop.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA square. Matching beige1990s BALLmouse withtwo blankbuttons and nocenterwheel, ononesmallSQUARE plaindark-blue mousepad. Gentlehighangle matchingboxreference, slightperspectiveallows topofmouse andpadvisible. Mousecord curlsfrommouse towardupperedge. Entirepadandcordinsidecanvasclear margin. No print onpad,noicons ormarksonmouse. Groupcentered~84%extent. No desktop.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "113_desk_phone.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA landscape768x640. One beige1990s officedeskphone withcurlycord andhandsetRESTINGONTOPofphone. Matchinggentlehighangleboxreference. Grid of chunky BLANK keypadbuttons (no digits/symbols), onesmallREDmessagelight, smallBLANKgreydisplay. Handset MUST rest in its cradle on top. Entirephonecordfitinside withclear margin, centered~86%canvas. No desk or otherprops.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. Transparent RGBA landscape768x640. One beige1990s officedeskphone withcurlycord andhandsetRESTINGONTOPofphone. Matchinggentlehighangleboxreference. Grid of chunky BLANK keypadbuttons (no digits/symbols), onesmallREDmessagelight, smallBLANKgreydisplay. Handset MUST rest in its cradle on top. Entirephonecordfitinside withclear margin, centered~86%canvas. No desk or otherprops.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "114_wallpaper_corporate.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000wallpaper. Flat uniformdeeptealfield #2A6F8F withlargeFAINTabstractcorporateswooshemblem: exactly3overlappingcurvedbands inslightlylighterteal, centeredRIGHT ofcanvas. Originalabstractshapesnobrandlogo. Verycalm minimalist. LEFTQUARTER x0-400 isplainunclutteredteal fordesktopicons, bottom60pxcalmsolid. No outlinesneededforfaintabstractbands. No textureorgradient.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000wallpaper. Flat uniformdeeptealfield #2A6F8F withlargeFAINTabstractcorporateswooshemblem: exactly3overlappingcurvedbands inslightlylighterteal, centeredRIGHT ofcanvas. Originalabstractshapesnobrandlogo. Verycalm minimalist. LEFTQUARTER x0-400 isplainunclutteredteal fordesktopicons, bottom60pxcalmsolid. No outlinesneededforfaintabstractbands. No textureorgradient.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "115_wallpaper_beach.png",
+      "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000cartoonwallpaper. Cheerful slightlytooperfecttropicalbeach, stockvacationimagecompositionrenderedinFLICKflatvectorstyle. Turquoisewater flatwavescreamysand, SINGLEleaningpalmtreeonRIGHT, stripedbeachchaironRIGHT, puffyclouds, lowwarmSun. LEFTQUARTERcalmsimpleclearhorizon/openwater andsand fordesktopicons, noobjectsleft. BOTTOM60pxcalmsandnobusy detail. Nopeople,no text. Allsolidfills flatlayeredsilhouettes, noairbrushorgradients.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000cartoonwallpaper. Cheerful slightlytooperfecttropicalbeach, stockvacationimagecompositionrenderedinFLICKflatvectorstyle. Turquoisewater flatwavescreamysand, SINGLEleaningpalmtreeonRIGHT, stripedbeachchaironRIGHT, puffyclouds, lowwarmSun. LEFTQUARTERcalmsimpleclearhorizon/openwater andsand fordesktopicons, noobjectsleft. BOTTOM60pxcalmsandnobusy detail. Nopeople,no text. Allsolidfills flatlayeredsilhouettes, noairbrushorgradients.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "116_wallpaper_teamwork.png",
+      "prompt": "Use case: style-transfer. Edit the supplied rowing-lake wallpaper. KEEP the composition: a small distant rowing crew and long boat on the RIGHT, mountain silhouettes behind, low sun, wide serene lake, quiet LEFT QUARTER for desktop icons. Convert it to a VERY SIMPLE FLAT VECTOR CARTOON like an office-game background: about 12 solid colors total, crisp hard boundaries, bold dark-brown outlines around boat and rowers, no thin scenic detail. Sky is ONE UNIFORM warm peach fill. Lake is ONE UNIFORM muted blue fill with only 3 or 4 flat horizontal reflection shapes on the right near boat. Mountains are 3 layers of smooth solid muted shapes with no tree texture. Mist is only 2 simple solid pale strips. No gradients, no airbrush, no noise, no photorealistic dawn lighting, no painterly atmosphere, no texture. Keep bottom60px absolutely uniform calm lake. Adult figures very small, no faces in focus. 1600x1000 landscape fully opaque edge-to-edge. No text, lettering, numbers, symbols, logos or frame.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000cartoonwallpaper. Classicmotivationalrowingimage WITHOUTWORDS. Longslenderrowingboat carrying crewofSMALLDISTANTadultfigures oncalm mistylakeatdawn, serene still. BoatmiddleRIGHT andlowmountainsbehind, softmistrepresentedbyfewFLATSOLIDcolorbands NOTgradients. Faces tinyabstractnotinfocus. LEFTQUARTERemptyquietlakeandskyforicons;bottom60pxplaincalmwater. Warmmuteddawnpalette. Nolettering,borderorposterframe.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        },
+        {
+          "prompt": "Use case: style-transfer. Edit the supplied rowing-lake wallpaper. KEEP the composition: a small distant rowing crew and long boat on the RIGHT, mountain silhouettes behind, low sun, wide serene lake, quiet LEFT QUARTER for desktop icons. Convert it to a VERY SIMPLE FLAT VECTOR CARTOON like an office-game background: about 12 solid colors total, crisp hard boundaries, bold dark-brown outlines around boat and rowers, no thin scenic detail. Sky is ONE UNIFORM warm peach fill. Lake is ONE UNIFORM muted blue fill with only 3 or 4 flat horizontal reflection shapes on the right near boat. Mountains are 3 layers of smooth solid muted shapes with no tree texture. Mist is only 2 simple solid pale strips. No gradients, no airbrush, no noise, no photorealistic dawn lighting, no painterly atmosphere, no texture. Keep bottom60px absolutely uniform calm lake. Adult figures very small, no faces in focus. 1600x1000 landscape fully opaque edge-to-edge. No text, lettering, numbers, symbols, logos or frame.",
+          "method": "built-in ImageGen edit",
+          "source_record": "computer/revision-prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "117_wallpaper_skyline.png",
+      "prompt": "Use case: precise-object-edit. Edit this supplied FLICK night skyline wallpaper. Retain distant nighttime city and tall buildings mostly RIGHT, warm simple yellow window rectangles, moon and a few stars. Remove the large foreground window mullions and brown border entirely so there is an uninterrupted city view. Instead add ONLY TWO very faint flat bluish window-reflection strips at the top corners, terminating within the top quarter of the canvas, with no central or bottom window bar. Simplify to clean flat 2D vector cartoon: about 10 solid color fills, crisp boundaries, dark-brown #332A24 outlines on buildings. Sky must be one uniform deep navy color. No gradients, airbrush shading, speckled texture, glows, noise, realism or 3D rendering. Left quarter remains calm, mostly empty sky above low distant silhouettes. Bottom60pixels one uninterrupted flat dark foreground silhouette, no windows or frame. Opaque edge-to-edge1600x1000 landscape. No letters, numbers, text, people, logos or borders.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Asset for FLICK 2D browser game. Reference images are STYLE AND PALETTE references only. Match clean polished flat 2D vector cartoon with bold even dark-brown #332A24 outlines about 12px on 1024px canvas. Solid warm muted color fills, one discrete flat cel-shade and one small flat highlight per material, upper-left light. Crisp simple shapes. NO gradients, noise, mottling, texture, photorealism, 3D rendering, cast shadows, brands, logos, text, letters, numbers or watermarks. FullyOPAQUE edge-to-edge1600x1000cartoonwallpaper. ViewfromcornerofficeATNIGHT: distantcityskylinewithlitwindowrectangles, fewstarsandsmallmoon, FAINTreflectionofwindowframeacrossUPPERCORNERS. Feelslikecareersuccess. Navy/tealnightwithmutedwarmyellowlights. Noofficefurnitureorforegroundobjects. LEFTQUARTERcalmsimpleropennightskyanddistantlowsilhouettes foricons;mosttallbuildingscenter/right. BOTTOM60pxplaincontinuousdarkcitysilhouette. Flatcolorsonlynobloom, gradientsorrealism. Nofocusedfaces.",
+          "method": "built-in ImageGen",
+          "source_record": "computer/prompts.json"
+        },
+        {
+          "prompt": "Use case: precise-object-edit. Edit this supplied FLICK night skyline wallpaper. Retain distant nighttime city and tall buildings mostly RIGHT, warm simple yellow window rectangles, moon and a few stars. Remove the large foreground window mullions and brown border entirely so there is an uninterrupted city view. Instead add ONLY TWO very faint flat bluish window-reflection strips at the top corners, terminating within the top quarter of the canvas, with no central or bottom window bar. Simplify to clean flat 2D vector cartoon: about 10 solid color fills, crisp boundaries, dark-brown #332A24 outlines on buildings. Sky must be one uniform deep navy color. No gradients, airbrush shading, speckled texture, glows, noise, realism or 3D rendering. Left quarter remains calm, mostly empty sky above low distant silhouettes. Bottom60pixels one uninterrupted flat dark foreground silhouette, no windows or frame. Opaque edge-to-edge1600x1000 landscape. No letters, numbers, text, people, logos or borders.",
+          "method": "built-in ImageGen edit",
+          "source_record": "computer/revision-prompts.json"
+        }
+      ]
+    },
+    {
+      "file": "118_icon_app_mail.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white envelope, slightly open, with one small red flag-shaped tab poking out from inside. Clear simple paper folds, friendly compact silhouette. Blank, no lettering.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white envelope, slightly open, with one small red flag-shaped tab poking out from inside. Clear simple paper folds, friendly compact silhouette. Blank, no lettering.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "119_icon_app_phone.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One beige telephone handset resting diagonally over a small beige telephone keypad base. The keypad has simple blank rectangular buttons, no digits or lettering. No cord, no extra office objects.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One beige telephone handset resting diagonally over a small beige telephone keypad base. The keypad has simple blank rectangular buttons, no digits or lettering. No cord, no extra office objects.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "120_icon_app_sheet.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One simple spreadsheet page with a muted green header strip, a pale rectangular grid of empty cells, and exactly one yellow highlighted cell. Blank header and cells, absolutely no text, letters or numbers. Slight icon tilt, simple folded paper corner optional.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One simple spreadsheet page with a muted green header strip, a pale rectangular grid of empty cells, and exactly one yellow highlighted cell. Blank header and cells, absolutely no text, letters or numbers. Slight icon tilt, simple folded paper corner optional.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "121_icon_app_expenses.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white receipt with zigzag bottom edge and a round muted-green checkmark badge overlapping one lower corner. Only a few short flat grey horizontal strokes suggest receipt entries, no readable text/glyphs/digits. The checkmark is a simple off-white tick.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white receipt with zigzag bottom edge and a round muted-green checkmark badge overlapping one lower corner. Only a few short flat grey horizontal strokes suggest receipt entries, no readable text/glyphs/digits. The checkmark is a simple off-white tick.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "122_icon_app_messenger.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: Two overlapping speech bubbles: rear muted blue bubble and front warm muted yellow bubble. Front bubble has exactly three dark-brown circular dots. Original generic design, no brand symbol. Compact friendly shapes, no other text.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: Two overlapping speech bubbles: rear muted blue bubble and front warm muted yellow bubble. Front bubble has exactly three dark-brown circular dots. Original generic design, no brand symbol. Compact friendly shapes, no other text.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "123_icon_app_catalog.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One small open light-brown cardboard box, with a few ordinary tan #CDA66D rubber bands spilling over its front rim. Box flaps open, closed oval band loops clearly visible. Clean geometric cardboard faces, no markings or packing labels.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One small open light-brown cardboard box, with a few ordinary tan #CDA66D rubber bands spilling over its front rim. Box flaps open, closed oval band loops clearly visible. Clean geometric cardboard faces, no markings or packing labels.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "124_icon_app_org.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One organizational chart symbol: exactly one dark navy-blue rectangular box at the top, linked by simple dark-brown connector lines to exactly three off-white rectangular boxes beneath in a single row. The boxes are blank, no faces or icons or text. Centered compact balanced arrangement.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One organizational chart symbol: exactly one dark navy-blue rectangular box at the top, linked by simple dark-brown connector lines to exactly three off-white rectangular boxes beneath in a single row. The boxes are blank, no faces or icons or text. Centered compact balanced arrangement.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "125_icon_app_staffing.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One small desktop Rolodex-style rotating card file, with a few pale cream index cards fanned in its dark muted navy base. A single blank off-white name badge clipped to the front. No words, letters or numbers on the cards or badge. Three-quarter icon view.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One small desktop Rolodex-style rotating card file, with a few pale cream index cards fanned in its dark muted navy base. A single blank off-white name badge clipped to the front. No words, letters or numbers on the cards or badge. Three-quarter icon view.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "126_icon_recycle_empty.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One empty pale grey-green mesh office wastebasket. Simple tapered cylindrical basket with an oval open rim, gentle three-quarter/top view, sparse clean diagonal mesh lattice and clearly EMPTY dark interior. Basket fully visible. The empty basket is centered horizontally, its base near 87% canvas height and its rim near 29% canvas height, leaving extra transparent air above for a later overflowing-full variant. No rubbish and no bands.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One empty pale grey-green mesh office wastebasket. Simple tapered cylindrical basket with an oval open rim, gentle three-quarter/top view, sparse clean diagonal mesh lattice and clearly EMPTY dark interior. Basket fully visible. The empty basket is centered horizontally, its base near 87% canvas height and its rim near 29% canvas height, leaving extra transparent air above for a later overflowing-full variant. No rubbish and no bands.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "127_icon_recycle_full.png",
+      "prompt": "Precise object edit. The supplied empty wastebasket is the EDIT TARGET. Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: EDIT SAME EMPTY BASKET to overflowing full: add several crumpled off-white paper balls protruding above the rim and ONE ordinary tan #CDA66D rubber band draped over the front rim. Keep the empty basket's body, shape, mesh, base, outline, position, size and all pixels outside the contents and small band/rim area identical. The background remains transparent. The paper balls use simple planar folds, no writing or texture. Full object still inside canvas. Pixel registration is crucial: keep the basket in the exact same position on the exact same square canvas, preserving its entire lower body and all mesh openings. Do not zoom, shift or resize. Change only the opening, the small area immediately above it, and the single band draped over the front rim. Make the paper heap modest so it still fits with clear top margin.",
+      "generation_history": [
+        {
+          "prompt": "Precise object edit. The supplied empty wastebasket is the EDIT TARGET. Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: EDIT SAME EMPTY BASKET to overflowing full: add several crumpled off-white paper balls protruding above the rim and ONE ordinary tan #CDA66D rubber band draped over the front rim. Keep the empty basket's body, shape, mesh, base, outline, position, size and all pixels outside the contents and small band/rim area identical. The background remains transparent. The paper balls use simple planar folds, no writing or texture. Full object still inside canvas. Pixel registration is crucial: keep the basket in the exact same position on the exact same square canvas, preserving its entire lower body and all mesh openings. Do not zoom, shift or resize. Change only the opening, the small area immediately above it, and the single band draped over the front rim. Make the paper heap modest so it still fits with clear top margin.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:\\Users\\matth\\.codex\\generated_images\\01a135f5-d7c3-7c63-9a12-3825a2f09b45\\exec-28614cb1-be96-4d5a-b67d-38e8a1204b74.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "128_icon_folder.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One manila file folder, slightly open, with a few off-white sheets of paper peeking out. Clear tab, blank folder and paper, simple compact three-quarter icon view. No labels, symbols, letters or numbers.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One manila file folder, slightly open, with a few off-white sheets of paper peeking out. Clear tab, blank folder and paper, simple compact three-quarter icon view. No labels, symbols, letters or numbers.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "129_icon_document.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white document page with a neatly folded top-right corner. Several short light-grey horizontal lines suggest text, but absolutely no glyphs, letters, digits or readable writing. A simple flat page icon with slight playful tilt.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: One off-white document page with a neatly folded top-right corner. Several short light-grey horizontal lines suggest text, but absolutely no glyphs, letters, digits or readable writing. A simple flat page icon with slight playful tilt.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "130_icon_solitaire.png",
+      "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: Exactly three fanned off-white playing cards. The front card contains exactly one large centered muted-red heart pip; rear two cards show only their blank off-white portions. No rank, letters, numbers, tiny corner pips or printed text. Simple flat clean game icon.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. Make ONE FLICK office game desktop icon, square transparent PNG. References are STYLE only, not subjects to copy. Match their clean 2D vector cartoon: bold even dark-brown #332A24 outlines, about 5px at FINAL 256x256 size, flat uniform fills, one simple flat cel shadow and one tiny clean flat highlight per material. Warm muted pine/tan/off-white/beige/navy palette, upper-left light. The subject is centered at 80% canvas extent, entirely in frame with generous clear margins. Design simple, readable at 256px. TRUE transparent alpha background. No cast/drop shadow, ground, background scenery, checkerboard, border, text, letters, numbers, logos, brands or watermark. NO gradients, mottling, noise, flecks, grain, paper texture, 3D rendering or photorealism. Subject: Exactly three fanned off-white playing cards. The front card contains exactly one large centered muted-red heart pip; rear two cards show only their blank off-white portions. No rank, letters, numbers, tiny corner pips or printed text. Simple flat clean game icon.",
+          "method": "built-in imagegen",
+          "source_record": "icons/prompts.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/100_icon_autoreply.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-5/99_icon_organizer.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "131_stapler_fly_a.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE black and grey office stapler in strict SIDE VIEW, nose pointing LEFT, long horizontal body at the middle of a 4:3 landscape canvas; same general construction as reference but BLACK/DARKGREY top, silver staple magazine and dark base. TWO SMALL WHITE FEATHERED wings attached near its back/right hinge, one near-side and one far-side. Both wings raised UP in a clear upstroke, feathered shape compact and readable. No face, hands, legs, speed lines or props. Wings are behind the intact stapler body. Keep body horizontally centered and centered vertically around y55%, maximumwidth80%; clear margins around every part. Target512x384.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE black and grey office stapler in strict SIDE VIEW, nose pointing LEFT, long horizontal body at the middle of a 4:3 landscape canvas; same general construction as reference but BLACK/DARKGREY top, silver staple magazine and dark base. TWO SMALL WHITE FEATHERED wings attached near its back/right hinge, one near-side and one far-side. Both wings raised UP in a clear upstroke, feathered shape compact and readable. No face, hands, legs, speed lines or props. Wings are behind the intact stapler body. Keep body horizontally centered and centered vertically around y55%, maximumwidth80%; clear margins around every part. Target512x384.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/15_stapler.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "132_stapler_fly_b.png",
+      "prompt": "Use case: precise-object-edit. Edit this FLICK flying office-stapler sprite to create the second animation frame. Change ONLY the TWO WHITE FEATHERED WINGS from raised-UP to flapped DOWN, attached at exactly the same rear/right hinge; both wings point downward and slightly backward/right. Keep the complete black-grey stapler body, silver magazine, body pose, body shape, every body color, lighting, profile LEFT orientation, scale and canvas registration EXACTLY UNCHANGED. Wings remain behind the body. Same bold even dark-brown #332A24 outlines, simple flat white wing fill and single pale grey cel shade. Transparent PNG background. No gradients, noise, castshadow, floor, text, symbols, props or extra wings. Landscape4:3, same framing. Leave generous clear margin under lowered wings.",
+      "generation_history": [
+        {
+          "prompt": "Use case: precise-object-edit. Edit this FLICK flying office-stapler sprite to create the second animation frame. Change ONLY the TWO WHITE FEATHERED WINGS from raised-UP to flapped DOWN, attached at exactly the same rear/right hinge; both wings point downward and slightly backward/right. Keep the complete black-grey stapler body, silver magazine, body pose, body shape, every body color, lighting, profile LEFT orientation, scale and canvas registration EXACTLY UNCHANGED. Wings remain behind the body. Same bold even dark-brown #332A24 outlines, simple flat white wing fill and single pale grey cel shade. Transparent PNG background. No gradients, noise, castshadow, floor, text, symbols, props or extra wings. Landscape4:3, same framing. Leave generous clear margin under lowered wings.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:\\Users\\matth\\.codex\\generated_images\\01a135f7-15f7-79d2-ba2f-15c56ac88f13\\exec-aa786549-10a6-4e72-ae5d-418d82be8ce4.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "133_receipt.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE upright long blank thermal-paper receipt. Portrait canvas640x1024, receipt occupies about85%height and60%width, centered. Paper fill exactlyoffwhite#FBF8EF, thin darkbrown outline about6px. TOP and BOTTOM are zigzag torn edges. Very slight natural curl at upper-right and lower-right edge, one narrow flat side shade. The entire broad MIDDLE is completely plain blank uninterrupted offwhite. NO printing, no rulelines, no perforation line acrossmiddle, no grid, no foldline, no text or symbols.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE upright long blank thermal-paper receipt. Portrait canvas640x1024, receipt occupies about85%height and60%width, centered. Paper fill exactlyoffwhite#FBF8EF, thin darkbrown outline about6px. TOP and BOTTOM are zigzag torn edges. Very slight natural curl at upper-right and lower-right edge, one narrow flat side shade. The entire broad MIDDLE is completely plain blank uninterrupted offwhite. NO printing, no rulelines, no perforation line acrossmiddle, no grid, no foldline, no text or symbols.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/15_stapler.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "134_ink_stamp_frame.png",
+      "prompt": "Use case: illustration-story. One transparent PNG ink stamp FRAME ONLY, no words or symbols. Canvas900x320. Solid ink red#C62F28 exclusively, double-line rounded rectangular outline, thick outer line and a thinner parallel inner line, entire double frame tilted counterclockwise exactly4degrees (-4degrees) while centered with clear margin on all sides. Outer frame about780pxwide190pxhigh. A few small simple gaps/worn missing spots in the red ink lines only; overall clear confident stamp. CENTRE COMPLETELY EMPTY AND TRANSPARENT. No fill, no darkbrown orblack outline, no paper, no rectangle panel, no background, no shadows, no gradients, no texture noise, no text, letters, numbers, glyphs, logos. Flat2D clean cartoon ink graphic, smooth edges.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. One transparent PNG ink stamp FRAME ONLY, no words or symbols. Canvas900x320. Solid ink red#C62F28 exclusively, double-line rounded rectangular outline, thick outer line and a thinner parallel inner line, entire double frame tilted counterclockwise exactly4degrees (-4degrees) while centered with clear margin on all sides. Outer frame about780pxwide190pxhigh. A few small simple gaps/worn missing spots in the red ink lines only; overall clear confident stamp. CENTRE COMPLETELY EMPTY AND TRANSPARENT. No fill, no darkbrown orblack outline, no paper, no rectangle panel, no background, no shadows, no gradients, no texture noise, no text, letters, numbers, glyphs, logos. Flat2D clean cartoon ink graphic, smooth edges.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json"
+        }
+      ]
+    },
+    {
+      "file": "135_grade_ring.png",
+      "prompt": "Use case: illustration-story. One transparent PNG red ink grade CIRCLE ONLY, canvas512x512. One large confident hand-drawn circular ring, empty transparent center, ink exclusively red#C62F28. Ring about410pxdiameter centered, generous clear margins. Slightly uneven stroke thickness around12px at512size; one visible short overlapping loop where the stroke starts/ends near upper right, suggesting a quick hand-drawn circle. Simple clean smooth cartoon curve, solid flat red ink. No interior marks, no text, glyphs, numbers, checkmark, logos, black/dark outline, paper, background, castshadow, gradients, texture ornoise.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. One transparent PNG red ink grade CIRCLE ONLY, canvas512x512. One large confident hand-drawn circular ring, empty transparent center, ink exclusively red#C62F28. Ring about410pxdiameter centered, generous clear margins. Slightly uneven stroke thickness around12px at512size; one visible short overlapping loop where the stroke starts/ends near upper right, suggesting a quick hand-drawn circle. Simple clean smooth cartoon curve, solid flat red ink. No interior marks, no text, glyphs, numbers, checkmark, logos, black/dark outline, paper, background, castshadow, gradients, texture ornoise.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json"
+        }
+      ]
+    },
+    {
+      "file": "136_feeney_peer.png",
+      "prompt": "Use case: precise-expression-edit. Edit existing FLICK Feeney portrait only inside facial features. SAME framing/canvas/headscale and EVERY pixel of hair, ears, glassesframe, moustache, silhouette, neck, shirt, tie, torso and transparency stays identical. Exact1024x1280; facecenter512,620; pupilsbaseliney560; chiny760. PEERING expression: raise his brows, narrow his eyes and aim pupils DOWNWARD, purse his lips. Suggest his head leaning slightly forward through expression only while preserving the head silhouette and registration. He is suspiciously peering down at player's activity. Keep straightfrontview. Flat vectorcartoon darkbrown outlines, singlecelshade and smallupperleft highlights, no addedtextures/gradient/text/background.",
+      "generation_history": [
+        {
+          "prompt": "Use case: precise-expression-edit. Edit existing FLICK Feeney portrait only inside facial features. SAME framing/canvas/headscale and EVERY pixel of hair, ears, glassesframe, moustache, silhouette, neck, shirt, tie, torso and transparency stays identical. Exact1024x1280; facecenter512,620; pupilsbaseliney560; chiny760. PEERING expression: raise his brows, narrow his eyes and aim pupils DOWNWARD, purse his lips. Suggest his head leaning slightly forward through expression only while preserving the head silhouette and registration. He is suspiciously peering down at player's activity. Keep straightfrontview. Flat vectorcartoon darkbrown outlines, singlecelshade and smallupperleft highlights, no addedtextures/gradient/text/background.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "137_temp_idle.png",
+      "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nBROOKE, early20s ADULT woman, mediumbrown skin, dark curly hair in a messy HIGHBUN with a yellow pencil visibly passed through it, green cardigan over a white blouse, a completelyBLANK white rectangular VISITORBADGE on a thinlanyard, exactly ONE WIRED earbud in one ear with the thin wire visible down to collar. NO glasses. Idle: bored half-lidded eyes and mouth slightly pushed toone side as she chews gum, no bubble. Relaxed temporary office worker. White badge contains absolutelyNOwriting.",
+      "generation_history": [
+        {
+          "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nBROOKE, early20s ADULT woman, mediumbrown skin, dark curly hair in a messy HIGHBUN with a yellow pencil visibly passed through it, green cardigan over a white blouse, a completelyBLANK white rectangular VISITORBADGE on a thinlanyard, exactly ONE WIRED earbud in one ear with the thin wire visible down to collar. NO glasses. Idle: bored half-lidded eyes and mouth slightly pushed toone side as she chews gum, no bubble. Relaxed temporary office worker. White badge contains absolutelyNOwriting.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png",
+            "outputs/FLICK-batch-4/66_taskforce_a_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "138_temp_happy.png",
+      "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nBROOKE HAPPY: surprised and delighted grin, eyebrows lifted and eyes visibly brighter/wider than her boredidle. Express enthusiastic pleasant surprise. No gum bubble. Preserve her wired earbud and cord, pencil-through-messybun, green cardigan and blankbadge exactly.",
+      "generation_history": [
+        {
+          "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nBROOKE HAPPY: surprised and delighted grin, eyebrows lifted and eyes visibly brighter/wider than her boredidle. Express enthusiastic pleasant surprise. No gum bubble. Preserve her wired earbud and cord, pencil-through-messybun, green cardigan and blankbadge exactly.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/batch6/137_temp_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "139_receptionist_idle.png",
+      "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nLUIS, mid20s ADULT man, lighttan skin, neat SHORT BLACK sideparted hair, a neat THIN BLACK moustache, telephone headset over ONEear with boom microphone curving close to mouth, lightblue POLOshirt with shortcollar and two simplebuttons. NO glasses. Idle: polite restrained customer-service smile, attentive eyes. No handheld phone, no text or logo.",
+      "generation_history": [
+        {
+          "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nLUIS, mid20s ADULT man, lighttan skin, neat SHORT BLACK sideparted hair, a neat THIN BLACK moustache, telephone headset over ONEear with boom microphone curving close to mouth, lightblue POLOshirt with shortcollar and two simplebuttons. NO glasses. Idle: polite restrained customer-service smile, attentive eyes. No handheld phone, no text or logo.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png",
+            "outputs/FLICK-batch-4/66_taskforce_a_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "140_receptionist_happy.png",
+      "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nLUIS HAPPY: HUGE genuinely beaming smile with eyebrows raised and cheerful eyes. Preserve thinmustache and oneeartelephoneheadset with boom microphone absolutely fixed. No newaccessories.",
+      "generation_history": [
+        {
+          "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nLUIS HAPPY: HUGE genuinely beaming smile with eyebrows raised and cheerful eyes. Preserve thinmustache and oneeartelephoneheadset with boom microphone absolutely fixed. No newaccessories.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/batch6/139_receptionist_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "141_bookkeeper_idle.png",
+      "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nHAROLD, VERY OLD thin man, pale skin, bald on top with a short WHITE fringe of hair, HALFMOON reading glasses sitting LOW on his nose (eyes look over them), GREEN translucent accountant VISOR with visibly pale forehead behind itsgreenbrim, a pencil tucked behind oneear, white dressshirt, BLACK SLEEVE GARTERS visibly wrapping both upperarms, black buttoned waistcoat/vest. Idle: deadpan stern expression looking over the lowglasses. Thin mature agedface withfew cleanwrinkles. No full beard or moustache.",
+      "generation_history": [
+        {
+          "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nHAROLD, VERY OLD thin man, pale skin, bald on top with a short WHITE fringe of hair, HALFMOON reading glasses sitting LOW on his nose (eyes look over them), GREEN translucent accountant VISOR with visibly pale forehead behind itsgreenbrim, a pencil tucked behind oneear, white dressshirt, BLACK SLEEVE GARTERS visibly wrapping both upperarms, black buttoned waistcoat/vest. Idle: deadpan stern expression looking over the lowglasses. Thin mature agedface withfew cleanwrinkles. No full beard or moustache.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png",
+            "outputs/FLICK-batch-4/66_taskforce_a_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "142_bookkeeper_happy.png",
+      "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nHAROLD HAPPY: a TINY rare satisfied smile—only a subtle restrained turn at mouthcorners—and crinkled pleased eyes. He remains a veryold deadpan bookkeeper, not laughing. Preserve low halfmoonreadingglasses, greenvisor, eyebrowswhite, whitefringe, pencil, sleeves and blackgarters exactly.",
+      "generation_history": [
+        {
+          "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nHAROLD HAPPY: a TINY rare satisfied smile—only a subtle restrained turn at mouthcorners—and crinkled pleased eyes. He remains a veryold deadpan bookkeeper, not laughing. Preserve low halfmoonreadingglasses, greenvisor, eyebrowswhite, whitefringe, pencil, sleeves and blackgarters exactly.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/batch6/141_bookkeeper_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "143_analyst_idle.png",
+      "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nPRIYA, early30s ADULT woman, brown skin, long BLACK sleek HIGH PONYTAIL rising fromtopback of head and flowing down behind one shoulder, rectangular BLACKglasses, charcoal BLAZER over a BURGUNDYtop, exactly ONE small WIRELESSearbud in oneear (NO wire). Idle: focused analytical expression with ONE eyebrow raised, closed lips. No lanyard, text, logos or extra props.",
+      "generation_history": [
+        {
+          "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nPRIYA, early30s ADULT woman, brown skin, long BLACK sleek HIGH PONYTAIL rising fromtopback of head and flowing down behind one shoulder, rectangular BLACKglasses, charcoal BLAZER over a BURGUNDYtop, exactly ONE small WIRELESSearbud in oneear (NO wire). Idle: focused analytical expression with ONE eyebrow raised, closed lips. No lanyard, text, logos or extra props.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png",
+            "outputs/FLICK-batch-4/66_taskforce_a_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "144_analyst_happy.png",
+      "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nPRIYA HAPPY: a confident knowing SMIRK, one mouthcorner lifted, warm amused narrowed eyes. She clearly looks pleased but stays composed and analytical. Preserve rectangular glasses, one wireless earbud, highponytail and charcoalblazer exactly.",
+      "generation_history": [
+        {
+          "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nPRIYA HAPPY: a confident knowing SMIRK, one mouthcorner lifted, warm amused narrowed eyes. She clearly looks pleased but stays composed and analytical. Preserve rectangular glasses, one wireless earbud, highponytail and charcoalblazer exactly.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/batch6/143_analyst_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "145_assistant_manager_idle.png",
+      "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nCHAD, early30s ADULT man, light skin and slightly SUNBURNED pink-red nose, gelled swept-back BLOND hair, NAVY FLEECE ZIPUP VEST over a LIGHTPINK buttondown shirt, a small black BLUETOOTH earpiece on oneear. Idle: overconfident grin with raised eyebrows. NO glasses, no facialhair, no logos or insignia, no visible hands. Zipvest haszipper notbuttons; fleece usesFLATfills no fuzzy texture.",
+      "generation_history": [
+        {
+          "prompt": "Create ONE FLICK office-comedy game coworker portrait. Use attached completed portraits ONLY as STYLE and FRAMING references, not as identity. Clean polished 2D vector cartoon, adult proportions, bold smooth even darkbrown #332A24 outlines about12px; muted warm flat colors, exactly ONE clearly separated celshadow fill and ONE tiny upperleft highlight per material. Broad smooth flat regions with no gradations. NO rastergrain, dithering, painterlytexture, gradients, realism, 3D, scenery, floor, castshadow, text, letters, numbers, logos, watermarks. Truly transparent PNG background. EXACT 1024x1280 portrait canvas. STRICT straight FRONT VIEW level eyes, square shoulders, looking viewer, arms down, no hands. Precise shared framing: face center(512,620), pupils y560, chin y760, outside ears x332 and692 (headwidth360). Top of normal head around315, generous transparent air above; tallhair staysinside with margin. Torso continues to and is cropped ONLY by bottom edgey1280; BOTH outer shoulder/body sides have transparent margins and continuous outlines. Keep entire head, hair, accessories insidecanvas. Do not copy glasses, hair, outfits, facial features or props from reference unless specifically requested below.\n\nCHAD, early30s ADULT man, light skin and slightly SUNBURNED pink-red nose, gelled swept-back BLOND hair, NAVY FLEECE ZIPUP VEST over a LIGHTPINK buttondown shirt, a small black BLUETOOTH earpiece on oneear. Idle: overconfident grin with raised eyebrows. NO glasses, no facialhair, no logos or insignia, no visible hands. Zipvest haszipper notbuttons; fleece usesFLATfills no fuzzy texture.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/FLICK-batch-4/82_feeney_idle.png",
+            "outputs/FLICK-batch-4/66_taskforce_a_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "146_assistant_manager_happy.png",
+      "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nCHAD HAPPY: a big toothy grin and a playful WINK: close exactly ONE eye while the other staysopen lookingviewer. Overconfident celebratory face, no hands or gestures. Keep sunburned nose, blondhair, Bluetooth earpiece, pinkshirt and navyzipvest identical.",
+      "generation_history": [
+        {
+          "prompt": "Precise expression edit of the attached finished FLICK character sprite. KEEP exact1024x1280 canvas, frontal levelhead, headsize and position, facial registration(face512,620 eyes560 chin760), and all hair, ears, accessories, eyeglassesframe, clothing, torso and transparency PIXEL-IDENTICAL. Change ONLY facialfeatures: eyes, brows, lips/mouth. Keep all skin colors and broad flatcelshapes exactlysame; do NOT add gradient, texture, stubble, hair, symbols or text. Same bold #332A24 cartoonoutlines. Do not movehead or alterpose. Entire outer silhouette remainsidentical. \n\nCHAD HAPPY: a big toothy grin and a playful WINK: close exactly ONE eye while the other staysopen lookingviewer. Overconfident celebratory face, no hands or gestures. Keep sunburned nose, blondhair, Bluetooth earpiece, pinkshirt and navyzipvest identical.",
+          "method": "built-in ImageGen",
+          "source_record": "portraits/prompts.json",
+          "reference_paths": [
+            "outputs/batch6/145_assistant_manager_idle.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "147_band_ball_1.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE tidy tight FIST-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and clear crossing flat band-ribbon construction as reference. A neatly round small-stage ball with orderly crossing bands under tension, no loose loops or band ends. No accessories. Fill about85% of a square1024x1024 canvas, centered; bottom looks naturally resting on an invisible desk, without any desk/floor or castshadow. Its actual apparent size will be set in game, so the sprite still fills85%canvas.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE tidy tight FIST-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and clear crossing flat band-ribbon construction as reference. A neatly round small-stage ball with orderly crossing bands under tension, no loose loops or band ends. No accessories. Fill about85% of a square1024x1024 canvas, centered; bottom looks naturally resting on an invisible desk, without any desk/floor or castshadow. Its actual apparent size will be set in game, so the sprite still fills85%canvas.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/14_band_ball.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "148_band_ball_2.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE SOFTBALL-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and crossing flat band-ribbon construction as reference. More built-up than a tidy fist-sized ball, still spherical but slightly uneven. Exactly a COUPLE of short loose rubber-band ENDS protrude, the rest wound tightly across the ball. No accessories. Fill about85% of a square1024x1024 canvas, centered; bottom looks naturally resting on an invisible desk, without any desk/floor or castshadow. Its apparent size will be set in game, so the sprite fills85%canvas.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE SOFTBALL-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and crossing flat band-ribbon construction as reference. More built-up than a tidy fist-sized ball, still spherical but slightly uneven. Exactly a COUPLE of short loose rubber-band ENDS protrude, the rest wound tightly across the ball. No accessories. Fill about85% of a square1024x1024 canvas, centered; bottom looks naturally resting on an invisible desk, without any desk/floor or castshadow. Its apparent size will be set in game, so the sprite fills85%canvas.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/14_band_ball.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "149_band_ball_3.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE BEACHBALL-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and flat crossing band-ribbon construction as reference. Lumpier, larger-looking irregular rounded silhouette with SEVERAL STRAY RUBBER-BAND LOOPS sticking out. Exactly ONE clearly visible SILVER PAPERCLIP caught halfway under crossing bands at the front upper-right; ordinary bent wire paperclip shape. No other accessories. Fill about85% of a square1024x1024canvas, centered including loops; bottom rests on invisible desk, NO floor/desk/castshadow. In-game size changes externally, sprite fills85%canvas.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE BEACHBALL-SIZED rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and flat crossing band-ribbon construction as reference. Lumpier, larger-looking irregular rounded silhouette with SEVERAL STRAY RUBBER-BAND LOOPS sticking out. Exactly ONE clearly visible SILVER PAPERCLIP caught halfway under crossing bands at the front upper-right; ordinary bent wire paperclip shape. No other accessories. Fill about85% of a square1024x1024canvas, centered including loops; bottom rests on invisible desk, NO floor/desk/castshadow. In-game size changes externally, sprite fills85%canvas.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/14_band_ball.png"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "150_band_ball_4.png",
+      "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE enormous absurdly overgrown rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and flat crossing band-ribbon construction as rubberband-ball reference. Broad SQUASHED BULGING silhouette from its huge weight, lumpy sides. One ordinary BLACK/DARKGREY STAPLER and one NAVY BALLPOINT PEN are visibly HALF-SWALLOWED within the upper bands, protruding partway from the mass. Keep them recognizable but integrated into the ball. A FEW SNAPPED rubber bands dangle as limp free ends around the front and sides. Absurd but proudly monumental office mess; NO face or expression. No paperclip. Ball plus visible props/ends fills85% ofsquare1024x1024canvas, centered; bottom rests on invisible desk, nofloor/castshadow. Game controls apparent size.",
+      "generation_history": [
+        {
+          "prompt": "Use case: illustration-story. FLICK browser office-game transparent PNG sprite. Clean 2D vector cartoon, polished indie-game style matching the provided local reference: bold even dark-brown #332A24 outlines about12px at1024size; crisp opaque flat-color regions, one simple cel-shadow color and one small flat highlight per material; upper-left lighting. Warm muted palette. Absolutely NO text, glyphs, numbers, logos, watermark, background, checkerboard, floor, cast shadow, gradients, noise, painterly texture, realism or3D-render appearance. Subject: ONE enormous absurdly overgrown rubber-band ball, mostly tan with a few muted red, orange and blue rubber bands; NO green. Same gentle high viewing angle and flat crossing band-ribbon construction as rubberband-ball reference. Broad SQUASHED BULGING silhouette from its huge weight, lumpy sides. One ordinary BLACK/DARKGREY STAPLER and one NAVY BALLPOINT PEN are visibly HALF-SWALLOWED within the upper bands, protruding partway from the mass. Keep them recognizable but integrated into the ball. A FEW SNAPPED rubber bands dangle as limp free ends around the front and sides. Absurd but proudly monumental office mess; NO face or expression. No paperclip. Ball plus visible props/ends fills85% ofsquare1024x1024canvas, centered; bottom rests on invisible desk, nofloor/castshadow. Game controls apparent size.",
+          "method": "built-in ImageGen",
+          "source_record": "effects-balls/generation-record.json",
+          "reference_paths": [
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/14_band_ball.png",
+            "C:/Users/matth/Documents/Codex/2026-10-13/create-a-set-of-2d-game/outputs/FLICK-batch-2/15_stapler.png"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 // Cartoon coworkers, drawn from parts so every character shares one style.
 // Each drawing is a head-and-shoulders bust in a 120 x 150 box.
 
-export type Mood = 'idle' | 'hit' | 'angry' | 'smug' | 'happy' | 'worried';
+export type Mood = 'idle' | 'hit' | 'angry' | 'smug' | 'happy' | 'worried' | 'peer';
 
 type HairStyle = 'short' | 'thinning' | 'slick' | 'curly' | 'bun' | 'bob' | 'messy' | 'bald' | 'side' | 'spiky';
 

@@ -1,6 +1,7 @@
-// Spreadsheet: every row's parts add up to its Total, but some cells broke (#REF!,
-// #N/A...). Pick a broken cell, work out what belongs there from the rest of its row,
-// and choose it from three options. One try per cell. Harder sheets pay more.
+// Spreadsheet: every row's numbers add up to its Total, but some cells broke and show
+// "?" (with the error, #REF!, #N/A...). The formula bar spells the row out as a sum,
+// "140 + ? + 100 = 770", so you can work out the missing number and pick it from three.
+// One try per cell. Harder sheets pay more.
 
 import { SHEET_TABS, type SheetTabId } from '../../sim/content';
 import type { GameState } from '../../sim/state';
@@ -9,6 +10,34 @@ import { clockHtml, esc, keyed, resultHtml, updateClock, type AppCtx, type AppVi
 
 const COLS = 'ABCDEFGH';
 const num = (n: number) => n.toLocaleString('en-US');
+
+/** The broken row as a sum with the gap in it, and (for a missing part) the subtraction that finds it. */
+function equationHtml(label: string, cells: number[], bad: number): string {
+  const q = '<b class="fx-q">?</b>';
+  const parts = cells.slice(0, -1);
+  const total = cells[cells.length - 1];
+  const sum = parts.map((v, j) => (j === bad ? q : num(v))).join(' + ');
+  const missingTotal = bad === cells.length - 1;
+  const solve = missingTotal
+    ? ''
+    : `<span class="fx-solve">so ${q} = ${num(total)} − ${parts
+        .filter((_, j) => j !== bad)
+        .map(num)
+        .join(' − ')}</span>`;
+  return `<span class="sheet-fx"><span class="fx-row">${esc(label)}:</span> <span class="fx-eq">${sum} = ${missingTotal ? q : `<b>${num(total)}</b>`}</span>${solve}</span>`;
+}
+
+/** A worked example for the start card, using this sheet's own columns. */
+function exampleHtml(parts: readonly string[]): string {
+  const vals = [100, 250, 50, 75].slice(0, parts.length);
+  const total = vals.reduce((a, b) => a + b, 0);
+  const gap = 1;
+  return `<table class="sheet-grid sheet-example" aria-label="Example">
+    <tr><td class="label"></td>${parts.map((p) => `<td class="head">${esc(p)}</td>`).join('')}<td class="head total">Total</td></tr>
+    <tr class="sel"><td class="label">Example</td>${vals.map((v, j) => `<td>${j === gap ? '<span class="cell-broken on"><small>#REF!</small>?</span>' : v}</td>`).join('')}<td class="total">${total}</td></tr>
+  </table>
+  <p class="sheet-example-fx">${vals.map((v, j) => (j === gap ? '<b class="fx-q">?</b>' : v)).join(' + ')} = <b>${total}</b>, so <b class="fx-q">?</b> = ${total} − ${vals.filter((_, j) => j !== gap).join(' − ')} = <b>${vals[gap]}</b></p>`;
+}
 
 export class SheetApp implements AppView {
   work = 'sheet' as const;
@@ -126,7 +155,7 @@ export class SheetApp implements AppView {
               const cls = `${isTotal ? 'total' : ''}`;
               if (j !== row.bad) return `<td class="${cls}">${num(v)}</td>`;
               if (row.state === 'broken')
-                return `<td class="${cls}"><button type="button" class="cell-broken${i === this.sel ? ' on' : ''}" data-row="${i}" aria-label="Broken cell in ${esc(row.label)}">${esc(row.error)}</button></td>`;
+                return `<td class="${cls}"><button type="button" class="cell-broken${i === this.sel ? ' on' : ''}" data-row="${i}" aria-label="Missing number in ${esc(row.label)}"><small>${esc(row.error)}</small>?</button></td>`;
               return `<td class="${cls} ${row.state}">${num(v)}</td>`;
             })
             .join('');
@@ -137,14 +166,15 @@ export class SheetApp implements AppView {
       const row = rows[this.sel];
       if (row?.state === 'broken') {
         const col = COLS[row.bad + 1];
-        const what = row.bad === row.cells.length - 1 ? `the Total for ${row.label}` : `${tab.parts[row.bad]} for ${row.label}`;
-        formula = `<span class="sheet-ref">${col}${this.sel + 2}</span><span class="sheet-fx">What belongs here (${esc(what)})?</span>
-          <span class="sheet-picks">${row.options.map((v, k) => `<button type="button" class="option" data-pick="${v}"><kbd>${k + 1}</kbd>${num(v)}</button>`).join('')}</span>`;
-      } else formula = `<span class="sheet-ref"></span><span class="sheet-fx">Click a broken cell.</span>`;
+        formula = `<span class="sheet-ref">${col}${this.sel + 2}</span>${equationHtml(row.label, row.cells, row.bad)}
+          <span class="sheet-picks"><span class="fx-ask">Which number is the <b class="fx-q">?</b></span>${row.options.map((v, k) => `<button type="button" class="option" data-pick="${v}"><kbd>${k + 1}</kbd>${num(v)}</button>`).join('')}</span>`;
+      } else formula = `<span class="sheet-ref"></span><span class="sheet-fx">Click a cell with a <b class="fx-q">?</b> in it.</span>`;
     } else if (last) body = `<div class="sheet-card">${resultHtml(last, { label: 'Next spreadsheet', data: 'data-start', disabled: !ready })}</div>`;
     else if (ready)
-      body = `<div class="sheet-card"><div class="start-card"><h3>${esc(tab.file)}</h3>
-        <p>Some cells are broken (<b>#REF!</b>, <b>#N/A</b>…). Every row’s parts add up to its <b>Total</b>, so you can work out what belongs in each broken cell. Pick it from three options. One try per cell; ${tab.errors} broken cells, ${tab.seconds} seconds.</p>
+      body = `<div class="sheet-card"><div class="start-card sheet-intro"><h3>${esc(tab.file)}</h3>
+        <p>In every row, the numbers add up to the <b>Total</b> at the end. ${tab.errors} cells broke and show a <b class="fx-q">?</b>. Work out each missing number from the rest of its row, then pick it.</p>
+        ${exampleHtml(tab.parts)}
+        <p class="hint">One try per cell, ${tab.seconds} seconds for the sheet. Keys: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> to pick, <kbd>Tab</kbd> for the next <b>?</b>.</p>
         <button type="button" class="win-action strong" data-start>Open the spreadsheet <kbd>Enter</kbd></button></div></div>`;
     else body = `<div class="sheet-card"><div class="start-card quiet"><h3>Loading…</h3></div></div>`;
     const left = r ? r.sheet!.rows.filter((x) => x.state === 'broken').length : 0;

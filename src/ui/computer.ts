@@ -54,7 +54,7 @@ const ICON: Record<AppId, string> = {
   catalog: 'ico-catalog',
   org: 'ico-org',
   docs: 'ico-folder',
-  trash: 'ico-trash',
+  trash: 'ico-trash-full',
 };
 
 /** What Mr. Feeney says, peering at whatever you have open. */
@@ -284,7 +284,7 @@ export class ComputerView {
     const lines = FEENEY_SAYS[where] ?? FEENEY_SAYS.desk;
     const r = $('reflection');
     r.querySelector('.refl-say')!.textContent = lines[Math.floor(Math.random() * lines.length)];
-    r.querySelector('.refl-man')!.innerHTML = portraitSvg('feeney', 'happy');
+    r.querySelector('.refl-man')!.innerHTML = portraitSvg('feeney', 'peer');
     const w = this.s.work.rounds;
     if (w.mail || w.sheet || w.expense || w.call) this.toast('hustle', this.app ?? 'mail', 'Mr. Feeney is watching', 'Work pays double for a moment.');
   }

@@ -371,20 +371,68 @@ for uid, stem in (("organizer", "99_icon_organizer"), ("autoreply", "100_icon_au
     closet_art[f"icon_{uid}"] = {"w": size[0], "h": size[1]}
 print("batch 5 done")
 
+# ---------------------------------------------------------------- batch 6: the computer, lackeys and the rubber band ball
+
+b6 = {a["file"]: a for a in json.loads((SRC / "asset-manifest-batch6.json").read_text())["assets"]}
+# The monitor bezel is a nine-slice frame: keep its geometry exact, at half size.
+bez = Image.open(SRC / "109_monitor_bezel.png").convert("RGBA")
+bez.resize((512, 512), Image.LANCZOS).save(OUT / "monitor-bezel.webp", quality=90, method=6)
+reg = b6["109_monitor_bezel.png"]["registration"]
+closet_art["bezel"] = {"w": 512, "h": 512, "slice": reg["nine_slice_insets"]["left"] // 2, "frame": reg["frame_thickness"] // 2}
+for name, stem, px in (
+    ("monitor-badge", "110_monitor_badge", 256),
+    ("keyboard", "111_keyboard", 800),
+    ("mouse", "112_mouse", 256),
+    ("desk-phone", "113_desk_phone", 384),
+    ("grade-ring", "135_grade_ring", 256),
+    ("ink-stamp", "134_ink_stamp_frame", 450),
+    ("ball-1", "147_band_ball_1", 384),
+    ("ball-2", "148_band_ball_2", 384),
+    ("ball-3", "149_band_ball_3", 384),
+    ("ball-4", "150_band_ball_4", 384),
+):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    size, _ = save_fit(im, solid_box(im, 4), px, name)
+    closet_art[name.replace("-", "_")] = {"w": size[0], "h": size[1]}
+# The receipt keeps its full canvas so the game can nine-slice its torn edges.
+rc = Image.open(SRC / "133_receipt.png").convert("RGBA")
+rc.resize((320, 512), Image.LANCZOS).save(OUT / "receipt.webp", quality=88, method=6)
+# The flying stapler: both frames share one crop so only the wings move.
+fa, fb = (Image.open(SRC / f"{n}.png").convert("RGBA") for n in ("131_stapler_fly_a", "132_stapler_fly_b"))
+ba, bb = solid_box(fa, 4), solid_box(fb, 4)
+sbox = (min(ba[0], bb[0]), min(ba[1], bb[1]), max(ba[2], bb[2]), max(ba[3], bb[3]))
+for im, name in ((fa, "stapler-a"), (fb, "stapler-b")):
+    size, _ = save_fit(im, sbox, 220, name)
+closet_art["stapler"] = {"w": size[0], "h": size[1]}
+for name, stem in (("corporate", "114_wallpaper_corporate"), ("beach", "115_wallpaper_beach"), ("teamwork", "116_wallpaper_teamwork"), ("skyline", "117_wallpaper_skyline")):
+    Image.open(SRC / f"{stem}.png").convert("RGB").resize((1280, 800), Image.LANCZOS).save(OUT / f"wall-{name}.webp", quality=82, method=6)
+for name, stem in (("mail", "118_icon_app_mail"), ("phone", "119_icon_app_phone"), ("sheet", "120_icon_app_sheet"), ("expenses", "121_icon_app_expenses"),
+                   ("chat", "122_icon_app_messenger"), ("catalog", "123_icon_app_catalog"), ("org", "124_icon_app_org"), ("staffing", "125_icon_app_staffing"),
+                   ("trash", "126_icon_recycle_empty"), ("trash-full", "127_icon_recycle_full"), ("folder", "128_icon_folder"), ("doc", "129_icon_document"),
+                   ("solitaire", "130_icon_solitaire")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    im.resize((128, 128), Image.LANCZOS).save(OUT / f"app-{name}.webp", quality=88, method=6)
+print("batch 6 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
 # share one crop and the game places them all the same way.
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
-faces = sorted(f for f in SRC.glob("[5-9][0-9]_*.png") if 50 <= int(f.stem.split("_")[0]) <= 94)
-pboxes = [solid_box(Image.open(f).convert("RGBA"), 4) for f in faces]
+faces = sorted(
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146)),
+    key=lambda f: int(f.stem.split("_")[0]),
+)
+# The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would
+# otherwise push the crop up and shrink every face, so the very top of her bun is trimmed.
+pboxes = [solid_box(Image.open(f).convert("RGBA"), 4) for f in faces if int(f.stem.split("_")[0]) <= 136]
 pbox = (min(b[0] for b in pboxes), min(b[1] for b in pboxes), max(b[2] for b in pboxes), max(b[3] for b in pboxes))
 PW = 400
 portraits = {}
 for f in faces:
     _, who, mood = f.stem.split("_", 2) if f.stem.count("_") == 2 else (None, *f.stem.split("_", 1)[1].rsplit("_", 1))
-    who = {"taskforce_a": "tf1", "taskforce_b": "tf2", "taskforce_c": "tf3"}.get(who, who)
+    who = {"taskforce_a": "tf1", "taskforce_b": "tf2", "taskforce_c": "tf3", "assistant_manager": "manager"}.get(who, who)
     im = Image.open(f).convert("RGBA")
     size, _ = save_fit(im, pbox, PW, f"face-{who}-{mood}")
     portraits.setdefault(who, []).append(mood)

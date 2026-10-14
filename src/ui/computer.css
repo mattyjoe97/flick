@@ -1,5 +1,5 @@
 /* Your work computer: a beige CRT on the desk, running a 90s office OS.
-   Stand-in drawings (monitor, keyboard, phone, wallpapers) until the painted art lands. */
+   The bezel, desk things, wallpapers, icons and paperwork are painted (art batch 6). */
 
 .computer {
   --os-face: #cbc7bd;
@@ -35,58 +35,57 @@
 /* ------------------------------------------------------------ the monitor */
 
 .monitor {
+  /* The painted bezel is a nine-slice frame: --bez is the slice drawn on screen, and
+     three quarters of it is plastic (the rest is the rim of the opening). */
+  --bez: 52px;
+  --bez-in: 37px;
   position: relative;
   width: min(1120px, 100%);
   height: 100%;
   max-height: 780px;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  padding: 26px 26px 0;
-  border-radius: 24px 24px 16px 16px;
-  background: linear-gradient(180deg, #e8e1cf, #d3cab3);
-  box-shadow:
-    inset 0 3px 0 #f8f3e6,
-    inset 0 -6px 0 #b8ae96,
-    inset 4px 0 0 #ede6d4,
-    inset -4px 0 0 #c3b9a2,
-    0 26px 50px rgba(0, 0, 0, 0.55);
+  grid-template-rows: minmax(0, 1fr);
+  padding: var(--bez-in);
 }
 
+.monitor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border: var(--bez) solid transparent;
+  border-image: url("../assets/art/monitor-bezel.webp") 100 / var(--bez) / 0 stretch;
+  border-radius: 18px;
+  box-shadow: 0 26px 50px rgba(0, 0, 0, 0.55);
+}
+
+/* The maker's badge and power light, on the bottom of the bezel. */
 .monitor-chin {
-  height: 44px;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 4;
+  height: calc(var(--bez) * 0.75);
   display: flex;
   align-items: center;
-  justify-content: center;
+  translate: -50% 0;
 }
 
 .chin-badge {
-  position: relative;
-  width: 170px;
-  height: 18px;
-  border-radius: 9px;
-  background: #c5bca6;
-  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25), 0 1px 0 #f2ecdd;
-}
-
-.chin-badge .led {
-  position: absolute;
-  right: 11px;
-  top: 5px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #5fe07a;
-  box-shadow: 0 0 6px #5fe07a;
+  display: block;
+  width: calc(var(--bez) * 2.6);
+  height: calc(var(--bez) * 0.6);
+  background: url("../assets/art/monitor-badge.webp") center / contain no-repeat;
 }
 
 .screen {
   --wall: #2a6f8f;
   position: relative;
   overflow: hidden;
-  border: 5px solid #33373c;
-  border-radius: 14px / 18px;
+  border-radius: 12px;
   background: var(--wall);
-  box-shadow: 0 0 0 3px #b8ae96, inset 0 0 60px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
   isolation: isolate;
 }
 
@@ -102,138 +101,93 @@
     radial-gradient(ellipse 90% 85% at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.28));
 }
 
-/* Wallpapers by pay grade (drawn stand-ins). */
+/* Wallpapers by pay grade. */
 .screen[data-wall="corporate"] {
-  --wall:
-    radial-gradient(ellipse 60% 40% at 72% 56%, transparent 58%, rgba(255, 255, 255, 0.07) 59% 64%, transparent 65%),
-    radial-gradient(ellipse 52% 34% at 72% 58%, transparent 58%, rgba(255, 255, 255, 0.06) 59% 64%, transparent 65%),
-    radial-gradient(ellipse 44% 28% at 72% 60%, transparent 58%, rgba(255, 255, 255, 0.05) 59% 64%, transparent 65%),
-    radial-gradient(circle at 30% 20%, #33809f, #1f5d78 70%);
+  background: #2a6f8f url("../assets/art/wall-corporate.webp") center / cover no-repeat;
 }
 
 .screen[data-wall="beach"] {
-  --wall:
-    radial-gradient(circle at 74% 30%, #fff6c7 0 5%, rgba(255, 246, 199, 0.35) 6% 11%, transparent 12%),
-    linear-gradient(180deg, #7fc8e8 0 52%, #3fb3c1 52% 66%, #2f9bb0 66% 70%, #f0d9a0 70%);
+  background: #7fc8e8 url("../assets/art/wall-beach.webp") center / cover no-repeat;
 }
 
 .screen[data-wall="teamwork"] {
-  --wall:
-    linear-gradient(170deg, transparent 0 44%, #7b8fa3 44% 52%, transparent 52%),
-    linear-gradient(195deg, transparent 0 46%, #6c8196 46% 55%, transparent 55%),
-    linear-gradient(180deg, #e8d6c4 0 30%, #b9c6d3 30% 55%, #8fa7b8 55% 60%, #a9bccb 60%);
+  background: #e8bf96 url("../assets/art/wall-teamwork.webp") center / cover no-repeat;
 }
 
 .screen[data-wall="skyline"] {
-  --wall:
-    radial-gradient(circle at 80% 18%, #f4f0d8 0 2.5%, transparent 3%),
-    radial-gradient(1px 1px at 20% 15%, #fff 99%, transparent),
-    radial-gradient(1px 1px at 40% 8%, #fff 99%, transparent),
-    radial-gradient(1px 1px at 62% 22%, #fff 99%, transparent),
-    repeating-linear-gradient(90deg, #1c2236 0 7%, #232b44 7% 9%, #171c2c 9% 15%, #2a3350 15% 18%, #1a2033 18% 24%),
-    linear-gradient(180deg, #0f1428, #2a2f55);
-  background-size: auto, auto, auto, auto, 100% 38%, auto;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 100%, 0 0;
-  background-repeat: no-repeat;
+  background: #1d2a44 url("../assets/art/wall-skyline.webp") center / cover no-repeat;
 }
 
 /* ------------------------------------------------------------ the desk in front of it */
 
 .pc-desk-row {
   width: min(1040px, 100%);
-  height: 104px;
+  height: 108px;
   display: grid;
-  grid-template-columns: 160px minmax(0, 1fr) 80px;
+  grid-template-columns: 170px minmax(0, 1fr) 110px;
   align-items: center;
   gap: 26px;
-  padding: 6px 24px 10px;
+  padding: 4px 24px 6px;
+}
+
+.pc-desk-row > * {
+  height: 100%;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 8px 8px rgba(20, 10, 2, 0.45));
 }
 
 .keyboard {
-  height: 70px;
-  border-radius: 10px;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 4px, rgba(80, 70, 50, 0.22) 4px 5px, transparent 5px 30px),
-    repeating-linear-gradient(180deg, transparent 0 6px, rgba(80, 70, 50, 0.22) 6px 7px, transparent 7px 16px),
-    linear-gradient(180deg, #ece5d2, #d2c8b0);
-  background-origin: content-box;
-  padding: 8px 12px;
-  box-shadow: inset 0 -5px 0 #b7ad95, 0 8px 14px rgba(20, 10, 2, 0.45);
-  transform: perspective(500px) rotateX(28deg);
+  background-image: url("../assets/art/keyboard.webp");
 }
 
 .mouse {
-  width: 46px;
-  height: 66px;
-  justify-self: center;
-  border-radius: 24px 24px 20px 20px;
-  background: linear-gradient(180deg, #ece5d2 0 45%, #d2c8b0);
-  box-shadow: inset 0 -4px 0 #b7ad95, 0 8px 12px rgba(20, 10, 2, 0.45);
-  transform: perspective(300px) rotateX(24deg);
-}
-
-.mouse::before {
-  content: "";
-  display: block;
-  width: 2px;
-  height: 26px;
-  margin: 0 auto;
-  background: rgba(80, 70, 50, 0.35);
+  background-image: url("../assets/art/mouse.webp");
 }
 
 .desk-phone {
   position: relative;
-  width: 140px;
-  height: 84px;
+  width: 100%;
   padding: 0;
   border: 0;
-  background: none;
+  background-color: transparent;
+  background-image: url("../assets/art/desk-phone.webp");
   cursor: pointer;
-  transform: perspective(400px) rotateX(18deg);
 }
 
-.dp-body {
-  position: absolute;
-  inset: 22px 6px 0;
-  border-radius: 12px 12px 10px 10px;
-  background:
-    radial-gradient(circle at 30% 50%, #a69e8b 0 3px, transparent 4px) 52px 30px / 16px 12px repeat,
-    linear-gradient(180deg, #e6dfcc, #cfc5ad);
-  box-shadow: inset 0 -5px 0 #b3a990, 0 8px 12px rgba(20, 10, 2, 0.45);
-}
-
-.dp-handset {
-  position: absolute;
-  left: 2px;
-  right: 2px;
-  top: 4px;
-  height: 26px;
-  border-radius: 14px 14px 8px 8px;
-  background: linear-gradient(180deg, #ece5d2, #d3c9b1);
-  box-shadow: inset 0 -4px 0 #b3a990, 0 4px 6px rgba(20, 10, 2, 0.35);
-}
-
+/* The red message light on the painted phone, lit while it rings. The phone art is
+   384 x 259 and the light sits at (273-285, 109-114). The row is always wide enough
+   that the art fills the button's height, so this box matches the drawn phone. */
 .dp-light {
   position: absolute;
-  right: 16px;
-  bottom: 14px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #7a2a24;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 384 / 259;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.dp-light::after {
+  content: "";
+  position: absolute;
+  left: 70.6%;
+  top: 41.3%;
+  width: 4.2%;
+  height: 3.6%;
+  border-radius: 2px;
+  background: #ff4a3d;
+  box-shadow: 0 0 10px 3px #ff4a3d;
+  opacity: 0;
 }
 
 .desk-phone.ringing {
   animation: phone-shake 0.45s ease-in-out infinite;
 }
 
-.desk-phone.ringing .dp-handset {
-  animation: handset-hop 0.45s ease-in-out infinite;
-}
-
-.desk-phone.ringing .dp-light {
-  background: #ff4a3d;
-  box-shadow: 0 0 8px #ff4a3d;
+.desk-phone.ringing .dp-light::after {
+  animation: light-blink 0.45s steps(2) infinite;
 }
 
 @keyframes phone-shake {
@@ -249,9 +203,9 @@
   }
 }
 
-@keyframes handset-hop {
-  50% {
-    translate: 0 -5px;
+@keyframes light-blink {
+  from {
+    opacity: 1;
   }
 }
 
@@ -262,7 +216,7 @@
   inset: 0 0 40px;
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(auto-fill, 96px);
+  grid-template-rows: repeat(auto-fill, 104px);
   grid-auto-columns: 100px;
   gap: 6px;
   padding: 14px;
@@ -297,8 +251,8 @@
 
 .ico {
   display: block;
-  width: 48px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -362,7 +316,7 @@
 
 .win-ico {
   width: 22px;
-  height: 18px;
+  height: 22px;
 }
 
 .win-title {
@@ -533,6 +487,7 @@
 .start-card h3 {
   margin: 0 0 6px;
   font-size: 18px;
+  overflow-wrap: anywhere;
 }
 
 .start-card p {
@@ -614,10 +569,9 @@
 .grade-mark {
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
-  border: 5px solid #c62f28;
-  border-radius: 52% 46% 50% 44% / 48% 52% 44% 50%;
+  width: 104px;
+  height: 104px;
+  background: url("../assets/art/grade-ring.webp") center / contain no-repeat;
   color: #c62f28;
   font-family: var(--font-hand);
   font-size: 58px;
@@ -629,11 +583,6 @@
 
 .grade-mark b {
   transform: translateY(4px);
-}
-
-.grade-A .grade-mark,
-.grade-B .grade-mark {
-  border-color: #c62f28;
 }
 
 @keyframes grade-in {
@@ -827,8 +776,8 @@
 }
 
 .sm-items .ico {
-  width: 28px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 
 .sm-items hr {
@@ -911,7 +860,7 @@
 
 .toast .ico {
   width: 34px;
-  height: 28px;
+  height: 34px;
 }
 
 .t-body {
@@ -1038,32 +987,13 @@
   position: absolute;
   top: var(--y);
   left: 100%;
-  width: 70px;
-  height: 26px;
-  border-radius: 6px 14px 4px 4px;
-  background: linear-gradient(180deg, #4a4f57 0 45%, #2c3036 45%);
-  animation: fly var(--d) linear infinite;
-  animation-delay: calc(var(--i) * -1.3s);
-}
-
-.flyer::before,
-.flyer::after {
-  content: "";
-  position: absolute;
-  top: -16px;
-  left: 22px;
-  width: 26px;
-  height: 18px;
-  border-radius: 100% 0 60% 0;
-  background: #f4f4f0;
-  transform-origin: 0 100%;
-  animation: flap 0.35s ease-in-out infinite alternate;
-}
-
-.flyer::after {
-  left: 30px;
-  opacity: 0.8;
-  animation-delay: 0.1s;
+  width: 96px;
+  height: 56px;
+  background: url("../assets/art/stapler-a.webp") center / contain no-repeat;
+  animation:
+    fly var(--d) linear infinite,
+    flap 0.36s steps(1) infinite;
+  animation-delay: calc(var(--i) * -1.3s), calc(var(--i) * -0.11s);
 }
 
 @keyframes fly {
@@ -1075,12 +1005,10 @@
   }
 }
 
+/* Two painted frames, wings up and wings down. */
 @keyframes flap {
-  from {
-    transform: rotate(-30deg);
-  }
-  to {
-    transform: rotate(35deg);
+  50% {
+    background-image: url("../assets/art/stapler-b.webp");
   }
 }
 
@@ -1548,19 +1476,26 @@
   position: relative;
 }
 
+/* The painted receipt is a nine-slice: torn edges top and bottom, a curl down the right.
+   The art (320 x 512) has transparent margins, so it's drawn outset past the box. */
+.slip,
+.slip-stack.piled::before,
+.slip-stack.piled::after {
+  border-image: url("../assets/art/receipt.webp") 62 54 62 50 fill / 40px 34px 40px 32px / 20px 25px 20px 27px stretch;
+}
+
 /* More receipts waiting underneath the one on top. */
 .slip-stack.piled::before,
 .slip-stack.piled::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: #f1ece0;
-  box-shadow: 0 0 0 1px #ddd8ca;
+  filter: brightness(0.95);
   transform: rotate(3deg) translate(5px, 4px);
 }
 
 .slip-stack.piled::after {
-  background: #ebe5d6;
+  filter: brightness(0.9);
   transform: rotate(-2.5deg) translate(-4px, 6px);
   z-index: -1;
 }
@@ -1568,13 +1503,11 @@
 .slip {
   position: relative;
   z-index: 1;
-  width: 240px;
-  padding: 18px 18px 22px;
-  background: #fbf8ef;
-  box-shadow: 0 0 0 1px #e4dfd0, 2px 4px 10px rgba(0, 0, 0, 0.15);
+  width: 250px;
+  padding: 24px 34px 26px 22px;
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.18));
   font-family: var(--font-sheet, monospace);
   font-size: 13px;
-  clip-path: polygon(0 4px, 4% 0, 8% 4px, 12% 0, 16% 4px, 20% 0, 24% 4px, 28% 0, 32% 4px, 36% 0, 40% 4px, 44% 0, 48% 4px, 52% 0, 56% 4px, 60% 0, 64% 4px, 68% 0, 72% 4px, 76% 0, 80% 4px, 84% 0, 88% 4px, 92% 0, 96% 4px, 100% 0, 100% calc(100% - 4px), 96% 100%, 92% calc(100% - 4px), 88% 100%, 84% calc(100% - 4px), 80% 100%, 76% calc(100% - 4px), 72% 100%, 68% calc(100% - 4px), 64% 100%, 60% calc(100% - 4px), 56% 100%, 52% calc(100% - 4px), 48% 100%, 44% calc(100% - 4px), 40% 100%, 36% calc(100% - 4px), 32% 100%, 28% calc(100% - 4px), 24% 100%, 20% calc(100% - 4px), 16% 100%, 12% calc(100% - 4px), 8% 100%, 4% calc(100% - 4px), 0 100%);
 }
 
 .slip.fresh {
@@ -1589,7 +1522,7 @@
 }
 
 .slip.yours {
-  background: #fff6dc;
+  filter: sepia(0.3) drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.18));
 }
 
 .slip p {
@@ -1638,9 +1571,7 @@
   position: absolute;
   left: 50%;
   top: 46%;
-  padding: 4px 12px;
-  border: 4px double currentColor;
-  border-radius: 6px;
+  padding: 12px 32px;
   font-family: var(--font-ui);
   font-size: 24px;
   font-weight: 900;
@@ -1650,6 +1581,19 @@
   transform: translate(-50%, -50%) rotate(-12deg);
   animation: stamp-slam 0.18s cubic-bezier(0.3, 1.4, 0.5, 1);
   mix-blend-mode: multiply;
+}
+
+/* The painted rubber-stamp frame is red; Approved turns it green. */
+.ink-stamp::before {
+  content: "";
+  position: absolute;
+  inset: -4px -6px;
+  z-index: -1;
+  background: url("../assets/art/ink-stamp.webp") center / 100% 100% no-repeat;
+}
+
+.ink-stamp.approved::before {
+  filter: hue-rotate(128deg) saturate(0.85) brightness(0.8);
 }
 
 .ink-stamp.approved {
@@ -1724,11 +1668,15 @@
 }
 
 .sheet {
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   font-family: var(--font-sheet, Arial, sans-serif);
   font-size: 13px;
+}
+
+.sheet > * {
+  flex: none;
 }
 
 .sheet-file {
@@ -1742,10 +1690,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 10px;
   min-height: 38px;
-  padding: 4px 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid #d4d4d4;
+  background: #fbfbf8;
 }
 
 .sheet-ref {
@@ -1761,12 +1710,52 @@
 }
 
 .sheet-fx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
   color: #333;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fx-row {
+  font-weight: 700;
+}
+
+.fx-eq b {
+  font-weight: 800;
+}
+
+.fx-solve {
+  color: #1f6e43;
+  font-size: 15px;
+}
+
+/* The missing number: the same red "?" in the cell, the sum and the question. */
+.fx-q {
+  display: inline-block;
+  min-width: 1.3em;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #c62f28;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
 }
 
 .sheet-picks {
+  flex-basis: 100%;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
+}
+
+.fx-ask {
+  margin-right: 4px;
+  font-weight: 700;
 }
 
 .sheet-picks .option {
@@ -1781,6 +1770,8 @@
 }
 
 .sheet-scroll {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 6px 8px;
 }
@@ -1828,7 +1819,9 @@
 }
 
 .sheet-grid tr.sel td {
-  background: #fffbe0;
+  background: #fff6c2;
+  border-top-color: #e0b13c;
+  border-bottom-color: #e0b13c;
 }
 
 .sheet-grid td.fixed {
@@ -1842,23 +1835,67 @@
 }
 
 .cell-broken {
+  position: relative;
+  display: block;
   width: 100%;
   min-height: 22px;
-  padding: 0 4px;
+  min-width: 64px;
+  padding: 0 8px 0 36px;
   border: 1px dashed #c62f28;
   background: #fff1ef;
   color: #c62f28;
   font: inherit;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 22px;
+  text-align: right;
   cursor: pointer;
 }
 
+/* The error code, small in the corner, like the spreadsheet's own flag. */
+.cell-broken small {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
+}
+
 .cell-broken.on {
-  border: 2px solid #1f6e43;
-  background: #fffbe0;
+  border: 2px solid #c62f28;
+  background: #c62f28;
+  color: #fff;
+}
+
+.sheet-intro {
+  max-width: 560px;
+}
+
+.sheet-example {
+  margin: 0 0 6px;
+  font-family: var(--font-sheet, Arial, sans-serif);
+  font-size: 13px;
+}
+
+.sheet-example td {
+  min-width: 56px;
+}
+
+.sheet-example td.label {
+  min-width: 70px;
+}
+
+.sheet-example-fx {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
 }
 
 .sheet-card {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 8px;
 }
@@ -2305,16 +2342,45 @@
   border: 1px solid #e3e1db;
 }
 
+/* Painted app icons (128 x 128). */
+.ico-mail {
+  background-image: url("../assets/art/app-mail.webp");
+}
+.ico-phone {
+  background-image: url("../assets/art/app-phone.webp");
+}
+.ico-sheet {
+  background-image: url("../assets/art/app-sheet.webp");
+}
+.ico-expenses {
+  background-image: url("../assets/art/app-expenses.webp");
+}
+.ico-chat {
+  background-image: url("../assets/art/app-chat.webp");
+}
+.ico-catalog {
+  background-image: url("../assets/art/app-catalog.webp");
+}
+.ico-org {
+  background-image: url("../assets/art/app-org.webp");
+}
+.ico-staffing {
+  background-image: url("../assets/art/app-staffing.webp");
+}
+.ico-solitaire {
+  background-image: url("../assets/art/app-solitaire.webp");
+}
 .ico-folder {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M3 8 Q3 5 6 5 H18 L22 9 H42 Q45 9 45 12 V34 Q45 37 42 37 H6 Q3 37 3 34 Z' fill='%23e8c36a' stroke='%231b1e22' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M3 15 H45' stroke='%231b1e22' stroke-width='2'/%3E%3C/svg%3E");
+  background-image: url("../assets/art/app-folder.webp");
 }
-
-.ico-trash {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M11 8 H37 L34 38 H14 Z' fill='%23bfd0c8' stroke='%231b1e22' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M17 13 L19 34 M24 13 V34 M31 13 L29 34' stroke='%231b1e22' stroke-width='2'/%3E%3Cpath d='M8 8 H40' stroke='%231b1e22' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
-}
-
 .ico-doc {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M12 2 H30 L38 10 V38 H12 Z' fill='%23fff' stroke='%231b1e22' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M30 2 V10 H38' fill='none' stroke='%231b1e22' stroke-width='2.5'/%3E%3Cpath d='M17 17 H33 M17 23 H33 M17 29 H27' stroke='%23889' stroke-width='2.5'/%3E%3C/svg%3E");
+  background-image: url("../assets/art/app-doc.webp");
+}
+.ico-trash {
+  background-image: url("../assets/art/app-trash.webp");
+}
+.ico-trash-full {
+  background-image: url("../assets/art/app-trash-full.webp");
 }
 
 .ico-power {
@@ -2331,13 +2397,11 @@
 
 @media (max-height: 760px) and (min-width: 761px) {
   .pc-desk-row {
-    height: 76px;
+    height: 80px;
   }
-  .keyboard {
-    height: 52px;
-  }
-  .monitor-chin {
-    height: 34px;
+  .monitor {
+    --bez: 42px;
+    --bez-in: 30px;
   }
 }
 
@@ -2356,9 +2420,9 @@
   .monitor {
     max-height: none;
     padding: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+  }
+  .monitor::before {
+    display: none;
   }
   .screen {
     border-width: 0;
@@ -2505,6 +2569,23 @@
   .sheet-scroll {
     padding: 4px;
   }
+  .sheet-fx {
+    font-size: 15px;
+  }
+  .fx-solve {
+    font-size: 14px;
+  }
+  .sheet-example td {
+    min-width: 0;
+  }
+  .cell-broken {
+    min-width: 0;
+    padding: 0 4px;
+    text-align: center;
+  }
+  .cell-broken small {
+    display: none;
+  }
   .refl-say {
     right: 30%;
     bottom: 42%;
@@ -2519,7 +2600,7 @@
   .toast,
   .toast-call,
   .desk-phone.ringing,
-  .desk-phone.ringing .dp-handset,
+  .desk-phone.ringing .dp-light::after,
   .phone-lcd.ring,
   .slip.fresh,
   .ink-stamp,
@@ -2527,8 +2608,6 @@
   .round-result,
   .dots i,
   .flyer,
-  .flyer::before,
-  .flyer::after,
   .tray-combo.max {
     animation: none;
   }
