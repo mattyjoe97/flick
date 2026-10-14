@@ -26,7 +26,7 @@ import { Sound } from './sound';
 import { Launcher } from './launcher';
 import { faceSvg, portrait, portraitViewBox } from './portraits';
 import { ComputerView } from './computer';
-import { payGrade, ringingCall, startTask } from '../sim/work';
+import { payGrade, ringingCall } from '../sim/work';
 import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
@@ -181,11 +181,10 @@ export class UI {
 
   /** Pick up the desk phone: that puts you at your computer, with the call on screen. */
   private answerPhone() {
-    const call = ringingCall(this.s);
-    if (!call) return;
-    this.launcher.cancel();
-    startTask(this.s, call.id);
-    this.syncComputer();
+    if (!ringingCall(this.s)) return;
+    // Sit down first, then pick up: the computer opens the Phone app and takes the call.
+    // (Picking up before the computer is open let the Phone app hang up on it.)
+    this.toggleHide(true);
     this.computer.answerCall();
   }
 
