@@ -1,8 +1,8 @@
-import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type SheetTabId, type UpgradeId, type WeaponId } from './content';
+import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
-import { newWorkState, type TaskKind, type WorkState } from './work';
+import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 export interface Email {
   id: number;
@@ -27,11 +27,21 @@ export function newAlly(id: CoworkerId, role: Role): Ally {
   return { id, role, timer: 0, served: 0, rank: 0 };
 }
 
+/** One message in a Messenger conversation. */
 export interface ChatMessage {
   id: number;
   t: number;
-  from: string;
+  mine: boolean; // you sent it
   text: string;
+}
+
+/** A Messenger conversation with one person (or group). */
+export interface ChatThread {
+  who: string;
+  msgs: ChatMessage[];
+  unread: number;
+  /** A line of theirs you can answer, with quick replies (its id in chat.ts). */
+  pending: string | null;
 }
 
 /** A "Psst" offer from Dale: a little off, or something early at a markup. */
@@ -93,24 +103,17 @@ export interface GameState {
   warned75: boolean;
   outOfAmmoWarnedAt: number;
 
-  /** Your job at your computer: work emails, phone calls and expense reports. */
+  /** Your job at your computer: mail, the phone, expense reports and spreadsheets. */
   work: WorkState;
 
-  /** The Spreadsheet app's mini-game. */
-  sheet: {
-    tab: SheetTabId;
-    flags: { id: number; row: number; col: number; expiresAt: number }[];
-    streak: number;
-    best: number;
-    nextFlagAt: number;
-    hiddenSince: number | null;
-    hustleUntil: number;
-    fixes: number;
-    open: boolean; // the Spreadsheet app is open on your computer
+  /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
+  chat: {
+    threads: ChatThread[];
+    /** Messages on their way ("Gary is typing…"): delivered at `at`. */
+    queue: { who: string; text: string; at: number; line?: string }[];
+    nextAt: number;
+    used: string[];
   };
-
-  /** Messenger: coworkers (and rivals) messaging you. */
-  chat: { log: ChatMessage[]; unread: number; nextAt: number; used: string[] };
 
   /** Your desk drawer, supply orders on their way, and a delivered box waiting on your desk. */
   supplies: SuppliesState;
@@ -152,6 +155,8 @@ export interface GameState {
     dealsTaken: number;
     bounties: number;
     bestCombo: number;
+    rounds: number;
+    gradeA: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -175,11 +180,11 @@ export type GameEvent =
   | { type: 'walkby' }
   | { type: 'recruit'; id: CoworkerId }
   | { type: 'mail'; kind: Email['kind'] }
-  | { type: 'fix'; row: number; col: number; pay: number; streak: number; hustle: boolean }
-  | { type: 'sheetMiss'; reason: 'wrong' | 'expired' }
-  | { type: 'task'; kind: TaskKind; id: number }
-  | { type: 'taskDone'; kind: TaskKind; ok: boolean; pay: number; text: string }
-  | { type: 'taskAuto'; kind: TaskKind; who: string }
+  | { type: 'workReady'; kind: WorkKind }
+  | { type: 'roundStart'; kind: WorkKind }
+  | { type: 'itemDone'; kind: WorkKind; ok: boolean; pay: number; text: string }
+  | { type: 'roundDone'; kind: WorkKind; grade: Grade; pay: number; bonus: number; right: number; items: number }
+  | { type: 'taskAuto'; kind: WorkKind; who: string }
   | { type: 'callMissed' }
   | { type: 'chat'; from: string }
   | { type: 'delivery'; amount: number; free: boolean }
@@ -224,8 +229,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     warned50: false,
     warned75: false,
     outOfAmmoWarnedAt: -999,
-    sheet: { tab: 'forecast', flags: [], streak: 0, best: 0, nextFlagAt: 0, hiddenSince: null, hustleUntil: -999, fixes: 0, open: false },
-    chat: { log: [], unread: 0, nextAt: 15, used: [] },
+    chat: { threads: [], queue: [], nextAt: 15, used: [] },
     supplies: newSupplies(),
     dale: { deal: null, nextDealAt: DALE.firstDealAt, introduced: false },
     inbox: [],
@@ -261,6 +265,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       dealsTaken: 0,
       bounties: 0,
       bestCombo: 0,
+      rounds: 0,
+      gradeA: 0,
     },
     events: [],
   };

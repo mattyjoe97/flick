@@ -32,14 +32,16 @@ Add `?debug=1` to the URL for a speed control (×1, ×10, ×50) and `window.flic
 | 1–4 | Switch between the weapons you own (or click one on the rack under Flick) |
 | 1–9 | On your computer: pick an email reply, dial an extension |
 
-The game has two modes. At war you flick at your coworkers while Suspicion climbs. Press Esc and you're at your work computer, a retro desktop where Mr. Feeney can't catch you, Suspicion cools, and your Shooters keep firing at half speed. Its apps:
+The game has two modes. At war you flick at your coworkers while Suspicion climbs. Press Esc and you're at your work computer: a beige CRT on your desk (keyboard, mouse and desk phone in front of it) running a 90s office OS with a Start menu, a taskbar, pop-up notifications and a flying-stapler screensaver. Mr. Feeney can't catch you there, Suspicion cools, and your Shooters keep firing at half speed. When he walks the floor you hear his footsteps get louder and see his reflection grow in the glass; he stops behind you, comments on whatever you have open, and moves on.
 
-- **Mail:** story messages, plus work emails to answer (pick the right reply; never Reply All). Coworkers who want to join your side email you, with a Recruit button right in the message.
-- **Phone:** the desk phone rings every minute or two, even at war. Answering puts you at your computer; dial the right extension to transfer the caller. Ignoring it costs nothing.
-- **Spreadsheet:** fix cells with red corners before their fuse runs out. One right as Mr. Feeney walks past pays double. The Budget and Headcount tabs unlock as you progress.
-- **Expenses:** approve or deny receipts. Your own rubber band order sometimes turns up: approve it for free bands, if you don't mind Accounting noticing.
-- **Messenger:** coworkers and rivals message you.
-- **Supply Catalog, Org Chart:** band orders, and your team (recruiting, roles, promotions, and the floor plan).
+Work comes in short rounds with a clock and a grade (A to F). Every item done right pays, cools Suspicion and builds the combo; a clean, quick round earns a grade bonus. A round's clock only runs while you're looking at it.
+
+- **Mail:** work email arrives in bursts. Each one needs one thing: **Reply** (and pick the right reply; never Reply All), **Forward** it to the right department, or **Delete** it. Story email lands in the Inbox; coworkers who want to join your side email you, with a Recruit button right in the message.
+- **Phone:** the desk phone rings every minute or two, even at war. Put the caller through using today's directory (it's reshuffled every morning); some want you ("Speaking"), some are pranks (hang up), and sometimes it's Mr. Feeney checking you're at your desk. Ignoring it costs nothing.
+- **Spreadsheet:** some cells broke (#REF!, #N/A...). Every row adds up to its Total, so work out what belongs in each broken cell and pick it from three options. The Budget and Headcount sheets unlock as you progress and pay more.
+- **Expenses:** stamp each receipt Approved or Denied by today's rule (it changes daily, and gains an exception once you're senior). Your own rubber band order sometimes turns up: approve it for free bands, if you don't mind Accounting noticing.
+- **Messenger:** a buddy list with away messages and a conversation with each coworker. Their bubbles on the left, yours on the right, "Gary is typing…", and quick replies when there's something to say back (Dale might find you a deal).
+- **Supply Catalog, Org Chart, My Documents, Recycle Bin:** band orders; your team (recruiting, roles, promotions and the floor plan); and a few files to poke at.
 
 Bands come from three places besides Gary. **Your desk drawer** (S) slides open full of junk and a few stray bands; your hand picks them out one at a time, and a few more turn up every few seconds. Sometimes there's something better in there: a tangle of bands, a rubber band ball, or loose change. **Supply orders** (O) get stamped and sent off in an inter-office envelope; 10 seconds later a box lands on your desk, and you open it (O again) for the bands. Don't leave it sitting there: Mr. Feeney asks about unopened boxes.
 
@@ -47,7 +49,7 @@ Bands come from three places besides Gary. **Your desk drawer** (S) slides open 
 
 You don't have to go looking. The **shopping list** on your desk always shows the next weapon and the cheapest things you could buy, with a bar filling up toward each price; tap one and you're at Dale's with it in your hand (or at the Org Chart, for a coworker). A red number on the closet card says how many things you can afford right now. The guns you own sit on a **rack** under the Flick key, numbered 1–4, with the next one on an empty hook. Click a teammate in the office to change their role on the spot.
 
-**Money.** Work pays Salary and cools Suspicion, with a bonus for quick answers. Tasks done one after another build a **combo** (each one inside 15 seconds of the last adds 25% pay, up to ×3); a wrong answer or a long pause ends it. Coins fly into your Salary when you're paid. Beating someone pays their **bounty** (Gary's lunch money, Brad's commission check, the Printer Corner's petty cash, Rick's discretionary fund) and **promotes you**: each promotion is a pay grade, from Junior Associate (×1) to Floor Manager (×4), that multiplies everything work pays. Nothing piles up or goes overdue.
+**Money.** Work pays Salary and cools Suspicion. Items done one after another build a **combo** (each one inside 15 seconds of the last adds 10% pay, up to ×2); a wrong answer or a long pause ends it. A quick player earns about the same per minute from any of the four jobs. Coins fly into your Salary when you're paid. Beating someone pays their **bounty** (Gary's lunch money, Brad's commission check, the Printer Corner's petty cash, Rick's discretionary fund) and **promotes you**: each promotion is a pay grade, from Junior Associate (×1) to Floor Manager (×4), that multiplies everything work pays. Nothing piles up or goes overdue.
 
 Getting caught (Suspicion reaches 100) puts a write-up in your HR file, sends your equipped weapon to Mr. Feeney's drawer for 3 minutes (Dale can get it back for half its price), and lets your target regroup. A write-up fades after 10 minutes without getting caught. Three write-ups is Final Warning; get caught again and you're fired: you lose your bands and this stage's progress, keep your weapons, upgrades and team, and HR rehires you on Monday with a clean file.
 
@@ -71,16 +73,16 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `src/sim/engine.ts` | The simulation step and every player action, including Dale's deals |
 | `src/sim/mods.ts` | Values derived from upgrades and allies |
 | `src/sim/save.ts` | Saving, loading, migration, export and import |
-| `src/sim/minigame.ts` | The Spreadsheet app's mini-game: flags, fixes, tabs |
-| `src/sim/work.ts` | Your job: work emails, phone calls and expense reports, their content, pay grades and the combo |
+| `src/sim/work.ts` | Your job as graded rounds: mail, calls, expense reports and spreadsheets, pay grades and the combo |
+| `src/sim/workdata.ts` | The words for your job: emails, callers, receipts, expense rules, the phone directory |
 | `src/sim/shop.ts` | What's for sale, the shopping list and the affordable-count badges |
-| `src/sim/chat.ts` | Messenger lines: reactions to events, banter and tips |
+| `src/sim/chat.ts` | Messenger: a conversation per person, typing delays, quick replies, the buddy list |
 | `src/sim/supplies.ts` | Your desk drawer, supply orders and deliveries |
 | `src/ui/scene.ts` | The office across the aisle: people, cover, flying bands, Mr. Feeney, clock and light |
 | `src/ui/portraits.ts` | Places the painted coworker portraits in the scene and swaps their expressions |
 | `src/ui/characters.ts` | Each coworker's lines and resting face (plus the old drawn fallback) |
-| `src/ui/sheet.ts` | The spreadsheet view: column-aware numbers, formulas and totals |
-| `src/ui/computer.ts` | Your computer: the desktop, windows, and the Mail, Phone, Expenses, Messenger and Catalog apps |
+| `src/ui/computer.ts` | Your computer: the desk, monitor, desktop, Start menu, windows, taskbar, notifications, screensaver and Mr. Feeney's reflection |
+| `src/ui/apps/` | The computer's apps: Mail, Phone, Expenses, Spreadsheet, Messenger, My Documents and the Catalog |
 | `src/ui/supplies.ts` | The drawer (your hand picking bands out of the junk), the order paperwork and the delivery box |
 | `src/ui/closet.ts` | The supply closet, the only shop: Dale, his pegboard of weapons, band upgrades, the Procurement clipboard, Lost and Found, and his "Psst" deals |
 | `src/ui/goods-art.ts` | Pictures of everything for sale, shared by the closet, shopping list and weapon rack |

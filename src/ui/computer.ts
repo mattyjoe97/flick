@@ -1,50 +1,39 @@
-// Your work computer: a retro desktop that takes over the screen when you press
-// Esc. While you're on it Mr. Feeney can't catch you, Suspicion cools, and the
-// apps are where the actual work (and the empire management) happens:
+// Your work computer: a beige CRT on your desk running a retro office OS. While you're
+// on it Mr. Feeney can't catch you, Suspicion cools, and the apps are where the work
+// (and the empire management) happens:
 //
-//   Mail         story messages, plus work emails to reply to (a mini-game)
-//   Phone        the desk phone: answer, then transfer the caller
-//   Spreadsheet  fix the flagged cells (the old Look Busy game)
-//   Expenses     approve or deny receipts (sometimes your own rubber bands)
-//   Messenger    coworkers and rivals messaging you
-//   Supply Catalog  band orders;  Org Chart  your team
+//   Mail         work email to Reply / Forward / Delete, and story email
+//   Phone        put callers through using today's directory
+//   Spreadsheet  fix the broken cells
+//   Expenses     stamp receipts by today's rule
+//   Messenger    your coworkers, one conversation each
+//   Supply Catalog, Org Chart, My Documents, the Recycle Bin
 //
-// (Everything else you buy comes from Dale's supply closet.) The war screen's App
-// renders the Org Chart into its pane; everything else on the computer lives here.
+// Around the apps: a Start menu, a taskbar with your Salary and the work combo, pop-up
+// notifications, a screensaver if you sit idle, the desk phone beside the monitor, and
+// Mr. Feeney's reflection growing in the glass as he walks up behind you.
 
-import { readChat } from '../sim/chat';
-import { coworkerAvailable, orderSupplies, recruit } from '../sim/engine';
-import { SUPPLIES } from '../sim/supplies';
-import { COMBO, COWORKERS, ROLES, type CoworkerId } from '../sim/content';
-import { setSheetOpen } from '../sim/minigame';
-import { has, mods } from '../sim/mods';
-import { type GameState } from '../sim/state';
-import {
-  answerTask,
-  basePay,
-  CALLERS,
-  comboMult,
-  liveCombo,
-  DIRECTORY,
-  EMAILS,
-  EXPENSE_RULE,
-  expenseReport,
-  findTask,
-  putDown,
-  ringingCall,
-  startTask,
-  WORK,
-  workEmails,
-  type TaskAnswer,
-  type TaskResult,
-  type WorkTask,
-} from '../sim/work';
+import './computer.css';
+import { chatUnread } from '../sim/chat';
+import { COMBO, type CoworkerId } from '../sim/content';
+import { walkbyCountdown } from '../sim/engine';
+import { mods } from '../sim/mods';
+import type { GameEvent, GameState } from '../sim/state';
+import { comboMult, focusApp, liveCombo, payGradeIndex, workReady } from '../sim/work';
+import { CatalogApp, DocsApp } from './apps/docs';
+import { avatarHtml, esc, type AppCtx, type AppView } from './apps/common';
+import { ExpensesApp } from './apps/expenses';
+import { MailApp } from './apps/mail';
+import { MessengerApp } from './apps/messenger';
+import { PhoneApp } from './apps/phone';
+import { SheetApp } from './apps/sheet';
+import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
-import { fmt, money, officeTime } from './format';
+import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'docs' | 'trash';
 
-const APP_TITLES: Record<AppId, string> = {
+const TITLES: Record<AppId, string> = {
   mail: 'Mail',
   phone: 'Phone',
   sheet: 'Spreadsheet',
@@ -52,56 +41,125 @@ const APP_TITLES: Record<AppId, string> = {
   chat: 'Messenger',
   catalog: 'Office Supply Catalog',
   org: 'Org Chart',
+  docs: 'My Documents',
+  trash: 'Recycle Bin',
 };
 
+const ICON: Record<AppId, string> = {
+  mail: 'ico-mail',
+  phone: 'ico-phone',
+  sheet: 'ico-sheet',
+  expenses: 'ico-expenses',
+  chat: 'ico-chat',
+  catalog: 'ico-catalog',
+  org: 'ico-org',
+  docs: 'ico-folder',
+  trash: 'ico-trash',
+};
+
+/** What Mr. Feeney says, peering at whatever you have open. */
+const FEENEY_SAYS: Record<string, string[]> = {
+  mail: ['Inbox zero. I like it.', 'Love a fast responder.'],
+  phone: ['Great phone voice.', 'That’s how you handle a caller.'],
+  sheet: ['Love a good spreadsheet.', 'Those numbers add up. Good.'],
+  expenses: ['Watch those receipts. Good.', 'Accounting will be thrilled.'],
+  chat: ['…Is that Messenger?', 'Chatting, are we?'],
+  catalog: ['Ordering supplies? We’re low on everything.'],
+  org: ['Org chart. Very strategic.'],
+  docs: ['Updating your résumé?', 'Organized. I like it.'],
+  trash: ['Taking out the trash. Good.'],
+  desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
+  saver: ['…Flying staplers?'],
+};
+
+/** The wallpaper for each pay grade: the stock teal, a beach, a rowing crew, the city at night. */
+const WALLS: string[] = ['corporate', 'corporate', 'beach', 'beach', 'beach', 'teamwork', 'teamwork', 'skyline', 'skyline'];
+
+const IDLE_MS = 45_000; // the screensaver comes on after this long without touching anything
+
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 export interface ComputerHooks {
-  done(result: TaskResult): void;
   say(text: string): void;
   ring(): void;
-  click(): void;
   ordered(): void;
   recruited(id: CoworkerId): void;
+  /** A footstep behind you, `near` from 0 (far) to 1 (right behind you). */
+  footstep(near: number): void;
+  notify(): void;
 }
-
-type MailSel = { kind: 'work'; id: number } | { kind: 'story'; id: number } | null;
 
 export class ComputerView {
   private app: AppId | null = null;
-  private mailSel: MailSel = null;
-  private lastResult: { app: AppId; html: string; until: number } | null = null;
-  private approve: (boolean | null)[] = [];
-  private expenseId: number | null = null;
-  private keys = new Map<string, string>();
+  private views: Partial<Record<AppId, AppView>> = {};
+  private mail: MailApp;
+  private phone: PhoneApp;
+  private chat: MessengerApp;
+  private docs: DocsApp;
+  private idleAt = performance.now();
+  private saverOn = false;
   private lastRing = 0;
-  private seenMail = 0; // newest story email id you've seen in Mail
+  private feeney: { phase: 'off' | 'walk' | 'peer' | 'leave'; t: number } = { phase: 'off', t: 0 };
+  private nextStep = 0;
+  private ready = { expense: false, sheet: false };
+  private text = new Map<string, string>();
 
   constructor(
-    private getState: () => GameState,
+    private get: () => GameState,
     private hooks: ComputerHooks,
+    sound: Sound,
   ) {
+    const ctx: AppCtx = { get, sound, say: (t) => hooks.say(t) };
+    const pane = (id: string) => document.querySelector<HTMLElement>(`.win-body .app[data-app="${id}"]`)!;
+    this.mail = new MailApp(pane('mail'), ctx, { recruited: (id) => hooks.recruited(id) });
+    this.phone = new PhoneApp(pane('phone'), ctx);
+    this.chat = new MessengerApp(pane('chat'), ctx);
+    this.docs = new DocsApp(pane('docs'), ctx);
+    this.docs.onTitle = () => this.setTitle();
+    this.views = {
+      mail: this.mail,
+      phone: this.phone,
+      sheet: new SheetApp(pane('sheet'), ctx),
+      expenses: new ExpensesApp(pane('expenses'), ctx),
+      chat: this.chat,
+      catalog: new CatalogApp(pane('catalog'), ctx, () => hooks.ordered()),
+      docs: this.docs,
+      trash: this.docs,
+    };
+
     $('desktop').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-app]');
       if (b) this.openApp(b.dataset.app as AppId);
     });
-    $('win-close').addEventListener('click', () => this.openApp(null));
-    $('incoming-answer').addEventListener('click', () => this.answerCall());
-    $('mail-list').addEventListener('click', (e) => {
-      const li = (e.target as HTMLElement).closest<HTMLElement>('[data-mail]');
-      if (!li) return;
-      const [kind, id] = li.dataset.mail!.split(':');
-      this.selectMail({ kind: kind as 'work' | 'story', id: Number(id) });
+    $('start-menu').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!b) return;
+      this.toggleStart(false);
+      if (b.dataset.app) this.openApp(b.dataset.app as AppId);
     });
-    for (const id of ['mail-read', 'phone-body', 'expenses-body', 'catalog-body']) {
-      $(id).addEventListener('click', (e) => this.onClick(e));
-    }
+    $('start-btn').addEventListener('click', () => this.toggleStart());
+    $('win-close').addEventListener('click', () => this.openApp(null));
+    $('desk-phone').addEventListener('click', () => this.answerPhone());
+    $('toasts').addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>('[data-open]');
+      if (!t) return;
+      if (t.dataset.open === 'call') this.answerPhone();
+      else {
+        this.openApp(t.dataset.open as AppId);
+        if (t.dataset.who) this.chat.show(t.dataset.who);
+      }
+      t.remove();
+    });
+    // Anything you do at the computer keeps the screensaver away.
+    const wake = () => {
+      this.idleAt = performance.now();
+      if (this.saverOn) this.saver(false);
+    };
+    for (const ev of ['pointerdown', 'pointermove', 'keydown', 'wheel']) $('computer').addEventListener(ev, wake, { passive: true });
   }
 
   private get s() {
-    return this.getState();
+    return this.get();
   }
 
   get current() {
@@ -112,468 +170,245 @@ export class ComputerView {
 
   /** The computer just came up (you pressed Esc, or picked up the phone). */
   opened() {
-    this.keys.clear();
-    if (this.app) this.openApp(this.app);
+    this.idleAt = performance.now();
+    const s = this.s;
+    if (s.work.rounds.call) this.openApp('phone');
+    else if (this.app) this.openApp(this.app);
     else $('back-btn').focus();
   }
 
   /** You went back to the war. */
   closed() {
-    putDown(this.s);
-    setSheetOpen(this.s, false);
-    this.expenseId = null;
+    this.toggleStart(false);
+    this.saver(false);
+    this.feeney = { phase: 'off', t: 0 };
+    $('reflection').className = 'reflection';
+    $('toasts').innerHTML = '';
   }
 
   openApp(app: AppId | null) {
     const s = this.s;
-    // Leaving an app puts down whatever you were working on in it.
-    if (this.app !== app) {
-      putDown(s);
-      this.expenseId = null;
-      this.lastResult = null;
-    }
+    this.toggleStart(false);
+    if (app === 'docs' || app === 'trash') this.docs.mode = { kind: app === 'trash' ? 'trash' : 'folder' };
+    const before = this.app;
     this.app = app;
-    setSheetOpen(s, app === 'sheet');
+    const host = app === 'trash' ? 'docs' : app;
     $('window').hidden = app === null;
     $('desktop').classList.toggle('behind', app !== null);
-    document.querySelectorAll<HTMLElement>('.win-body .app').forEach((el) => (el.hidden = el.dataset.app !== app));
-    $('task-open').textContent = app ? APP_TITLES[app] : '';
+    document.querySelectorAll<HTMLElement>('.win-body .app').forEach((el) => (el.hidden = el.dataset.app !== host));
+    focusApp(s, app ? (this.views[app]?.work ?? null) : null);
+    this.setTitle();
+    if (app && (app !== before || app === 'docs' || app === 'trash')) this.views[app]?.opened?.();
+    if (app) this.views[app]?.render(s);
+  }
+
+  private setTitle() {
+    const app = this.app;
+    $('task-open').textContent = app ? TITLES[app] : '';
     if (!app) return;
-    $('win-title').textContent = APP_TITLES[app];
-    $('win-ico').className = `win-ico ico ico-${app}`;
-    this.keys.clear();
-    this.hooks.click();
-    if (app === 'chat') readChat(s);
-    if (app === 'mail') {
-      s.unread = 0;
-      this.seenMail = s.inbox[0]?.id ?? 0;
-      const first = workEmails(s)[0];
-      this.selectMail(first ? { kind: 'work', id: first.id } : s.inbox[0] ? { kind: 'story', id: s.inbox[0].id } : null);
-    }
-    if (app === 'expenses') this.startExpense();
-    this.render();
+    $('win-title').textContent = app === 'docs' || app === 'trash' ? this.docs.title() : TITLES[app];
+    $('win-ico').className = `win-ico ico ${ICON[app]}`;
   }
 
-  /** Answer the ringing phone (from the war screen or the computer). */
-  answerCall() {
-    const s = this.s;
-    const call = ringingCall(s);
-    if (!call) {
-      this.openApp('phone');
-      return;
-    }
-    if (this.app !== 'phone') this.openApp('phone');
-    startTask(s, call.id);
-    this.keys.delete('phone');
-    this.render();
+  private toggleStart(on?: boolean) {
+    const m = $('start-menu');
+    const show = on ?? m.hidden;
+    m.hidden = !show;
+    $('start-btn').setAttribute('aria-expanded', String(show));
+    $('start-btn').classList.toggle('down', show);
   }
 
-  // ---------------------------------------------------------------- mail
-
-  private selectMail(sel: MailSel) {
-    const s = this.s;
-    putDown(s);
-    this.mailSel = sel;
-    this.lastResult = null;
-    if (sel?.kind === 'work') startTask(s, sel.id);
-    this.keys.delete('mail-read');
-    this.keys.delete('mail-list');
+  /** Pick up the desk phone. */
+  answerPhone() {
+    this.openApp('phone');
+    this.phone.pickUp();
   }
 
-  private renderMail() {
-    const s = this.s;
-    const work = workEmails(s);
-    const listKey = `${work.map((w) => w.id).join(',')}|${s.inbox[0]?.id ?? 0}|${this.mailSel?.kind}:${this.mailSel?.id}`;
-    if (this.keys.get('mail-list') !== listKey) {
-      this.keys.set('mail-list', listKey);
-      const sel = this.mailSel;
-      const rows = [
-        ...work.map((t) => {
-          const e = EMAILS[t.data.idx];
-          const on = sel?.kind === 'work' && sel.id === t.id;
-          return `<li data-mail="work:${t.id}" class="work${on ? ' on' : ''}"><span class="m-flag">Reply</span><b>${esc(e.from)}</b><span>${esc(e.subject)}</span></li>`;
-        }),
-        ...s.inbox.slice(0, 30).map((m) => {
-          const on = sel?.kind === 'story' && sel.id === m.id;
-          const fresh = m.id > this.seenMail;
-          return `<li data-mail="story:${m.id}" class="${m.kind}${on ? ' on' : ''}${fresh ? ' fresh' : ''}"><time>${officeTime(m.t)}</time><b>${esc(m.from)}</b><span>${esc(m.subject)}</span></li>`;
-        }),
-      ];
-      $('mail-list').innerHTML = rows.join('') || '<li class="empty">Inbox zero. Savor it.</li>';
-    }
-
-    const sel = this.mailSel;
-    const result = this.lastResult?.app === 'mail' ? this.lastResult : null;
-    const story = sel?.kind === 'story' ? s.inbox.find((x) => x.id === sel.id) : undefined;
-    const joined = story?.recruit ? s.allies.some((a) => a.id === story.recruit) : false;
-    const readKey = `${sel?.kind}:${sel?.id}|${result ? 'r' : ''}|${joined}`;
-    if (this.keys.get('mail-read') === readKey) return;
-    this.keys.set('mail-read', readKey);
-    const pane = $('mail-read');
-    if (result) {
-      const next = workEmails(s)[0];
-      pane.innerHTML = `${result.html}${next ? `<button type="button" class="win-action" data-next-mail="${next.id}">Next email to answer</button>` : '<p class="hint">That’s every email that needs a reply. Nice.</p>'}`;
-      return;
-    }
-    if (!sel) {
-      pane.innerHTML = '<p class="hint">Pick an email on the left.</p>';
-      return;
-    }
-    if (sel.kind === 'story') {
-      const m = story;
-      pane.innerHTML = m
-        ? `<header class="mail-head"><span><b>From:</b> ${esc(m.from)}</span><span><b>Subject:</b> ${esc(m.subject)}</span><time>${officeTime(m.t)}</time></header><p class="mail-text">${esc(m.body)}</p>${this.recruitBit(m.recruit)}`
-        : '<p class="hint">That email is gone.</p>';
-      return;
-    }
-    const t = findTask(s, sel.id);
-    if (!t || t.kind !== 'email') {
-      pane.innerHTML = '<p class="hint">That email is gone.</p>';
-      return;
-    }
-    const e = EMAILS[t.data.idx];
-    pane.innerHTML = `
-      <header class="mail-head"><span><b>From:</b> ${esc(e.from)}</span><span><b>Subject:</b> ${esc(e.subject)}</span></header>
-      <p class="mail-text">${esc(e.body)}</p>
-      <p class="work-ask">Reply with:</p>
-      <div class="replies">${t.data.order
-        .map((ri, pos) => {
-          const r = e.replies[ri];
-          return `<button type="button" class="reply-btn" data-choice="${pos}"><kbd>${pos + 1}</kbd>${r.replyAll ? '<span class="reply-all">Reply All</span>' : ''}<span>${esc(r.text)}</span></button>`;
-        })
-        .join('')}</div>
-      <div class="fast-bar" data-fast="email"><span></span><em>Fast bonus</em></div>`;
-  }
-
-  /** A coworker asking to join: hire them right from the email. */
-  private recruitBit(id: CoworkerId | undefined) {
-    const s = this.s;
-    if (!id) return '';
-    const c = COWORKERS.find((x) => x.id === id)!;
-    if (s.allies.some((a) => a.id === id))
-      return `<p class="mail-recruit"><span class="stamp blue">On your team</span> Change ${esc(c.name)}’s role in the Org Chart, or click them in the office.</p>`;
-    if (!coworkerAvailable(s, id)) return '';
-    return `<p class="mail-recruit"><button type="button" class="win-action" data-recruit="${id}" data-price="${c.cost}">Recruit ${esc(c.name)}: ${money(c.cost)}</button>
-      <span class="hint">${esc(c.trait)}: best as a ${esc(ROLES.find((r) => r.id === c.traitRole)!.name)}.</span></p>`;
-  }
-
-  // ---------------------------------------------------------------- phone
-
-  private renderPhone() {
-    const s = this.s;
-    const active = s.work.activeId !== null ? findTask(s, s.work.activeId) : undefined;
-    const ringing = ringingCall(s);
-    const result = this.lastResult?.app === 'phone' ? this.lastResult : null;
-    const key = `${active?.kind === 'call' ? active.id : ''}|${ringing?.id ?? ''}|${result ? 'r' : ''}`;
-    if (this.keys.get('phone') === key) return;
-    this.keys.set('phone', key);
-    const body = $('phone-body');
-    if (result) {
-      body.innerHTML = result.html;
-      return;
-    }
-    if (active?.kind === 'call') {
-      const c = CALLERS[active.data.caller];
-      body.innerHTML = `
-        <p class="caller"><span class="caller-tag">On the line:</span> “${esc(c.line)}”</p>
-        <div class="call-grid">
-          <div class="directory" aria-label="Phone directory"><b>Extensions</b>${DIRECTORY.map((d) => `<span>${esc(d.name)} <i>${d.ext}</i></span>`).join('')}</div>
-          <div class="keypad" role="group" aria-label="Dial an extension">${[1, 2, 3, 4, 5, 6, 7, 8, 9]
-            .map((n) => `<button type="button" class="key" data-ext="${n}">${n}</button>`)
-            .join('')}</div>
-        </div>
-        <p class="work-ask">Dial the extension that can help them.</p>
-        <div class="fast-bar" data-fast="call"><span></span><em>Fast bonus</em></div>`;
-      return;
-    }
-    if (ringing) {
-      body.innerHTML = `<div class="phone-idle ringing"><p class="big">Line 1 is ringing</p><button type="button" class="win-action" data-answer="1">Answer</button></div>`;
-      return;
-    }
-    body.innerHTML = `<div class="phone-idle"><p class="big">No calls right now.</p>
-      <p class="hint">The desk phone rings every minute or two, even when you’re away from your computer. Answering puts you here, safe from walk-bys, and transferring the caller to the right extension pays ${money(basePay(s, 'call'))}.</p>
-      <p class="hint">Calls missed so far: ${fmt(s.stats.callsMissed)}. Nobody keeps track. Probably.</p></div>`;
-  }
-
-  // ---------------------------------------------------------------- expenses
-
-  private startExpense() {
-    const s = this.s;
-    const r = expenseReport(s);
-    if (!r || this.expenseId === r.id) return;
-    putDown(s);
-    startTask(s, r.id);
-    this.expenseId = r.id;
-    this.approve = r.data.receipts.map(() => null);
-    this.keys.delete('expenses');
-  }
-
-  private renderExpenses() {
-    const s = this.s;
-    const r = expenseReport(s);
-    const result = this.lastResult?.app === 'expenses' ? this.lastResult : null;
-    if (!result && r && this.expenseId !== r.id) this.startExpense();
-    const key = `${r?.id ?? ''}|${result ? 'r' : ''}`;
-    const body = $('expenses-body');
-    if (this.keys.get('expenses') !== key) {
-      this.keys.set('expenses', key);
-      if (result) body.innerHTML = result.html + '<p class="hint" id="exp-next"></p>';
-      else if (!r) body.innerHTML = '<p class="hint" id="exp-next"></p>';
-      else {
-        body.innerHTML = `
-          <p class="rule">${esc(EXPENSE_RULE)}</p>
-          <div class="exp-receipts">${r.data.receipts
-            .map(
-              (x, i) => `<div class="exp-receipt${x.yours ? ' yours' : ''}" data-receipt="${i}">
-                ${x.yours ? '<span class="yours-note">← yours</span>' : ''}
-                <span class="r-item">${esc(x.item)}</span>
-                <span class="r-cat">${esc(x.cat)}</span>
-                <span class="r-amt">${money(x.amount)}</span>
-                <span class="r-choice">
-                  <button type="button" class="ok-btn" data-approve="${i}" aria-pressed="false">Approve</button>
-                  <button type="button" class="no-btn" data-deny="${i}" aria-pressed="false">Deny</button>
-                </span>
-              </div>`,
-            )
-            .join('')}</div>
-          <div class="fast-bar" data-fast="expense"><span></span><em>Fast bonus</em></div>
-          <button type="button" class="win-action" data-submit-expense="1" disabled>File the report</button>`;
-      }
-    }
-    const next = document.getElementById('exp-next');
-    if (next) {
-      const wait = Math.max(0, Math.ceil(s.work.expenseAt - s.time));
-      const text = r ? '' : wait > 0 ? `The next expense report lands in ${wait} s.` : 'The next expense report is loading…';
-      if (next.textContent !== text) next.textContent = text;
-    }
-  }
-
-  private decide(i: number, ok: boolean) {
-    this.approve[i] = ok;
-    const card = document.querySelector(`#expenses-body [data-receipt="${i}"]`);
-    card?.querySelector('.ok-btn')?.setAttribute('aria-pressed', String(ok));
-    card?.querySelector('.no-btn')?.setAttribute('aria-pressed', String(!ok));
-    card?.classList.toggle('approved', ok);
-    card?.classList.toggle('denied', !ok);
-    const submit = document.querySelector<HTMLButtonElement>('#expenses-body [data-submit-expense]');
-    if (submit) submit.disabled = this.approve.some((v) => v === null);
-  }
-
-  // ---------------------------------------------------------------- chat, catalog
-
-  private renderChat() {
-    const s = this.s;
-    const key = String(s.chat.log[s.chat.log.length - 1]?.id ?? 0);
-    if (this.keys.get('chat') === key) return;
-    this.keys.set('chat', key);
-    readChat(s);
-    const log = $('chat-log');
-    log.innerHTML =
-      s.chat.log
-        .map((m) => `<li><span class="who">${esc(m.from)}</span><span class="bubble">${esc(m.text)}</span><time>${officeTime(m.t)}</time></li>`)
-        .join('') || '<li class="empty">No messages yet. Everyone is pretending to work.</li>';
-    log.scrollTop = log.scrollHeight;
-  }
-
-  private renderCatalog() {
-    const s = this.s;
-    const o = mods(s).order;
-    const bulk = has(s, 'bulk');
-    const key = `${o.price}:${o.amount}:${s.salary >= o.price}`;
-    if (this.keys.get('catalog') === key) return;
-    this.keys.set('catalog', key);
-    $('catalog-body').innerHTML = `
-      <div class="product">
-        <div class="product-art" aria-hidden="true"></div>
-        <div><h3>Rubber bands, assorted (${o.amount})</h3>
-        <p>${bulk ? 'Bulk pricing approved by Procurement.' : 'Standard office pack. Procurement can approve bulk pricing.'} It arrives at your desk in a box ${SUPPLIES.deliverySeconds} seconds later. Ordering makes a little noise: someone has to sign for it.</p>
-        <p class="price">${money(o.price)}</p>
-        <button type="button" class="win-action" data-order="1"${s.salary < o.price ? ' disabled' : ''}>Add to cart and check out</button></div>
-      </div>
-      <p class="hint">Shortcut from the war: press O to send an order, and O again to open the box when it lands.</p>`;
-  }
-
-  // ---------------------------------------------------------------- input
-
-  private onClick(e: Event) {
-    const el = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
-    if (!el || el.disabled) return;
-    const d = el.dataset;
-    if (d.choice !== undefined) this.answerMail(Number(d.choice));
-    else if (d.ext !== undefined) this.answerPhone(Number(d.ext));
-    else if (d.answer !== undefined) this.answerCall();
-    else if (d.approve !== undefined) this.decide(Number(d.approve), true);
-    else if (d.deny !== undefined) this.decide(Number(d.deny), false);
-    else if (d.submitExpense !== undefined) this.fileExpense();
-    else if (d.nextMail !== undefined) this.selectMail({ kind: 'work', id: Number(d.nextMail) });
-    else if (d.recruit !== undefined) {
-      const id = d.recruit as CoworkerId;
-      const r = recruit(this.s, id);
-      if (r.ok) this.hooks.recruited(id);
-      else this.hooks.say(r.reason);
-      this.keys.delete('mail-read');
-    }
-    else if (d.order !== undefined) {
-      if (orderSupplies(this.s).ok) this.hooks.ordered();
-      this.keys.delete('catalog');
-    }
-  }
-
-  /** Keys while the computer is up (number keys answer). Returns true if used. */
+  /** Keys while the computer is up. Returns true if used. */
   onKey(e: KeyboardEvent): boolean {
     if (e.repeat) return false;
-    const n = Number(e.key);
-    if (!Number.isInteger(n) || n < 1 || n > 9) return false;
-    const s = this.s;
-    if (this.app === 'mail' && this.mailSel?.kind === 'work' && n <= 3 && !this.lastResult) {
-      this.answerMail(n - 1);
+    if (this.saverOn) {
+      this.saver(false);
       return true;
     }
-    if (this.app === 'phone' && s.work.activeId !== null && findTask(s, s.work.activeId)?.kind === 'call') {
-      this.answerPhone(n);
+    if (!$('start-menu').hidden && e.key === 'Escape') {
+      this.toggleStart(false);
       return true;
     }
-    return false;
+    const v = this.app ? this.views[this.app] : undefined;
+    return v?.key?.(e) ?? false;
   }
 
-  private answerMail(choice: number) {
-    if (this.mailSel?.kind !== 'work') return;
-    this.finish('mail', this.mailSel.id, { kind: 'email', choice });
-    this.mailSel = null;
-  }
+  // ---------------------------------------------------------------- events
 
-  private answerPhone(ext: number) {
+  handle(e: GameEvent) {
     const s = this.s;
-    const id = s.work.activeId;
-    if (id === null) return;
-    this.finish('phone', id, { kind: 'call', ext });
+    if (!s.lookBusy) return;
+    if (e.type === 'workReady' && e.kind === 'mail' && this.app !== 'mail' && !s.work.rounds.mail) {
+      const n = s.work.mailWaiting;
+      if (n === 1 || n === 3 || n === 5) this.toast('mail', 'mail', 'New work email', `${n} waiting in Mail`);
+    } else if (e.type === 'chat') {
+      if (this.app === 'chat') return;
+      const th = s.chat.threads.find((t) => t.who === e.from);
+      const last = th?.msgs[th.msgs.length - 1];
+      this.toast(`chat:${e.from}`, 'chat', e.from, last?.text ?? '', e.from);
+      this.hooks.notify();
+    } else if (e.type === 'taskAuto') this.toast('auto', 'mail', 'Auto-Reply', 'Answered a waiting email for you.');
+    else if (e.type === 'hidden') this.feeneyPeer();
   }
 
-  private fileExpense() {
-    if (this.expenseId === null || this.approve.some((v) => v === null)) return;
-    this.finish('expenses', this.expenseId, { kind: 'expense', approve: this.approve.map(Boolean) });
-    this.expenseId = null;
+  /** A notification sliding up over the taskbar. The same key replaces the old one. */
+  private toast(key: string, app: AppId | 'call', title: string, text: string, who?: string) {
+    const box = $('toasts');
+    const old = box.querySelector(`[data-key="${CSS.escape(key)}"]`);
+    if (key === 'call' && old) return;
+    old?.remove();
+    while (box.childElementCount >= 3) box.firstElementChild?.remove();
+    const t = document.createElement('button');
+    t.type = 'button';
+    t.className = `toast toast-${app}`;
+    t.dataset.key = key;
+    t.dataset.open = app;
+    if (who) t.dataset.who = who;
+    t.innerHTML = `${app === 'chat' && who ? avatarHtml(who) : `<span class="ico ${app === 'call' ? 'ico-phone' : ICON[app]}"></span>`}<span class="t-body"><b>${esc(title)}</b><span>${esc(text)}</span></span>`;
+    box.append(t);
+    if (key !== 'call') setTimeout(() => t.remove(), 5000);
   }
 
-  private finish(app: AppId, id: number, a: TaskAnswer) {
-    const r = answerTask(this.s, id, a);
-    if (!r) return;
-    this.hooks.done(r);
-    const bits = [
-      r.pay > 0 ? `+${money(r.pay)}${liveCombo(this.s) > 1 ? ` (combo ×${comboMult(this.s).toFixed(2).replace(/\.?0+$/, '')})` : ''}` : '',
-      r.suspicion < -0.5 ? `Suspicion ${Math.round(r.suspicion)}` : r.suspicion > 0.5 ? `Suspicion +${Math.round(r.suspicion)}` : '',
-      r.bonusBands ? `+${r.bonusBands} bands` : '',
-    ]
-      .filter(Boolean)
-      .join(' · ');
-    const html = `<div class="work-result ${r.ok ? 'good' : 'bad'}"><span class="stamp-big">${r.ok ? 'Done' : 'Oops'}</span><p>${esc(r.text)}</p>${bits ? `<p class="result-bits">${bits}</p>` : ''}</div>`;
-    this.lastResult = { app, html, until: performance.now() + 4000 };
-    this.keys.clear();
-    this.render();
-  }
+  // ---------------------------------------------------------------- Mr. Feeney behind you
 
-  // ---------------------------------------------------------------- reflection
-
-  /** Mr. Feeney walks behind you: you see him in the monitor glass. */
-  reflect() {
+  /** He arrives: leans in, says something about what you have open, and moves on. */
+  private feeneyPeer() {
+    this.feeney = { phase: 'peer', t: performance.now() };
+    const where = this.saverOn ? 'saver' : (this.app ?? 'desk');
+    const lines = FEENEY_SAYS[where] ?? FEENEY_SAYS.desk;
     const r = $('reflection');
-    r.innerHTML = `${portraitSvg('feeney', 'happy')}<span class="bubble-reflect">Great hustle.</span>`;
-    r.classList.remove('pass');
-    void r.offsetWidth;
-    r.classList.add('pass');
+    r.querySelector('.refl-say')!.textContent = lines[Math.floor(Math.random() * lines.length)];
+    r.querySelector('.refl-man')!.innerHTML = portraitSvg('feeney', 'happy');
+    const w = this.s.work.rounds;
+    if (w.mail || w.sheet || w.expense || w.call) this.toast('hustle', this.app ?? 'mail', 'Mr. Feeney is watching', 'Work pays double for a moment.');
+  }
+
+  private stepFeeney(s: GameState, now: number) {
+    const r = $('reflection');
+    const c = walkbyCountdown(s);
+    const f = this.feeney;
+    if (c !== null && (f.phase === 'off' || f.phase === 'walk')) {
+      // Footsteps behind you, getting closer; his reflection grows in the glass.
+      if (f.phase === 'off') {
+        this.feeney = { phase: 'walk', t: now };
+        r.querySelector('.refl-man')!.innerHTML = portraitSvg('feeney', 'idle');
+        r.querySelector('.refl-say')!.textContent = '';
+      }
+      const near = Math.min(1, Math.max(0, 1 - c / mods(s).warning));
+      if (r.className !== 'reflection walk') r.className = 'reflection walk';
+      r.style.setProperty('--near', near.toFixed(3));
+      if (now > this.nextStep) {
+        this.nextStep = now + 720 - 380 * near;
+        this.hooks.footstep(near);
+      }
+      return;
+    }
+    if (f.phase === 'peer') {
+      if (r.className !== 'reflection peer') r.className = 'reflection peer';
+      if (now - f.t > 2400) this.feeney = { phase: 'leave', t: now };
+    } else if (f.phase === 'leave') {
+      if (r.className !== 'reflection leave') r.className = 'reflection leave';
+      if (now - f.t > 1400) this.feeney = { phase: 'off', t: now };
+    } else if (f.phase === 'walk') this.feeney = { phase: 'off', t: now };
+    else if (r.className !== 'reflection') r.className = 'reflection';
+  }
+
+  // ---------------------------------------------------------------- screensaver
+
+  private saver(on: boolean) {
+    if (this.saverOn === on) return;
+    this.saverOn = on;
+    const el = $('screensaver');
+    el.hidden = !on;
+    el.innerHTML = on
+      ? Array.from({ length: 7 }, (_, i) => `<span class="flyer" style="--i:${i};--y:${(i * 37) % 86}%;--d:${7 + (i % 3) * 2}s"></span>`).join('') +
+        `<p class="saver-note"></p>`
+      : '';
   }
 
   // ---------------------------------------------------------------- every frame
 
+  private setText(id: string, t: string) {
+    if (this.text.get(id) === t) return;
+    this.text.set(id, t);
+    $(id).textContent = t;
+  }
+
   render() {
     const s = this.s;
+    const now = performance.now();
+
+    // The wallpaper you get depends on your pay grade.
+    const wall = WALLS[Math.min(WALLS.length - 1, payGradeIndex(s))];
+    if ($('screen').dataset.wall !== wall) $('screen').dataset.wall = wall;
+
+    // Keep the sim's idea of what you're looking at in step (picking up the phone moves you).
+    const want = this.app ? (this.views[this.app]?.work ?? null) : null;
+    if (s.work.focus !== want) focusApp(s, want);
 
     // Badges on the desktop icons.
-    const work = workEmails(s).length;
-    badge('badge-mail', work + s.unread);
-    badge('badge-phone', ringingCall(s) ? '!' : 0);
-    badge('badge-expenses', expenseReport(s) ? 1 : 0);
-    badge('badge-chat', s.chat.unread);
+    const ready = workReady(s);
+    const r = s.work.rounds;
+    badge('mail', (r.mail ? r.mail.items - r.mail.done : 0) + ready.mail + s.unread);
+    badge('phone', ready.call || r.call ? '!' : 0);
+    badge('expenses', ready.expense ? 1 : 0);
+    badge('sheet', r.sheet ? r.sheet.items - r.sheet.done : ready.sheet ? 1 : 0);
+    badge('chat', chatUnread(s));
 
-    // A call comes in while you're in another app.
-    const ringing = ringingCall(s);
-    const incoming = $('incoming');
-    incoming.hidden = !ringing || this.app === 'phone';
+    // New reports and spreadsheets: a notification when they land.
+    for (const k of ['expense', 'sheet'] as const) {
+      const app: AppId = k === 'expense' ? 'expenses' : 'sheet';
+      if (ready[k] && !this.ready[k] && this.app !== app && s.time > 20)
+        this.toast(k, app, k === 'expense' ? 'Expense report' : 'Spreadsheet', k === 'expense' ? 'A new report is ready to stamp.' : 'Some cells broke. Again.');
+      this.ready[k] = ready[k];
+    }
+
+    // The desk phone rings (and shakes) beside the monitor.
+    const ringing = !!s.work.ringing;
+    $('desk-phone').classList.toggle('ringing', ringing);
     if (ringing) {
-      const now = performance.now();
+      if (this.app !== 'phone') this.toast('call', 'call', 'Incoming call', 'Line 1 is ringing. Click to answer.');
       if (now - this.lastRing > 1500) {
         this.lastRing = now;
         this.hooks.ring();
       }
-    }
+    } else $('toasts').querySelector('[data-key="call"]')?.remove();
 
-    // Taskbar
-    setText('tray-clock', officeTime(s.time));
-    setText('tray-cool', `Suspicion ${Math.round(Math.min(100, s.suspicion))} and cooling`);
-    setText('tray-pay', money(s.salary));
-    // The work combo: how many in a row, what it pays, and how long you have to keep it going.
+    // Taskbar: Suspicion, Salary, the clock and the work combo.
+    this.setText('tray-clock', officeTime(s.time));
+    this.setText('tray-cool', `Suspicion ${Math.round(Math.min(100, s.suspicion))}`);
+    this.setText('tray-pay', money(s.salary));
     const combo = liveCombo(s);
     const chip = $('tray-combo');
     chip.hidden = combo < 2;
     if (combo >= 2) {
-      setText('combo-x', `Combo ${combo} · pays ×${comboMult(s).toFixed(2).replace(/\.?0+$/, '')}`);
+      this.setText('combo-x', `Combo ${combo} · ×${comboMult(s).toFixed(1).replace(/\.0$/, '')}`);
       $('combo-fill').style.width = `${Math.max(0, 1 - (s.time - s.work.comboAt) / COMBO.window) * 100}%`;
       chip.classList.toggle('max', comboMult(s) >= 1 + COMBO.step * COMBO.cap);
     }
 
-    if (this.lastResult && performance.now() > this.lastResult.until && this.app !== 'mail') {
-      this.lastResult = null;
-      this.keys.clear();
-    }
-
-    switch (this.app) {
-      case 'mail':
-        this.renderMail();
-        break;
-      case 'phone':
-        this.renderPhone();
-        break;
-      case 'expenses':
-        this.renderExpenses();
-        break;
-      case 'chat':
-        this.renderChat();
-        break;
-      case 'catalog':
-        this.renderCatalog();
-        break;
-    }
-
-    // Buttons that cost money (Recruit in Mail) grey out until you can afford them.
-    document.querySelectorAll<HTMLButtonElement>('#mail-read button[data-price]').forEach((b) => {
-      b.disabled = s.salary < Number(b.dataset.price);
-    });
-
-    // Fast-bonus bars on an open task.
-    const bar = document.querySelector<HTMLElement>(`.app:not([hidden]) .fast-bar`);
-    if (bar && s.work.activeId !== null) {
-      const t = findTask(s, s.work.activeId);
-      if (t) {
-        const left = Math.max(0, WORK.fast[t.kind] - (s.time - s.work.activeSince));
-        (bar.firstElementChild as HTMLElement).style.width = `${(left / WORK.fast[t.kind]) * 100}%`;
-        bar.classList.toggle('gone', left <= 0);
-      }
+    if (this.app) this.views[this.app]?.render(s);
+    this.stepFeeney(s, now);
+    if (!this.saverOn && now - this.idleAt > IDLE_MS) this.saver(true);
+    if (this.saverOn) {
+      const note = $('screensaver').querySelector('.saver-note');
+      const t = `Salary: ${money(s.salary)}`;
+      if (note && note.textContent !== t) note.textContent = t;
     }
   }
 }
 
-function badge(id: string, v: number | string) {
-  const el = document.getElementById(id);
+function badge(app: string, v: number | string) {
+  const el = document.querySelector<HTMLElement>(`[data-badge="${app}"]`);
   if (!el) return;
   const show = v !== 0 && v !== '';
   el.hidden = !show;
   const t = typeof v === 'number' ? (v > 9 ? '9+' : String(v)) : v;
   if (show && el.textContent !== t) el.textContent = t;
 }
-
-function setText(id: string, t: string) {
-  const el = document.getElementById(id);
-  if (el && el.textContent !== t) el.textContent = t;
-}
-
-export type { WorkTask };

@@ -176,22 +176,31 @@ export class Sound {
     this.tone('triangle', 300, 520, 0.12, 0.06);
   }
 
-  footstep() {
+  /** A heavy loafer on carpet. `volume` below 1 for steps further away (or behind you). */
+  footstep(volume = 1) {
     if (!this.ok('step', 200)) return;
-    this.tone('sine', 95, 55, 0.09, 0.32);
-    this.noise(300, 1, 0.05, 0.08);
+    this.tone('sine', 95, 55, 0.09, 0.32 * volume);
+    this.noise(300, 1, 0.05, 0.08 * volume);
+  }
+
+  /** Messenger: a message for you. */
+  notify() {
+    if (!this.ok('notify', 400)) return;
+    this.tone('sine', 880, 880, 0.08, 0.08);
+    this.tone('sine', 1175, 1175, 0.12, 0.08, 0.08);
+  }
+
+  /** A round graded: a fanfare for an A, a sad trombone for an F. */
+  grade(g: 'A' | 'B' | 'C' | 'D' | 'F') {
+    if (!this.ok('grade', 300)) return;
+    const notes = { A: [784, 988, 1175, 1568], B: [784, 1047], C: [784], D: [523, 440], F: [392, 330, 262] }[g];
+    notes.forEach((f, i) => this.tone(g === 'D' || g === 'F' ? 'triangle' : 'sine', f, f, 0.14, 0.11, i * 0.09));
   }
 
   type() {
     if (!this.ok('type', 30)) return;
     this.noise(3400, 3, 0.025, 0.14);
     this.noise(2200, 3, 0.02, 0.08, 0.035);
-  }
-
-  fix(streak: number) {
-    if (!this.ok('fix', 40)) return;
-    this.noise(3400, 3, 0.025, 0.12);
-    this.tone('sine', 520 + Math.min(streak, 12) * 55, 520 + Math.min(streak, 12) * 55, 0.09, 0.12, 0.02);
   }
 
   miss() {

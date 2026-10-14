@@ -171,71 +171,80 @@
       </main>
 
       <div class="computer" id="computer" hidden>
-        <div class="monitor">
-          <div class="screen" id="screen">
-            <div class="desktop" id="desktop" role="toolbar" aria-label="Apps">
-              <button type="button" class="icon" data-app="mail"><span class="ico ico-mail"></span><span class="icon-name">Mail</span><b class="badge" id="badge-mail" hidden></b></button>
-              <button type="button" class="icon" data-app="phone"><span class="ico ico-phone"></span><span class="icon-name">Phone</span><b class="badge" id="badge-phone" hidden></b></button>
-              <button type="button" class="icon" data-app="sheet"><span class="ico ico-sheet"></span><span class="icon-name">Spreadsheet</span></button>
-              <button type="button" class="icon" data-app="expenses"><span class="ico ico-expenses"></span><span class="icon-name">Expenses</span><b class="badge" id="badge-expenses" hidden></b></button>
-              <button type="button" class="icon" data-app="chat"><span class="ico ico-chat"></span><span class="icon-name">Messenger</span><b class="badge" id="badge-chat" hidden></b></button>
-              <button type="button" class="icon" data-app="catalog"><span class="ico ico-catalog"></span><span class="icon-name">Supply Catalog</span></button>
-              <button type="button" class="icon" data-app="org"><span class="ico ico-org"></span><span class="icon-name">Org Chart</span></button>
-            </div>
-            <section class="window" id="window" hidden aria-labelledby="win-title">
-              <header class="win-bar">
-                <span class="win-ico" id="win-ico"></span>
-                <h2 class="win-title" id="win-title">Mail</h2>
-                <button type="button" class="win-btn" id="win-close" aria-label="Close window">×</button>
-              </header>
-              <div class="win-body">
-                <div class="app app-mail" data-app="mail" hidden>
-                  <ol class="mail-list" id="mail-list"></ol>
-                  <article class="mail-read" id="mail-read"></article>
-                </div>
-                <div class="app app-phone" data-app="phone" hidden><div id="phone-body"></div></div>
-                <div class="app app-sheet" data-app="sheet" hidden>
-                  <div class="sheet-file"><span class="sheet-title" id="sheet-title">Q3_Synergy_Forecast_FINAL_v7.xlsx</span></div>
-                  <div class="sheet-formula"><span class="sheet-ref" id="sheet-ref">B2</span><span id="sheet-fx">Fix the cells with red corners.</span></div>
-                  <div class="sheet-scroll">
-                    <table class="sheet-grid" id="sheet-grid"></table>
-                  </div>
-                  <div class="sheet-foot">
-                    <div class="sheet-tabs" id="sheet-tabs"></div>
-                    <div class="sheet-status">
-                      <span id="sheet-msg">Ready</span>
-                      <span class="sheet-streak" id="sheet-streak"></span>
-                      <span id="sheet-stats"></span>
+        <div class="pc-setup">
+          <div class="monitor" id="monitor">
+            <div class="screen" id="screen" data-wall="corporate">
+              <div class="desktop" id="desktop" role="toolbar" aria-label="Desktop">
+                <button type="button" class="icon" data-app="mail"><span class="ico ico-mail"></span><span class="icon-name">Mail</span><b class="badge" data-badge="mail" hidden></b></button>
+                <button type="button" class="icon" data-app="phone"><span class="ico ico-phone"></span><span class="icon-name">Phone</span><b class="badge" data-badge="phone" hidden></b></button>
+                <button type="button" class="icon" data-app="sheet"><span class="ico ico-sheet"></span><span class="icon-name">Spreadsheet</span><b class="badge" data-badge="sheet" hidden></b></button>
+                <button type="button" class="icon" data-app="expenses"><span class="ico ico-expenses"></span><span class="icon-name">Expenses</span><b class="badge" data-badge="expenses" hidden></b></button>
+                <button type="button" class="icon" data-app="chat"><span class="ico ico-chat"></span><span class="icon-name">Messenger</span><b class="badge" data-badge="chat" hidden></b></button>
+                <button type="button" class="icon" data-app="catalog"><span class="ico ico-catalog"></span><span class="icon-name">Supply Catalog</span></button>
+                <button type="button" class="icon" data-app="org"><span class="ico ico-org"></span><span class="icon-name">Org Chart</span></button>
+                <button type="button" class="icon" data-app="docs"><span class="ico ico-folder"></span><span class="icon-name">My Documents</span></button>
+                <button type="button" class="icon" data-app="trash"><span class="ico ico-trash"></span><span class="icon-name">Recycle Bin</span></button>
+              </div>
+              <section class="window" id="window" hidden aria-labelledby="win-title">
+                <header class="win-bar">
+                  <span class="win-ico" id="win-ico"></span>
+                  <h2 class="win-title" id="win-title">Mail</h2>
+                  <span class="win-ctrls" aria-hidden="true"><i>_</i><i>□</i></span>
+                  <button type="button" class="win-btn" id="win-close" aria-label="Close window">×</button>
+                </header>
+                <div class="win-body">
+                  <div class="app" data-app="mail" hidden></div>
+                  <div class="app" data-app="phone" hidden></div>
+                  <div class="app app-sheet" data-app="sheet" hidden></div>
+                  <div class="app" data-app="expenses" hidden></div>
+                  <div class="app app-chat" data-app="chat" hidden></div>
+                  <div class="app" data-app="catalog" hidden></div>
+                  <div class="app app-docs" data-app="docs" hidden></div>
+                  <div class="app app-org" data-app="org" hidden>
+                    <div class="pane" id="pane-team"></div>
+                    <div class="graph-paper" aria-labelledby="floor-h">
+                      <h3 id="floor-h">Floor 4, east side</h3>
+                      <div class="floorplan" id="floorplan"></div>
+                      <p class="floor-note" id="floor-note">0 of 9 desks captured</p>
                     </div>
                   </div>
                 </div>
-                <div class="app app-expenses" data-app="expenses" hidden><div id="expenses-body"></div></div>
-                <div class="app app-chat" data-app="chat" hidden><ol class="chat-log" id="chat-log"></ol></div>
-                <div class="app app-catalog" data-app="catalog" hidden><div id="catalog-body"></div></div>
-                <div class="app app-org" data-app="org" hidden>
-                  <div class="pane" id="pane-team"></div>
-                  <div class="graph-paper" aria-labelledby="floor-h">
-                    <h3 id="floor-h">Floor 4, east side</h3>
-                    <div class="floorplan" id="floorplan"></div>
-                    <p class="floor-note" id="floor-note">0 of 9 desks captured</p>
-                  </div>
+              </section>
+              <nav class="start-menu" id="start-menu" hidden aria-label="Start menu">
+                <div class="sm-side" aria-hidden="true"><span>Pemberton OS</span></div>
+                <div class="sm-items">
+                  <button type="button" data-app="mail"><span class="ico ico-mail"></span>Mail</button>
+                  <button type="button" data-app="phone"><span class="ico ico-phone"></span>Phone</button>
+                  <button type="button" data-app="sheet"><span class="ico ico-sheet"></span>Spreadsheet</button>
+                  <button type="button" data-app="expenses"><span class="ico ico-expenses"></span>Expenses</button>
+                  <button type="button" data-app="chat"><span class="ico ico-chat"></span>Messenger</button>
+                  <button type="button" data-app="catalog"><span class="ico ico-catalog"></span>Supply Catalog</button>
+                  <button type="button" data-app="org"><span class="ico ico-org"></span>Org Chart</button>
+                  <hr>
+                  <button type="button" data-app="docs"><span class="ico ico-folder"></span>My Documents</button>
+                  <hr>
+                  <button type="button" data-shutdown><span class="ico ico-power"></span>Shut down (back to the war)</button>
                 </div>
-              </div>
-            </section>
-            <div class="incoming" id="incoming" role="alert" hidden>
-              <span class="incoming-ring"></span>
-              <p><b>Incoming call</b><span>Line 1</span></p>
-              <button type="button" class="win-action" id="incoming-answer">Answer</button>
+              </nav>
+              <div class="toasts" id="toasts" aria-live="polite"></div>
+              <div class="reflection" id="reflection" aria-hidden="true"><div class="refl-man"></div><span class="refl-say"></span></div>
+              <div class="screensaver" id="screensaver" hidden aria-hidden="true"></div>
+              <p class="screen-toast" id="screen-toast" role="status" hidden></p>
+              <footer class="taskbar">
+                <button type="button" class="start-btn" id="start-btn" aria-haspopup="true" aria-expanded="false"><span class="start-logo" aria-hidden="true"></span>Start</button>
+                <button type="button" class="back-btn" id="back-btn">◀ Back to the war <kbd>Esc</kbd></button>
+                <span class="task-open" id="task-open"></span>
+                <span class="tray-combo" id="tray-combo" hidden><b id="combo-x">Combo</b><i><span id="combo-fill"></span></i></span>
+                <span class="tray"><span class="tray-cool" id="tray-cool"></span><span class="tray-pay" id="tray-pay">$0</span><span class="tray-clock" id="tray-clock">9:00 AM</span></span>
+              </footer>
             </div>
-            <div class="reflection" id="reflection" aria-hidden="true"></div>
-            <p class="screen-toast" id="screen-toast" role="status" hidden></p>
+            <div class="monitor-chin" aria-hidden="true"><span class="chin-badge"><i class="led"></i></span></div>
           </div>
-          <footer class="taskbar">
-            <button type="button" class="start-btn" id="back-btn">◀ Back to the war <kbd>Esc</kbd></button>
-            <span class="task-open" id="task-open"></span>
-            <span class="tray-combo" id="tray-combo" hidden><b id="combo-x">Combo ×1.25</b><i><span id="combo-fill"></span></i></span>
-            <span class="tray"><span id="tray-cool"></span><span class="tray-pay" id="tray-pay">$0</span><span class="tray-clock" id="tray-clock">9:00 AM</span></span>
-          </footer>
+          <div class="pc-desk-row">
+            <button type="button" class="desk-phone" id="desk-phone" aria-label="Desk phone"><span class="dp-body"></span><span class="dp-handset"></span><span class="dp-light"></span></button>
+            <div class="keyboard" aria-hidden="true"></div>
+            <div class="mouse" aria-hidden="true"></div>
+          </div>
         </div>
       </div>
 

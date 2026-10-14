@@ -21,7 +21,6 @@ import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
-import { SheetView } from './sheet';
 import { Sound } from './sound';
 import { Launcher } from './launcher';
 import { faceSvg, portrait, portraitViewBox } from './portraits';
@@ -31,6 +30,7 @@ import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
+import { chatUnread } from '../sim/chat';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
 import { GUN_ART, ICON_ART } from './goods-art';
 
@@ -67,7 +67,6 @@ export class UI {
   private lastFrame = performance.now();
   private sound = new Sound();
   private scene: Scene;
-  private sheet: SheetView;
   private computer: ComputerView;
   private drawer: DrawerView;
   private delivery: DeliveryView;
@@ -81,13 +80,6 @@ export class UI {
       footstep: () => this.sound.footstep(),
       hit: () => this.sound.hit(),
       handTip: () => this.launcher?.tipClientPoint() ?? null,
-    });
-    this.sheet = new SheetView(() => this.s, {
-      onFix: (_pay, streak) => {
-        this.sound.fix(streak);
-        this.bump('salary');
-      },
-      onMiss: () => this.sound.miss(),
     });
     this.launcher = new Launcher(
       {
@@ -110,15 +102,10 @@ export class UI {
       this.scene.handLayer,
     );
     this.computer = new ComputerView(() => this.s, {
-      done: (r) => {
-        if (r.ok) this.sound.kaching();
-        else this.sound.miss();
-        if (r.pay > 0) this.bump('salary');
-        if (r.bonusBands) this.bump('bands');
-      },
       say: (t) => this.say(t),
       ring: () => this.sound.ring(),
-      click: () => this.sound.type(),
+      footstep: (near) => this.sound.footstep(0.25 + 0.75 * near),
+      notify: () => this.sound.notify(),
       ordered: () => {
         this.sound.coins();
         this.say(`Ordered. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
@@ -128,7 +115,7 @@ export class UI {
         this.bump('salary');
         this.say(`${COWORKERS.find((c) => c.id === id)!.name} joined your team.`);
       },
-    });
+    }, this.sound);
     const supplyHooks = { say: (t: string) => this.say(t), bump: (w: 'bands' | 'salary') => this.bump(w) };
     this.drawer = new DrawerView(() => this.s, supplyHooks, this.sound);
     this.delivery = new DeliveryView(() => this.s, supplyHooks, this.sound);
@@ -185,7 +172,7 @@ export class UI {
     // Sit down first, then pick up: the computer opens the Phone app and takes the call.
     // (Picking up before the computer is open let the Phone app hang up on it.)
     this.toggleHide(true);
-    this.computer.answerCall();
+    this.computer.answerPhone();
   }
 
   /** O, or the Order card: open the box on your desk if there is one, otherwise send off an order. */
@@ -517,7 +504,6 @@ export class UI {
       } else if (e.type === 'writeUpFaded') {
         this.say('A write-up fell out of your HR file.');
       } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, get on your computer (Esc) when you hear footsteps.');
-      else if (e.type === 'hidden') this.computer.reflect();
       else if (e.type === 'stage') this.onStage(e.stage);
       else if (e.type === 'capture') this.sound.capture();
       else if (e.type === 'enemyShot') {
@@ -531,7 +517,10 @@ export class UI {
       }
       else if (e.type === 'dealGone' && e.why === 'walkby') this.say('Dale melted away. Footsteps!');
       else if (e.type === 'boxSpotted') this.say('Mr. Feeney eyed that box on your desk. Open deliveries before he walks by.');
-      else if (e.type === 'sheetMiss' && e.reason === 'expired') this.sound.miss();
+      else if (e.type === 'itemDone') {
+        if (e.ok && e.pay > 0) this.sound.kaching();
+      } else if (e.type === 'roundDone') this.sound.grade(e.grade);
+      this.computer.handle(e);
     }
   }
 
@@ -771,7 +760,6 @@ export class UI {
     this.renderPanes(s);
     this.renderComputerHints(s);
     if (s.lookBusy) {
-      this.sheet.render();
       this.computer.render();
       this.closeRolePop();
     }
@@ -942,14 +930,15 @@ export class UI {
 
   /** Badges on the computer card and button, and the phone ringing while you're at war. */
   private renderComputerHints(s: GameState) {
-    const mail = s.work.queue.filter((t) => t.kind === 'email').length + s.unread;
+    const mail = s.work.mailWaiting + (s.work.rounds.mail ? s.work.rounds.mail.items - s.work.rounds.mail.done : 0) + s.unread;
     const call = ringingCall(s);
+    const chat = chatUnread(s);
     const bits: string[] = [];
     if (call) bits.push('<b class="pcb ring">Phone!</b>');
     if (mail) bits.push(`<b class="pcb">${mail > 9 ? '9+' : mail} mail</b>`);
-    if (s.chat.unread) bits.push(`<b class="pcb chat">${s.chat.unread} chat</b>`);
+    if (chat) bits.push(`<b class="pcb chat">${chat} chat</b>`);
     this.rebuild('pc-badges', bits.join(''), () => ($('pc-badges').innerHTML = bits.join('')));
-    const total = mail + s.chat.unread + (call ? 1 : 0);
+    const total = mail + chat + (call ? 1 : 0);
     const hb = $('hide-badge');
     hb.hidden = total === 0 || s.lookBusy;
     this.set('hide-badge', total > 9 ? '9+' : String(total));
@@ -957,8 +946,8 @@ export class UI {
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
     banner.hidden = !call || s.lookBusy;
-    if (call && call.kind === 'call') {
-      const left = Math.max(0, call.data.ringUntil - s.time);
+    if (call) {
+      const left = Math.max(0, call.until - s.time);
       $('call-fill').style.width = `${(left / 9) * 100}%`;
       if (!s.lookBusy) {
         const now = performance.now();

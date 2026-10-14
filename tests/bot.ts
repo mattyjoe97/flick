@@ -12,7 +12,20 @@ import {
   step,
   walkbyCountdown,
 } from '../src/sim/engine';
-import { answerTask, correctAnswer, expenseReport, ringingCall, startTask, workEmails, type TaskAnswer, type WorkTask } from '../src/sim/work';
+import {
+  answerCall,
+  answerMail,
+  answerPhone,
+  correctCall,
+  correctFix,
+  correctMail,
+  correctStamp,
+  fixCell,
+  focusApp,
+  stampReceipt,
+  startRound,
+  type WorkKind,
+} from '../src/sim/work';
 import { mods, weapon } from '../src/sim/mods';
 import { newGame, type GameState } from '../src/sim/state';
 
@@ -34,32 +47,31 @@ export const STYLES: BotStyle[] = [
   { name: 'oblivious', actionsPerSecond: 3, hideAbove: 101, resumeBelow: 0, workAbove: 101, reactsToWalkbys: false, accuracy: 0.6, doesWork: false },
 ];
 
-/** Seconds a bot spends on each kind of task (a human reads, thinks, taps). */
-const TASK_TIME: Record<WorkTask['kind'], number> = { email: 4, call: 5, expense: 9 };
+/** Seconds a bot spends on one item of each kind (a human reads, thinks, taps). */
+const ITEM_TIME: Record<WorkKind, number> = { mail: 3.5, call: 5, expense: 2.5, sheet: 7 };
 
 interface BotMind {
   busyUntil: number;
-  taskId: number | null;
-  answer: TaskAnswer | null;
+  job: (() => void) | null; // what it does when it's done thinking
   coin: number; // deterministic pseudo-random for mistakes
 }
 
 /** Plays the game headlessly and returns the final state. */
 export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345): GameState {
   const s = newGame(seed);
-  const mind: BotMind = { busyUntil: 0, taskId: null, answer: null, coin: seed % 997 };
+  const mind: BotMind = { busyUntil: 0, job: null, coin: seed % 997 };
   const actionEvery = 1 / style.actionsPerSecond;
   let nextAction = 0;
   const steps = Math.round(maxSeconds / TUNING.stepSeconds);
   for (let i = 0; i < steps && s.stage < 3; i++) {
     step(s, TUNING.stepSeconds);
     s.events.length = 0;
-    if (mind.taskId !== null) {
-      // Busy with a task: finish it when the time is up (if it's still there).
-      if (s.work.activeId !== mind.taskId) mind.taskId = null;
-      else if (s.time >= mind.busyUntil) {
-        answerTask(s, mind.taskId, mind.answer!);
-        mind.taskId = null;
+    if (mind.job) {
+      // Busy with an item: do it when the time is up.
+      if (s.time >= mind.busyUntil) {
+        const job = mind.job;
+        mind.job = null;
+        job();
       }
       continue;
     }
@@ -71,29 +83,54 @@ export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345): G
   return s;
 }
 
-/** Works on a task for a while (a ringing phone first, then email, then expenses). */
-function doTask(s: GameState, style: BotStyle, mind: BotMind, t?: WorkTask | null): boolean {
-  if (!style.doesWork) return false;
-  t = t ?? ringingCall(s) ?? workEmails(s)[0] ?? expenseReport(s);
-  if (!t || !startTask(s, t.id).ok) return false;
+function rightThisTime(style: BotStyle, mind: BotMind) {
   mind.coin = (mind.coin * 9301 + 49297) % 233280;
-  const right = mind.coin / 233280 < style.accuracy;
-  mind.answer = right ? correctAnswer(t) : wrongAnswer(t);
-  mind.taskId = t.id;
-  mind.busyUntil = s.time + TASK_TIME[t.kind];
-  return true;
+  return mind.coin / 233280 < style.accuracy;
 }
 
-function wrongAnswer(t: WorkTask): TaskAnswer {
-  const a = correctAnswer(t);
-  switch (a.kind) {
-    case 'email':
-      return { kind: 'email', choice: (a.choice + 1) % 3 };
-    case 'call':
-      return { kind: 'call', ext: a.ext === 2 ? 3 : 2 };
-    case 'expense':
-      return { kind: 'expense', approve: a.approve.map((v, i) => (i === 0 ? !v : v)) };
+function later(s: GameState, mind: BotMind, kind: WorkKind, job: () => void) {
+  mind.job = job;
+  mind.busyUntil = s.time + ITEM_TIME[kind];
+}
+
+/** Works on one item: a ringing phone first, then whatever round is open or ready. */
+function doTask(s: GameState, style: BotStyle, mind: BotMind): boolean {
+  if (!style.doesWork) return false;
+  const w = s.work;
+  if (w.ringing && !w.rounds.call) answerPhone(s);
+  const call = w.rounds.call;
+  if (call) {
+    focusApp(s, 'call');
+    const right = rightThisTime(style, mind);
+    later(s, mind, 'call', () => {
+      const a = correctCall(s, call.caller!);
+      answerCall(s, right ? a : a.act === 'hangup' ? { act: 'self' } : { act: 'hangup' });
+    });
+    return true;
   }
+  setLookBusy(s, true);
+  const ready = (['mail', 'expense', 'sheet'] as const).find((k) => w.rounds[k]) ??
+    (w.mailWaiting > 0 ? 'mail' : s.time >= w.expenseAt ? 'expense' : s.time >= w.sheetAt ? 'sheet' : null);
+  if (!ready) return false;
+  focusApp(s, ready);
+  const r = startRound(s, ready);
+  if (!r) return false;
+  const right = rightThisTime(style, mind);
+  if (ready === 'mail') {
+    const i = r.mail!.findIndex((m) => m.state === 'open');
+    const a = correctMail(r.mail![i]);
+    later(s, mind, 'mail', () => answerMail(s, i, right ? a : a.act === 'delete' ? { act: 'reply', choice: 0 } : { act: 'delete' }));
+  } else if (ready === 'expense') {
+    const i = r.receipts!.findIndex((x) => x.state === 'open');
+    const ok = correctStamp(r, i);
+    later(s, mind, 'expense', () => stampReceipt(s, i, right || r.receipts![i].yours ? ok : !ok));
+  } else {
+    const row = r.sheet!.rows.findIndex((x) => x.state === 'broken');
+    const truth = correctFix(r.sheet!.rows[row]);
+    const wrong = r.sheet!.rows[row].options.find((v) => v !== truth)!;
+    later(s, mind, 'sheet', () => fixCell(s, row, right ? truth : wrong));
+  }
+  return true;
 }
 
 /** Saving up for the first weapon early on. */
@@ -104,8 +141,7 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   if (s.supplies.box) openBox(s);
   const countdown = walkbyCountdown(s);
   // A ringing phone gets answered: that's work, and it puts you at your computer.
-  const call = ringingCall(s);
-  if (call && doTask(s, style, mind, call)) return;
+  if (s.work.ringing && doTask(s, style, mind)) return;
   const danger = style.reactsToWalkbys && countdown !== null && countdown < mods(s).warning - 1;
   if (danger || s.suspicion > style.hideAbove) setLookBusy(s, true);
 

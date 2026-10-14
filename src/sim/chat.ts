@@ -1,9 +1,20 @@
-// Messenger on your computer: coworkers (and rivals) message you. Some lines are
-// reactions to what just happened; the rest is banter and the odd useful tip,
-// dripped out every couple of minutes. Each line is said at most once.
+// Messenger on your computer: coworkers (and rivals) message you, one conversation
+// each. Some lines are reactions to what just happened; the rest is banter and the odd
+// useful tip, dripped out every couple of minutes. Each line is said at most once.
+//
+// Messages don't appear instantly: they're queued for a moment first, so Messenger can
+// show "Gary is typing…". Some lines can be answered with one of two quick replies,
+// and a few replies get an answer back (or do something, like Dale finding you a deal).
 
 import { rand, randRange } from './rng';
-import type { GameState } from './state';
+import type { ChatThread, GameState } from './state';
+
+interface Reply {
+  text: string;
+  /** Their answer, a couple of seconds later. */
+  then?: string;
+  act?: (s: GameState) => void;
+}
 
 interface Line {
   id: string;
@@ -11,6 +22,8 @@ interface Line {
   text: string;
   /** For periodic lines: when it's okay to say this. */
   when?: (s: GameState) => boolean;
+  /** You can answer with one of these. */
+  replies?: Reply[];
 }
 
 const has = (s: GameState, id: string) => s.allies.some((a) => a.id === id);
@@ -19,71 +32,101 @@ const stage2 = (s: GameState) => s.stage === 2;
 
 /** Said once, right when something happens. */
 const EVENT_LINES: Record<string, Line[]> = {
-  'capture:gary1': [{ id: 'g1', from: 'Gary', text: 'that was a warm-up' }],
-  'capture:gary2': [{ id: 'g2', from: 'Gary', text: 'fine. phase two. you are not ready for phase two' }],
-  'capture:gary3': [{ id: 'g3', from: 'Gary', text: 'that fort took me THREE DAYS' }],
-  'capture:gary4': [{ id: 'g4', from: 'Gary', text: 'ok. truce. Brad from Sales has been flicking us both for years. let’s get him' }],
-  'capture:brad': [{ id: 'b1', from: 'Brad', text: 'gg. still the top seller on this floor btw' }],
+  'capture:gary1': [{ id: 'g1', from: 'Gary', text: 'that was a warm-up', replies: [{ text: 'sure it was', then: 'it WAS' }, { text: 'warm up faster', then: 'you’ll see. phase two' }] }],
+  'capture:gary2': [{ id: 'g2', from: 'Gary', text: 'fine. phase two. you are not ready for phase two', replies: [{ text: 'what’s phase two', then: 'you’ll find out. (I am building a fort)' }, { text: 'I was born ready', then: 'nobody is born ready. that’s not how birth works' }] }],
+  'capture:gary3': [{ id: 'g3', from: 'Gary', text: 'that fort took me THREE DAYS', replies: [{ text: 'it was a nice fort', then: '…thanks' }, { text: 'it showed', then: 'wow' }] }],
+  'capture:gary4': [{ id: 'g4', from: 'Gary', text: 'ok. truce. Brad from Sales has been flicking us both for years. let’s get him', replies: [{ text: 'deal. welcome aboard', then: 'I’ll bring snacks' }, { text: 'you flicked me first', then: 'water under the cubicle. Brad. focus' }] }],
+  'capture:brad': [{ id: 'b1', from: 'Brad', text: 'gg. still the top seller on this floor btw', replies: [{ text: 'gg', then: 'let’s circle back sometime' }, { text: 'not anymore', then: 'Sales doesn’t lose. Sales reframes.' }] }],
   'capture:printer': [{ id: 'p1', from: 'Ron', text: 'PC LOAD LETTER. we surrender. nobody knows what it means' }],
   'capture:taskforce': [{ id: 't1', from: 'Q3 Task Force', text: 'This group chat has been archived.' }],
   'capture:rick': [{ id: 'r1', from: 'Rick', text: 'I’ll be working from home. Indefinitely.' }],
-  'recruit:kevin': [{ id: 'rk', from: 'Kevin', text: 'omg I’m on the team!! do I get a title. or a desk' }],
+  'recruit:kevin': [{ id: 'rk', from: 'Kevin', text: 'omg I’m on the team!! do I get a title. or a desk', replies: [{ text: 'you get a role', then: 'a ROLE. like in a movie' }, { text: 'neither', then: 'still worth it' }] }],
   'recruit:marjorie': [{ id: 'rm', from: 'Marjorie', text: 'I’ll keep an eye out, dear. I always do.' }],
   'recruit:steve': [{ id: 'rs', from: 'Steve', text: 'sorry, were you talking? I’m in. going on mute' }],
   'recruit:linda': [{ id: 'rl', from: 'Linda', text: 'Regional darts champion, 2009. Point me at something.' }],
-  'recruit:dave': [{ id: 'rd', from: 'Dave', text: 'I have drawings. Don’t ask what of. (A repeater.)' }],
+  'recruit:dave': [{ id: 'rd', from: 'Dave', text: 'I have drawings. Don’t ask what of. (A repeater.)', replies: [{ text: 'what of?', then: 'I said don’t ask. (A repeater. Make me an Engineer.)' }, { text: 'show me', then: 'Make me an Engineer and I’ll build it.' }] }],
   caught: [
-    { id: 'c1', from: 'Gary', text: 'lol' },
+    { id: 'c1', from: 'Gary', text: 'lol', replies: [{ text: 'not funny', then: 'little funny' }, { text: 'lol', then: 'lol' }] },
     { id: 'c2', from: 'Marjorie', text: 'I did say to listen for his shoes, dear.' },
-    { id: 'c3', from: 'Kevin', text: 'are you in trouble?? is it bad?? can I have your stapler' },
+    { id: 'c3', from: 'Kevin', text: 'are you in trouble?? is it bad?? can I have your stapler', replies: [{ text: 'no', then: 'ok. can I have it if you get fired' }, { text: 'it’s fine', then: 'ok!! (can I still have the stapler)' }] },
   ],
   fired: [
     { id: 'f1', from: 'Gary', text: 'wait you got FIRED?? see you monday I guess' },
     { id: 'f2', from: 'Kevin', text: 'I saved your desk plant. it’s fine. it’s mostly fine' },
   ],
-  'dale:intro': [{ id: 'di', from: 'Dale (Facilities)', text: 'heard you’re in the market. supply closet, end of the hall. come alone.' }],
+  'dale:intro': [
+    {
+      id: 'di',
+      from: 'Dale (Facilities)',
+      text: 'heard you’re in the market. supply closet, end of the hall. come alone.',
+      replies: [{ text: 'what are you selling?', then: 'guns. rubber band ones. and things that make them better. D for Dale.' }, { text: 'who is this', then: 'Facilities. I have keys to everything. D for Dale.' }],
+    },
+  ],
   'find:ball': [{ id: 'fb', from: 'Gary', text: 'where did you get a rubber band BALL. that’s a war crime' }],
   boxSpotted: [{ id: 'bx', from: 'Marjorie', text: 'Open your parcels promptly, dear. Mr. Feeney reads labels.' }],
   'promotion:gary': [{ id: 'pg', from: 'Gary', text: 'promoted!! drinks on me (water cooler)' }],
-  'promotion:kevin': [{ id: 'pk', from: 'Kevin', text: 'I GOT A TITLE' }],
+  'promotion:kevin': [{ id: 'pk', from: 'Kevin', text: 'I GOT A TITLE', replies: [{ text: 'congrats!', then: 'I’m going to put it on a mug' }, { text: 'don’t let it go to your head', then: 'too late' }] }],
   'promotion:marjorie': [{ id: 'pm', from: 'Marjorie', text: 'Thirty-one years and a promotion. How lovely.' }],
   'promotion:steve': [{ id: 'ps', from: 'Steve', text: 'sorry, cut out there, did you say promoted?' }],
   'promotion:linda': [{ id: 'pl', from: 'Linda', text: 'As expected.' }],
   'promotion:dave': [{ id: 'pd', from: 'Dave', text: 'New title. Same drawings.' }],
+  'grade:A': [{ id: 'ga', from: 'Marjorie', text: 'I saw that report, dear. Very tidy. Mr. Feeney noticed too.' }],
 };
 
 /** Dripped out every couple of minutes: banter and tips. */
 const BANTER: Line[] = [
-  { id: 'b-g1', from: 'Gary', text: 'nice try', when: stage1 },
-  { id: 'b-g2', from: 'Gary', text: 'my monitor is 27 inches. think about that', when: stage1 },
+  { id: 'b-g1', from: 'Gary', text: 'nice try', when: stage1, replies: [{ text: 'nice dodge', then: 'thank you. I practice' }, { text: 'try harder', then: 'I’m trying the exact right amount' }] },
+  { id: 'b-g2', from: 'Gary', text: 'my monitor is 27 inches. think about that', when: stage1, replies: [{ text: 'compensating?', then: 'it’s for spreadsheets' }, { text: 'mine’s a CRT', then: 'my condolences' }] },
   { id: 'b-g3', from: 'Gary', text: 'I can see your reflection in my screen btw', when: stage1 },
-  { id: 'b-m1', from: 'Marjorie', text: 'Mr. Feeney walks the floor every couple of minutes, dear. Listen for his shoes.', when: stage1 },
+  { id: 'b-m1', from: 'Marjorie', text: 'Mr. Feeney walks the floor every couple of minutes, dear. Listen for his shoes.', when: stage1, replies: [{ text: 'thanks Marjorie', then: 'You’re welcome, dear. Size 11 loafers. Very squeaky.' }, { text: 'how do you know?', then: '31 years, dear.' }] },
   { id: 'b-m2', from: 'Marjorie', text: 'Hold the band longer and let go at full stretch. I have seen things.', when: stage1 },
-  { id: 'b-k1', from: 'Kevin', text: 'hi. is it true there’s a war. asking for a friend (me)', when: stage1 },
-  { id: 'b-it', from: 'IT Helpdesk', text: 'Reminder: your password expires in 3 days.' },
+  { id: 'b-k1', from: 'Kevin', text: 'hi. is it true there’s a war. asking for a friend (me)', when: stage1, replies: [{ text: 'what war', then: 'ok cool cool. (I see the bands on your desk)' }, { text: 'yes. want in?', then: 'YES. when do I start. do I need a helmet' }] },
+  { id: 'b-it', from: 'IT Helpdesk', text: 'Reminder: your password expires in 3 days.', replies: [{ text: 'ok', then: 'This is an automated message. Replies are not monitored.' }, { text: 'it expired last week', then: 'This is an automated message. Replies are not monitored.' }] },
   { id: 'b-g4', from: 'Gary', text: 'Brad thinks he’s untouchable. he has not met us', when: stage2 },
   { id: 'b-k2', from: 'Kevin', text: 'found 40 rubber bands in the break room. also ate a granola bar', when: (s) => stage2(s) && has(s, 'kevin') },
-  { id: 'b-k3', from: 'Kevin', text: 'what does "circle back" mean', when: (s) => has(s, 'kevin') },
+  { id: 'b-k3', from: 'Kevin', text: 'what does "circle back" mean', when: (s) => has(s, 'kevin'), replies: [{ text: 'it means later', then: 'oh. then why not say later' }, { text: 'nobody knows', then: 'I KNEW it' }] },
   { id: 'b-m3', from: 'Marjorie', text: 'Rick’s door is locked from the inside. Interesting.', when: stage2 },
   { id: 'b-m4', from: 'Marjorie', text: 'A Lookout or two and you’ll hear Mr. Feeney coming sooner.', when: stage2 },
   { id: 'b-l1', from: 'Linda', text: 'Janet takes her break at 10:15. Just saying.', when: (s) => stage2(s) && has(s, 'linda') },
-  { id: 'b-s1', from: 'Steve', text: 'sorry, was on mute. what did I miss', when: (s) => has(s, 'steve') },
-  { id: 'b-d1', from: 'Dave', text: 'If someone is an Engineer I can build a repeater. Three clips. Don’t ask.', when: (s) => has(s, 'dave') },
-  { id: 'b-br', from: 'Brad', text: 'Sales doesn’t lose. Sales reframes.', when: (s) => stage2(s) && s.targetIndex <= 4 },
+  { id: 'b-s1', from: 'Steve', text: 'sorry, was on mute. what did I miss', when: (s) => has(s, 'steve'), replies: [{ text: 'everything', then: 'great. great great great' }, { text: 'nothing', then: 'perfect, going back on mute' }] },
+  { id: 'b-dv', from: 'Dave', text: 'If someone is an Engineer I can build a repeater. Three clips. Don’t ask.', when: (s) => has(s, 'dave') },
+  { id: 'b-br', from: 'Brad', text: 'Sales doesn’t lose. Sales reframes.', when: (s) => stage2(s) && s.targetIndex <= 4, replies: [{ text: 'reframe this', then: 'I will. In a deck. With charts.' }, { text: 'ok Brad', then: 'it’s Bradley in meetings' }] },
   { id: 'b-ja', from: 'Janet', text: 'Ron says we should stop. I say we continue.', when: (s) => stage2(s) && s.targetIndex === 5 },
-  { id: 'b-g5', from: 'Gary', text: 'tip: the expense portal is VERY trusting', when: stage2 },
-  { id: 'b-d1', from: 'Dale (Facilities)', text: 'got something new in. you know where I am', when: (s) => s.dale.introduced },
+  { id: 'b-g5', from: 'Gary', text: 'tip: the expense portal is VERY trusting', when: stage2, replies: [{ text: 'meaning?', then: 'approve your own rubber band order. accounting barely checks. (they check a little)' }, { text: 'I would never', then: 'sure. me neither. (I have 4,000 bands)' }] },
+  {
+    id: 'b-d1',
+    from: 'Dale (Facilities)',
+    text: 'got something new in. you know where I am',
+    when: (s) => s.dale.introduced,
+    replies: [
+      { text: 'got any deals?', then: 'maybe. I’ll swing by.', act: (s) => (s.dale.nextDealAt = Math.min(s.dale.nextDealAt, s.time + 20)) },
+      { text: 'not now Dale', then: 'your loss. closet’s open.' },
+    ],
+  },
   { id: 'b-d2', from: 'Marjorie', text: 'If Dale offers you a deal, dear, count your fingers after.', when: (s) => s.dale.introduced },
   { id: 'b-hr', from: 'HR', text: 'This is an automated reminder that Wellness Wednesday is this Wednesday.' },
+  { id: 'b-rr', from: 'Marjorie', text: 'Do a report right and quickly, dear, and Accounting pays a little extra. They grade everything.', when: (s) => s.stats.rounds > 2 },
+  { id: 'b-ph', from: 'Kevin', text: 'the phone directory changed again?? I sent a guy to HR for a printer', when: (s) => s.time > 500 },
 ];
 
+const ALL_LINES: Line[] = [...Object.values(EVENT_LINES).flat(), ...BANTER];
+const lineById = (id: string) => ALL_LINES.find((l) => l.id === id);
+
+/** Seconds of "typing…" before a message lands. */
+const TYPING = 1.6;
+
+function thread(s: GameState, who: string): ChatThread {
+  let th = s.chat.threads.find((t) => t.who === who);
+  if (!th) {
+    th = { who, msgs: [], unread: 0, pending: null };
+    s.chat.threads.push(th);
+  }
+  return th;
+}
+
 function say(s: GameState, line: Line) {
-  const c = s.chat;
-  c.log.push({ id: s.seq++, t: s.time, from: line.from, text: line.text });
-  if (c.log.length > 60) c.log.shift();
-  c.used.push(line.id);
-  if (!s.lookBusy) c.unread++;
-  s.events.push({ type: 'chat', from: line.from });
+  s.chat.used.push(line.id);
+  s.chat.queue.push({ who: line.from, text: line.text, at: s.time + TYPING, line: line.id });
 }
 
 /** Something happened: maybe someone has something to say about it. */
@@ -95,13 +138,86 @@ export function chatEvent(s: GameState, key: string) {
 
 export function stepChat(s: GameState) {
   const c = s.chat;
+  // Deliver messages whose typing is done.
+  for (const q of c.queue.filter((x) => s.time >= x.at)) {
+    const th = thread(s, q.who);
+    th.msgs.push({ id: s.seq++, t: s.time, mine: false, text: q.text });
+    if (th.msgs.length > 40) th.msgs.shift();
+    th.unread++;
+    const line = q.line ? lineById(q.line) : undefined;
+    if (line?.replies) th.pending = line.id;
+    s.events.push({ type: 'chat', from: q.who });
+  }
+  c.queue = c.queue.filter((x) => s.time < x.at);
+
   if (s.time < c.nextAt) return;
   c.nextAt = s.time + randRange(s, 100, 160);
   const options = BANTER.filter((l) => !c.used.includes(l.id) && (!l.when || l.when(s)));
   if (options.length) say(s, options[Math.floor(rand(s) * options.length) % options.length]);
 }
 
-/** You opened Messenger. */
-export function readChat(s: GameState) {
-  s.chat.unread = 0;
+/** Who's typing to you right now (for "Gary is typing…"). */
+export function typing(s: GameState): string[] {
+  return [...new Set(s.chat.queue.filter((q) => q.at - s.time <= TYPING).map((q) => q.who))];
+}
+
+/** All unread messages. */
+export function chatUnread(s: GameState) {
+  return s.chat.threads.reduce((n, t) => n + t.unread, 0);
+}
+
+/** You opened a conversation. */
+export function readThread(s: GameState, who: string) {
+  const th = s.chat.threads.find((t) => t.who === who);
+  if (th) th.unread = 0;
+}
+
+/** The quick replies you can send in a conversation right now. */
+export function replyOptions(s: GameState, who: string): string[] {
+  const th = s.chat.threads.find((t) => t.who === who);
+  const line = th?.pending ? lineById(th.pending) : undefined;
+  return line?.replies?.map((r) => r.text) ?? [];
+}
+
+/** Send quick reply `choice` in a conversation. */
+export function sendReply(s: GameState, who: string, choice: number) {
+  const th = s.chat.threads.find((t) => t.who === who);
+  const line = th?.pending ? lineById(th.pending) : undefined;
+  const r = line?.replies?.[choice];
+  if (!th || !r) return false;
+  th.pending = null;
+  th.msgs.push({ id: s.seq++, t: s.time, mine: true, text: r.text });
+  if (r.then) s.chat.queue.push({ who, text: r.then, at: s.time + TYPING + 0.8 });
+  r.act?.(s);
+  return true;
+}
+
+// ---------------------------------------------------------------- the buddy list
+
+export interface Buddy {
+  who: string;
+  status: 'online' | 'away' | 'offline';
+  note: string; // away message or status line
+}
+
+/** Everyone on your buddy list, with an away message that changes with the war. */
+export function buddies(s: GameState): Buddy[] {
+  const ally = (id: string) => has(s, id);
+  const list: Buddy[] = [
+    { who: 'Gary', status: 'online', note: s.stage === 1 ? 'plotting' : 'on your side (for now)' },
+    { who: 'Marjorie', status: 'online', note: 'I see everything' },
+    { who: 'Kevin', status: 'online', note: ally('kevin') ? 'ON THE TEAM' : 'unpaid & thriving' },
+    { who: 'Brad', status: s.targetIndex <= 4 && s.stage < 3 ? 'away' : 'offline', note: s.targetIndex <= 4 && s.stage < 3 ? 'in a meeting (golf)' : 'working from the golf course' },
+    { who: 'Dale (Facilities)', status: s.dale.introduced ? 'away' : 'offline', note: s.dale.introduced ? 'restocking. you know where' : '' },
+    { who: 'Mr. Feeney', status: 'away', note: 'Idle for 47 minutes' },
+    { who: 'IT Helpdesk', status: 'online', note: 'have you tried turning it off and on' },
+  ];
+  for (const id of ['steve', 'linda', 'dave']) {
+    const name = id[0].toUpperCase() + id.slice(1);
+    if (s.chat.threads.some((t) => t.who === name) || ally(id))
+      list.push({ who: name, status: id === 'steve' ? 'away' : 'online', note: { steve: 'on a call (muted)', linda: 'darts at lunch', dave: 'drawing something' }[id]! });
+  }
+  // Anyone else who has messaged you (Ron, the Task Force, HR...).
+  for (const t of s.chat.threads) if (!list.some((b) => b.who === t.who)) list.push({ who: t.who, status: 'offline', note: '' });
+  return list;
 }

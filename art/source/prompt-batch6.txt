@@ -1,0 +1,112 @@
+FLICK — ART BATCH 6: the work computer, the lackeys and the rubber band ball
+
+Same game, same chat. Every earlier FLICK image here (the office scene, the desk drawer and props, Dale and his closet, the painted coworker portraits, the batch 5 desk, icons, coin and cash) is the STYLE AND PALETTE reference for this batch. Match it exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas, scaled down proportionally on smaller canvases), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+Rules for EVERY image unless an item says otherwise: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks or watermarks anywhere (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching pairs) is authorized as before.
+
+Number the files exactly as below (they continue after 108_cash.png). Deliver all 42 PNGs in a folder named batch6 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch6.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch6.json (the prompt used for each file), like earlier batches.
+
+==================================================
+A. THE COMPUTER ON YOUR DESK (5 files)
+==================================================
+
+109_monitor_bezel.png — 1024 x 1024, a NINE-SLICE frame. The front bezel of a chunky beige 1990s CRT office monitor, seen straight on, as a rectangular frame only. The CENTER is fully transparent (the game puts the screen there). Warm beige plastic #D9D2C0 with one darker beige cel-shade along the inner and lower edges and a thin dark recessed lip (#3A3F45) right around the transparent opening. Outer corners rounded (radius about 70px), inner opening corners rounded (radius about 40px). The frame is the SAME thickness on all four sides: plastic from the canvas edge to exactly 150px in, then the transparent opening. Each corner and its rounding stays inside a 200 x 200px corner square. Every straight edge strip between the corner squares is perfectly uniform along its length (the game stretches and repeats it), so no vents, buttons, screws or marks on the edges. Outside the rounded outer corners: transparent. Record in the manifest: frame thickness 150, corner square 200.
+
+110_monitor_badge.png — 512 x 160. The little control strip that sits on the monitor's bottom bezel: a slightly recessed rounded rectangle of darker beige holding, from left to right, a small blank brand plate (no logo, no text), two small round knobs, and a round power button with a small glowing green power light beside it. Seen straight on, flat, fills the canvas width with a little transparent padding.
+
+111_keyboard.png — 1600 x 520. A beige 1990s office keyboard lying on the desk, seen from the front at a gentle high angle (the same viewpoint as the desk drawer and delivery boxes). Rows of chunky blank keys (NO letters or symbols on any key), a few keys slightly darker beige (Enter, space bar, the function row), a coiled cord leaving the top edge toward the top of the canvas. One coffee-ring stain on the frame, small. Keyboard fills the width with a little padding.
+
+112_mouse.png — 512 x 512. A matching beige ball mouse on a small square blue mousepad, same gentle high angle, cord curling off toward the top edge. The mousepad is plain dark blue (no print).
+
+113_desk_phone.png — 768 x 640. A beige office desk phone with a curly cord and a handset resting on top, a grid of blank keypad buttons (NO numbers), one red message light and a small blank grey display, same gentle high angle as the keyboard. The game shakes this image when the phone rings, so keep the handset ON the phone.
+
+==================================================
+B. DESKTOP WALLPAPERS, one per rank (4 files, OPAQUE)
+==================================================
+
+All four: 1600 x 1000, fully opaque, edge-to-edge scene, same flat cartoon style, NO text, logos or people's faces in focus. Keep the LEFT QUARTER calm and simple (desktop icons sit there) and avoid busy detail in the bottom 60px (the taskbar covers it).
+
+114_wallpaper_corporate.png — the default company wallpaper a new hire gets: a flat deep-teal field #2A6F8F with a large, faint, abstract corporate "swoosh" emblem (three overlapping curved bands, slightly lighter teal), very calm. No lettering.
+
+115_wallpaper_beach.png — a stock-photo-style tropical beach that you'll never get to visit: turquoise water, a single leaning palm tree on the right, a striped beach chair, puffy clouds, low sun. Cheerful, slightly too perfect.
+
+116_wallpaper_teamwork.png — the classic motivational poster image without the words: a rowing crew of small distant figures in a long boat on a calm misty lake at dawn, mountains behind, all very still and serene.
+
+117_wallpaper_skyline.png — the view from a corner office at night: a city skyline with lit windows, a few stars and a moon, the faint reflection of a window frame across the upper corners. Feels like you made it.
+
+==================================================
+C. DESKTOP ICONS (13 files)
+==================================================
+
+All: 256 x 256 transparent, every icon drawn at the SAME scale and visual weight, the object filling about 80% of the canvas and centred, the same upper-left light, outline scaled to about 5px. Retro desktop icons, but in FLICK's cartoon style. NO text, letters or numbers on any of them.
+
+118_icon_app_mail.png — a white envelope with a red flag-shaped tab poking out, slightly open.
+119_icon_app_phone.png — a beige telephone handset over a small blank keypad.
+120_icon_app_sheet.png — a spreadsheet page: green header row, a grid of pale cells, one cell highlighted yellow.
+121_icon_app_expenses.png — a paper receipt with a zigzag bottom edge and a green round check-mark badge.
+122_icon_app_messenger.png — two overlapping speech bubbles, the back one blue, the front one yellow with three dots. (An original design; do not copy any real messenger's logo or mascot.)
+123_icon_app_catalog.png — a small open cardboard box with rubber bands spilling over the edge.
+124_icon_app_org.png — an org chart: one dark-blue box on top joined by lines to three white boxes below.
+125_icon_app_staffing.png — a desk Rolodex card file with a few cards fanned out and one blank name badge clipped to the front.
+126_icon_recycle_empty.png — a pale grey-green office wastebasket made of mesh, empty.
+127_icon_recycle_full.png — the SAME wastebasket in the same position, overflowing with crumpled paper and one rubber band draped over the rim.
+128_icon_folder.png — a manila file folder with a few papers sticking out.
+129_icon_document.png — a single white text document with a folded top-right corner and grey lines suggesting text.
+130_icon_solitaire.png — three playing cards fanned out, the front one showing a single red heart pip, no letters or numbers.
+
+==================================================
+D. SCREENSAVER, PAPERWORK AND STAMPS (5 files)
+==================================================
+
+131_stapler_fly_a.png and 132_stapler_fly_b.png — 512 x 384 each, a matching PAIR (animation frames). A black-and-grey office stapler flying to the left, with two small white feathered wings on its back: frame A wings fully UP, frame B wings fully DOWN. Everything except the wings is pixel-identical between the two frames and in the same position. Cheerful and silly, side view.
+
+133_receipt.png — 640 x 1024. A single blank thermal paper receipt, off-white #FBF8EF, standing upright, with zigzag torn top and bottom edges, very slightly curled. The middle is PLAIN with no printed marks (the game prints the text on it). Thin outline, a little cel shade along one side.
+
+134_ink_stamp_frame.png — 900 x 320. The impression a rubber stamp leaves on paper, but EMPTY: a red-ink #C62F28 double-line rounded rectangle border (thick outer line, thin inner line), slightly rotated by about -4 degrees, with a few small gaps and worn spots in the ink like a real stamp. The centre is transparent and empty (the game writes APPROVED, DENIED or a grade inside). No outline in this one: it is ink, not an object.
+
+135_grade_ring.png — 512 x 512. A teacher's red marker circle drawn by hand around nothing: one confident loop of red marker #C62F28 that overlaps itself where it ends, slightly uneven thickness. The centre is empty and transparent (the game writes the letter grade inside). Ink only, no outline.
+
+==================================================
+E. MR. FEENEY PEERING AT YOUR SCREEN (1 file)
+==================================================
+
+136_feeney_peer.png — a new expression for MR. FEENEY, made from 82_feeney_idle.png with the SAME character, clothes, canvas and registration (1024 x 1280, face centre 512,620, eye line y=560, chin y=760, ear-to-ear width 360, torso cropped only by the bottom edge). He is peering suspiciously at your screen: eyebrows raised, eyes narrowed and looking slightly DOWN toward the viewer's screen, lips pursed, head tilted very slightly forward. Only the face changes; pixels outside the face match 82_feeney_idle.png.
+
+==================================================
+F. YOUR LACKEYS (10 files: 5 people x 2 expressions)
+==================================================
+
+New coworkers you hire once you're promoted, in EXACTLY the batch 4 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), top of head around y=315 with clear transparent air above, torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands or props except what's listed. Skin uses flat fills with one darker cel shade, matching the existing cast. Each pair: the _idle file first; the _happy file is the SAME image with ONLY the facial expression changed (pixels outside the face identical).
+
+137_temp_idle.png / 138_temp_happy.png — BROOKE, the temp from the staffing agency: woman in her early 20s, medium-brown skin, dark curly hair up in a messy bun with a pencil stuck through it, a green cardigan over a white blouse, a blank white VISITOR-style badge on a lanyard (no text), one wired earbud in. Idle: bored, half-lidded eyes, chewing gum. Happy: surprised delighted grin.
+
+139_receptionist_idle.png / 140_receptionist_happy.png — LUIS, the receptionist: man in his mid 20s, light-tan skin, neat short black hair with a side part, thin mustache, a telephone headset with a boom microphone over one ear, a crisp light-blue polo shirt. Idle: polite customer-service smile. Happy: huge beaming smile, eyebrows up.
+
+141_bookkeeper_idle.png / 142_bookkeeper_happy.png — HAROLD, the bookkeeper: very old thin man, pale skin, bald on top with a white fringe, half-moon reading glasses low on his nose, a green translucent visor, a white shirt with black sleeve garters and a black vest, a pencil behind his ear. Idle: deadpan stare over his glasses. Happy: a tiny, rare, satisfied smile with eyes crinkled.
+
+143_analyst_idle.png / 144_analyst_happy.png — PRIYA, the analyst: woman in her early 30s, brown skin, long black hair in a sleek high ponytail, rectangular black glasses, a charcoal blazer over a burgundy top, one wireless earbud. Idle: focused, one eyebrow slightly raised. Happy: confident knowing smirk.
+
+145_assistant_manager_idle.png / 146_assistant_manager_happy.png — CHAD, the assistant manager: man in his early 30s, light skin with a slight sunburn on the nose, gelled swept-back blond hair, a navy fleece zip-up vest over a light pink button-down shirt, a small Bluetooth earpiece. No logos on the vest. Idle: overconfident grin, eyebrows up. Happy: pointing-finger energy in the face only: wink and a big toothy grin.
+
+==================================================
+G. THE RUBBER BAND BALL ON YOUR DESK (4 files)
+==================================================
+
+The same rubber band ball as 14_band_ball.png, growing as you feed it. Each one 1024 x 1024, centred, resting on an invisible desk at the bottom of the canvas (no shadow), same gentle high angle as the desk props. Bands in the established tan/red/orange/blue band colors. Each stage clearly bigger in character, but each fills its own canvas to about 85% (the game sets the on-screen size):
+
+147_band_ball_1.png — a tight, tidy fist-sized ball, neat crossing bands.
+148_band_ball_2.png — a softball-sized ball, a couple of loose band ends sticking out.
+149_band_ball_3.png — a beach-ball-sized ball, lumpier, several stray bands looping off it and a paper clip caught in the bands.
+150_band_ball_4.png — an enormous ball slightly squashed by its own weight, bulging, with a stapler and a pen half-swallowed by the bands and a few bands snapped and dangling. Absurd and proud.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 42 PNGs, numbered 109 to 150, exactly the sizes above.
+- No text, numbers, letters or logos anywhere, including keys, buttons, badges, screens and wallpapers.
+- 109 is a nine-slice: transparent centre, 150px frame on all four sides, corners inside 200px squares, uniform edge strips.
+- Wallpapers are opaque; everything else is transparent.
+- 131/132, 136 (vs 82) and each lackey pair are pixel-matched outside the part that changes.
+- Portraits (136 to 146) use the batch 4 registration exactly.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch6 folder.

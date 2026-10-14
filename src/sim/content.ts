@@ -248,8 +248,8 @@ export const PAY_GRADES = [
 /** Work combo: things done right back to back pay more. */
 export const COMBO = {
   window: 15, // seconds you have to finish the next thing to keep it going
-  step: 0.25, // +25% per link
-  cap: 8, // links that count, so ×3 at most
+  step: 0.1, // +10% per link
+  cap: 10, // links that count, so ×2 at most
 };
 
 /** Dale from Facilities: the black market in the supply closet. */
@@ -298,16 +298,14 @@ export const CHATTER: { from: string; subject: string; body: string }[] = [
   { from: 'Procurement', subject: 'Unusual orders', body: 'Our rubber band spend is up 900% this quarter. Probably a data error.' },
 ];
 
-// ---------------------------------------------------------------- the Boss Key spreadsheet
+// ---------------------------------------------------------------- the Spreadsheet app
 
 export type SheetTabId = 'forecast' | 'budget' | 'headcount';
 
-export interface SheetColumn {
-  name: string;
-  /** input cells can be flagged and fixed; derived cells are formulas of the inputs. */
-  kind: 'input' | 'derived';
-}
-
+/**
+ * A sheet of rows that each add up to a Total. Some cells are broken (#REF!, #N/A…):
+ * work out what belongs there from the rest of the row and pick it from three options.
+ */
 export interface SheetTab {
   id: SheetTabId;
   name: string; // shown on the sheet tab
@@ -315,7 +313,15 @@ export interface SheetTab {
   payMult: number;
   unlock: { stage?: number; after?: string };
   rows: string[];
-  columns: SheetColumn[];
+  /** The parts that add up to each row's Total. */
+  parts: string[];
+  /** Values are multiples of `step` between lo and hi. */
+  lo: number;
+  hi: number;
+  step: number;
+  /** Broken cells per sheet, and seconds you get to fix them. */
+  errors: number;
+  seconds: number;
 }
 
 export const SHEET_TABS: SheetTab[] = [
@@ -325,16 +331,13 @@ export const SHEET_TABS: SheetTab[] = [
     file: 'Q3_Synergy_Forecast_FINAL_v7.xlsx',
     payMult: 1,
     unlock: {},
-    rows: ['North', 'South', 'East', 'West', 'Central', 'EMEA', 'APAC', 'LATAM', 'Online', 'Partners', 'Channel', 'Strategic'],
-    columns: [
-      { name: 'Q1', kind: 'input' },
-      { name: 'Q2', kind: 'input' },
-      { name: 'Q3', kind: 'input' },
-      { name: 'Q4 (fcst)', kind: 'input' },
-      { name: 'YoY %', kind: 'derived' },
-      { name: 'Variance', kind: 'derived' },
-      { name: 'Synergy idx', kind: 'input' },
-    ],
+    rows: ['North', 'South', 'East', 'West', 'Central', 'EMEA', 'APAC', 'LATAM'],
+    parts: ['Q1', 'Q2', 'Q3'],
+    lo: 100,
+    hi: 600,
+    step: 10,
+    errors: 3,
+    seconds: 45,
   },
   {
     id: 'budget',
@@ -342,13 +345,13 @@ export const SHEET_TABS: SheetTab[] = [
     file: 'Dept_Budget_FY_DRAFT_do_not_edit.xlsx',
     payMult: 1.5,
     unlock: { stage: 2 },
-    rows: ['Office supplies', 'Rubber bands (misc.)', 'Coffee', 'Printer toner', 'Software', 'Travel', 'Training', 'Team building', 'Furniture', 'Snacks'],
-    columns: [
-      { name: 'Budget $', kind: 'input' },
-      { name: 'Actual $', kind: 'input' },
-      { name: 'Remaining $', kind: 'derived' },
-      { name: '% used', kind: 'derived' },
-    ],
+    rows: ['Office supplies', 'Rubber bands (misc.)', 'Coffee', 'Printer toner', 'Software', 'Travel', 'Team building', 'Snacks'],
+    parts: ['Jan', 'Feb', 'Mar', 'Apr'],
+    lo: 50,
+    hi: 400,
+    step: 10,
+    errors: 4,
+    seconds: 60,
   },
   {
     id: 'headcount',
@@ -356,24 +359,12 @@ export const SHEET_TABS: SheetTab[] = [
     file: 'Headcount_Plan_CONFIDENTIAL.xlsx',
     payMult: 2,
     unlock: { after: 'printer' },
-    rows: ['Sales', 'Accounting', 'IT', 'Marketing', 'Mailroom', 'Facilities', 'HR', 'Strategic Initiatives', 'Customer Success'],
-    columns: [
-      { name: 'Headcount', kind: 'input' },
-      { name: 'Open roles', kind: 'input' },
-      { name: 'Attrition %', kind: 'input' },
-      { name: 'Avg tenure (yrs)', kind: 'input' },
-      { name: 'Morale (1–10)', kind: 'input' },
-    ],
+    rows: ['Sales', 'Accounting', 'IT', 'Marketing', 'Mailroom', 'Facilities', 'HR', 'Strategy'],
+    parts: ['Full-time', 'Part-time', 'Contract', 'Interns'],
+    lo: 2,
+    hi: 60,
+    step: 1,
+    errors: 5,
+    seconds: 60,
   },
 ];
-
-export const SHEET_TUNING = {
-  maxFlags: 3,
-  spawnEvery: 1.1, // seconds between new flags while hidden
-  lifetimeStart: 5, // seconds a flag lasts when you first hide
-  lifetimeMin: 1.8,
-  lifetimeShrink: 0.05, // per second spent hidden
-  fixPay: 2, // dollars per fixed cell at your first pay grade, before the combo
-  fixCool: 2, // Suspicion removed per fix
-  hustleWindow: 2.5, // seconds after a walk-by passes where fixes pay double
-};

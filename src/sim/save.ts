@@ -37,16 +37,28 @@ function migrate(file: SaveFile): GameState | null {
   s.stats = { ...base.stats, ...(file.state.stats ?? {}) };
   s.walkby = { ...base.walkby, ...(file.state.walkby ?? {}) };
   s.hr = { ...base.hr, ...(file.state.hr ?? {}) };
-  // Work tasks are never open right after loading.
-  s.work = { ...base.work, ...(file.state.work ?? {}), activeId: null };
-  s.sheet = { ...base.sheet, ...(file.state.sheet ?? {}), open: false };
-  s.chat = { ...base.chat, ...(file.state.chat ?? {}) };
+  // Work rounds survive a reload (their clocks only run while you look at them); saves
+  // from before version 7 had a different job, so they start with a fresh one.
+  s.work = file.version >= 7 ? { ...base.work, ...(file.state.work ?? {}), focus: null } : base.work;
+  s.chat = file.version >= 7 ? { ...base.chat, ...(file.state.chat ?? {}) } : oldChat(file, base);
   s.supplies = { ...base.supplies, ...(file.state.supplies ?? {}) };
   s.dale = { ...base.dale, ...(file.state.dale ?? {}), deal: null };
   // Allies from version 1 saves have no promotion fields yet.
   s.allies = (file.state.allies ?? []).map((a) => ({ ...a, served: a.served ?? 0, rank: a.rank ?? 0 }));
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
+}
+
+/** Before version 7, Messenger was one log; now it's a conversation per person. */
+function oldChat(file: SaveFile, base: GameState): GameState['chat'] {
+  const old = (file.state as unknown as { chat?: { log?: { id: number; t: number; from: string; text: string }[]; used?: string[]; nextAt?: number } }).chat;
+  const chat = { ...base.chat, used: old?.used ?? [], nextAt: old?.nextAt ?? base.chat.nextAt };
+  for (const m of old?.log ?? []) {
+    let th = chat.threads.find((x) => x.who === m.from);
+    if (!th) chat.threads.push((th = { who: m.from, msgs: [], unread: 0, pending: null }));
+    th.msgs.push({ id: m.id, t: m.t, mine: false, text: m.text });
+  }
+  return chat;
 }
 
 /** Guards against corrupted or hand-edited saves that would break the game. */
@@ -67,9 +79,17 @@ function sanitize(s: GameState): boolean {
     a.rank = Math.min(2, Math.max(0, Math.floor(Number(a.rank) || 0)));
   }
   s.hr.writeUps = Math.min(3, Math.max(0, Math.floor(Number(s.hr.writeUps) || 0)));
-  const kinds = ['email', 'call', 'expense'];
-  if (!Array.isArray(s.work.queue) || !s.work.queue.every((t) => t && kinds.includes(t.kind) && t.data)) s.work.queue = [];
-  if (!Array.isArray(s.work.fraudAt)) s.work.fraudAt = [];
+  const w = s.work;
+  if (!w.rounds || typeof w.rounds !== 'object') w.rounds = { mail: null, call: null, expense: null, sheet: null };
+  for (const k of ['mail', 'call', 'expense', 'sheet'] as const) {
+    const r = w.rounds[k];
+    if (r && !(r.kind === k && Number.isFinite(r.limit) && Number.isFinite(r.used))) w.rounds[k] = null;
+  }
+  w.rounds.call = null; // a caller doesn't wait while the game is closed
+  w.mailWaiting = Math.min(10, Math.max(0, Math.floor(Number(w.mailWaiting) || 0)));
+  if (!Array.isArray(w.fraudAt)) w.fraudAt = [];
+  if (!Array.isArray(s.chat.threads)) s.chat.threads = [];
+  if (!Array.isArray(s.chat.queue)) s.chat.queue = [];
   const p = s.supplies;
   p.drawer = Math.max(0, Math.floor(Number(p.drawer) || 0));
   if (!['tangle', 'ball', 'change', null].includes(p.find)) p.find = null;

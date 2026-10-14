@@ -3,7 +3,31 @@ import { COMBO, DALE, PAY_GRADES, PROMOTION, TARGETS, TUNING, UPGRADES, WEAPONS 
 import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
-import { addTask, answerTask, basePay, comboMult, correctAnswer, EMAILS, liveCombo, payGrade, ringingCall, startTask, WORK, type WorkTask } from '../src/sim/work';
+import {
+  answerCall,
+  answerMail,
+  answerPhone,
+  basePay,
+  callerDept,
+  comboMult,
+  correctCall,
+  correctFix,
+  correctMail,
+  correctStamp,
+  directory,
+  fixCell,
+  focusApp,
+  liveCombo,
+  payGrade,
+  receiptOk,
+  setSheetTab,
+  stampReceipt,
+  startRound,
+  WORK,
+  type WorkKind,
+} from '../src/sim/work';
+import { CALLERS, MAIL } from '../src/sim/workdata';
+import { buddies, chatUnread, readThread, replyOptions, sendReply, typing } from '../src/sim/chat';
 import { affordable, forSale, itemKey, shoppingList } from '../src/sim/shop';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
@@ -97,82 +121,173 @@ describe('suspicion', () => {
 });
 
 describe('work at your computer', () => {
-  const take = (s: ReturnType<typeof newGame>, t: WorkTask) => {
-    startTask(s, t.id);
-    return answerTask(s, t.id, correctAnswer(t))!;
+  const desk = (seed = 1) => {
+    const s = newGame(seed);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    setLookBusy(s, true);
+    return s;
+  };
+  /** Opens a round of `kind` and looks at it. */
+  const open = (s: ReturnType<typeof newGame>, kind: 'mail' | 'expense' | 'sheet') => {
+    if (kind === 'mail') s.work.mailWaiting = Math.max(s.work.mailWaiting, 5);
+    if (kind === 'expense') s.work.expenseAt = 0;
+    if (kind === 'sheet') s.work.sheetAt = 0;
+    focusApp(s, kind);
+    return startRound(s, kind)!;
   };
 
-  it('work emails, an expense report and the occasional call arrive on their own', () => {
+  it('mail trickles in, the phone rings, and reports and spreadsheets are ready on their own', () => {
     const s = newGame(1);
-    run(s, WORK.firstEmailAt + 0.2);
-    expect(s.work.queue.map((t) => t.kind)).toEqual(['email']);
+    s.walkby.nextAt = 1e9;
+    run(s, WORK.firstMailAt + 0.2);
+    expect(s.work.mailWaiting).toBe(1);
     run(s, WORK.firstCallAt);
-    const kinds = s.work.queue.map((t) => t.kind);
-    expect(kinds).toContain('expense');
-    expect(s.stats.callsMissed + kinds.filter((k) => k === 'call').length).toBe(1);
+    expect(s.work.ringing !== null || s.stats.callsMissed === 1).toBe(true);
+    expect(startRound(s, 'expense')).not.toBeNull();
+    expect(startRound(s, 'sheet')).not.toBeNull();
   });
 
-  it('the right email reply pays and lowers Suspicion; Reply All backfires', () => {
-    const s = newGame(1);
+  it('mail: Reply (with the right reply), Forward to the right department, or Delete', () => {
+    const s = desk();
     s.suspicion = 20;
-    const t = addTask(s, 'email');
-    const r = take(s, t);
-    expect(r.ok).toBe(true);
-    expect(s.salary).toBeCloseTo(WORK.pay.email * (1 + WORK.fastBonus)); // answered instantly
-    expect(s.suspicion).toBe(20 - WORK.relief.email);
-
-    const t2 = addTask(s, 'email');
-    if (t2.kind !== 'email') throw new Error();
-    const ra = EMAILS[t2.data.idx].replies.findIndex((x) => x.replyAll);
-    startTask(s, t2.id);
-    const before = s.suspicion;
-    const r2 = answerTask(s, t2.id, { kind: 'email', choice: t2.data.order.indexOf(ra) })!;
-    expect(r2.ok).toBe(false);
-    expect(r2.pay).toBe(0);
-    expect(s.suspicion).toBeCloseTo(before + WORK.replyAllNoise);
+    const r = open(s, 'mail');
+    expect(r.items).toBe(3); // a Junior Associate gets three at a time
+    const first = r.mail![0];
+    const res = answerMail(s, 0, correctMail(first))!;
+    expect(res.ok).toBe(true);
+    expect(res.pay).toBeCloseTo(WORK.pay.mail);
+    expect(s.suspicion).toBe(20 - WORK.relief.mail);
+    // Every kind of wrong answer is wrong.
+    for (let idx = 0; idx < MAIL.length; idx++) {
+      const m = MAIL[idx];
+      const item = { idx, order: [0, 1, 2], state: 'open' as const };
+      const right = correctMail(item);
+      expect(right.act).toBe(m.act);
+      if (m.act === 'reply') expect(m.replies!.filter((x) => x.ok).length).toBe(1);
+      if (m.act === 'forward') expect(m.dept).toBeTruthy();
+    }
+    // A Reply All is loud.
+    const b = desk(2);
+    const rb = open(b, 'mail');
+    for (let i = 0; i < 40; i++) {
+      // find a reply email in some burst
+      const k = rb.mail!.findIndex((x) => MAIL[x.idx].act === 'reply' && x.state === 'open');
+      if (k >= 0) {
+        const m = MAIL[rb.mail![k].idx];
+        const all = rb.mail![k].order.indexOf(m.replies!.findIndex((x) => x.replyAll));
+        const before = b.suspicion;
+        const bad = answerMail(b, k, { act: 'reply', choice: all })!;
+        expect(bad.ok).toBe(false);
+        expect(bad.pay).toBe(0);
+        expect(b.suspicion).toBeCloseTo(before + WORK.replyAllNoise);
+        return;
+      }
+      rb.mail!.forEach((x, j) => x.state === 'open' && answerMail(b, j, correctMail(x)));
+      Object.assign(rb, open(b, 'mail'));
+    }
+    throw new Error('no reply email turned up');
   });
 
-  it('a call left ringing just stops (no penalty); answering puts you at your computer', () => {
+  it('a call left ringing just stops; transfers follow today’s directory, which changes daily', () => {
     const s = newGame(1);
-    s.work.nextCallAt = 1e9;
-    addTask(s, 'call');
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 0;
     run(s, WORK.ringSeconds + 0.5);
-    expect(s.work.queue.some((t) => t.kind === 'call')).toBe(false);
+    expect(s.work.ringing).toBeNull();
     expect(s.stats.callsMissed).toBe(1);
     expect(s.suspicion).toBe(0);
 
-    const t = addTask(s, 'call');
-    expect(ringingCall(s)?.id).toBe(t.id);
-    startTask(s, t.id);
+    // Every caller has exactly one right answer.
+    for (let i = 0; i < CALLERS.length; i++) {
+      const c = CALLERS[i];
+      expect([!!callerDept(i), !!c.self, !!c.prank].filter(Boolean).length).toBe(1);
+    }
+    // The directory is a shuffle of extensions 2-7, and it changes the next day.
+    const today = directory(s);
+    expect(Object.values(today).sort()).toEqual([2, 3, 4, 5, 6, 7]);
+    s.time += WORK.dayLength;
+    expect(directory(s)).not.toEqual(today);
+
+    s.work.nextCallAt = s.time;
+    run(s, 0.2);
+    const r = answerPhone(s)!;
     expect(s.lookBusy).toBe(true);
-    expect(answerTask(s, t.id, correctAnswer(t))!.ok).toBe(true);
-    const t2 = addTask(s, 'call');
-    startTask(s, t2.id);
-    const right = (correctAnswer(t2) as { ext: number }).ext;
-    expect(answerTask(s, t2.id, { kind: 'call', ext: right === 2 ? 3 : 2 })!.ok).toBe(false);
+    expect(answerCall(s, correctCall(s, r.caller!))!.ok).toBe(true);
+    expect(s.work.rounds.call).toBeNull(); // one caller per round
   });
 
-  it('expense reports follow the rule; approving your own rubber bands pays in bands, and Accounting notices', () => {
-    for (let seed = 1; seed < 40; seed++) {
-      const s = newGame(seed);
+  it('expenses follow today’s rule; approving your own rubber bands pays in bands, and Accounting notices', () => {
+    for (let seed = 1; seed < 60; seed++) {
+      const s = desk(seed);
       s.stage = 2;
-      const t = addTask(s, 'expense');
-      if (t.kind !== 'expense') throw new Error();
-      const yours = t.data.receipts.findIndex((r) => r.yours);
+      const r = open(s, 'expense');
+      const yours = r.receipts!.findIndex((x) => x.yours);
       if (yours < 0) continue;
-      const by = correctAnswer(t) as { approve: boolean[] };
-      expect(by.approve[yours]).toBe(false); // by the rules, your order is denied
-      startTask(s, t.id);
+      expect(correctStamp(r, yours)).toBe(false); // by the rules, your order is denied
+      const graded = r.receipts!.filter((x) => !x.yours);
+      expect(graded.some((x) => receiptOk(x, r.rule!))).toBe(true);
+      expect(graded.some((x) => !receiptOk(x, r.rule!))).toBe(true);
       const bands = s.bands;
-      const susp = s.suspicion;
-      const approve = by.approve.map((v, i) => (i === yours ? true : v));
-      const r = answerTask(s, t.id, { kind: 'expense', approve })!;
-      expect(r.ok).toBe(true);
+      expect(stampReceipt(s, yours, true)!.bonusBands).toBe(WORK.fraudBands * 2);
       expect(s.bands).toBe(bands + WORK.fraudBands * 2);
-      expect(s.suspicion).toBeGreaterThan(susp - WORK.relief.expense);
+      expect(s.suspicion).toBeGreaterThan(0);
+      r.receipts!.forEach((x, i) => x.state === 'open' && stampReceipt(s, i, correctStamp(r, i)));
+      expect(s.work.rounds.expense).toBeNull();
+      expect(s.work.last?.right).toBe(r.items);
       return;
     }
     throw new Error('no seed produced your own receipt');
+  });
+
+  it('spreadsheet: work out what belongs in each broken cell; one try each', () => {
+    const s = desk(3);
+    const r = open(s, 'sheet');
+    const broken = r.sheet!.rows.filter((x) => x.state === 'broken');
+    expect(broken.length).toBe(3);
+    for (const row of r.sheet!.rows) {
+      // Every row adds up, broken cell included (its true value is still stored).
+      const parts = row.cells.slice(0, -1).reduce((a, b) => a + b, 0);
+      expect(parts).toBe(row.cells[row.cells.length - 1]);
+      if (row.state === 'broken') {
+        expect(row.options).toContain(correctFix(row));
+        expect(new Set(row.options).size).toBe(3);
+      }
+    }
+    const i = r.sheet!.rows.indexOf(broken[0]);
+    const wrong = broken[0].options.find((v) => v !== correctFix(broken[0]))!;
+    expect(fixCell(s, i, wrong)!.ok).toBe(false);
+    expect(fixCell(s, i, correctFix(broken[0]))).toBeNull(); // one try
+    expect(r.mistakes).toBe(1);
+  });
+
+  it('a clean, quick round is an A with a bonus; running out of time counts the rest as mistakes', () => {
+    const s = desk(4);
+    const r = open(s, 'mail');
+    let paid = 0;
+    r.mail!.forEach((m, i) => (paid += answerMail(s, i, correctMail(m))!.pay));
+    expect(s.work.last?.grade).toBe('A');
+    expect(s.work.last?.pay).toBeCloseTo(paid * (1 + WORK.gradeBonus.A));
+
+    const b = desk(5);
+    const rb = open(b, 'sheet');
+    run(b, rb.limit + 0.5);
+    expect(b.work.rounds.sheet).toBeNull();
+    expect(b.work.last?.grade).toBe('F');
+  });
+
+  it('a round’s clock only runs while you’re looking at it', () => {
+    const s = desk(6);
+    const r = open(s, 'expense');
+    focusApp(s, 'mail');
+    run(s, 30);
+    expect(r.used).toBe(0);
+    setLookBusy(s, false);
+    focusApp(s, 'expense');
+    run(s, 30);
+    expect(r.used).toBe(0);
+    expect(s.work.rounds.expense).toBe(r);
   });
 
   it('nothing goes overdue, and Auto-Reply answers waiting emails', () => {
@@ -181,14 +296,46 @@ describe('work at your computer', () => {
     s.work.nextCallAt = 1e9;
     run(s, 300);
     expect(s.suspicion).toBe(0);
-    expect(s.work.queue.filter((t) => t.kind === 'email').length).toBeLessThanOrEqual(WORK.maxEmails);
+    expect(s.work.mailWaiting).toBeLessThanOrEqual(WORK.mailMax);
 
     const a = newGame(1);
     a.work.nextCallAt = 1e9;
+    a.walkby.nextAt = 1e9;
     a.upgrades.push('autoreply');
-    addTask(a, 'email');
-    run(a, WORK.autoReplyAfter + 1);
+    run(a, WORK.firstMailAt + WORK.autoReplyEvery + 1);
     expect(a.stats.tasksAuto).toBeGreaterThan(0);
+  });
+
+  it('harder spreadsheets unlock with progress', () => {
+    const s = newGame(9);
+    expect(setSheetTab(s, 'budget')).toBe(false);
+    s.stage = 2;
+    s.targetIndex = 4;
+    expect(setSheetTab(s, 'budget')).toBe(true);
+    expect(setSheetTab(s, 'headcount')).toBe(false);
+    s.targetIndex = 6;
+    expect(setSheetTab(s, 'headcount')).toBe(true);
+  });
+
+  it('every kind of work pays roughly the same per minute for a quick, careful player', () => {
+    // Per-item seconds for a decent human, and how long the item's round gives.
+    const pace: Record<Exclude<WorkKind, 'call'>, number> = { mail: 3, expense: 2, sheet: 6 };
+    const perMinute = (kind: Exclude<WorkKind, 'call'>) => {
+      const s = desk(11);
+      while (s.time < 120) {
+        const r = open(s, kind);
+        const item = kind === 'mail' ? r.mail!.findIndex((m) => m.state === 'open') : kind === 'expense' ? r.receipts!.findIndex((x) => x.state === 'open') : r.sheet!.rows.findIndex((x) => x.state === 'broken');
+        run(s, pace[kind]);
+        if (kind === 'mail') answerMail(s, item, correctMail(r.mail![item]));
+        else if (kind === 'expense') stampReceipt(s, item, correctStamp(r, item));
+        else fixCell(s, item, correctFix(r.sheet!.rows[item]));
+      }
+      return (s.salary / s.time) * 60;
+    };
+    const rates = { mail: perMinute('mail'), expense: perMinute('expense'), sheet: perMinute('sheet') };
+    const lo = Math.min(...Object.values(rates));
+    const hi = Math.max(...Object.values(rates));
+    expect(hi / lo).toBeLessThan(1.6);
   });
 
   it('your Shooters keep firing at half speed while you are at your computer', () => {
@@ -207,12 +354,25 @@ describe('work at your computer', () => {
     expect(shots(true)).toBeCloseTo(shots(false) / 2, 0);
   });
 
-  it('coworkers message you when things happen', () => {
+  it('coworkers message you (typing first), one conversation each, and some can be answered', () => {
     const s = newGame(1);
+    s.walkby.nextAt = 1e9;
     s.targetResolve = 0.5;
     flick(s);
-    expect(s.chat.log[s.chat.log.length - 1]?.from).toBe('Gary');
-    expect(s.chat.unread).toBe(1);
+    expect(typing(s)).toEqual(['Gary']);
+    run(s, 2);
+    const gary = s.chat.threads.find((t) => t.who === 'Gary')!;
+    expect(gary.msgs[gary.msgs.length - 1].text).toBe('that was a warm-up');
+    expect(chatUnread(s)).toBe(1);
+    readThread(s, 'Gary');
+    expect(chatUnread(s)).toBe(0);
+    const opts = replyOptions(s, 'Gary');
+    expect(opts.length).toBe(2);
+    expect(sendReply(s, 'Gary', 0)).toBe(true);
+    expect(replyOptions(s, 'Gary')).toEqual([]);
+    run(s, 4);
+    expect(gary.msgs.map((m) => m.mine)).toEqual([false, true, false]);
+    expect(buddies(s).some((b) => b.who === 'Gary')).toBe(true);
   });
 });
 
@@ -421,9 +581,9 @@ describe("Dale's black market", () => {
     const s = newGame(5);
     quiet(s);
     s.salary = 40;
-    run(s, DALE.introAt + 1);
+    run(s, DALE.introAt + 3);
     expect(s.dale.introduced).toBe(true);
-    expect(s.chat.log.some((m) => m.from.startsWith('Dale'))).toBe(true);
+    expect(s.chat.threads.some((t) => t.who.startsWith('Dale'))).toBe(true);
     run(s, DALE.firstDealAt - s.time + 1);
     const deal = s.dale.deal!;
     expect(deal).toBeTruthy();
@@ -484,14 +644,19 @@ describe("Dale's black market", () => {
 });
 
 describe('money', () => {
-  const take = (s: ReturnType<typeof newGame>, t: WorkTask) => {
-    startTask(s, t.id);
-    return answerTask(s, t.id, correctAnswer(t))!;
+  /** Answers the next email right (opening a fresh burst when needed). */
+  const take = (s: ReturnType<typeof newGame>, right = true) => {
+    s.work.mailWaiting = Math.max(s.work.mailWaiting, 5);
+    focusApp(s, 'mail');
+    const r = startRound(s, 'mail')!;
+    const i = r.mail!.findIndex((m) => m.state === 'open');
+    const a = correctMail(r.mail![i]);
+    return answerMail(s, i, right ? a : a.act === 'delete' ? { act: 'reply', choice: 0 } : { act: 'delete' })!;
   };
 
   it('beating someone pays their bounty and promotes you: work pays more', () => {
     const s = newGame(1);
-    const email = basePay(s, 'email');
+    const email = basePay(s, 'mail');
     s.bands = 100;
     s.targetResolve = 0.5;
     flick(s);
@@ -500,7 +665,7 @@ describe('money', () => {
     expect(s.stats.bounties).toBe(gary1.bounty);
     expect(s.events.some((e) => e.type === 'pay' && e.source === 'bounty' && e.amount === gary1.bounty)).toBe(true);
     expect(payGrade(s)).toBe(PAY_GRADES[1]);
-    expect(basePay(s, 'email')).toBeCloseTo(email * PAY_GRADES[1].mult);
+    expect(basePay(s, 'mail')).toBeCloseTo(email * PAY_GRADES[1].mult);
   });
 
   it('bounties grow down the floor, and the last grade is for running it', () => {
@@ -512,22 +677,20 @@ describe('money', () => {
 
   it('work done in a row builds a combo that pays more; a slip or a long pause ends it', () => {
     const s = newGame(1);
-    const first = take(s, addTask(s, 'email')).pay;
-    const second = take(s, addTask(s, 'email')).pay;
+    s.walkby.nextAt = 1e9;
+    setLookBusy(s, true);
+    const first = take(s).pay;
+    const second = take(s).pay;
     expect(liveCombo(s)).toBe(2);
     expect(second).toBeCloseTo(first * (1 + COMBO.step));
-    for (let i = 0; i < 20; i++) take(s, addTask(s, 'email'));
+    for (let i = 0; i < 20; i++) take(s);
     expect(comboMult(s)).toBe(1 + COMBO.step * COMBO.cap); // capped
     s.time += COMBO.window + 1;
     expect(liveCombo(s)).toBe(0);
 
-    take(s, addTask(s, 'email'));
-    take(s, addTask(s, 'email'));
-    const t = addTask(s, 'email');
-    if (t.kind !== 'email') throw new Error();
-    const wrong = EMAILS[t.data.idx].replies.findIndex((x) => x.replyAll);
-    startTask(s, t.id);
-    answerTask(s, t.id, { kind: 'email', choice: t.data.order.indexOf(wrong) });
+    take(s);
+    take(s);
+    take(s, false);
     expect(liveCombo(s)).toBe(0);
     expect(s.stats.bestCombo).toBeGreaterThanOrEqual(COMBO.cap + 1);
   });
@@ -640,61 +803,6 @@ describe('anti-spam', () => {
     expect(flick(s).ok).toBe(false); // Clothespin needs 0.2 s
     step(s, TUNING.stepSeconds);
     expect(flick(s).ok).toBe(true);
-  });
-});
-
-describe('spreadsheet mini-game', () => {
-  it('flags cells while hidden and pays more with a streak', async () => {
-    const { fixCell, setSheetOpen } = await import('../src/sim/minigame');
-    const s = newGame(9);
-    setLookBusy(s, true);
-    run(s, 1);
-    expect(s.sheet.flags.length).toBe(0); // only while the Spreadsheet app is open
-    setSheetOpen(s, true);
-    run(s, 1);
-    expect(s.sheet.flags.length).toBeGreaterThan(0);
-    const f1 = s.sheet.flags[0];
-    const r1 = fixCell(s, f1.row, f1.col);
-    expect(r1.ok).toBe(true);
-    run(s, 1.2);
-    const f2 = s.sheet.flags[0];
-    const r2 = fixCell(s, f2.row, f2.col);
-    expect(r2.ok && r1.ok && r2.pay > r1.pay).toBe(true);
-    expect(s.sheet.streak).toBe(2);
-  });
-
-  it('a wrong cell or an expired flag breaks the streak', async () => {
-    const { fixCell, setSheetOpen } = await import('../src/sim/minigame');
-    const s = newGame(9);
-    setLookBusy(s, true);
-    run(s, 1);
-    expect(s.sheet.flags.length).toBe(0); // only while the Spreadsheet app is open
-    setSheetOpen(s, true);
-    run(s, 1);
-    const f = s.sheet.flags[0];
-    fixCell(s, f.row, f.col);
-    expect(s.sheet.streak).toBe(1);
-    // A label-free cell that can't be flagged (derived YoY column) is always "fine".
-    expect(fixCell(s, 0, 4).ok).toBe(false);
-    expect(s.sheet.streak).toBe(0);
-    run(s, 1);
-    const g = s.sheet.flags[0];
-    fixCell(s, g.row, g.col);
-    expect(s.sheet.streak).toBe(1);
-    run(s, 8); // flags expire
-    expect(s.sheet.streak).toBe(0);
-  });
-
-  it('extra tabs unlock with progress', async () => {
-    const { setSheetTab } = await import('../src/sim/minigame');
-    const s = newGame(9);
-    expect(setSheetTab(s, 'budget')).toBe(false);
-    s.stage = 2;
-    s.targetIndex = 4;
-    expect(setSheetTab(s, 'budget')).toBe(true);
-    expect(setSheetTab(s, 'headcount')).toBe(false);
-    s.targetIndex = 6;
-    expect(setSheetTab(s, 'headcount')).toBe(true);
   });
 });
 

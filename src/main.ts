@@ -11,7 +11,7 @@ import { TUNING } from './sim/content';
 import { applyOffline, step } from './sim/engine';
 import { clearStorage, deserialize, exportSave, importSave, loadFromStorage, saveToStorage, serialize } from './sim/save';
 import { newGame, type GameState } from './sim/state';
-import { addTask, type TaskKind } from './sim/work';
+import { WORK } from './sim/work';
 import { UI, type GameHost } from './ui/app';
 
 interface HotHook {
@@ -73,11 +73,14 @@ function boot(hotData: { save?: string }) {
       step(state, dt);
       acc -= dt;
     }
-    if (state.events.length) {
-      ui.handleEvents(state.events);
-      state.events.length = 0;
+    // A bug in drawing should never stop the game: log it and keep the loop going.
+    try {
+      if (state.events.length) ui.handleEvents(state.events);
+      ui.render();
+    } catch (err) {
+      console.error(err);
     }
-    ui.render();
+    state.events.length = 0;
     // Actions taken between frames also emit events; handle them on the next frame.
     requestAnimationFrame(frame);
   };
@@ -114,7 +117,15 @@ function boot(hotData: { save?: string }) {
       },
       setSpeed: (n: number) => (speed = n),
       ui,
-      addTask: (kind: TaskKind) => addTask(state, kind),
+      /** Make work show up now: 'mail' (a burst), 'call' (ring), 'expense' or 'sheet' (ready). */
+      work: (kind: 'mail' | 'call' | 'expense' | 'sheet') => {
+        const w = state.work;
+        if (kind === 'mail') w.mailWaiting = Math.max(w.mailWaiting, 5);
+        else if (kind === 'call') w.nextCallAt = state.time;
+        else if (kind === 'expense') w.expenseAt = state.time;
+        else w.sheetAt = state.time;
+        return WORK;
+      },
     };
   }
 }

@@ -1,9 +1,8 @@
-import { CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, SHEET_TUNING, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
-import { stepSheet } from './minigame';
+import { CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
-import { setSuspicionHook, stepWork } from './work';
+import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
 
@@ -48,7 +47,7 @@ function getCaught(s: GameState) {
   s.flickLockUntil = s.time + TUNING.caughtFlickLock;
   s.shooterLockUntil = s.time + TUNING.caughtShooterLock;
   s.lookBusy = false;
-  s.work.activeId = null;
+  focusApp(s, null);
 
   // A write-up goes in your file.
   s.hr.writeUps++;
@@ -102,7 +101,7 @@ function getFired(s: GameState) {
   s.suspicion = 0;
   s.hr = { writeUps: 0, lastWriteUpAt: s.time, confiscated: null };
   s.lookBusy = false;
-  s.work.activeId = null;
+  focusApp(s, null);
   s.flickLockUntil = 0;
   s.shooterLockUntil = 0;
   s.walkby = { nextAt: s.time + TUNING.firstWalkby / 2, arrivesAt: null };
@@ -350,9 +349,8 @@ export function step(s: GameState, dt: number) {
   }
   stepHr(s);
   stepAllies(s, dt);
-  stepWork(s);
+  stepWork(s, dt);
   stepChat(s);
-  stepSheet(s);
   stepSupplies(s);
   stepDale(s);
 }
@@ -372,7 +370,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
       const bonus = 5 * s.stage;
       s.salary += bonus;
       pushTicker(s, `Mr. Feeney glances at your spreadsheet. "Great hustle." Suspicion −${TUNING.hideReward}, +$${bonus}.`);
-      s.sheet.hustleUntil = s.time + SHEET_TUNING.hustleWindow;
+      s.work.hustleUntil = s.time + WORK.hustleWindow;
       s.events.push({ type: 'hidden' });
     } else {
       s.stats.walkbysSpotted++;
@@ -469,6 +467,7 @@ export function orderSupplies(s: GameState): ActionResult {
 
 export function setLookBusy(s: GameState, on: boolean): ActionResult {
   s.lookBusy = on;
+  if (!on) focusApp(s, null); // back to the war: rounds pause, a call ends
   return ok;
 }
 
