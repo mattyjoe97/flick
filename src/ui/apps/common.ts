@@ -1,6 +1,7 @@
 // Pieces the computer's apps share: the round clock, the grade card, avatars.
 
 import daleHead from '../../assets/art/dale-head.webp';
+import { TEAMS } from '../../sim/content';
 import type { GameState } from '../../sim/state';
 import type { Grade, Round, RoundResult, WorkKind } from '../../sim/work';
 import { faceSvg } from '../portraits';
@@ -100,7 +101,7 @@ const FACE_IDS: Record<string, string> = {
 };
 
 export function avatarHtml(who: string) {
-  const id = FACE_IDS[who];
+  const id = who.startsWith('@') ? TEAMS.find((t) => t.id === who.slice(1))?.portrait : FACE_IDS[who];
   if (id && PORTRAITS[id]) return `<span class="avatar">${faceSvg(id, 'happy')}</span>`;
   if (who.startsWith('Dale')) return `<span class="avatar"><img src="${daleHead}" alt=""></span>`;
   const initials = who

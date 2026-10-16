@@ -16,7 +16,7 @@
 
 import './computer.css';
 import { reviewReady } from '../sim/career';
-import { chatUnread } from '../sim/chat';
+import { chatName, chatUnread } from '../sim/chat';
 import { COMBO, type CoworkerId } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
@@ -268,7 +268,7 @@ export class ComputerView {
       if (this.app === 'chat') return;
       const th = s.chat.threads.find((t) => t.who === e.from);
       const last = th?.msgs[th.msgs.length - 1];
-      this.toast(`chat:${e.from}`, 'chat', e.from, last?.text ?? '', e.from);
+      this.toast(`chat:${e.from}`, 'chat', chatName(s, e.from), last?.text ?? '', e.from);
       this.hooks.notify();
     } else if (e.type === 'taskAuto') this.toast('auto', 'mail', 'Auto-Reply', 'Answered a waiting email for you.');
     else if (e.type === 'reviewReady' && this.app !== 'staffing') {

@@ -183,6 +183,21 @@ export class Sound {
     this.noise(300, 1, 0.05, 0.08 * volume);
   }
 
+  /** Bailey bays: she hears Mr. Feeney's shoes before you do. */
+  howl() {
+    if (!this.ok('howl', 2000)) return;
+    this.tone('sine', 520, 760, 0.25, 0.07);
+    this.tone('sine', 760, 700, 0.55, 0.07, 0.25);
+    this.tone('triangle', 380, 350, 0.7, 0.03, 0.1);
+  }
+
+  /** Bailey, happy: two little yips. */
+  yip() {
+    if (!this.ok('yip', 300)) return;
+    this.tone('sine', 900, 1200, 0.07, 0.06);
+    this.tone('sine', 950, 1300, 0.07, 0.06, 0.11);
+  }
+
   /** Messenger: a message for you. */
   notify() {
     if (!this.ok('notify', 400)) return;

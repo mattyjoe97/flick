@@ -257,7 +257,7 @@ export const PAY_GRADES = [
 
 export const CAREER = {
   first: 10, // Performance for your first promotion
-  growth: 1.7, // each promotion after that needs this much more
+  growth: 1.8, // each promotion after that needs this much more
   itemPoints: 1, // per thing you do right (times your pay grade's multiplier: seniors' work counts more)
   gradePoints: { A: 2, B: 1, C: 0, D: 0, F: 0 } as Record<'A' | 'B' | 'C' | 'D' | 'F', number>,
   teamPoints: 0.012, // per thing your team does, times that thing's base pay
@@ -274,9 +274,11 @@ export type TeamId = 'temp' | 'receptionist' | 'bookkeeper' | 'analyst' | 'manag
  */
 export interface Team {
   id: TeamId;
-  lead: string; // the first hire, who runs the team
+  lead: string; // the first hire, who runs the team (their first name)
+  surname?: string;
   title: string;
   portrait: string; // PORTRAITS id
+  pet?: 'muffins' | 'joey'; // the pet the lead brings to work
   job: 'mail' | 'call' | 'expense' | 'sheet' | null; // null: the Assistant Manager boosts the others
   does: string; // "emails" / "calls"...
   perMin: number; // things one seat gets done per minute
@@ -287,8 +289,8 @@ export interface Team {
 }
 
 export const TEAMS: Team[] = [
-  { id: 'temp', lead: 'Brooke', title: 'Temp', portrait: 'temp', job: 'mail', does: 'emails', perMin: 4, unlockRank: 1, cost: 150, growth: 1.3, pitch: 'The agency said it’s “mostly email.” Fine.' },
-  { id: 'receptionist', lead: 'Luis', title: 'Receptionist', portrait: 'receptionist', job: 'call', does: 'calls', perMin: 2, unlockRank: 3, cost: 600, growth: 1.3, pitch: 'Good morning, how may I direct your call?' },
+  { id: 'temp', lead: 'Adam', surname: 'Pierce', title: 'Temp', portrait: 'friendA', pet: 'muffins', job: 'mail', does: 'emails', perMin: 4, unlockRank: 1, cost: 150, growth: 1.3, pitch: 'The agency said it’s “mostly email.” Can my cat come?' },
+  { id: 'receptionist', lead: 'Danielle', surname: 'Hayes', title: 'Receptionist', portrait: 'friendB', pet: 'joey', job: 'call', does: 'calls', perMin: 2, unlockRank: 3, cost: 600, growth: 1.3, pitch: 'Good morning, how may I direct your call? (Joey, sit.)' },
   { id: 'bookkeeper', lead: 'Harold', title: 'Bookkeeper', portrait: 'bookkeeper', job: 'expense', does: 'receipts', perMin: 20, unlockRank: 5, cost: 2400, growth: 1.3, pitch: 'Forty years of receipts. I have seen things.' },
   { id: 'analyst', lead: 'Priya', title: 'Analyst', portrait: 'analyst', job: 'sheet', does: 'typos', perMin: 14, unlockRank: 7, cost: 9000, growth: 1.3, pitch: 'Your printout has a typo in row 3. Also, hi.' },
   { id: 'manager', lead: 'Chad', title: 'Assistant Manager', portrait: 'manager', job: null, does: '', perMin: 0, unlockRank: 9, cost: 40000, growth: 1.5, pitch: 'Let’s circle back and 10x this team.' },
@@ -305,6 +307,47 @@ export const STAFF = {
   trainCost: 20, // the first level costs this many first seats
   trainGrowth: 8,
   payEvery: 15, // seconds between "your team made $X" coin drops
+  /** Leading by example: while your work combo is going, your team works faster (+10% a link, up to ×2). */
+  leadPerCombo: 0.1,
+  leadCap: 10,
+};
+
+// ---------------------------------------------------------------- the office: Bailey, moments and goals
+
+/** Bailey, your beagle, asleep in her bed by your desk. */
+export const BAILEY = {
+  warn: 1, // extra seconds of walk-by warning: she hears Mr. Feeney's shoes first
+  petCalm: 3, // Suspicion off when you scratch her ears
+  petEvery: 20, // seconds before another scratch calms you again
+};
+
+export type MomentKind = 'pizza' | 'ball' | 'vending' | 'bonus' | 'coffee' | 'bailey' | 'muffins' | 'joey';
+
+/**
+ * Office moments: now and then something good happens for a few seconds, and you grab it
+ * with a tap. Never anything bad, and nothing you lose by being away.
+ */
+export const MOMENTS = {
+  first: 150, // seconds into a new game
+  gap: [150, 270] as [number, number],
+  seconds: 15, // how long one stays up
+  pizzaSeconds: 60,
+  pizzaTeam: 2, // your team works this much faster
+  pizzaWork: 1.5, // and your work pays this much more
+  coffeeSeconds: 45, // your work pays double (like Mr. Feeney watching)
+  vendingCalm: 30,
+  joeyDelay: 150, // Mr. Feeney's next walk-by, pushed back (he's playing fetch)
+  joeyCalm: 15,
+  muffinsShare: 0.2, // of the target's Resolve, knocked off their desk
+  bandsSeconds: 60, // a found ball is worth this much of your band income (at least 30)
+  bonusMinutes: 3, // a spot bonus is worth this much of your team's pay (at least $25 × your pay grade)
+};
+
+/** Mr. Feeney's sticky note on your monitor: three small goals every work day. */
+export const GOALS = {
+  perDay: 3,
+  review: 0.06, // each one is worth this share of your next promotion
+  cashMinutes: 2, // and this many minutes of your team's pay (at least $20)
 };
 
 /** Work combo: things done right back to back pay more. */

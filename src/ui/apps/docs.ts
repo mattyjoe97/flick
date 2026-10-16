@@ -6,6 +6,7 @@ import { orderSupplies } from '../../sim/engine';
 import type { GameState } from '../../sim/state';
 import { SUPPLIES } from '../../sim/supplies';
 import { payGrade } from '../../sim/work';
+import { yourName } from './staffing';
 import { fmt } from '../format';
 import { esc, keyed, money, type AppCtx, type AppView } from './common';
 
@@ -19,7 +20,8 @@ const tick = (done: boolean) => (done ? '[x]' : '[ ]');
 export const DOCS: Record<string, Doc> = {
   resume: {
     name: 'resume_FINAL_final_v3.doc',
-    text: (s) => `CURRENT TITLE: ${payGrade(s).title}
+    text: (s) => `${yourName(s).toUpperCase()}
+CURRENT TITLE: ${payGrade(s).title}
 
 OBJECTIVE
 To leverage my synergies in a dynamic, fast-paced, rubber-band-free environment.
@@ -30,6 +32,8 @@ Pemberton Solutions Group, Floor 4
   • Transferred calls to roughly the right department
   • Approved expenses within reason
   • ${s.stage >= 2 ? 'Built and led a cross-functional team' : 'Team player (see: Gary)'}
+  • ${s.career.rank > 0 ? `Promoted ${s.career.rank} time${s.career.rank === 1 ? '' : 's'}` : 'Ready to be promoted'}
+  • Bring-your-dog-to-work advocate (Bailey, beagle)
 
 SKILLS
 Excel (formulas: SUM). Outlook. Conflict resolution (elastic).

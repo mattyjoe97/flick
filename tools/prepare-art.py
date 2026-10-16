@@ -414,6 +414,33 @@ for name, stem in (("mail", "118_icon_app_mail"), ("phone", "119_icon_app_phone"
     im.resize((128, 128), Image.LANCZOS).save(OUT / f"app-{name}.webp", quality=88, method=6)
 print("batch 6 done")
 
+# ---------------------------------------------------------------- batch 7: the office pets and your ID badge
+#
+# Every pet shares one scale and a floor line, so each animal's poses share one crop (the
+# union of its poses) and the game swaps them in place; the crop boxes are recorded so the
+# animals can be drawn at the right sizes next to each other.
+pets = {
+    "bailey": ["163_bailey_sit", "164_bailey_sleep", "165_bailey_howl", "166_bailey_fetch", "167_bailey_happy", "168_dog_bed"],
+    "joey": ["169_joey_sit", "170_joey_ball", "171_joey_derp"],
+    "muffins": ["172_muffins_loaf", "173_muffins_swat", "174_muffins_sleep"],
+}
+PET_SCALE = 0.55  # every pet is drawn at this share of its 1024px canvas
+pet_art = {}
+for animal, stems in pets.items():
+    ims = {st: Image.open(SRC / f"{st}.png").convert("RGBA") for st in stems}
+    bxs = [solid_box(im, 4) for im in ims.values()]
+    box = (min(b[0] for b in bxs), min(b[1] for b in bxs), max(b[2] for b in bxs), 961)
+    size = (round((box[2] - box[0]) * PET_SCALE), round((box[3] - box[1]) * PET_SCALE))
+    for st, im in ims.items():
+        name = "pet-" + st.split("_", 1)[1].replace("_", "-")
+        im.crop(box).resize(size, Image.LANCZOS).save(OUT / f"{name}.webp", quality=88, method=6)
+    pet_art[animal] = {"w": size[0], "h": size[1], "x": box[0], "y": box[1]}
+badge = Image.open(SRC / "175_id_badge.png").convert("RGBA")
+badge.resize((320, 500), Image.LANCZOS).save(OUT / "id-badge.webp", quality=90, method=6)
+closet_art["pets"] = pet_art
+closet_art["idBadge"] = {"w": 320, "h": 500, "photo": [70, 125, 180, 225]}
+print("batch 7 done", pet_art)
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
@@ -421,7 +448,7 @@ print("batch 6 done")
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
 faces = sorted(
-    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146)),
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162)),
     key=lambda f: int(f.stem.split("_")[0]),
 )
 # The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would
@@ -432,7 +459,7 @@ PW = 400
 portraits = {}
 for f in faces:
     _, who, mood = f.stem.split("_", 2) if f.stem.count("_") == 2 else (None, *f.stem.split("_", 1)[1].rsplit("_", 1))
-    who = {"taskforce_a": "tf1", "taskforce_b": "tf2", "taskforce_c": "tf3", "assistant_manager": "manager"}.get(who, who)
+    who = {"taskforce_a": "tf1", "taskforce_b": "tf2", "taskforce_c": "tf3", "assistant_manager": "manager", "you_rank1": "you1", "you_rank2": "you2", "you_rank3": "you3", "you_rank4": "you4"}.get(who, who)
     im = Image.open(f).convert("RGBA")
     size, _ = save_fit(im, pbox, PW, f"face-{who}-{mood}")
     portraits.setdefault(who, []).append(mood)

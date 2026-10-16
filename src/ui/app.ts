@@ -30,6 +30,7 @@ import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
+import { OfficeView } from './office';
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
@@ -72,6 +73,7 @@ export class UI {
   private drawer: DrawerView;
   private delivery: DeliveryView;
   private closet: ClosetView;
+  private office: OfficeView;
   private lastRing = 0;
   private rolePop: HTMLElement;
   private rolePopFor: CoworkerId | null = null;
@@ -102,6 +104,15 @@ export class UI {
       },
       this.scene.handLayer,
     );
+    this.office = new OfficeView(() => this.s, {
+      say: (t) => this.say(t),
+      sound: { howl: () => this.sound.howl(), yip: () => this.sound.yip(), notify: () => this.sound.notify() },
+      claimed: (kind, from) => {
+        this.sound.capture();
+        if (kind === 'ball' || kind === 'bailey') this.bump('bands');
+        if (kind === 'bonus' || kind === 'bailey') moneyBurst(from, this.salaryTarget(), 5, 1, () => this.bump('salary'));
+      },
+    });
     this.computer = new ComputerView(() => this.s, {
       say: (t) => this.say(t),
       ring: () => this.sound.ring(),
@@ -532,6 +543,7 @@ export class UI {
         if (e.ok && e.pay > 0) this.sound.kaching();
       } else if (e.type === 'roundDone') this.sound.grade(e.grade);
       this.computer.handle(e);
+      this.office.handle(e);
     }
   }
 
@@ -785,6 +797,7 @@ export class UI {
       this.closeRolePop();
     }
     this.drawer.render();
+    this.office.render();
     this.delivery.render();
     this.closet.render();
     this.scene.render();

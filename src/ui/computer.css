@@ -2455,61 +2455,100 @@
   box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
 }
 
-/* Your employee badge (your painted portrait goes in the photo window later). */
+/* Your employee badge: the painted card with your portrait in its photo window. */
 .id-card {
   position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 5px;
-  padding: 0 8px 10px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 0 0 1px #c9c4b6, 2px 3px 6px rgba(0, 0, 0, 0.15);
-  transform: rotate(-2deg);
+  width: 112px;
+  aspect-ratio: 320 / 500;
+  transform: rotate(-3deg);
+  filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.2));
 }
 
-.id-strip {
-  width: calc(100% + 16px);
-  height: 14px;
-  border-radius: 8px 8px 0 0;
-  background: #2a6f8f;
+.id-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
+/* The badge art's photo window is 180 x 225 at (70, 125) of 320 x 500. */
 .id-photo {
-  display: grid;
-  place-items: end center;
-  width: 64px;
-  height: 78px;
+  position: absolute;
+  left: 21.9%;
+  top: 25%;
+  width: 56.3%;
+  height: 45%;
   overflow: hidden;
-  border: 1px solid #b9b3a3;
-  background:
-    radial-gradient(circle at 50% 38%, #8b97a6 0 17px, transparent 18px),
-    radial-gradient(ellipse 34px 22px at 50% 100%, #8b97a6 98%, transparent),
-    #dfe5ea;
+  background: #dfe8ee;
 }
 
-.id-you {
-  margin-bottom: 2px;
-  padding: 0 4px;
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+.id-photo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.id-name,
+.id-title {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  text-align: center;
+  line-height: 1.1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .id-name {
-  max-width: 100%;
+  top: 72.5%;
   font-size: 10px;
   font-weight: 800;
-  line-height: 1.15;
-  text-align: center;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
 }
 
-.id-line {
-  width: 70%;
-  height: 3px;
-  background: #e2dfd8;
+.id-title {
+  top: 81%;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #4a5560;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.career-kicker input.rename {
+  font-size: 13px;
+  text-transform: none;
+}
+
+.career-kicker .pencil {
+  font-size: 12px;
+}
+
+/* Names you can change: a small pencil after them. */
+.pencil {
+  margin-left: 4px;
+  padding: 0 3px;
+  border: 0;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pencil:hover,
+.pencil:focus-visible {
+  color: var(--os-sel);
+}
+
+input.rename {
+  width: 150px;
+  padding: 1px 4px;
+  border: 2px solid var(--os-sel);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .career-kicker {
@@ -2611,15 +2650,56 @@
 .tm-face {
   width: 72px;
   height: 80px;
-  overflow: hidden;
   border-radius: 6px;
   background: #e8eef3;
+}
+
+.tm-face > svg {
+  border-radius: 6px;
+  max-height: 80px;
+}
+
+.tm-face {
+  position: relative;
 }
 
 .tm-face svg {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* The pet the lead brings to work, sitting by their portrait. */
+.tm-pet {
+  position: absolute;
+  right: -6px;
+  bottom: -2px;
+  width: 46px;
+  height: auto;
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+.tm-pet.joey {
+  width: 54px;
+}
+
+.tm-boost {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #fff3c4;
+  color: #6b4500;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.team-tip {
+  margin: -4px 0 8px;
+}
+
+.rv-face.you {
+  background: #dfe8ee;
 }
 
 .tm-body h4 {
@@ -2771,6 +2851,82 @@
   z-index: -1;
   background: url("../assets/art/ink-stamp.webp") center / 100% 100% no-repeat;
   filter: hue-rotate(128deg) saturate(0.85) brightness(0.8);
+}
+
+/* ------------------------------------------------------------ Mr. Feeney's sticky note: today's goals */
+
+.goals-note {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 240px;
+  padding: 10px 12px 8px;
+  background: #ffe36e;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.3);
+  color: #3a3226;
+  transform: rotate(1.5deg);
+}
+
+.goals-note:empty {
+  display: none;
+}
+
+.gn-head {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-hand);
+  font-size: 18px;
+}
+
+.gn-head small {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.goals-note ul {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.goals-note li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: start;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  line-height: 1.15;
+}
+
+.goals-note li i {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border: 2px solid #3a3226;
+  font-style: normal;
+  font-size: 13px;
+  line-height: 10px;
+  text-align: center;
+  color: #1d6b33;
+  font-weight: 900;
+}
+
+.goals-note li.done span {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.goals-note li em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.gn-pay {
+  font-size: 11px;
+  opacity: 0.75;
 }
 
 /* ------------------------------------------------------------ smaller screens */
@@ -2931,6 +3087,14 @@
   .refl-man {
     width: 62%;
   }
+  .goals-note {
+    top: auto;
+    bottom: 52px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    transform: rotate(-0.5deg);
+  }
   .toasts {
     top: 40px;
     bottom: auto;
@@ -2998,9 +3162,8 @@
     gap: 12px;
     padding: 10px;
   }
-  .id-photo {
-    width: 52px;
-    height: 62px;
+  .id-card {
+    width: 80px;
   }
   .career-info h3 {
     font-size: 18px;

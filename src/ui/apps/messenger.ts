@@ -2,7 +2,7 @@
 // Their messages on the left, yours on the right, "Gary is typing…" while they write,
 // and quick replies when there's something to say back.
 
-import { buddies, readThread, replyOptions, sendReply, typing } from '../../sim/chat';
+import { buddies, readThread, replyOptions, sendReply, typing, chatName } from '../../sim/chat';
 import type { GameState } from '../../sim/state';
 import { officeTime } from '../format';
 import { avatarHtml, esc, keyed, type AppCtx, type AppView } from './common';
@@ -89,7 +89,7 @@ export class MessengerApp implements AppView {
         const unread = th?.unread ?? 0;
         return `<li><button type="button" data-who="${esc(b.who)}" class="buddy ${b.status}${b.who === this.who ? ' on' : ''}">
           <i class="dot" aria-label="${b.status}"></i>
-          <span class="b-name">${esc(b.who)}</span>
+          <span class="b-name">${esc(chatName(s, b.who))}</span>
           ${b.note ? `<span class="b-note">${b.status === 'away' ? 'Away: ' : ''}${esc(b.note)}</span>` : ''}
           ${unread ? `<b class="b-unread">${unread}</b>` : ''}
           ${typers.includes(b.who) ? '<span class="b-typing">typing…</span>' : ''}
@@ -112,10 +112,10 @@ export class MessengerApp implements AppView {
       convo = `<header class="im-head">
           <button type="button" class="im-back" data-back aria-label="Back to buddies">‹</button>
           ${avatarHtml(this.who)}
-          <div><b>${esc(this.who)}</b>${buddy?.note ? `<small>${buddy.status === 'away' ? 'Away: ' : ''}${esc(buddy.note)}</small>` : ''}</div>
+          <div><b>${esc(chatName(s, this.who))}</b>${buddy?.note ? `<small>${buddy.status === 'away' ? 'Away: ' : ''}${esc(buddy.note)}</small>` : ''}</div>
         </header>
         <ol class="im-log">${msgs || '<li class="im-none">No messages yet.</li>'}</ol>
-        <p class="im-typing">${typers.includes(this.who) ? `${esc(this.who)} is typing<span class="dots"><i></i><i></i><i></i></span>` : ''}</p>
+        <p class="im-typing">${typers.includes(this.who) ? `${esc(chatName(s, this.who))} is typing<span class="dots"><i></i><i></i><i></i></span>` : ''}</p>
         ${compose}`;
     }
     return `<div class="im${this.convoOpen ? ' convo-open' : ''}">

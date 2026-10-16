@@ -1,0 +1,1105 @@
+{
+  "game": "FLICK",
+  "batch": 7,
+  "asset_count": 25,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "reference_photos_included": false,
+  "checks": {
+    "all_png_dimensions_and_rgba": true,
+    "portrait_safe_box": true,
+    "six_expression_pairs_pixel_matched": true,
+    "player_heads_identical_across_ranks": true,
+    "player_eyes_green": true,
+    "pet_floor_and_scale": true,
+    "badge_window_exact": true
+  },
+  "assets": [
+    {
+      "file": "151_you_rank1_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        98,
+        312,
+        927,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "eed774d4091a20caea8bc53ead3a4bcfc1692049260a36eba42703e45ec0f957",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      }
+    },
+    {
+      "file": "152_you_rank1_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        98,
+        312,
+        927,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "94c3873399c05b005df0f8229704be0088e00315eb006d9dfc03b6b31a551692",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      },
+      "pixel_match_verification": {
+        "base_file": "151_you_rank1_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 42445,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          393,
+          487,
+          632,
+          755
+        ]
+      }
+    },
+    {
+      "file": "153_you_rank2_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        97,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "077ac5932afa93bd973a0618d021e7eec0e561973c8b0fd40a700b04eeddb191",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      }
+    },
+    {
+      "file": "154_you_rank2_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        97,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "3a79d37f661f7d49f574fca90d228c80bae7123b05e23f6752a6486ba26cc9a2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      },
+      "pixel_match_verification": {
+        "base_file": "153_you_rank2_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 42445,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          393,
+          487,
+          632,
+          755
+        ]
+      }
+    },
+    {
+      "file": "155_you_rank3_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        97,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "153075679dd49efac9c3bf13a48f5a70cd3bc9fa9af06d8a5d295e906ae0145f",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      }
+    },
+    {
+      "file": "156_you_rank3_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        97,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "db5e48202f6441d01984995d43a1aea8635cc728186ad559bfae7abd60be0228",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      },
+      "pixel_match_verification": {
+        "base_file": "155_you_rank3_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 42445,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          393,
+          487,
+          632,
+          755
+        ]
+      }
+    },
+    {
+      "file": "157_you_rank4_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        99,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "da055925ea289b3ff92af602659ff69d0314fd59afde234f9be5627912993a74",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      }
+    },
+    {
+      "file": "158_you_rank4_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        99,
+        312,
+        928,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "024083ae0b2243d31acd782286e0a8a97889bacd41be3143eb801cd6892ef25a",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 312,
+        "eye_color": "green",
+        "gaze": "forward, centered pupils",
+        "shared_identity": "player",
+        "shared_head_pixels_verified": true,
+        "iris_median_hex": "#535D4B",
+        "approved_straight_on_master": true,
+        "eyes_pixel_identical_across_all_eight": true,
+        "eye_patch_sha256": "ed3cd3106aaa672e66e6fd8372a7ec920c63c6030aad395173b7c5c7d5de56d5"
+      },
+      "pixel_match_verification": {
+        "base_file": "157_you_rank4_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 42445,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          393,
+          487,
+          632,
+          755
+        ]
+      }
+    },
+    {
+      "file": "159_friendA_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        89,
+        318,
+        941,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "e9dbc851fc729b53a64818c83b4e6d8b2a76a31b4ae78ad94261a9352c9efac2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 318
+      }
+    },
+    {
+      "file": "160_friendA_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        89,
+        318,
+        941,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "200d39859a26d43eeec1642713578989a40bc2d7a4b573d03883a9524b300a44",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 318
+      },
+      "pixel_match_verification": {
+        "base_file": "159_friendA_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 11879,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          397,
+          463,
+          640,
+          729
+        ]
+      }
+    },
+    {
+      "file": "161_friendB_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        325,
+        930,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d3ee690c15119c04e73be6252c7555494781efb9c097b54a7d3bd883c7df4ecd",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 325
+      }
+    },
+    {
+      "file": "162_friendB_happy.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        325,
+        930,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "b5e2e840be9559e6b36b2a8544763dc280fdfd136190ff443e2ce8d117dec618",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "head_top_alpha_y": 325
+      },
+      "pixel_match_verification": {
+        "base_file": "161_friendB_idle.png",
+        "changing_part": "facial expression",
+        "identical_outside_face": true,
+        "changed_pixels": 23582,
+        "outside_face_changed_pixels": 0,
+        "changed_pixels_bbox": [
+          389,
+          476,
+          651,
+          745
+        ]
+      }
+    },
+    {
+      "file": "163_bailey_sit.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        365,
+        581,
+        659,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "e0bb2a1b57af2a2439f8432083765623871100ec8f0d76565ced76a57815e6c5",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 294,
+          "height": 380
+        },
+        "target_extent": {
+          "height": 380
+        }
+      }
+    },
+    {
+      "file": "164_bailey_sleep.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        347,
+        693,
+        677,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "343c2454e8936fd86d37eeb55db71ca11e4eb6aed67d9f85a74b56cf233c682e",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 330,
+          "height": 268
+        },
+        "target_extent": {
+          "width": 330
+        }
+      }
+    },
+    {
+      "file": "165_bailey_howl.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        346,
+        531,
+        677,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "3fbd5f240f5d4a258d0f6a193f1e1b9c6826fa2453a7243431356cd950b6ddbd",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 331,
+          "height": 430
+        },
+        "target_extent": {
+          "height": 430
+        }
+      }
+    },
+    {
+      "file": "166_bailey_fetch.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        290,
+        611,
+        733,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d343f2934c667c08bc1bece9bffa1cfa02ee9512197b451a5fc38d5abe9a43e3",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 443,
+          "height": 350
+        },
+        "target_extent": {
+          "height": 350,
+          "width_limit": 550
+        }
+      }
+    },
+    {
+      "file": "167_bailey_happy.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        359,
+        581,
+        665,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "fa95d160ff260046a2cc92d9551af91e203e90c872d2491314cbd3571772c5e7",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 306,
+          "height": 380
+        },
+        "target_extent": {
+          "height": 380
+        }
+      }
+    },
+    {
+      "file": "168_dog_bed.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        262,
+        577,
+        762,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "4a04524eccb16af28fd09c48980b8ebded1b24547d5868aeb92f6f9478314f7a",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 500,
+          "height": 384
+        },
+        "target_extent": {
+          "width": 500
+        }
+      }
+    },
+    {
+      "file": "169_joey_sit.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        281,
+        341,
+        743,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d056b4d6c0a14822619c216f33789035bf63d1a1d72d5390410c8c5d4303c300",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 462,
+          "height": 620
+        },
+        "target_extent": {
+          "height": 620
+        }
+      }
+    },
+    {
+      "file": "170_joey_ball.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        181,
+        431,
+        842,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "f239ac80a64f2325b8d638aa5d1409515a6dc0b08497724e5f569f21516bc8e3",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 661,
+          "height": 530
+        },
+        "target_extent": {
+          "height": 530,
+          "width_limit": 850
+        }
+      }
+    },
+    {
+      "file": "171_joey_derp.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        132,
+        628,
+        892,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "5c949837a4d10f07df9f84202a8a535b7f5ab9b976ffc0e9b3408625e488c05e",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 760,
+          "height": 333
+        },
+        "target_extent": {
+          "width": 760
+        }
+      }
+    },
+    {
+      "file": "172_muffins_loaf.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        420,
+        771,
+        604,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "19824080aff77c182808c993780d95a978605477b8f2013e22e9c6f4ec210b65",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 184,
+          "height": 190
+        },
+        "target_extent": {
+          "height": 190
+        }
+      }
+    },
+    {
+      "file": "173_muffins_swat.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        348,
+        661,
+        676,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9401d5112bbb938453aac5d780574c1c39f7fb67e3e0bd42b5edb25e9e5b4ea0",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 328,
+          "height": 300
+        },
+        "target_extent": {
+          "height": 300,
+          "width_limit": 410
+        }
+      }
+    },
+    {
+      "file": "174_muffins_sleep.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        372,
+        726,
+        652,
+        961
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d4a681380344950ecdbd2bdec88aed795969f129e787f7f178152b8f7a697bf9",
+      "registration": {
+        "horizontal_center_x": 512,
+        "floor_line_y": 960,
+        "floor_line_convention": "last occupied alpha row",
+        "scale": {
+          "pixels": 100,
+          "centimeters": 12,
+          "pixels_per_cm": 8.333333333333334
+        },
+        "pose_extent_px": {
+          "width": 280,
+          "height": 235
+        },
+        "target_extent": {
+          "width": 280
+        }
+      }
+    },
+    {
+      "file": "175_id_badge.png",
+      "size": [
+        640,
+        1000
+      ],
+      "width": 640,
+      "height": 1000,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        51,
+        0,
+        588,
+        966
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "4c0bf8486fe5372f398b0fcaff18ae24a515373c602f3ac3f1e758c7022ae7bc",
+      "registration": {
+        "photo_window": {
+          "x": 140,
+          "y": 250,
+          "width": 360,
+          "height": 450
+        },
+        "photo_window_fully_transparent_verified": true,
+        "crop_edge": "lanyard at top only"
+      }
+    }
+  ]
+}

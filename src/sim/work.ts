@@ -16,7 +16,7 @@
 //
 // Everything here is headless and deterministic so the pacing bots can play it.
 
-import { CAREER, COMBO, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
+import { CAREER, COMBO, MOMENTS, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
 import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
@@ -550,7 +550,8 @@ function itemDone(s: GameState, r: Round, ok: boolean, text: string, extra: { no
   else r.mistakes++;
   workCombo(s, ok);
   const hustle = s.time <= w.hustleUntil;
-  const pay = ok ? basePay(s, r.kind) * (extra.payMult ?? 1) * comboMult(s) * (hustle ? 2 : 1) : 0;
+  const pizza = s.time < (s.office?.pizzaUntil ?? -1) ? MOMENTS.pizzaWork : 1;
+  const pay = ok ? basePay(s, r.kind) * (extra.payMult ?? 1) * comboMult(s) * (hustle ? 2 : 1) * pizza : 0;
   r.earned += pay;
   s.salary += pay;
   s.stats.workEarned += pay;
@@ -718,6 +719,9 @@ export function finishRound(s: GameState, kind: WorkKind) {
   s.stats.workEarned += bonus;
   s.stats.rounds = (s.stats.rounds ?? 0) + 1;
   addReview(s, CAREER.gradePoints[grade]);
+  const st = s.stats as unknown as Record<string, number>;
+  st[`${kind}Rounds`] = (st[`${kind}Rounds`] ?? 0) + 1;
+  if (kind === 'sheet' && grade === 'A') s.stats.sheetA = (s.stats.sheetA ?? 0) + 1;
   if (grade === 'A') {
     s.stats.gradeA = (s.stats.gradeA ?? 0) + 1;
     if (kind !== 'call') chatEvent(s, 'grade:A');

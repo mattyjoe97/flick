@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { CAREER, COMBO, DALE, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/sim/career';
-import { hire, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
+import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
+import { claimMoment, petBailey } from '../src/sim/office';
+import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
+import { BAILEY, GOALS, MOMENTS } from '../src/sim/content';
 import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
@@ -31,7 +34,7 @@ import {
   type WorkKind,
 } from '../src/sim/work';
 import { CALLERS, MAIL } from '../src/sim/workdata';
-import { buddies, chatUnread, readThread, replyOptions, sendReply, typing } from '../src/sim/chat';
+import { buddies, chatName, chatUnread, readThread, replyOptions, sendReply, typing } from '../src/sim/chat';
 import { affordable, forSale, itemKey, shoppingList } from '../src/sim/shop';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
 import { newGame } from '../src/sim/state';
@@ -107,12 +110,13 @@ describe('suspicion', () => {
 
   it('a walk-by spots you unless you look busy', () => {
     const spotted = newGame(1);
-    run(spotted, TUNING.firstWalkby + 4);
+    const warning = mods(spotted).warning;
+    run(spotted, TUNING.firstWalkby + warning + 0.5);
     expect(spotted.stats.walkbysSpotted).toBe(1);
 
     const hidden = newGame(1);
     setLookBusy(hidden, true);
-    run(hidden, TUNING.firstWalkby + 4);
+    run(hidden, TUNING.firstWalkby + warning + 0.5);
     expect(hidden.stats.hides).toBe(1);
   });
 
@@ -637,7 +641,7 @@ describe("Dale's black market", () => {
   it('a deal can be taken (or passed), and Dale bolts when Mr. Feeney comes', () => {
     const s = newGame(6);
     quiet(s);
-    s.salary = 1000;
+    s.salary = 100000;
     s.dale.nextDealAt = 0;
     run(s, 0.2);
     const deal = s.dale.deal!;
@@ -849,7 +853,7 @@ describe('your team', () => {
     expect(hire(s, 'temp').ok).toBe(true);
     expect(s.salary).toBe(1e7 - first);
     expect(seatCost(s, 'temp')).toBeGreaterThan(first);
-    expect(s.inbox[0].from).toBe(TEAMS[0].lead);
+    expect(s.inbox[0].from).toBe(leadName(s, TEAMS[0]));
     expect(hire(s, 'receptionist').ok).toBe(false);
     for (let i = 1; i < TEAMS.length; i++) expect(TEAMS[i].unlockRank).toBeGreaterThan(TEAMS[i - 1].unlockRank);
   });
@@ -891,6 +895,106 @@ describe('your team', () => {
     expect(res.team).toBeCloseTo(staffPayPerMin(s) * 60, 0);
     expect(s.salary - before).toBeCloseTo(res.salary, 0);
     expect(s.inbox[0].body).toContain('Your team made');
+  });
+});
+
+describe('the office: Bailey, moments, goals', () => {
+  const office = () => {
+    const s = newGame(2);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    return s;
+  };
+
+  it('your team follows your lead: a live work combo speeds them up (not while you’re away)', () => {
+    const s = office();
+    s.career.rank = 1;
+    s.salary = 1e6;
+    hire(s, 'temp');
+    const base = teamPerMin(s, 'temp');
+    s.work.combo = 10;
+    s.work.comboAt = s.time;
+    expect(teamPerMin(s, 'temp')).toBeCloseTo(base * 2);
+    expect(teamPerMin(s, 'temp', true)).toBeCloseTo(base);
+    expect(staffPayPerMin(s, true)).toBeLessThan(staffPayPerMin(s));
+  });
+
+  it('moments turn up now and then, last a few seconds, and are only ever good', () => {
+    const s = office();
+    run(s, MOMENTS.first + 0.2);
+    expect(s.office.moment).not.toBeNull();
+    run(s, MOMENTS.seconds + 0.2);
+    expect(s.office.moment).toBeNull();
+    expect(claimMoment(s)).toBeNull();
+
+    const grab = (kind: (typeof s.office.moment & {})['kind']) => {
+      s.office.moment = { kind, until: s.time + 5 };
+      return claimMoment(s);
+    };
+    const bands = s.bands;
+    grab('ball');
+    expect(s.bands).toBeGreaterThanOrEqual(bands + 30);
+    s.suspicion = 50;
+    grab('vending');
+    expect(s.suspicion).toBe(50 - MOMENTS.vendingCalm);
+    s.career.rank = 1;
+    s.salary = 1e6;
+    hire(s, 'temp');
+    const steady = teamPerMin(s, 'temp');
+    grab('pizza');
+    expect(teamPerMin(s, 'temp')).toBeCloseTo(steady * MOMENTS.pizzaTeam);
+    const r = s.targetResolve;
+    grab('muffins');
+    expect(s.targetResolve).toBeLessThan(r);
+    const next = s.walkby.nextAt = s.time + 10;
+    grab('joey');
+    expect(s.walkby.nextAt).toBeCloseTo(next + MOMENTS.joeyDelay);
+    expect(s.stats.moments).toBe(5);
+  });
+
+  it('Bailey hears Mr. Feeney first, and a scratch behind the ears calms you (now and then)', () => {
+    const s = office();
+    expect(mods(s).warning).toBe(TUNING.warnBase + BAILEY.warn);
+    s.suspicion = 20;
+    expect(petBailey(s)).toBe(true);
+    expect(s.suspicion).toBe(20 - BAILEY.petCalm);
+    expect(petBailey(s)).toBe(false);
+    expect(s.suspicion).toBe(20 - BAILEY.petCalm);
+    run(s, BAILEY.petEvery);
+    expect(petBailey(s)).toBe(true);
+  });
+
+  it('three goals a day; finishing one pays and adds Performance; tomorrow brings new ones', () => {
+    const s = office();
+    run(s, 0.2);
+    expect(s.goals.list.length).toBe(GOALS.perDay);
+    s.goals.list[0] = { id: 'pet', base: s.stats.pets, done: false };
+    const salary = s.salary;
+    for (let i = 0; i < 3; i++) petBailey(s);
+    run(s, 0.2);
+    expect(s.goals.list[0].done).toBe(true);
+    expect(goalProgress(s, 0).finished).toBe(true);
+    expect(s.salary).toBeGreaterThan(salary);
+    expect(s.career.review).toBeGreaterThan(0);
+    expect(s.events.some((e) => e.type === 'goalDone')).toBe(true);
+    const day = s.goals.day;
+    run(s, WORK.dayLength);
+    expect(s.goals.day).toBe(day + 1);
+    expect(s.goals.list.every((g) => !g.done)).toBe(true);
+    for (const g of GOAL_DEFS) expect(g.target).toBeGreaterThan(0);
+  });
+
+  it('you can rename yourself and your team leads; Messenger uses first names', () => {
+    const s = office();
+    const temp = TEAMS.find((t) => t.id === 'temp')!;
+    expect(leadName(s, temp)).toBe(`${temp.lead} ${temp.surname}`);
+    expect(chatName(s, '@temp')).toBe(temp.lead);
+    rename(s, 'temp', '  Ada   Lovelace  ');
+    expect(leadName(s, temp)).toBe('Ada Lovelace');
+    expect(chatName(s, '@temp')).toBe('Ada');
+    rename(s, 'temp', '');
+    expect(leadName(s, temp)).toBe(`${temp.lead} ${temp.surname}`);
   });
 });
 

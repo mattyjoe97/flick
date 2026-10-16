@@ -1,0 +1,587 @@
+{
+  "game": "FLICK",
+  "batch": 7,
+  "mode": "built-in ImageGen",
+  "photos": "Reference only; not included in this package.",
+  "assets": [
+    {
+      "file": "151_you_rank1_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+      "reference_filenames": [
+        "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "152_you_rank1_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 152,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "153_you_rank2_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the clothing below the neck: a light-blue button-down office shirt with top button open, the same teal lanyard with a small blank white ID card. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 153,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the clothing below the neck: a light-blue button-down office shirt with top button open, the same teal lanyard with a small blank white ID card. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "154_you_rank2_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 153,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the clothing below the neck: a light-blue button-down office shirt with top button open, the same teal lanyard with a small blank white ID card. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        },
+        {
+          "source_asset_number": 152,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "155_you_rank3_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a crisp white office dress shirt with a burgundy tie and a small blank white clip-on ID card on the shirt pocket. Remove the teal lanyard entirely. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 155,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a crisp white office dress shirt with a burgundy tie and a small blank white clip-on ID card on the shirt pocket. Remove the teal lanyard entirely. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "156_you_rank3_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 155,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a crisp white office dress shirt with a burgundy tie and a small blank white clip-on ID card on the shirt pocket. Remove the teal lanyard entirely. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        },
+        {
+          "source_asset_number": 152,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "157_you_rank4_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a charcoal suit jacket over a crisp white shirt, a navy tie, and a neatly folded off-white pocket square. No lanyard, no ID badge. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 157,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a charcoal suit jacket over a crisp white shirt, a navy tie, and a neatly folded off-white pocket square. No lanyard, no ID badge. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "158_you_rank4_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+      "reference_filenames": [
+        "player-straight-on-green-eyes.png"
+      ],
+      "source_generations": [
+        {
+          "source_asset_number": 151,
+          "prompt": "Revise the supplied detailed cartoon portrait of the user for FLICK. Correct the HEAD ORIENTATION, not just the irises. Make him face the viewer absolutely STRAIGHT ON in a natural front-elevation portrait: head upright with zero yaw, zero tilt, no upward or downward pitch; shoulders square. Nose bridge, nose tip, philtrum, mouth midpoint and chin form one vertical centreline. Both ears equally visible, cheeks equally wide, eyes at the same height. A relaxed neutral expression looking directly at a camera at eye level from normal portrait distance. Natural parallel eye gaze, neither converging nor diverging; irises and pupils centered naturally in the equal-sized visible eye openings. Muted GREEN irises. KEEP THE EYES IN THE ORIGINAL CARTOON STYLE: original-sized dark oval pupils, simple flat green iris shading, one small white catchlight each; NOT round photorealistic iris textures, NOT enlarged eyes, NOT a wide-eyed stare. Preserve the user's likeness and his approved detailed rendering: spiky frosted golden-brown hair made of many crisp shaded locks, adult facial proportions, light warm skin, subtle rosy cheeks, faint stubble, detailed brown mustache and goatee, navy T-shirt with crisp shaded folds, teal lanyard and small completely blank white badge. Match the original detailed polished 2D illustration exactly; no simplification, blur or smoothing. Keep original full bust size and framing, clear transparent air above head, torso cropped at bottom only. RGBA transparent background. No text, letters, logos or extra objects. This revision should look like the SAME PERSON photographed squarely from the front, not the original slightly angled head with eyes pasted onto it.",
+          "reference_filenames": [
+            "codex-clipboard-ec3bce70-cc7b-4b24-9f38-1845cd91a490.png"
+          ]
+        },
+        {
+          "source_asset_number": 157,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY clothing below the neck: a charcoal suit jacket over a crisp white shirt, a navy tie, and a neatly folded off-white pocket square. No lanyard, no ID badge. Clean detailed shaded folds in the exact reference style. Keep face, hair, ears and entire head unchanged. Clothing continues to bottom edge.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        },
+        {
+          "source_asset_number": 152,
+          "prompt": "Edit this approved FLICK character portrait. Keep the EXACT same detailed polished cartoon style and likeness: spiky golden-brown frosted hair, detailed brown mustache and goatee, cheek stubble, warm skin shading, crisp cloth folds, rich clean detail. Keep the exact head position, size, straight-on orientation, shoulders, full bust framing and transparent background. The approved eyes MUST remain unchanged: same green color, shape, pupils, gaze, position and catchlights. Do not simplify, smooth, blur, restyle, or alter the face. No text, letters, numbers, logos or marks on clothing or badges. Change ONLY the mouth, cheeks and eyebrows for the happy expression: a big proud friendly grin showing teeth, eyebrows raised. Preserve the eyes exactly; do not squint, move or reshape them. Keep the hairstyle, silhouette, facial proportions, mustache and goatee detail, ears, neck, navy T-shirt, teal lanyard and blank badge pixel-identical. Head remains squarely straight-on.",
+          "reference_filenames": [
+            "player-straight-on-green-eyes.png"
+          ]
+        }
+      ],
+      "approved_master": "player-straight-on-green-eyes.png",
+      "finishing": [
+        "approved detailed straight-on master reused",
+        "single resampling per source region for exact portrait registration",
+        "alpha cleanup",
+        "no global smoothing, blur, palette reduction or sharpening",
+        "canonical head reused across outfits",
+        "approved eyes reused pixel-identically in all eight",
+        "face-only expression compositing with unchanged eyes"
+      ]
+    },
+    {
+      "file": "159_friendA_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: identity-preserve. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. Adult proportions, friendly flattering likeness. Strict FRONT view head-and-shoulders bust, shoulders square, no hands. Canvas1024x1280. Match existing FLICK portrait registration: face center(512,620), pupils y560, chin y760, outer ears x332 and692. Top of hair around315 and NEVER above265. All hair, headsets and torso entirely between x60 and960, clear transparent margins. Torso cropped ONLY by bottom edge. Outline about12px at targetsize. Friend A from photo2: slim young adult man, light skin, long straight jet-black hair, heavy SIDE-SWEPT fringe covering HIS RIGHT EYE (VIEWER LEFT), falling past ears. Thin light-brown chin goatee, thin black ball-chain necklace with small simple silver pendant. Plain blue-and-off-white tie-dye tee with horizontal WAVY color bands ONLY, no print or character. Blank white visitor badge on black lanyard. Idle: deadpan, the ONE visible eye half-lidded, unbothered, mouth closed. No mustache, no glasses. Photo is identity reference, cartoon is style/framing only.",
+      "reference_filenames": [
+        "02_friendA.png",
+        "139_receptionist_idle.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "face-only pixel-matched expression pair"
+      ]
+    },
+    {
+      "file": "160_friendA_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. Edit ONLY Friend A's facial expression: a SMALL CROOKED SMILE and raise the visible eyebrow. The VIEWER-LEFT eye stays covered by the identical black side-swept fringe. Keep visible pupil aty560. Keep hair, head outline, face shape, goatee, skin, ears, necklace, clothing, badge, pose, framing and all pixels outside facial features exactly unchanged. Same1024x1280 registration.",
+      "reference_filenames": [
+        "159_friendA_idle.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "face-only pixel-matched expression pair"
+      ]
+    },
+    {
+      "file": "161_friendB_idle.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: identity-preserve. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. Adult proportions, friendly flattering likeness. Strict FRONT view head-and-shoulders bust, shoulders square, no hands. Canvas1024x1280. Match existing FLICK portrait registration: face center(512,620), pupils y560, chin y760, outer ears x332 and692. Top of hair around315 and NEVER above265. All hair, headsets and torso entirely between x60 and960, clear transparent margins. Torso cropped ONLY by bottom edge. Outline about12px at targetsize. Friend B from photo9: young adult woman, long voluminous dark-brown curls worn down past shoulders, dark-brown eyes, full defined eyebrows, warm medium-tan skin matching photo rather than dark photo lighting. Plain black over-ear headset with boom microphone. Dark navy top under soft muted mauve cardigan. Curls stay fully within x60..960 and below y265. Idle: warm friendly CLOSED-MOUTH smile. No glasses. Photo is identity reference, cartoon is style/framing only.",
+      "reference_filenames": [
+        "09_friendB.png",
+        "143_analyst_idle.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "face-only pixel-matched expression pair"
+      ]
+    },
+    {
+      "file": "162_friendB_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. Edit ONLY Friend B's face into the BIG BRIGHT TOOTHY SMILE in photo9, eyes crinkled warmly. First image is exact edit target; second photo supplies smile only. Keep pupil baseliney560. Hair, curls, headset, face silhouette, skin tone, clothes, pose, canvas1024x1280 and all pixels outside the face stay exactlyunchanged.",
+      "reference_filenames": [
+        "161_friendB_idle.png",
+        "09_friendB.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "face-only pixel-matched expression pair"
+      ]
+    },
+    {
+      "file": "163_bailey_sit.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. BAILEY, small SLIM female tricolor beagle matching the TWO photos: warm tan/red-brown head with long soft drop ears, narrow WHITE BLAZE between eyes, WHITE MUZZLE/CHEST, BLACK SADDLE on back, tan and white legs, WHITE PAWS, WHITE-TIPPED TAIL, large soulful dark-brown eyes. Simple PINK collar and small ROUND blank silver tag, no text. Sitting facing viewer, head tilted slightly, looking up hopefully; idle pose. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "07_bailey_1.jpg",
+        "08_bailey_2.jpg",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "164_bailey_sleep.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. BAILEY, small SLIM female tricolor beagle matching the TWO photos: warm tan/red-brown head with long soft drop ears, narrow WHITE BLAZE between eyes, WHITE MUZZLE/CHEST, BLACK SADDLE on back, tan and white legs, WHITE PAWS, WHITE-TIPPED TAIL, large soulful dark-brown eyes. Simple PINK collar and small ROUND blank silver tag, no text. Curled in tight ball asleep, nose tucked toward tail, closed eyes, ears flopped. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "07_bailey_1.jpg",
+        "08_bailey_2.jpg",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "165_bailey_howl.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. BAILEY, small SLIM female tricolor beagle matching the TWO photos: warm tan/red-brown head with long soft drop ears, narrow WHITE BLAZE between eyes, WHITE MUZZLE/CHEST, BLACK SADDLE on back, tan and white legs, WHITE PAWS, WHITE-TIPPED TAIL, large soulful dark-brown eyes. Simple PINK collar and small ROUND blank silver tag, no text. Sitting, head thrown BACK, muzzle pointed UP, mouth open in long beagle bay, ears swinging back, eyes squeezed shut. No sound lines or text. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "07_bailey_1.jpg",
+        "08_bailey_2.jpg",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "166_bailey_fetch.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. BAILEY, small SLIM female tricolor beagle matching the TWO photos: warm tan/red-brown head with long soft drop ears, narrow WHITE BLAZE between eyes, WHITE MUZZLE/CHEST, BLACK SADDLE on back, tan and white legs, WHITE PAWS, WHITE-TIPPED TAIL, large soulful dark-brown eyes. Simple PINK collar and small ROUND blank silver tag, no text. Trotting LEFT strict side view, tail up, proudly carrying exactly ONE ordinary TAN rubber band in mouth; closed oval thin band loop hangs down slightly. No ball. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "07_bailey_1.jpg",
+        "08_bailey_2.jpg",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "167_bailey_happy.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. BAILEY, small SLIM female tricolor beagle matching the TWO photos: warm tan/red-brown head with long soft drop ears, narrow WHITE BLAZE between eyes, WHITE MUZZLE/CHEST, BLACK SADDLE on back, tan and white legs, WHITE PAWS, WHITE-TIPPED TAIL, large soulful dark-brown eyes. Simple PINK collar and small ROUND blank silver tag, no text. Sitting facing viewer, eyes squeezed shut in joy, tongue out, ears relaxed as if scratched; no hand. Same seated body and size as idle. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "07_bailey_1.jpg",
+        "08_bailey_2.jpg",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "168_dog_bed.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One EMPTY small round plush dog bed with raised padded rim, warm muted RED and NAVY PLAID fabric made of simple flat broad crossing bands, slightly squashed dent in middle. Gentle high angle matching FLICK desk props. No dog, no floor, no shadow. Clear margin. Square1024x1024 transparent; final width500px at shared 100px=12cm scale, bottomy960, sized for a small beagle to curl inside.",
+      "reference_filenames": [
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "169_joey_sit.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. JOEY matching the TWO photos: large fluffy male GOLDEN RETRIEVER, LIGHT GOLDEN coat, feathered chest/legs/tail as simple flat tufts, dark-brown eyes, black nose, friendly goofy open-mouthed grin. NO COLLAR. Sitting facing viewer, mouth open tongue out, happy eyes; idle. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "05_joey_1.png",
+        "06_joey_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "170_joey_ball.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. JOEY matching the TWO photos: large fluffy male GOLDEN RETRIEVER, LIGHT GOLDEN coat, feathered chest/legs/tail as simple flat tufts, dark-brown eyes, black nose, friendly goofy open-mouthed grin. NO COLLAR. Standing SIDE VIEW facing LEFT, tail mid-wag, holding one PLAIN YELLOW-GREEN TENNIS BALL in mouth, eyes expectant. Ball has NO SEAM, lines, mark or logo. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "05_joey_1.png",
+        "06_joey_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "171_joey_derp.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. JOEY matching the TWO photos: large fluffy male GOLDEN RETRIEVER, LIGHT GOLDEN coat, feathered chest/legs/tail as simple flat tufts, dark-brown eyes, black nose, friendly goofy open-mouthed grin. NO COLLAR. LYING DOWN with head flopped SIDEWAYS on invisible floor, eyes wide and goofy lopsided toothy grin like photo2. Fully visible whole dog, feathered tail beside body. No furniture. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "05_joey_1.png",
+        "06_joey_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "172_muffins_loaf.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. MUFFINS matching TWO photos: black-white tuxedo cat with BLACK EARS, head top and back, black patches AROUND BOTH EYES, WHITE BLAZE forehead to white muzzle, PINK NOSE, small BLACK CHIN SPOT, WHITE CHEST/FRONT PAWS, long WHITE WHISKERS, green-gold eyes. Lying in compact LOAF, front paws fully TUCKED, facing viewer, eyes half-lidded unimpressed. No collar. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "03_muffins_1.png",
+        "04_muffins_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "173_muffins_swat.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. MUFFINS matching TWO photos: black-white tuxedo cat with BLACK EARS, head top and back, black patches AROUND BOTH EYES, WHITE BLAZE forehead to white muzzle, PINK NOSE, small BLACK CHIN SPOT, WHITE CHEST/FRONT PAWS, long WHITE WHISKERS, green-gold eyes. STANDING side view facing LEFT, ONE front paw raised reaching forward to knock object off ledge; object and ledge NOT DRAWN. Mischievous look, tail UP with curled tip. No collar. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "03_muffins_1.png",
+        "04_muffins_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "174_muffins_sleep.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. One full-body animal, cute expressive but anatomically recognizable adult animal, NOT chibi. Same gentle high viewing angle as FLICK desk props. No props except those specified. All extremities visible. Square transparent canvas, isolated animal large enough to see details; final export will place it at physical scale on1024x1024 with ground contact aty960. Smooth simple silhouette, no realistic fur strands; fur only large flat color shapes with a few outline tufts. MUFFINS matching TWO photos: black-white tuxedo cat with BLACK EARS, head top and back, black patches AROUND BOTH EYES, WHITE BLAZE forehead to white muzzle, PINK NOSE, small BLACK CHIN SPOT, WHITE CHEST/FRONT PAWS, long WHITE WHISKERS, green-gold eyes. Curled up ASLEEP in circle, tail wrapped around nose, closed eyes, no collar. Photos: likeness only; rubber-band illustration: style only, do not draw a rubber band unless explicitly requested.",
+      "reference_filenames": [
+        "03_muffins_1.png",
+        "04_muffins_2.png",
+        "14_band_ball.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "100px = 12cm common physical scale",
+        "last occupied alpha row y960"
+      ]
+    },
+    {
+      "file": "175_id_badge.png",
+      "mode": "built-in ImageGen",
+      "prompt": "Use case: illustration-story. FLICK game art: clean flat 2D vector cartoon matching the supplied FLICK art reference. Bold smooth even dark-brown #332A24 outline, flat warm muted fills, ONE distinct cel-shadow shape and ONE small flat upper-left highlight per material. No gradients, grain, noise, painterly texture, photorealism, 3D, background, floor, cast shadows or border. True transparent RGBA PNG. Absolutely no text, letters, numbers, logos, brand marks, printed characters or graphics. Photos supply LIKENESS ONLY, not pose, clothing prints, lighting or backgrounds. 640x1000 portrait PNG. One vertical WHITE plastic employee ID card, roundedcorners, hanging from silver metalclip. Plain TEAL#2A6F8F lanyard strap rises from clip and runs OFF TOP edge of canvas. Card contains solid teal headerband (NO TEXT), fully TRANSPARENT EMPTY rectangular photo window exactly360x450px atx140,y250, thin grey frame just outsidewindow. Below it exactlyTHREE blank lightgrey lines, no glyphs. Front view, perfectly upright. Card fits within canvas with margin at sides andbottom, lanyardonlycroppedtop. No face/photo inwindow.",
+      "reference_filenames": [
+        "98_clipboard.png"
+      ],
+      "finishing": [
+        "exact RGBA canvas",
+        "flat palette cleanup",
+        "alpha cleanup",
+        "registration",
+        "piecewise clip/card layout",
+        "exact transparent photo window x140 y250 width360 height450"
+      ]
+    }
+  ]
+}

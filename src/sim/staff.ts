@@ -4,17 +4,40 @@
 // the game is closed. Their work counts a little toward your Performance too.
 //
 // A team starts with its lead and grows a seat at a time (each seat costs more than the
-// last). Training doubles a whole team's output. The Assistant Manager does no work of
-// his own; he makes every other team faster.
+// last). Training makes a whole team more productive. The Assistant Manager does no work
+// of his own; he makes every other team faster. And they work faster while you do:
+// keep a work combo going and your team follows your lead (pizza helps too).
 
-import { CAREER, STAFF, TEAMS, type Team, type TeamId } from './content';
+import { CAREER, MOMENTS, STAFF, TEAMS, type Team, type TeamId } from './content';
 import { addReview } from './career';
 import { chatEvent } from './chat';
 import { pushEmail, pushTicker, type GameState } from './state';
-import { basePay, WORK } from './work';
+import { basePay, liveCombo, WORK } from './work';
 
 export function team(id: TeamId): Team {
   return TEAMS.find((t) => t.id === id)!;
+}
+
+/** The lead's full name (you can rename them in Staffing). */
+export function leadName(s: GameState, t: Team) {
+  return s.names?.[t.id]?.trim() || (t.surname ? `${t.lead} ${t.surname}` : t.lead);
+}
+
+/** Rename a team lead, or yourself ('you'). An empty name puts the default back. */
+export function rename(s: GameState, who: TeamId | 'you', name: string) {
+  const clean = name.replace(/\s+/g, ' ').trim().slice(0, 20);
+  if (clean) s.names[who] = clean;
+  else delete s.names[who];
+}
+
+/** Leading by example: your live work combo speeds your team up (+10% a link, up to ×2). */
+export function leadMult(s: GameState) {
+  return 1 + STAFF.leadPerCombo * Math.min(STAFF.leadCap, liveCombo(s));
+}
+
+/** Pizza in the break room: everyone works faster for a minute. */
+export function pizzaMult(s: GameState) {
+  return s.time < (s.office?.pizzaUntil ?? -1) ? MOMENTS.pizzaTeam : 1;
 }
 
 export function teamUnlocked(s: GameState, id: TeamId) {
@@ -54,11 +77,12 @@ export function managerMult(s: GameState) {
   return 1 + STAFF.managerBoost * seats(s, 'manager');
 }
 
-/** Things this team gets done per minute. */
-export function teamPerMin(s: GameState, id: TeamId) {
+/** Things this team gets done per minute (with your combo and any pizza, unless `steady`). */
+export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   const t = team(id);
   if (!t.job) return 0;
-  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s);
+  const boosts = steady ? 1 : leadMult(s) * pizzaMult(s);
+  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * boosts;
 }
 
 /** What one thing this team does pays you. */
@@ -67,13 +91,13 @@ function itemPay(s: GameState, t: Team) {
 }
 
 /** Salary this team brings in per minute. */
-export function teamPayPerMin(s: GameState, id: TeamId) {
-  return teamPerMin(s, id) * itemPay(s, team(id));
+export function teamPayPerMin(s: GameState, id: TeamId, steady = false) {
+  return teamPerMin(s, id, steady) * itemPay(s, team(id));
 }
 
-/** Everything your team brings in per minute. */
-export function staffPayPerMin(s: GameState) {
-  return TEAMS.reduce((sum, t) => sum + teamPayPerMin(s, t.id), 0);
+/** Everything your team brings in per minute (`steady`: without your combo or pizza). */
+export function staffPayPerMin(s: GameState, steady = false) {
+  return TEAMS.reduce((sum, t) => sum + teamPayPerMin(s, t.id, steady), 0);
 }
 
 /** Performance your team adds per minute. */
@@ -93,12 +117,14 @@ export function hire(s: GameState, id: TeamId): StaffResult {
   s.salary -= cost;
   const st = (s.staff[id] ??= { seats: 0, level: 0, done: 0 });
   st.seats++;
+  s.stats.hires = (s.stats.hires ?? 0) + 1;
   s.events.push({ type: 'hired', team: id, seats: st.seats });
+  const name = leadName(s, t);
   if (st.seats === 1) {
-    pushEmail(s, t.lead, `Starting today`, `${t.pitch} I’m your new ${t.title.toLowerCase()}.`, 'story');
-    pushTicker(s, `${t.lead} joins your team as ${t.title}.`);
+    pushEmail(s, name, `Starting today`, `${t.pitch} I’m your new ${t.title.toLowerCase()}.`, 'story');
+    pushTicker(s, `${name} joins your team as ${t.title}.${t.pet ? ` ${t.pet === 'muffins' ? 'Muffins the cat' : 'Joey the golden retriever'} comes too.` : ''}`);
     chatEvent(s, `hired:${id}`);
-  } else pushTicker(s, `${t.lead}’s team grows to ${st.seats}.`);
+  } else pushTicker(s, `${name}’s team grows to ${st.seats}.`);
   return { ok: true };
 }
 
@@ -111,17 +137,17 @@ export function train(s: GameState, id: TeamId): StaffResult {
   const st = s.staff[id]!;
   st.level++;
   s.events.push({ type: 'trained', team: id, level: st.level });
-  pushTicker(s, `${team(id).lead}’s team is back from ${STAFF.training[st.level - 1]}. Twice as productive. Allegedly.`);
+  pushTicker(s, `${leadName(s, team(id))}’s team is back from ${STAFF.training[st.level - 1]}. More productive. Allegedly.`);
   return { ok: true };
 }
 
 /** Your team works for `dt` seconds. Returns what they earned. */
-function work(s: GameState, dt: number) {
+function work(s: GameState, dt: number, steady = false) {
   let pay = 0;
   let review = 0;
   for (const t of TEAMS) {
     if (!t.job) continue;
-    const n = (teamPerMin(s, t.id) / 60) * dt;
+    const n = (teamPerMin(s, t.id, steady) / 60) * dt;
     if (n <= 0) continue;
     const st = s.staff[t.id]!;
     st.done += n;
@@ -148,7 +174,7 @@ export function stepStaff(s: GameState, dt: number) {
   }
 }
 
-/** Your team kept working while you were away. */
+/** Your team kept working while you were away (at their steady pace: no combo, no pizza). */
 export function staffOffline(s: GameState, seconds: number) {
-  return work(s, seconds);
+  return work(s, seconds, true);
 }

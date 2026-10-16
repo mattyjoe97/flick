@@ -6,12 +6,28 @@
 // time (your headcount budget goes up with every promotion), and training makes the
 // whole team more productive. They earn while you play, and while you're away.
 
-import { PAY_GRADES, STAFF, TEAMS, type Team } from '../../sim/content';
+import idBadge from '../../assets/art/id-badge.webp';
+import joeySit from '../../assets/art/pet-joey-sit.webp';
+import muffinsLoaf from '../../assets/art/pet-muffins-loaf.webp';
+import { PAY_GRADES, STAFF, TEAMS, type Team, type TeamId } from '../../sim/content';
 import { promote, reviewNeed, reviewQuestion, reviewReady, TOP_RANK } from '../../sim/career';
-import { hire, seatCap, seatCost, seats, staffPayPerMin, teamPayPerMin, teamPerMin, trainCost, trainLevel, train } from '../../sim/staff';
+import { hire, leadMult, leadName, pizzaMult, rename, seatCap, seatCost, seats, staffPayPerMin, teamPayPerMin, teamPerMin, trainCost, trainLevel, train } from '../../sim/staff';
 import type { GameState } from '../../sim/state';
 import { portraitSvg } from '../portraits';
 import { esc, keyed, money, type AppCtx, type AppView } from './common';
+
+const PET_ART = { muffins: muffinsLoaf, joey: joeySit };
+const PET_NAME = { muffins: 'Muffins', joey: 'Joey' };
+
+/** Your portrait: the outfit changes as you climb (t-shirt, button-down, tie, suit). */
+export function youPortrait(rank: number) {
+  return `you${rank < 3 ? 1 : rank < 6 ? 2 : rank < 8 ? 3 : 4}`;
+}
+
+/** Your name for the ID badge (you can change it in Staffing). */
+export function yourName(s: GameState) {
+  return s.names?.you?.trim() || 'Matt Callahan';
+}
 
 const mult = (n: number) => `×${String(n)}`;
 const a = (word: string) => (/^[aeiou]/i.test(word) ? `an ${word}` : `a ${word}`);
@@ -22,6 +38,7 @@ type Mode = { kind: 'list' } | { kind: 'review'; answer: number | null; from: nu
 export class StaffingApp implements AppView {
   private mode: Mode = { kind: 'list' };
   private outcome: { text: string; ok: boolean } | null = null;
+  private editing: TeamId | 'you' | null = null; // the name being changed
 
   constructor(
     private el: HTMLElement,
@@ -33,6 +50,15 @@ export class StaffingApp implements AppView {
       if (!b || b.disabled) return;
       const d = b.dataset;
       const s = this.s;
+      if (d.rename) {
+        this.editing = d.rename as TeamId | 'you';
+        this.el.dataset.key = '';
+        this.render(s);
+        const input = this.el.querySelector<HTMLInputElement>('input.rename');
+        input?.focus();
+        input?.select();
+        return;
+      }
       if (d.review !== undefined) this.mode = { kind: 'review', answer: null, from: s.career.rank };
       else if (d.answer !== undefined) this.answer(Number(d.answer));
       else if (d.back !== undefined) this.mode = { kind: 'list' };
@@ -49,6 +75,34 @@ export class StaffingApp implements AppView {
       }
       this.el.dataset.key = '';
     });
+    // Renaming: Enter or leaving the box saves; Escape cancels.
+    const save = (input: HTMLInputElement) => {
+      if (!this.editing) return;
+      rename(this.s, this.editing, input.value);
+      this.editing = null;
+      this.el.dataset.key = '';
+    };
+    el.addEventListener('keydown', (e) => {
+      const input = (e.target as HTMLElement).closest<HTMLInputElement>('input.rename');
+      if (!input) return;
+      if (e.key === 'Enter') save(input);
+      else if (e.key === 'Escape') {
+        this.editing = null;
+        this.el.dataset.key = '';
+      }
+      e.stopPropagation();
+    });
+    el.addEventListener('focusout', (e) => {
+      const input = (e.target as HTMLElement).closest<HTMLInputElement>('input.rename');
+      if (input) save(input);
+    });
+  }
+
+  /** A name, with a pencil to change it (or the box to type in, while you are). */
+  private nameHtml(_s: GameState, who: TeamId | 'you', name: string) {
+    if (this.editing === who)
+      return `<input class="rename" type="text" maxlength="20" value="${esc(name)}" aria-label="New name" autocomplete="off" spellcheck="false">`;
+    return `${esc(name)}<button type="button" class="pencil" data-rename="${who}" aria-label="Change ${esc(name)}’s name" title="Change name">✎</button>`;
   }
 
   private get s() {
@@ -96,10 +150,11 @@ export class StaffingApp implements AppView {
   }
 
   render(s: GameState) {
+    if (this.editing && this.el.querySelector('input.rename')) return; // don't redraw under your typing
     const team = TEAMS.map((t) => `${seats(s, t.id)}.${trainLevel(s, t.id)}`).join(',');
     // Buttons enable as money comes in; numbers tick in whole dollars.
     const afford = TEAMS.map((t) => `${s.salary >= seatCost(s, t.id) ? 1 : 0}${s.salary >= (trainCost(s, t.id) ?? Infinity) ? 1 : 0}`).join('');
-    const key = [JSON.stringify(this.mode), s.career.rank, Math.floor(s.career.review), reviewReady(s), team, afford, Math.round(staffPayPerMin(s)), this.outcome?.text ?? ''].join('|');
+    const key = [JSON.stringify(this.mode), s.career.rank, Math.floor(s.career.review), reviewReady(s), team, afford, Math.round(staffPayPerMin(s)), this.outcome?.text ?? '', JSON.stringify(s.names), this.editing ?? ''].join('|');
     keyed(this.el, key, () => (this.mode.kind === 'review' ? this.reviewHtml(s) : this.listHtml(s)));
   }
 
@@ -123,12 +178,13 @@ export class StaffingApp implements AppView {
     const unlocked = TEAMS.find((t) => t.unlockRank === s.career.rank);
     const perks = [
       `Work pays <b>${mult(now.mult)}</b> (was ${mult(before.mult)})`,
-      unlocked ? `New: hire <b>${esc(unlocked.lead)}</b>, ${esc(a(unlocked.title.toLowerCase()))}` : '',
+      unlocked ? `New: hire <b>${esc(leadName(s, unlocked))}</b>, ${esc(a(unlocked.title.toLowerCase()))}${unlocked.pet ? ` (and ${PET_NAME[unlocked.pet]})` : ''}` : '',
+      youPortrait(s.career.rank) !== youPortrait(m.from) ? 'A new look for your ID badge' : '',
       TEAMS.some((t) => t.unlockRank < s.career.rank && seats(s, t.id) > 0) ? 'Headcount budget: +1 seat on every team' : '',
       s.career.rank === TOP_RANK ? 'You run the company now. Nobody can promote you.' : '',
     ].filter(Boolean);
     return `<div class="perf-review done">
-      <div class="rv-face">${portraitSvg('feeney', 'happy')}</div>
+      <div class="rv-face you">${portraitSvg(youPortrait(s.career.rank), 'happy')}</div>
       <div class="rv-body">
         <p class="rv-kicker">Performance review · Mr. Feeney’s office</p>
         <p class="rv-you">“${esc(q.a[m.answer])}.”</p>
@@ -164,14 +220,14 @@ export class StaffingApp implements AppView {
         ? `<p class="hint">Next: <b>${esc(next.title)}</b>, work ${mult(next.mult)}. Do work right to fill the bar (clean, quick rounds count extra, and the more senior you are the more your work counts). Your team adds a little.</p>`
         : `<p class="hint">You’re the CEO. There is nowhere left to go but the golf course.</p>`;
     return `<section class="career">
-      <div class="id-card" aria-hidden="true">
-        <span class="id-strip"></span>
-        <span class="id-photo"><span class="id-you">YOU</span></span>
-        <span class="id-name">${esc(g.title)}</span>
-        <span class="id-line"></span>
+      <div class="id-card">
+        <img class="id-art" src="${idBadge}" alt="">
+        <span class="id-photo">${portraitSvg(youPortrait(c.rank), 'idle')}</span>
+        <span class="id-name">${esc(yourName(s))}</span>
+        <span class="id-title">${esc(g.title)}</span>
       </div>
       <div class="career-info">
-        <p class="career-kicker">Rank ${c.rank + 1} of ${PAY_GRADES.length}</p>
+        <p class="career-kicker">${this.nameHtml(s, 'you', yourName(s))} · rank ${c.rank + 1} of ${PAY_GRADES.length}</p>
         <h3>${esc(g.title)} <small>work ${mult(g.mult)}</small></h3>
         ${bar}
         ${action}
@@ -196,7 +252,8 @@ export class StaffingApp implements AppView {
     const tc = trainCost(s, t.id);
     const level = trainLevel(s, t.id);
     const full = n >= cap;
-    const hireLabel = n === 0 ? `Hire ${esc(t.lead)}` : `Add ${esc(a(t.title.toLowerCase()))}`;
+    const name = leadName(s, t);
+    const hireLabel = n === 0 ? `Hire ${esc(name)}` : `Add ${esc(a(t.title.toLowerCase()))}`;
     const hireBtn = `<button type="button" class="win-action${n === 0 ? ' strong' : ''}" data-hire="${t.id}"${full || s.salary < cost ? ' disabled' : ''}>${hireLabel} · ${money(cost)}</button>`;
     const trainBtn =
       tc !== null
@@ -210,10 +267,11 @@ export class StaffingApp implements AppView {
         ? `Every other team works <b>${Math.round(STAFF.managerBoost * n * 100)}% faster</b>.`
         : `Makes every other team ${Math.round(STAFF.managerBoost * 100)}% faster per seat.`;
     const trained = level > 0 ? ` · trained: ${esc(STAFF.training[level - 1])}` : '';
+    const pet = t.pet && n > 0 ? `<img class="tm-pet ${t.pet}" src="${PET_ART[t.pet]}" alt="${PET_NAME[t.pet]}" title="${PET_NAME[t.pet]}">` : '';
     return `<li class="team">
-      <div class="tm-face">${portraitSvg(t.portrait, n > 0 ? 'happy' : 'idle')}</div>
+      <div class="tm-face">${portraitSvg(t.portrait, n > 0 ? 'happy' : 'idle')}${pet}</div>
       <div class="tm-body">
-        <h4>${esc(t.lead)} <small>${esc(t.title)}${n > 1 ? ` + ${n - 1} more` : ''}</small></h4>
+        <h4>${this.nameHtml(s, t.id, name)} <small>${esc(t.title)}${n > 1 ? ` + ${n - 1} more` : ''}${t.pet && n > 0 ? ` · ${PET_NAME[t.pet]} comes too` : ''}</small></h4>
         <p class="tm-does">${output}</p>
         <p class="tm-quote">“${esc(t.pitch)}”</p>
         <div class="tm-actions">${hireBtn}${trainBtn}</div>
@@ -223,12 +281,16 @@ export class StaffingApp implements AppView {
   }
 
   private listHtml(s: GameState) {
-    const perMin = staffPayPerMin(s);
+    const steady = staffPayPerMin(s, true);
+    const lead = leadMult(s);
+    const pizza = pizzaMult(s);
+    const boosts = [lead > 1 ? `following your lead ×${lead.toFixed(1).replace(/\.0$/, '')}` : '', pizza > 1 ? `pizza ×${pizza}` : ''].filter(Boolean).join(' · ');
     const outcome = this.outcome && !this.outcome.ok ? `<p class="outcome bad">${esc(this.outcome.text)}</p>` : '';
     return `<div class="staffing">
       ${this.careerHtml(s)}
       <section class="teams">
-        <h3>Your team ${perMin > 0 ? `<small>${money(perMin)}/min, even while you’re away</small>` : ''}</h3>
+        <h3>Your team ${steady > 0 ? `<small>${money(steady)}/min, even while you’re away</small>` : ''}${steady > 0 && boosts ? ` <em class="tm-boost">${esc(boosts)}</em>` : ''}</h3>
+        ${steady > 0 ? '<p class="hint team-tip">Keep a work combo going and your team speeds up with you, up to twice as fast.</p>' : ''}
         ${outcome}
         <ul>${TEAMS.map((t) => this.teamHtml(s, t)).join('')}</ul>
       </section>

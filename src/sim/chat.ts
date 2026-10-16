@@ -72,11 +72,12 @@ const EVENT_LINES: Record<string, Line[]> = {
     { id: 'up5', from: 'Brad', text: 'nice. let’s grab a coffee and talk about your pipeline' },
     { id: 'up6', from: 'Gary', text: 'they gave you a bigger chair didn’t they. I can tell' },
   ],
-  'hired:temp': [{ id: 'h1', from: 'Brooke', text: 'hey. it’s brooke, the temp. which stapler is the good one', replies: [{ text: 'the red one', then: 'cool. it’s mine now' }, { text: 'none of them', then: 'figures' }] }],
-  'hired:receptionist': [{ id: 'h2', from: 'Luis', text: 'Front desk is staffed! I’ll put the important calls through. And Brad’s.' }],
-  'hired:bookkeeper': [{ id: 'h3', from: 'Harold', text: 'I have reviewed your expense history. We should talk.', replies: [{ text: 'about what?', then: 'Rubber bands. 400,000 of them.' }, { text: 'no we shouldn’t', then: 'Understood. I have made a note.' }] }],
-  'hired:analyst': [{ id: 'h4', from: 'Priya', text: 'Ran the numbers. This team is 14% more efficient with me on it. You’re welcome.' }],
-  'hired:manager': [{ id: 'h5', from: 'Chad', text: 'yo!! assistant manager reporting for duty. let’s 10x this', replies: [{ text: 'let’s do it', then: 'LET’S GOOO' }, { text: 'please don’t', then: 'too late, I already made a deck' }] }],
+  // Team leads talk as '@<team>' so a rename shows up everywhere (see chatName).
+  'hired:temp': [{ id: 'h1', from: '@temp', text: 'ok I’m in. which stapler is the good one. also Muffins is under your desk, don’t step on her', replies: [{ text: 'the red one', then: 'cool. it’s mine now' }, { text: 'Muffins??', then: 'she’s a cat. she has a badge. it’s fine' }] }],
+  'hired:receptionist': [{ id: 'h2', from: '@receptionist', text: 'Front desk is staffed! I’ll put the important calls through. Joey says hi.', replies: [{ text: 'hi Joey', then: 'he wagged. that’s a yes' }, { text: 'is Joey allowed here?', then: 'he has a lanyard now, so yes' }] }],
+  'hired:bookkeeper': [{ id: 'h3', from: '@bookkeeper', text: 'I have reviewed your expense history. We should talk.', replies: [{ text: 'about what?', then: 'Rubber bands. 400,000 of them.' }, { text: 'no we shouldn’t', then: 'Understood. I have made a note.' }] }],
+  'hired:analyst': [{ id: 'h4', from: '@analyst', text: 'Ran the numbers. This team is 14% more efficient with me on it. You’re welcome.' }],
+  'hired:manager': [{ id: 'h5', from: '@manager', text: 'yo!! assistant manager reporting for duty. let’s 10x this', replies: [{ text: 'let’s do it', then: 'LET’S GOOO' }, { text: 'please don’t', then: 'too late, I already made a deck' }] }],
   boxSpotted: [{ id: 'bx', from: 'Marjorie', text: 'Open your parcels promptly, dear. Mr. Feeney reads labels.' }],
   'promotion:gary': [{ id: 'pg', from: 'Gary', text: 'promoted!! drinks on me (water cooler)' }],
   'promotion:kevin': [{ id: 'pk', from: 'Kevin', text: 'I GOT A TITLE', replies: [{ text: 'congrats!', then: 'I’m going to put it on a mug' }, { text: 'don’t let it go to your head', then: 'too late' }] }],
@@ -206,6 +207,16 @@ export function sendReply(s: GameState, who: string, choice: number) {
   return true;
 }
 
+// ---------------------------------------------------------------- names
+
+/** The name to show for someone in Messenger (team leads can be renamed in Staffing). */
+export function chatName(s: GameState, who: string) {
+  if (!who.startsWith('@')) return who;
+  const t = TEAMS.find((x) => x.id === who.slice(1));
+  // First names in Messenger, like everyone else.
+  return t ? (s.names?.[t.id]?.trim() || t.lead).split(' ')[0] : who;
+}
+
 // ---------------------------------------------------------------- the buddy list
 
 export interface Buddy {
@@ -226,7 +237,7 @@ export function buddies(s: GameState): Buddy[] {
     { who: 'Mr. Feeney', status: 'away', note: 'Idle for 47 minutes' },
     { who: 'IT Helpdesk', status: 'online', note: 'have you tried turning it off and on' },
     // The people you've hired.
-    ...TEAMS.filter((t) => (s.staff[t.id]?.seats ?? 0) > 0).map((t) => ({ who: t.lead, status: 'online' as const, note: `${t.title}, your team` })),
+    ...TEAMS.filter((t) => (s.staff[t.id]?.seats ?? 0) > 0).map((t) => ({ who: `@${t.id}`, status: 'online' as const, note: `${t.title}, your team` })),
   ];
   for (const id of ['steve', 'linda', 'dave']) {
     const name = id[0].toUpperCase() + id.slice(1);

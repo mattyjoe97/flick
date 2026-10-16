@@ -1,4 +1,4 @@
-import { COWORKERS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { COWORKERS, MOMENTS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
 import { newGame, SAVE_VERSION, type GameState } from './state';
 
 export const SAVE_KEY = 'flick.save';
@@ -50,6 +50,11 @@ function migrate(file: SaveFile): GameState | null {
   else s.career = { ...base.career, ...(file.state.career ?? {}) };
   s.staff = { ...(file.state.staff ?? {}) };
   s.staffPay = { owed: 0, at: s.time };
+  s.names = { ...(file.state.names ?? {}) };
+  // Moments don't wait while the game is closed; pizza goes cold.
+  s.office = { ...base.office, ...(file.state.office ?? {}), moment: null, pizzaUntil: -999 };
+  if (file.version < 9) s.office.nextAt = s.time + MOMENTS.first;
+  s.goals = { ...base.goals, ...(file.state.goals ?? {}) };
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
 }
@@ -96,6 +101,9 @@ function sanitize(s: GameState): boolean {
   w.rounds.call = null; // a caller doesn't wait while the game is closed
   w.mailWaiting = Math.min(10, Math.max(0, Math.floor(Number(w.mailWaiting) || 0)));
   if (!Array.isArray(w.fraudAt)) w.fraudAt = [];
+  for (const k of Object.keys(s.names) as (keyof typeof s.names)[]) if (typeof s.names[k] !== 'string') delete s.names[k];
+  if (!Array.isArray(s.goals.list)) s.goals = { day: -1, list: [], combo: 0 };
+  if (!Number.isFinite(s.office.nextAt)) s.office.nextAt = s.time + MOMENTS.first;
   const c = s.career;
   c.rank = Math.min(PAY_GRADES.length - 1, Math.max(0, Math.floor(Number(c.rank) || 0)));
   c.review = Math.max(0, Number(c.review) || 0);

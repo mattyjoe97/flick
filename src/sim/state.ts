@@ -1,8 +1,8 @@
-import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type TeamId, type UpgradeId, type WeaponId } from './content';
+import { DALE, MOMENTS, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type TeamId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 
 export interface Email {
   id: number;
@@ -116,6 +116,15 @@ export interface GameState {
   /** Your team's pay since the last coin drop, and when the next drop is. */
   staffPay: { owed: number; at: number };
 
+  /** Names you can change: yours (on your ID badge) and your team leads'. */
+  names: Partial<Record<'you' | TeamId, string>>;
+
+  /** Bailey and the office: the moment up right now, the next one, pizza, the last ear scratch. */
+  office: { moment: { kind: MomentKind; until: number } | null; nextAt: number; pizzaUntil: number; pettedAt: number };
+
+  /** Today's goals on Mr. Feeney's sticky note (what each counter read when the day began). */
+  goals: { day: number; list: { id: string; base: number; done: boolean }[]; combo: number };
+
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
     threads: ChatThread[];
@@ -169,6 +178,15 @@ export interface GameState {
     gradeA: number;
     teamEarned: number;
     teamDone: number;
+    moments: number;
+    pets: number;
+    hires: number;
+    goals: number;
+    mailRounds: number;
+    callRounds: number;
+    expenseRounds: number;
+    sheetRounds: number;
+    sheetA: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -208,6 +226,12 @@ export type GameEvent =
   | { type: 'promoted'; rank: number }
   | { type: 'hired'; team: TeamId; seats: number }
   | { type: 'trained'; team: TeamId; level: number }
+  | { type: 'moment'; kind: MomentKind }
+  | { type: 'momentClaimed'; kind: MomentKind; text: string }
+  | { type: 'momentGone'; kind: MomentKind }
+  | { type: 'petted'; calmed: boolean }
+  | { type: 'goalDone'; id: string; text: string; all: boolean }
+  | { type: 'goalsNew' }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -240,6 +264,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     career: { rank: 0, review: 0 },
     staff: {},
     staffPay: { owed: 0, at: 0 },
+    names: {},
+    office: { moment: null, nextAt: MOMENTS.first, pizzaUntil: -999, pettedAt: -999 },
+    goals: { day: -1, list: [], combo: 0 },
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -288,6 +315,15 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       gradeA: 0,
       teamEarned: 0,
       teamDone: 0,
+      moments: 0,
+      pets: 0,
+      hires: 0,
+      goals: 0,
+      mailRounds: 0,
+      callRounds: 0,
+      expenseRounds: 0,
+      sheetRounds: 0,
+      sheetA: 0,
     },
     events: [],
   };

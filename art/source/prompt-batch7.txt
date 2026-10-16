@@ -1,0 +1,117 @@
+FLICK — ART BATCH 7: you, your friends, and the office pets
+
+Same game, same chat. Every earlier FLICK image here (the office scene, the desk props, Dale, the painted coworker portraits, the batch 6 lackeys, the rubber band ball) is the STYLE AND PALETTE reference for this batch. Match it exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+This batch puts REAL PEOPLE AND PETS into the game, from 9 reference photos saved in this folder:
+
+  C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos
+
+Open each one from there (they are not attached to this message):
+
+  PHOTO 1 = YOU (the player)
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\01_you.jpg
+  PHOTO 2 = FRIEND A
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\02_friendA.png
+  PHOTOS 3 and 4 = MUFFINS, Friend A's cat
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\03_muffins_1.png
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\04_muffins_2.png
+  PHOTOS 5 and 6 = JOEY, Friend B's dog
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\05_joey_1.png
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\06_joey_2.png
+  PHOTOS 7 and 8 = BAILEY, your dog
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\07_bailey_1.jpg
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\08_bailey_2.jpg
+  PHOTO 9 = FRIEND B
+    C:\Users\matth\Documents\Codex\2026-10-13\create-a-set-of-2d-game\outputs\batch7-photos\09_friendB.png
+
+Use the photos ONLY for likeness: face shape, hair, facial hair, eye colour, skin tone, build, fur colours and markings. Turn them into friendly, flattering FLICK cartoon characters, the same way the existing cast is drawn. Do NOT copy the photos' lighting, backgrounds, poses or clothing prints. Some photos are dark or blurry: keep the recognisable features (listed below) and fill in the rest naturally. Do not copy the photos into the game's output folders; they are reference only.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics on clothing, and no watermarks anywhere (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching pairs) is authorized as before.
+
+Number the files exactly as below (they continue after 150_band_ball_4.png). Deliver all 25 PNGs in a folder named batch7 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch7.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch7.json (the prompt used for each file), like earlier batches.
+
+==================================================
+PORTRAIT FORMAT (sections A and B)
+==================================================
+
+EXACTLY the batch 4 / batch 6 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. IMPORTANT for this batch: keep ALL hair, headsets and clothing between x=60 and x=960 and BELOW y=265 (the game crops everything outside that box), with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+In every pair or set, the _idle file comes first and the others are the SAME image with ONLY what's described changed; everything else is pixel-identical.
+
+==================================================
+A. YOU, CLIMBING THE LADDER (8 files)
+==================================================
+
+YOU (photo 1): a man in his late 20s to early 30s with a broad, sturdy build; short spiky hair styled up on top, light brown with lighter golden frosted tips, short faded sides; a reddish-brown mustache joined to a short goatee on the chin (cheeks otherwise clean-shaven, a little stubble); light skin with rosy cheeks; blue-grey eyes; a calm, slightly skeptical resting face. Same face, hair and build in all eight files. Only the OUTFIT changes between the four ranks, and only the EXPRESSION changes within each pair.
+
+Expressions for every pair: _idle = the neutral employee ID-photo face (mouth closed, eyes forward, a hint of skepticism). _happy = just got promoted: a big proud grin showing teeth, eyebrows up.
+
+151_you_rank1_idle.png / 152_you_rank1_happy.png — the new hire: a plain navy-blue crew-neck t-shirt (no print) with a blank white ID card on a teal lanyard around the neck.
+153_you_rank2_idle.png / 154_you_rank2_happy.png — moving up: a light-blue button-down shirt, top button open, same teal lanyard and blank card.
+155_you_rank3_idle.png / 156_you_rank3_happy.png — middle management material: a crisp white shirt with a burgundy tie, the lanyard swapped for a clip-on blank ID card on the shirt pocket.
+157_you_rank4_idle.png / 158_you_rank4_happy.png — Floor Manager: a charcoal suit jacket over the white shirt, a navy tie, a folded pocket square, hair a little neater (still spiky on top).
+
+==================================================
+B. YOUR FRIENDS, NEW HIRES (4 files)
+==================================================
+
+159_friendA_idle.png / 160_friendA_happy.png — FRIEND A (photo 2), hired as the temp: a slim young man with long, straight, jet-black hair in a heavy side-swept fringe that covers his right eye (viewer's left) and falls past the ears; light skin; a thin light-brown goatee on the chin; a thin black ball-chain necklace with a small silver pendant; a blue-and-white tie-dye t-shirt with horizontal wavy bands (PLAIN tie-dye: no character, print or logo on it); a blank white visitor badge on a black lanyard. Idle: deadpan, the visible eye half-lidded, unbothered. Happy: a small crooked smile, the visible eyebrow raised.
+
+161_friendB_idle.png / 162_friendB_happy.png — FRIEND B (photo 9), hired as the receptionist: a young woman with long, voluminous dark-brown curly hair worn down past her shoulders; dark brown eyes; full, defined eyebrows; skin tone as in her photo; a black over-ear headset with a boom microphone (plain, no logo) on her head; a dark top under a soft cardigan. Idle: a warm friendly closed-mouth smile. Happy: the big bright toothy smile from her photo, eyes crinkled. Keep the curls inside the x=60 to 960 box.
+
+==================================================
+C. THE PETS: FORMAT
+==================================================
+
+Full-body animals, 1024 x 1024 transparent PNG, the same flat FLICK cartoon style and outline, seen from the same gentle high angle as the desk props. ALL pets share ONE scale so they look right together: 100px = 12cm in real life (a sitting beagle is about 380px tall, a sitting golden retriever about 620px, a sitting cat about 240px). Every pet stands, sits or lies on an invisible floor line at y=960 (paws or body touching it), horizontally centred, nothing else in the image except the objects listed. Cute and expressive, but recognisably that animal. Record the floor line and the scale in the manifest.
+
+==================================================
+D. BAILEY, YOUR BEAGLE (6 files)
+==================================================
+
+BAILEY (photos 7 and 8): a small, slim female tricolour beagle: warm tan/red-brown head and long soft drop ears, a white blaze running up between the eyes, white muzzle and chest, a black saddle on the back, tan and white legs with white paws, a white-tipped tail; big soulful dark-brown eyes; a simple pink collar with a small round silver tag (no text).
+
+163_bailey_sit.png — sitting facing the viewer, head tilted slightly, looking up hopefully (the idle pose).
+164_bailey_sleep.png — curled up in a tight ball asleep, nose tucked toward her tail, eyes closed, ears flopped.
+165_bailey_howl.png — sitting, head thrown back, mouth open in a long beagle "AROOO" bay, ears swinging back, eyes squeezed shut. No sound lines, no text.
+166_bailey_fetch.png — trotting to the LEFT in side view, tail up, proudly carrying ONE tan rubber band (the same tan band colour as the game's bands) in her mouth, the band looping down a little.
+167_bailey_happy.png — sitting, eyes squeezed shut with joy, tongue out, ears relaxed, as if being scratched behind the ears (no hand in the image).
+168_dog_bed.png — a small round plush dog bed with a raised rim, warm red-and-navy plaid fabric, a slightly squashed dent in the middle, empty, same gentle high angle and the same scale (sized for Bailey to sleep in).
+
+==================================================
+E. JOEY, FRIEND B'S GOLDEN RETRIEVER (3 files)
+==================================================
+
+JOEY (photos 5 and 6): a big, fluffy, friendly male golden retriever, light golden coat, feathered fur on the chest, legs and tail, dark brown eyes, black nose, a goofy open-mouthed grin. No collar.
+
+169_joey_sit.png — sitting facing the viewer, mouth open, tongue out, eyes happy (the idle pose).
+170_joey_ball.png — standing in side view facing LEFT, tail mid-wag, holding a plain yellow-green tennis ball (no lines, no logo) in his mouth, eyes bright and expectant.
+171_joey_derp.png — lying down with his head flopped sideways on the floor, eyes wide, a goofy lopsided toothy grin (photo 6's energy).
+
+==================================================
+F. MUFFINS, FRIEND A'S CAT (3 files)
+==================================================
+
+MUFFINS (photos 3 and 4): a black-and-white tuxedo cat: black ears, head top and back, black patches around both eyes, a white blaze from the forehead down to a white muzzle, a pink nose, a small black spot on the chin, white chest, white front paws, long white whiskers, green-gold eyes, an unimpressed half-lidded look.
+
+172_muffins_loaf.png — lying in a "loaf" with front paws tucked, facing the viewer, eyes half-lidded and unimpressed (the idle pose).
+173_muffins_swat.png — standing in side view facing LEFT, one front paw raised and reaching forward to knock something off a ledge (the object is NOT drawn), a mischievous look, tail up with a curl at the tip.
+174_muffins_sleep.png — curled up asleep in a circle, tail wrapped around the nose, eyes closed.
+
+==================================================
+G. YOUR EMPLOYEE ID BADGE (1 file)
+==================================================
+
+175_id_badge.png — 640 x 1000. A vertical plastic employee ID card hanging from a metal clip, a teal (#2A6F8F) lanyard strap rising from the clip off the TOP edge of the canvas. The card: white with rounded corners, a plain teal header band across the top (no text or logo), an EMPTY rectangular photo window in the upper middle that is fully transparent (exactly 360 x 450 px, top-left corner at x=140, y=250, with a thin grey frame line around it), and below it three blank light-grey lines where the name and title will be printed (no text). Record the photo window rectangle in the manifest.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 25 PNGs, numbered 151 to 175, exactly the sizes above.
+- No text, numbers, letters, logos, cartoon characters or prints anywhere, including on shirts, badges, headsets, collars and the tennis ball.
+- Portraits (151 to 162) use the batch 4 registration exactly and stay inside x=60..960 and below y=265.
+- Each portrait pair is pixel-matched outside the face; your four ranks keep the same face and hair.
+- Pets share one scale (100px = 12cm) and the floor line y=960.
+- 175 has a transparent photo window at (140, 250), 360 x 450.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch7 folder.

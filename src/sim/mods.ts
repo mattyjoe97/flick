@@ -1,4 +1,4 @@
-import { CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import type { GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
@@ -62,7 +62,8 @@ export function mods(s: GameState) {
 
   return {
     lookoutCut: Math.min(TUNING.lookoutCutMax, lookouts * TUNING.lookoutCutEach),
-    warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach),
+    // Bailey hears Mr. Feeney's shoes first: her extra second comes on top of everything.
+    warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach) + BAILEY.warn,
     priceMult: 1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach),
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
     allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1),

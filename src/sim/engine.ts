@@ -6,6 +6,8 @@ import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
 import { staffOffline, stepStaff } from './staff';
+import { stepOffice } from './office';
+import { stepGoals } from './goals';
 
 export { openBox } from './supplies';
 
@@ -352,6 +354,8 @@ export function step(s: GameState, dt: number) {
   stepAllies(s, dt);
   stepWork(s, dt);
   stepStaff(s, dt);
+  stepOffice(s);
+  stepGoals(s);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
