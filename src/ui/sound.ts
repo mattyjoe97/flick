@@ -198,6 +198,28 @@ export class Sound {
     this.tone('sine', 950, 1300, 0.07, 0.06, 0.11);
   }
 
+  /** Winding bands onto the ball: a few quick rubbery stretches (and a fanfare when it grows). */
+  wind(grew = false) {
+    if (!this.ok('wind', 120)) return;
+    for (let i = 0; i < 3; i++) this.tone('triangle', 300 + i * 40, 420 + i * 60, 0.06, 0.07, i * 0.06);
+    if (grew) {
+      this.tone('sine', 660, 660, 0.12, 0.1, 0.2);
+      this.tone('sine', 880, 880, 0.12, 0.1, 0.32);
+      this.tone('sine', 1320, 1320, 0.25, 0.1, 0.44);
+    }
+  }
+
+  /** Barrage: a whole office's worth of twangs at once, then the thud of everything landing. */
+  barrage() {
+    if (!this.ok('barrage', 500)) return;
+    for (let i = 0; i < 9; i++) {
+      this.tone('triangle', 480 + Math.random() * 200, 150 + Math.random() * 60, 0.09, 0.09, i * 0.035);
+      this.noise(2400, 2, 0.03, 0.06, i * 0.035);
+    }
+    this.noise(700, 0.8, 0.35, 0.35, 0.42);
+    this.tone('sine', 120, 50, 0.3, 0.3, 0.42);
+  }
+
   /** Messenger: a message for you. */
   notify() {
     if (!this.ok('notify', 400)) return;

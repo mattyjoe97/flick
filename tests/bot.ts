@@ -1,7 +1,12 @@
 import { COWORKERS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { promote, reviewReady } from '../src/sim/career';
 import { hire, seatCap, seatCost, seats, teamUnlocked, train, trainCost } from '../src/sim/staff';
+import { wind } from '../src/sim/ball';
+import { BARRAGE } from '../src/sim/content';
 import {
+  barrage,
+  barrageSize,
+  canBarrage,
   buyUpgrade,
   buyWeapon,
   coworkerAvailable,
@@ -33,6 +38,10 @@ import { newGame, type GameState } from '../src/sim/state';
 
 export interface BotStyle {
   name: string;
+  /** Uses Barrages and winds spare bands onto the ball (off: plays like before they existed). */
+  ball?: boolean;
+  /** Keeps ordering supplies to stockpile for Barrages (a player who buys bands to throw). */
+  stockpile?: boolean;
   actionsPerSecond: number;
   hideAbove: number; // Suspicion level that makes the bot hide
   resumeBelow: number;
@@ -152,7 +161,8 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   if (s.supplies.box) openBox(s);
   // Reviews get taken as soon as they're ready.
   if (style.doesWork && reviewReady(s)) promote(s);
-  // After the first slice there's no one to flick: it's a desk job now.
+  // After the first slice there's no one to flick: every spare band goes on the ball.
+  if (s.stage > 2 && style.ball !== false && s.bands >= 10) wind(s);
   if (s.stage > 2) {
     shop(s);
     setLookBusy(s, true);
@@ -177,12 +187,23 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   if (shop(s)) return;
 
   const w = weapon(s);
+  if (style.stockpile && s.stage === 2 && s.bands < 2 * BARRAGE.perPerson * (1 + s.allies.length) && !s.supplies.order && s.salary >= mods(s).order.price * 3) {
+    orderSupplies(s);
+    return;
+  }
   if (s.bands < w.burst) {
     const o = mods(s).order;
     if (!s.supplies.order && s.salary >= o.price + 5) orderSupplies(s);
     else if (s.supplies.drawer > 0 || s.supplies.find) scrounge(s);
     else if (style.doesWork) setLookBusy(s, true); // go earn while the order is on its way
     return;
+  }
+  // A full Barrage when the team's reloaded and there's room on the Suspicion meter.
+  if (style.ball !== false && countdown === null && canBarrage(s).ok) {
+    const n = barrageSize(s);
+    const full = n >= Math.min(s.bands, BARRAGE.perPerson * (1 + s.allies.filter((a) => a.role === 'shooter').length));
+    const noise = BARRAGE.noise + BARRAGE.noisePerBand * n;
+    if (full && n >= BARRAGE.min * 2 && s.suspicion + noise < style.workAbove && barrage(s).ok) return;
   }
   if (s.suspicion > style.workAbove || needsMoney(s)) {
     if (style.doesWork) {

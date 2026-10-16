@@ -4,8 +4,9 @@ import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/si
 import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
 import { claimMoment, petBailey } from '../src/sim/office';
 import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
-import { BAILEY, GOALS, MOMENTS } from '../src/sim/content';
-import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
+import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS } from '../src/sim/content';
+import { ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
+import { addSuspicion, applyOffline, barrage, barrageSize, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
 import {
@@ -37,7 +38,7 @@ import { CALLERS, MAIL } from '../src/sim/workdata';
 import { buddies, chatName, chatUnread, readThread, replyOptions, sendReply, typing } from '../src/sim/chat';
 import { affordable, forSale, itemKey, shoppingList } from '../src/sim/shop';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
-import { newGame } from '../src/sim/state';
+import { newAlly, newGame } from '../src/sim/state';
 import { playBot, STYLES } from './bot';
 
 function run(s: ReturnType<typeof newGame>, seconds: number) {
@@ -995,6 +996,125 @@ describe('the office: Bailey, moments, goals', () => {
     expect(chatName(s, '@temp')).toBe('Ada');
     rename(s, 'temp', '');
     expect(leadName(s, temp)).toBe(`${temp.lead} ${temp.surname}`);
+  });
+});
+
+describe('the rubber band ball and the Barrage', () => {
+  const war = () => {
+    const s = newGame(3);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    s.office.nextAt = 1e9;
+    return s;
+  };
+  const stage2 = () => {
+    const s = war();
+    s.stage = 2;
+    s.targetIndex = TARGETS.findIndex((t) => t.stage === 2);
+    s.targetResolve = TARGETS[s.targetIndex].resolve;
+    return s;
+  };
+
+  it('turns up once the second Gary gives in, and a tap winds on a quarter of your loose bands', () => {
+    const s = war();
+    expect(ballUnlocked(s)).toBe(false);
+    expect(wind(s).ok).toBe(false);
+    s.targetIndex = BALL.unlockTarget;
+    run(s, 0.2);
+    expect(s.ball.found).toBe(true);
+    s.bands = 400;
+    expect(windAmount(s)).toBe(100);
+    const r = wind(s);
+    expect(r.ok && r.amount).toBe(100);
+    expect(s.bands).toBe(300);
+    expect(s.ball.wound).toBe(100);
+    s.bands = 12;
+    expect(windAmount(s)).toBe(BALL.windMin);
+    s.bands = 4;
+    expect(windAmount(s)).toBe(4);
+    s.bands = 0;
+    expect(wind(s).ok).toBe(false);
+  });
+
+  it('grows through four sizes, each a permanent perk', () => {
+    const s = stage2();
+    s.career.rank = 1;
+    s.salary = 1e6;
+    hire(s, 'temp');
+    const team = teamPerMin(s, 'temp', true);
+    const pay = basePay(s, 'mail');
+    s.suspicion = 50;
+    run(s, 1);
+    const cooledSmall = 50 - s.suspicion;
+
+    s.ball.wound = BALL.sizes[0].at;
+    expect(ballSize(s)).toBe(1);
+    s.suspicion = 50;
+    run(s, 1);
+    expect(50 - s.suspicion).toBeCloseTo(cooledSmall * BALL.cool, 1);
+
+    s.allies.push(newAlly('gary', 'shooter'));
+    s.bands = 1e5;
+    const before = barrageSize(s);
+    s.ball.wound = BALL.sizes[1].at;
+    expect(barrageSize(s)).toBe(before * 2);
+
+    s.ball.wound = BALL.sizes[2].at;
+    expect(teamPerMin(s, 'temp', true)).toBeCloseTo(team * BALL.team);
+    s.ball.wound = BALL.sizes[3].at;
+    expect(ballSize(s)).toBe(4);
+    expect(basePay(s, 'mail')).toBeCloseTo(pay * BALL.pay);
+  });
+
+  it('Barrage: a pocketful each for you and your Shooters, all at once, then a cooldown', () => {
+    const s = stage2();
+    s.allies.push(newAlly('gary', 'shooter'));
+    s.bands = 1000;
+    s.suspicion = 0;
+    const resolve = s.targetResolve;
+    expect(barrageSize(s)).toBe(BARRAGE.perPerson * 2);
+    expect(barrage(s).ok).toBe(true);
+    expect(s.bands).toBe(1000 - BARRAGE.perPerson * 2);
+    expect(resolve - s.targetResolve).toBeCloseTo(BARRAGE.perPerson * 2 * weapon(s).damage * BARRAGE.power);
+    expect(s.suspicion).toBeGreaterThan(BARRAGE.noise * 0.5);
+    expect(s.stats.barrages).toBe(1);
+    // Reloading, then ready again.
+    expect(barrage(s).ok).toBe(false);
+    s.barrageAt = s.time;
+    s.bands = BARRAGE.min - 1;
+    expect(barrage(s).ok).toBe(false);
+    // Not from your computer, not in Stage 1.
+    s.bands = 1000;
+    s.lookBusy = true;
+    expect(barrage(s).ok).toBe(false);
+    s.lookBusy = false;
+    const one = war();
+    one.bands = 1000;
+    expect(barrage(one).ok).toBe(false);
+  });
+
+  it('a Barrage that finishes someone off captures them', () => {
+    const s = stage2();
+    s.bands = 1000;
+    s.targetResolve = 50;
+    const index = s.targetIndex;
+    expect(barrage(s).ok).toBe(true);
+    expect(s.targetIndex).toBe(index + 1);
+  });
+
+  it('the ball survives a save', () => {
+    const s = stage2();
+    s.ball.wound = 1234;
+    const back = deserialize(serialize(s))!;
+    expect(back.state.ball.wound).toBe(1234);
+    const old = JSON.parse(serialize(s));
+    old.version = 9;
+    delete old.state.ball;
+    delete old.state.barrageAt;
+    const migrated = deserialize(JSON.stringify(old))!.state;
+    expect(migrated.ball).toEqual({ wound: 0, found: false });
+    expect(migrated.barrageAt).toBe(0);
   });
 });
 

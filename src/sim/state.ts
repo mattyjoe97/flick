@@ -2,7 +2,7 @@ import { DALE, MOMENTS, TARGETS, TUNING, type CoworkerId, type MomentKind, type 
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 
 export interface Email {
   id: number;
@@ -125,6 +125,10 @@ export interface GameState {
   /** Today's goals on Mr. Feeney's sticky note (what each counter read when the day began). */
   goals: { day: number; list: { id: string; base: number; done: boolean }[]; combo: number };
 
+  /** Your rubber band ball (bands wound on so far), and when your next Barrage is ready. */
+  ball: { wound: number; found: boolean };
+  barrageAt: number;
+
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
     threads: ChatThread[];
@@ -187,6 +191,9 @@ export interface GameState {
     expenseRounds: number;
     sheetRounds: number;
     sheetA: number;
+    winds: number;
+    barrages: number;
+    barrageDamage: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -232,6 +239,9 @@ export type GameEvent =
   | { type: 'petted'; calmed: boolean }
   | { type: 'goalDone'; id: string; text: string; all: boolean }
   | { type: 'goalsNew' }
+  | { type: 'wound'; amount: number; size: number; grew: boolean }
+  | { type: 'ballReady' }
+  | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -267,6 +277,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     names: {},
     office: { moment: null, nextAt: MOMENTS.first, pizzaUntil: -999, pettedAt: -999 },
     goals: { day: -1, list: [], combo: 0 },
+    ball: { wound: 0, found: false },
+    barrageAt: 0,
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -324,6 +336,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       expenseRounds: 0,
       sheetRounds: 0,
       sheetA: 0,
+      winds: 0,
+      barrages: 0,
+      barrageDamage: 0,
     },
     events: [],
   };

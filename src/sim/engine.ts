@@ -1,4 +1,4 @@
-import { CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
@@ -8,6 +8,7 @@ import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } fr
 import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
+import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
 
 export { openBox } from './supplies';
 
@@ -286,7 +287,7 @@ export function step(s: GameState, dt: number) {
 
   // Cooling off
   const idle = s.time - s.lastShotAt >= TUNING.idleCoolDelay;
-  const cool = TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0);
+  const cool = (TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0)) * ballCoolMult(s);
   s.suspicion = Math.max(0, s.suspicion - cool * dt);
   checkThresholds(s);
 
@@ -356,6 +357,7 @@ export function step(s: GameState, dt: number) {
   stepStaff(s, dt);
   stepOffice(s);
   stepGoals(s);
+  stepBall(s);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
@@ -450,6 +452,65 @@ export function snapBand(s: GameState): ActionResult {
   s.events.push({ type: 'snap' });
   addSuspicion(s, CHARGE.snapNoise);
   pushTicker(s, 'You held it too long. The band snaps across your knuckles. Ow.');
+  return ok;
+}
+
+/** The Shooters who join in a Barrage (everyone's on lockdown after you're caught). */
+function barrageShooters(s: GameState) {
+  return s.time < s.shooterLockUntil ? [] : s.allies.filter((a) => a.role === 'shooter').map((a) => a.id);
+}
+
+/** How many bands a Barrage would throw right now: a pocketful each for you and every Shooter. */
+export function barrageSize(s: GameState) {
+  const cap = BARRAGE.perPerson * (1 + barrageShooters(s).length) * ballBarrageMult(s);
+  return Math.min(Math.floor(s.bands), cap);
+}
+
+/** Seconds until your team has reloaded for another Barrage (0 when ready). */
+export function barrageCooldown(s: GameState) {
+  return Math.max(0, s.barrageAt - s.time);
+}
+
+/** Barrages come with your team: from Stage 2 on, while there's someone to throw at. */
+export function barrageUnlocked(s: GameState) {
+  return s.stage === 2;
+}
+
+export function canBarrage(s: GameState): ActionResult {
+  if (!barrageUnlocked(s) || !currentTarget(s)) return no(s.stage < 2 ? 'You need a team for a Barrage.' : 'There is no one left to flick. For now.');
+  if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
+  if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
+  if (s.time < s.barrageAt) return no(`Everyone’s still reloading (${Math.ceil(barrageCooldown(s))} s).`);
+  if (s.bands < BARRAGE.min) return no(`A Barrage takes at least ${BARRAGE.min} bands.`);
+  return ok;
+}
+
+/**
+ * Barrage: you and your Shooters empty your pockets at once. Every band hits like a light
+ * stretch, all in one go, so a stockpile turns into one huge volley. Loud, and once a minute.
+ */
+export function barrage(s: GameState): ActionResult {
+  const can = canBarrage(s);
+  if (!can.ok) return can;
+  const t = currentTarget(s)!;
+  const w = weapon(s);
+  const m = mods(s);
+  const shooters = barrageShooters(s);
+  const n = barrageSize(s);
+  s.bands -= n;
+  const dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage;
+  s.targetResolve -= dmg;
+  s.sinceLastHit = 0;
+  s.lastShotAt = s.time;
+  s.barrageAt = s.time + BARRAGE.cooldown;
+  s.stats.barrages = (s.stats.barrages ?? 0) + 1;
+  s.stats.barrageDamage = (s.stats.barrageDamage ?? 0) + dmg;
+  s.stats.damage += dmg;
+  s.events.push({ type: 'barrage', damage: dmg, bands: n, shooters });
+  chatEvent(s, 'barrage');
+  pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg).toLocaleString('en-US')} Resolve.`);
+  addSuspicion(s, (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult);
+  if (s.targetResolve <= 0) capture(s);
   return ok;
 }
 
@@ -670,7 +731,7 @@ export function applyOffline(s: GameState, seconds: number) {
       s,
       'Out of Office',
       'While you were away',
-      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(passive).toLocaleString('en-US')}.${team >= 1 ? ` Your team made $${Math.floor(team).toLocaleString('en-US')}.` : ''}`,
+      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(passive).toLocaleString('en-US')}.${team >= 1 ? ` Your team made $${Math.floor(team).toLocaleString('en-US')}.` : ''}${bands >= 100 && ballUnlocked(s) ? ` Wind the bands onto your ball${s.stage === 2 ? ', or save them for a Barrage' : ''}.` : ''}`,
       'flavor',
     );
   }

@@ -64,6 +64,11 @@ const EVENT_LINES: Record<string, Line[]> = {
     },
   ],
   'find:ball': [{ id: 'fb', from: 'Gary', text: 'where did you get a rubber band BALL. that’s a war crime' }],
+  'ball:1': [{ id: 'bl1', from: 'Gary', text: 'is that a rubber band ball. on your desk. in front of god and everyone', replies: [{ text: 'it’s a stress ball', then: 'it’s stressing ME out' }, { text: 'jealous?', then: 'a little' }] }],
+  'ball:2': [{ id: 'bl2', from: 'Kevin', text: 'your ball is so big now. can I hold it', replies: [{ text: 'no', then: 'ok. can I look at it' }, { text: 'gently', then: 'I will be SO gentle' }] }],
+  'ball:3': [{ id: 'bl3', from: 'Marjorie', text: 'In 1994 Harold from Payroll had one the size of a cantaloupe. Yours is bigger, dear. Harold would be proud.' }],
+  'ball:4': [{ id: 'bl4', from: 'Gary', text: 'I think your ball ate my stapler. I want it back but I’m scared to ask it', replies: [{ text: 'it’s ours now', then: 'it’s not even a good stapler' }, { text: 'reach in', then: 'I am NOT reaching in there' }] }],
+  barrage: [{ id: 'br1', from: 'Gary', text: 'did we just. all fire at once. I’ve never felt so alive', replies: [{ text: 'again?', then: 'give me a minute to find more bands' }, { text: 'that was the plan', then: 'there was a PLAN??' }] }],
   promoted: [
     { id: 'up1', from: 'Gary', text: 'you got PROMOTED? for what', replies: [{ text: 'excellence', then: 'I have also been excellent. nobody noticed' }, { text: 'no idea', then: 'that tracks honestly' }] },
     { id: 'up2', from: 'Marjorie', text: 'Congratulations, dear. I remember when Mr. Feeney was an Associate.' },

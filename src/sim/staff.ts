@@ -10,6 +10,7 @@
 
 import { CAREER, MOMENTS, STAFF, TEAMS, type Team, type TeamId } from './content';
 import { addReview } from './career';
+import { ballTeamMult } from './ball';
 import { chatEvent } from './chat';
 import { pushEmail, pushTicker, type GameState } from './state';
 import { basePay, liveCombo, WORK } from './work';
@@ -82,7 +83,7 @@ export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   const t = team(id);
   if (!t.job) return 0;
   const boosts = steady ? 1 : leadMult(s) * pizzaMult(s);
-  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * boosts;
+  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * boosts;
 }
 
 /** What one thing this team does pays you. */

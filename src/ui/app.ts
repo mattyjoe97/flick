@@ -1,4 +1,4 @@
-import { COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
+import { BARRAGE, COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
 import {
   assign,
   buyBack,
@@ -31,6 +31,7 @@ import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
 import { OfficeView } from './office';
+import { BallView } from './ball';
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
@@ -74,6 +75,7 @@ export class UI {
   private delivery: DeliveryView;
   private closet: ClosetView;
   private office: OfficeView;
+  private ball: BallView;
   private lastRing = 0;
   private rolePop: HTMLElement;
   private rolePopFor: CoworkerId | null = null;
@@ -112,6 +114,11 @@ export class UI {
         if (kind === 'ball' || kind === 'bailey') this.bump('bands');
         if (kind === 'bonus' || kind === 'bailey') moneyBurst(from, this.salaryTarget(), 5, 1, () => this.bump('salary'));
       },
+    });
+    this.ball = new BallView(() => this.s, {
+      say: (t) => this.say(t),
+      act: (fn) => this.act(fn),
+      sound: { wind: (grew) => this.sound.wind(grew) },
     });
     this.computer = new ComputerView(() => this.s, {
       say: (t) => this.say(t),
@@ -401,6 +408,7 @@ export class UI {
     else if (k === 'w') this.doWork();
     else if (k === 'o') this.doOrder();
     else if (k === 'd') this.closet.show();
+    else if (k === 'v') this.ball.barrage();
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
   }
 
@@ -504,7 +512,11 @@ export class UI {
         this.onShot(e.damage, e.by, e.perfect ?? false);
         if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
         else this.sound.ally();
-      } else if (e.type === 'caught') {
+      } else if (e.type === 'barrage') {
+        this.sound.barrage();
+        this.onBarrage(e);
+      } else if (e.type === 'wound') this.bump('bands');
+      else if (e.type === 'caught') {
         this.onCaught(e);
         this.sound.caught();
       } else if (e.type === 'fired') {
@@ -544,6 +556,7 @@ export class UI {
       } else if (e.type === 'roundDone') this.sound.grade(e.grade);
       this.computer.handle(e);
       this.office.handle(e);
+      this.ball.handle(e);
     }
   }
 
@@ -606,6 +619,27 @@ export class UI {
     f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
     box.appendChild(f);
     setTimeout(() => f.remove(), 1300);
+  }
+
+  /** Barrage: one big number when everything lands. */
+  private onBarrage(e: Extract<GameEvent, { type: 'barrage' }>) {
+    this.bump('bands');
+    const box = $('floaters');
+    const f = document.createElement('span');
+    f.className = 'floater barrage';
+    f.innerHTML = `Barrage! <b>−${fmt(Math.round(e.damage))}</b>`;
+    const o = this.scene.floaterOrigin();
+    f.style.left = `${o.left}%`;
+    f.style.top = `${o.top}%`;
+    f.style.animationDelay = reducedMotion() ? '0s' : '0.46s';
+    box.appendChild(f);
+    setTimeout(() => f.remove(), 2200);
+    const plate = $('nameplate');
+    setTimeout(() => {
+      plate.classList.remove('hit');
+      void plate.offsetWidth;
+      plate.classList.add('hit');
+    }, 460);
   }
 
   /** The Flick key visibly presses down when you fire. */
@@ -682,7 +716,8 @@ export class UI {
       $('stage-dlg-body').innerHTML = `
         <p>Gary surrendered and joined your side. His desk is your first captured territory.</p>
         <p>Across the aisle, Brad from Sales is waiting. Coworkers will email you asking to join: recruit them from <strong>Mail</strong> or the <strong>Org Chart</strong> on your computer (Esc). Each one gets a role: Shooter, Gatherer, Lookout, Cover or Engineer. Click a teammate in the office to change it.</p>
-        <p>Your Shooters keep firing while you're at your computer, at half speed.</p>`;
+        <p>Your Shooters keep firing while you're at your computer, at half speed.</p>
+        <p><strong>New: Barrage (V).</strong> You and every Shooter empty your pockets at once: a pile of bands in one huge volley. Loud, and once every ${BARRAGE.cooldown / 60 === 1 ? 'minute' : `${BARRAGE.cooldown} seconds`}. Stockpile bands for it.</p>`;
     } else if (stage === 3) {
       const mins = Math.round((s.stats.stage2At ?? s.time) / 60);
       $('stage-dlg-h').textContent = 'The department is yours';
@@ -798,6 +833,7 @@ export class UI {
     }
     this.drawer.render();
     this.office.render();
+    this.ball.render();
     this.delivery.render();
     this.closet.render();
     this.scene.render();

@@ -17,6 +17,7 @@
 // Everything here is headless and deterministic so the pacing bots can play it.
 
 import { CAREER, COMBO, MOMENTS, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
+import { ballPayMult } from './ball';
 import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
@@ -212,7 +213,7 @@ export function payGrade(s: GameState) {
 /** What one item of this kind pays right now, before the combo. */
 export function basePay(s: GameState, kind: WorkKind) {
   const tab = kind === 'sheet' ? SHEET_TABS.find((t) => t.id === activeTab(s))!.payMult : 1;
-  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab;
+  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab * ballPayMult(s);
 }
 
 /** The combo still running (it lapses if you go too long without finishing something). */

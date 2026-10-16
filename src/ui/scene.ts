@@ -300,7 +300,36 @@ export class Scene {
       this.sayFeeney(e.type === 'spotted' ? 'Is that... a rubber band?' : 'Great hustle.');
     } else if (e.type === 'recruit') {
       this.allyKey = '';
+    } else if (e.type === 'barrage') {
+      this.volley(e.shooters);
     }
+  }
+
+  /** Barrage: bands fly from your hand and every Shooter at once, then the whole desk shakes. */
+  private volley(shooters: string[]) {
+    const from = [() => this.fromHand(), ...shooters.map((id) => () => this.allyHead(id))];
+    for (const id of shooters) this.recoil(id);
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      setTimeout(() => {
+        const to = this.aimPoint();
+        const f = from[i % from.length]();
+        this.launch({ x: f.x + (Math.random() - 0.5) * 40, y: f.y }, to, 300 + Math.random() * 140, () => {
+          this.burst(to.x + (Math.random() - 0.5) * 70, to.y + (Math.random() - 0.5) * 40, i % 3 === 0);
+        }, i % 4 === 0);
+      }, i * 28);
+    }
+    setTimeout(() => {
+      this.hitUntil = performance.now() + 600;
+      this.duckUntil = performance.now() + 1400;
+      this.hooks.hit();
+      if (!reduced()) {
+        this.root.classList.remove('quake');
+        void this.root.offsetWidth;
+        this.root.classList.add('quake');
+      }
+      this.say(['WHAT WAS THAT', 'Okay! Okay!', 'My eye!', 'That’s not fair!', 'Was that ALL of you?'][Math.floor(Math.random() * 5)], 1600);
+    }, 460);
   }
 
   private sayFeeney(text: string) {

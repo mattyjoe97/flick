@@ -257,7 +257,7 @@ export const PAY_GRADES = [
 
 export const CAREER = {
   first: 10, // Performance for your first promotion
-  growth: 1.8, // each promotion after that needs this much more
+  growth: 1.82, // each promotion after that needs this much more
   itemPoints: 1, // per thing you do right (times your pay grade's multiplier: seniors' work counts more)
   gradePoints: { A: 2, B: 1, C: 0, D: 0, F: 0 } as Record<'A' | 'B' | 'C' | 'D' | 'F', number>,
   teamPoints: 0.012, // per thing your team does, times that thing's base pay
@@ -341,6 +341,38 @@ export const MOMENTS = {
   muffinsShare: 0.2, // of the target's Resolve, knocked off their desk
   bandsSeconds: 60, // a found ball is worth this much of your band income (at least 30)
   bonusMinutes: 3, // a spot bonus is worth this much of your team's pay (at least $25 × your pay grade)
+};
+
+/**
+ * Your rubber band ball: spare bands wound onto a ball on your desk. It grows through
+ * four sizes and each one is a permanent perk. `at` is how many bands are wound on.
+ */
+export const BALL = {
+  unlockTarget: 2, // it turns up once the second Gary gives in
+  windShare: 0.25, // one tap winds on this share of your loose bands
+  windMin: 10,
+  sizes: [
+    { name: 'Golf ball', at: 250, perk: 'Suspicion cools 25% faster', why: 'You squeeze it instead of flicking.' },
+    { name: 'Softball', at: 2500, perk: 'Barrages throw twice as many bands', why: 'You know where every loose band in the office is.' },
+    { name: 'Basketball', at: 25000, perk: 'Your team works 20% faster', why: 'People come by to look at it. Then they get back to work.' },
+    { name: 'The Monster', at: 150000, perk: 'Everything you earn +25%', why: 'It ate a stapler. Mr. Feeney won’t come near it.' },
+  ],
+  cool: 1.25,
+  team: 1.2,
+  pay: 1.25,
+};
+
+/**
+ * Barrage: you and your Shooters empty your pockets at once. One huge volley from a pile
+ * of loose bands (each hits like a light stretch), on a cooldown, and loud.
+ */
+export const BARRAGE = {
+  perPerson: 100, // bands thrown, for you and each Shooter
+  min: 50, // you need at least this many bands
+  power: 1, // each band hits like a quick flick (a full stretch is ×5)
+  noise: 10, // Suspicion, plus a little per band
+  noisePerBand: 0.04,
+  cooldown: 90,
 };
 
 /** Mr. Feeney's sticky note on your monitor: three small goals every work day. */

@@ -7,6 +7,7 @@
 
 import { GOALS, TEAMS } from './content';
 import { addReview, reviewNeed, TOP_RANK } from './career';
+import { ballUnlocked } from './ball';
 import { rand } from './rng';
 import { currentTarget, pushTicker, type GameState } from './state';
 import { staffPayPerMin, teamUnlocked } from './staff';
@@ -35,6 +36,8 @@ export const GOAL_DEFS: GoalDef[] = [
   { id: 'perfect', text: 'Land 3 Perfect flicks', target: 3, count: (s) => s.stats.perfect ?? 0, when: war },
   { id: 'hide', text: 'Hide from Mr. Feeney once', target: 1, count: (s) => s.stats.hides ?? 0, when: war },
   { id: 'scrounge', text: 'Find 15 bands in your drawer', target: 15, count: (s) => s.stats.bandsScrounged ?? 0, when: war },
+  { id: 'wind', text: 'Wind 100 bands onto your ball', target: 100, count: (s) => s.stats.winds ?? 0, when: ballUnlocked },
+  { id: 'barrage', text: 'Call a Barrage', target: 1, count: (s) => s.stats.barrages ?? 0, when: (s) => s.stage === 2 },
 ];
 
 export function goalDef(id: string) {
