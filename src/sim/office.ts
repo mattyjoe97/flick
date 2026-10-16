@@ -7,7 +7,8 @@
 // with a tap. Moments are only ever good, and missing one costs nothing.
 
 import { BAILEY, MOMENTS, TEAMS, type MomentKind } from './content';
-import { mods } from './mods';
+import { chatEvent } from './chat';
+import { knowsTrick, mods } from './mods';
 import { randRange, rand } from './rng';
 import { currentTarget, pushTicker, type GameState } from './state';
 import { leadName, seats, staffPayPerMin } from './staff';
@@ -116,7 +117,15 @@ export function claimMoment(s: GameState): string | null {
   return text;
 }
 
-/** Scratch Bailey behind the ears. Calms you down (not more than once every 20 seconds). */
+/** The trick Bailey is learning next, or null once she knows them all. */
+export function nextTrick(s: GameState) {
+  return BAILEY.tricks.find((t) => (s.office.scratches ?? 0) < t.at) ?? null;
+}
+
+/**
+ * Scratch Bailey behind the ears. Calms you down (not more than once every 20 seconds),
+ * and one scratch every few seconds counts toward her next trick.
+ */
 export function petBailey(s: GameState) {
   const o = s.office;
   const calmed = s.time - o.pettedAt >= BAILEY.petEvery;
@@ -125,8 +134,36 @@ export function petBailey(s: GameState) {
     o.pettedAt = s.time;
     s.suspicion = Math.max(0, s.suspicion - BAILEY.petCalm);
   }
+  const counted = s.time - (o.scratchedAt ?? -999) >= BAILEY.scratchEvery && nextTrick(s) !== null;
+  let learned: (typeof BAILEY.tricks)[number] | null = null;
+  if (counted) {
+    o.scratchedAt = s.time;
+    o.scratches = (o.scratches ?? 0) + 1;
+    learned = BAILEY.tricks.find((t) => t.at === o.scratches) ?? null;
+    if (learned) {
+      pushTicker(s, `Bailey learned ${learned.name}! From now on ${learned.perk}.`);
+      s.events.push({ type: 'trick', id: learned.id });
+      chatEvent(s, `trick:${learned.id}`);
+    }
+  }
   s.events.push({ type: 'petted', calmed });
-  return calmed;
+  return { calmed, counted, learned, next: nextTrick(s) };
+}
+
+/** Howl: can Bailey send Mr. Feeney away right now? */
+export function canHowl(s: GameState) {
+  return knowsTrick(s, 'howl') && s.walkby.arrivesAt !== null && s.time - (s.office.howledAt ?? -999) >= BAILEY.howlEvery;
+}
+
+/** Howl: Mr. Feeney turns around to see what's wrong with her. */
+export function baileyHowl(s: GameState) {
+  if (!canHowl(s)) return false;
+  s.office.howledAt = s.time;
+  s.walkby = { nextAt: s.time + BAILEY.howlDelay, arrivesAt: null };
+  s.stats.howls = (s.stats.howls ?? 0) + 1;
+  pushTicker(s, 'Bailey howls. Mr. Feeney turns around to check on her, and forgets what he was doing.');
+  s.events.push({ type: 'howled' });
+  return true;
 }
 
 /** Who brings which pet to work (for pictures and lines). */

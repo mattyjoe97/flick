@@ -315,10 +315,27 @@ export const STAFF = {
 // ---------------------------------------------------------------- the office: Bailey, moments and goals
 
 /** Bailey, your beagle, asleep in her bed by your desk. */
+export type TrickId = 'fetch' | 'guard' | 'playdead' | 'howl';
+
 export const BAILEY = {
   warn: 1, // extra seconds of walk-by warning: she hears Mr. Feeney's shoes first
   petCalm: 3, // Suspicion off when you scratch her ears
   petEvery: 20, // seconds before another scratch calms you again
+  /**
+   * Bailey learns tricks from ear scratches (one counts every few seconds, so tapping
+   * away doesn't rush her). Each trick is a little perk for good.
+   */
+  scratchEvery: 6,
+  tricks: [
+    { id: 'fetch', name: 'Fetch', at: 5, perk: 'she brings you stray bands (+0.3 bands a second)' },
+    { id: 'guard', name: 'Guard', at: 20, perk: 'she hears Mr. Feeney a second sooner' },
+    { id: 'playdead', name: 'Play Dead', at: 50, perk: 'when you’re caught, she plays dead and Mr. Feeney only takes half as many bands' },
+    { id: 'howl', name: 'Howl', at: 100, perk: 'when Mr. Feeney’s coming, tap her: she howls and he turns around to check on her (once every 5 minutes)' },
+  ] as { id: TrickId; name: string; at: number; perk: string }[],
+  fetchRate: 0.3, // bands a second
+  playDeadLoss: 0.5, // of the bands you'd lose when caught
+  howlEvery: 300, // seconds
+  howlDelay: 90, // seconds until Mr. Feeney tries again
 };
 
 export type MomentKind = 'pizza' | 'ball' | 'vending' | 'bonus' | 'coffee' | 'bailey' | 'muffins' | 'joey';

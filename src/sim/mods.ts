@@ -1,4 +1,4 @@
-import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
 import type { GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
@@ -38,6 +38,12 @@ export function weapon(s: GameState) {
   return w;
 }
 
+/** Has Bailey learned this trick yet? */
+export function knowsTrick(s: GameState, id: TrickId) {
+  const t = BAILEY.tricks.find((x) => x.id === id)!;
+  return (s.office?.scratches ?? 0) >= t.at;
+}
+
 /** On Final Warning: one more write-up and you're fired. */
 export function onFinalWarning(s: GameState) {
   return (s.hr?.writeUps ?? 0) >= TUNING.writeUpsToFinal;
@@ -55,7 +61,8 @@ export function mods(s: GameState) {
     (has(s, 'organizer') ? TUNING.organizerRate : 0) +
     (has(s, 'closet') ? TUNING.closetRate : 0) +
     gatherers * TUNING.gathererRate +
-    s.desks * TUNING.deskRate;
+    s.desks * TUNING.deskRate +
+    (knowsTrick(s, 'fetch') ? BAILEY.fetchRate : 0);
 
   const lookBusyMult = has(s, 'macros') ? 3 : 2;
   const basePay = (has(s, 'autoreply') ? TUNING.autoReplyPay : 0) + covers * TUNING.coverPay;
@@ -63,7 +70,8 @@ export function mods(s: GameState) {
   return {
     lookoutCut: Math.min(TUNING.lookoutCutMax, lookouts * TUNING.lookoutCutEach),
     // Bailey hears Mr. Feeney's shoes first: her extra second comes on top of everything.
-    warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach) + BAILEY.warn,
+    // Guard: another second on top of that.
+    warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach) + BAILEY.warn + (knowsTrick(s, 'guard') ? 1 : 0),
     priceMult: 1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach),
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
     allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1),

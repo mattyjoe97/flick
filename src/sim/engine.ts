@@ -1,5 +1,5 @@
-import { BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
-import { allyPower, coworker, has, isConfiscated, mods, onFinalWarning, weapon } from './mods';
+import { BAILEY, BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { allyPower, coworker, has, isConfiscated, knowsTrick, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
 import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
@@ -46,7 +46,9 @@ function getCaught(s: GameState) {
   }
   s.stats.caught++;
   s.lastCaughtAt = s.time;
-  const lost = Math.floor(s.bands * TUNING.caughtBandLoss);
+  // Play Dead: Bailey keels over and Mr. Feeney only gets half the bands.
+  const playDead = knowsTrick(s, 'playdead');
+  const lost = Math.floor(s.bands * TUNING.caughtBandLoss * (playDead ? BAILEY.playDeadLoss : 1));
   s.bands -= lost;
   s.suspicion = TUNING.caughtResetTo;
   s.flickLockUntil = s.time + TUNING.caughtFlickLock;
@@ -79,6 +81,7 @@ function getCaught(s: GameState) {
   } else {
     pushEmail(s, 'HR', `Written warning (${s.hr.writeUps} of ${TUNING.writeUpsToFinal})`, 'This note has been added to your file. Notes are removed after a period of good conduct.', 'warning');
   }
+  if (playDead) pushTicker(s, 'Bailey plays dead. Mr. Feeney panics, checks on her, and forgets half the bands.');
   pushTicker(s, `Caught. Write-up ${s.hr.writeUps} of ${TUNING.writeUpsToFinal}.${takenName ? ` Mr. Feeney keeps your ${takenName}.` : ''}${t && regrouped >= 1 ? ` ${t.name.split(' ')[0]} regroups while you're gone.` : ''}`);
   s.events.push({ type: 'caught', writeUps: s.hr.writeUps, confiscated: taken, lostBands: lost, regrouped });
   chatEvent(s, 'caught');

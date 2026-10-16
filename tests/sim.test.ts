@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { CAREER, COMBO, DALE, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/sim/career';
 import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
-import { claimMoment, petBailey } from '../src/sim/office';
+import { baileyHowl, canHowl, claimMoment, nextTrick, petBailey } from '../src/sim/office';
 import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
 import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS, REMATCH } from '../src/sim/content';
 import { rematchStats } from '../src/sim/rematch';
 import { ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
 import { addSuspicion, applyOffline, barrage, barrageSize, canFlick, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
-import { mods, rolePower, weapon } from '../src/sim/mods';
+import { knowsTrick, mods, rolePower, weapon } from '../src/sim/mods';
 import {
   answerCall,
   answerMail,
@@ -959,12 +959,12 @@ describe('the office: Bailey, moments, goals', () => {
     const s = office();
     expect(mods(s).warning).toBe(TUNING.warnBase + BAILEY.warn);
     s.suspicion = 20;
-    expect(petBailey(s)).toBe(true);
+    expect(petBailey(s).calmed).toBe(true);
     expect(s.suspicion).toBe(20 - BAILEY.petCalm);
-    expect(petBailey(s)).toBe(false);
+    expect(petBailey(s).calmed).toBe(false);
     expect(s.suspicion).toBe(20 - BAILEY.petCalm);
     run(s, BAILEY.petEvery);
-    expect(petBailey(s)).toBe(true);
+    expect(petBailey(s).calmed).toBe(true);
   });
 
   it('three goals a day; finishing one pays and adds Performance; tomorrow brings new ones', () => {
@@ -1116,6 +1116,77 @@ describe('the rubber band ball and the Barrage', () => {
     const migrated = deserialize(JSON.stringify(old))!.state;
     expect(migrated.ball).toEqual({ wound: 0, found: false });
     expect(migrated.barrageAt).toBe(0);
+  });
+});
+
+describe("Bailey's tricks", () => {
+  const office = () => {
+    const s = newGame(9);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    s.office.nextAt = 1e9;
+    return s;
+  };
+  /** Scratch her ears `n` times, a few seconds apart (so each one counts). */
+  const scratch = (s: ReturnType<typeof newGame>, n: number) => {
+    for (let i = 0; i < n; i++) {
+      run(s, BAILEY.scratchEvery + 0.1);
+      petBailey(s);
+    }
+  };
+
+  it('only one scratch every few seconds counts, so tapping away doesn’t rush her', () => {
+    const s = office();
+    run(s, 10);
+    for (let i = 0; i < 20; i++) petBailey(s);
+    expect(s.stats.pets).toBe(20);
+    expect(s.office.scratches).toBe(1);
+  });
+
+  it('Fetch, Guard, Play Dead and Howl, in that order, each a perk for good', () => {
+    const s = office();
+    const bands = mods(s).bandsPerSec;
+    const warning = mods(s).warning;
+    scratch(s, BAILEY.tricks[0].at);
+    expect(knowsTrick(s, 'fetch')).toBe(true);
+    expect(mods(s).bandsPerSec).toBeCloseTo(bands + BAILEY.fetchRate);
+    expect(nextTrick(s)?.id).toBe('guard');
+    scratch(s, BAILEY.tricks[1].at - s.office.scratches);
+    expect(mods(s).warning).toBe(warning + 1);
+
+    // Play Dead: getting caught costs half as many bands.
+    const caughtLoss = (playDead: boolean) => {
+      const c = office();
+      c.office.scratches = playDead ? BAILEY.tricks[2].at : 0;
+      c.bands = 1000;
+      addSuspicion(c, 200);
+      return 1000 - c.bands;
+    };
+    expect(caughtLoss(true)).toBe(caughtLoss(false) * BAILEY.playDeadLoss);
+
+    // Howl: Mr. Feeney turns around, once every five minutes.
+    s.office.scratches = BAILEY.tricks[3].at;
+    expect(nextTrick(s)).toBeNull();
+    s.walkby.arrivesAt = s.time + 3;
+    expect(canHowl(s)).toBe(true);
+    expect(baileyHowl(s)).toBe(true);
+    expect(s.walkby.arrivesAt).toBeNull();
+    expect(s.walkby.nextAt).toBeCloseTo(s.time + BAILEY.howlDelay);
+    s.walkby.arrivesAt = s.time + 3;
+    expect(baileyHowl(s)).toBe(false);
+    run(s, BAILEY.howlEvery);
+    s.walkby.arrivesAt = s.time + 3;
+    expect(baileyHowl(s)).toBe(true);
+  });
+
+  it('old saves give her credit for some of the petting she already got', () => {
+    const s = office();
+    s.stats.pets = 30;
+    const file = JSON.parse(serialize(s));
+    file.version = 11;
+    delete file.state.office.scratches;
+    expect(deserialize(JSON.stringify(file))!.state.office.scratches).toBe(10);
   });
 });
 

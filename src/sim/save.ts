@@ -54,6 +54,8 @@ function migrate(file: SaveFile): GameState | null {
   // Moments don't wait while the game is closed; pizza goes cold.
   s.office = { ...base.office, ...(file.state.office ?? {}), moment: null, pizzaUntil: -999 };
   if (file.version < 9) s.office.nextAt = s.time + MOMENTS.first;
+  // Before tricks, every scratch counted as a pet: give Bailey credit for some of them.
+  if (file.version < 12) s.office.scratches = Math.min(19, Math.floor((s.stats.pets ?? 0) / 3));
   s.goals = { ...base.goals, ...(file.state.goals ?? {}) };
   s.ball = { ...base.ball, ...(file.state.ball ?? {}) };
   s.rematch = file.state.rematch ?? null;
@@ -107,6 +109,9 @@ function sanitize(s: GameState): boolean {
   for (const k of Object.keys(s.names) as (keyof typeof s.names)[]) if (typeof s.names[k] !== 'string') delete s.names[k];
   if (!Array.isArray(s.goals.list)) s.goals = { day: -1, list: [], combo: 0 };
   if (!Number.isFinite(s.office.nextAt)) s.office.nextAt = s.time + MOMENTS.first;
+  s.office.scratches = Math.max(0, Math.floor(Number(s.office.scratches) || 0));
+  if (!Number.isFinite(s.office.scratchedAt)) s.office.scratchedAt = -999;
+  if (!Number.isFinite(s.office.howledAt)) s.office.howledAt = -999;
   s.ball = { wound: Math.max(0, Math.floor(Number(s.ball.wound) || 0)), found: !!s.ball.found };
   const r = s.rematch;
   if (r && !(Number.isInteger(r.round) && r.round >= 1 && Number.isInteger(r.index) && r.index >= 0 && r.index < 5 && Number(r.resolve) > 0 && Number.isFinite(r.bounty))) s.rematch = null;

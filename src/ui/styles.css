@@ -2186,6 +2186,20 @@ kbd {
   box-shadow: 2px 2px 0 var(--alarm);
 }
 
+.install-note {
+  margin: 6px 0 0;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.install-how {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: var(--t-sm);
+}
+
 .set-block {
   display: grid;
   gap: 6px;

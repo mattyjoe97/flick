@@ -14,7 +14,8 @@ import muffinsSwat from '../assets/art/pet-muffins-swat.webp';
 import { MOMENTS, type MomentKind } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { goalProgress, goalReward } from '../sim/goals';
-import { claimMoment, MOMENT_TEXT, petBailey } from '../sim/office';
+import { baileyHowl as howlAtFeeney, canHowl, claimMoment, MOMENT_TEXT, petBailey } from '../sim/office';
+import { BAILEY } from '../sim/content';
 import type { GameEvent, GameState } from '../sim/state';
 import { WORK } from '../sim/work';
 import { esc, money } from './apps/common';
@@ -34,7 +35,7 @@ const PICS: Partial<Record<MomentKind, string>> = { ball: ball1, bailey: baileyF
 export interface OfficeHooks {
   say(text: string): void;
   claimed(kind: MomentKind, from: HTMLElement): void;
-  sound: { howl(): void; yip(): void; notify(): void };
+  sound: { howl(): void; yip(): void; notify(): void; learned(): void };
 }
 
 export class OfficeView {
@@ -42,6 +43,8 @@ export class OfficeView {
   private pose: Pose | '' = '';
   private happyUntil = 0;
   private howled = false;
+  private sayText = '';
+  private tipKey = -1;
   private card: HTMLElement;
   private cardKind: MomentKind | null = null;
   private notesKey = '';
@@ -82,10 +85,25 @@ export class OfficeView {
     const s = this.s;
     // If Bailey is out fetching a moment, the tap grabs it.
     if (s.office.moment?.kind === 'bailey') return this.grab();
-    const calmed = petBailey(s);
+    // Howl: with Mr. Feeney on his way, she sends him off to check on her.
+    if (howlAtFeeney(s)) {
+      this.hooks.sound.howl();
+      this.hooks.say(`Bailey howls. Mr. Feeney turns around to check on her. You’re safe for a minute and a half.`);
+      this.happyUntil = performance.now() + 1800;
+      this.heart();
+      return;
+    }
+    const r = petBailey(s);
     this.happyUntil = performance.now() + 1800;
     this.hooks.sound.yip();
-    if (calmed) this.hooks.say('You scratch Bailey behind the ears. Everyone calms down a little.');
+    if (r.learned) {
+      this.hooks.sound.learned();
+      this.hooks.say(`Bailey learned ${r.learned.name}! From now on ${r.learned.perk}.`);
+      for (let i = 0; i < 5; i++) setTimeout(() => this.heart(), i * 120);
+    } else if (r.counted && r.next) {
+      const left = r.next.at - s.office.scratches;
+      this.hooks.say(`Good girl. ${left} more scratch${left === 1 ? '' : 'es'} and she learns ${r.next.name}.`);
+    } else if (r.calmed) this.hooks.say('You scratch Bailey behind the ears. Everyone calms down a little.');
     this.heart();
   }
 
@@ -123,16 +141,25 @@ export class OfficeView {
 
     // Bailey: asleep, unless something's going on.
     const countdown = walkbyCountdown(s);
+    // Mr. Feeney's footsteps beat everything: she howls (and, once she knows how, tells you to tap her).
     let pose: Pose = 'sleep';
-    if (now < this.happyUntil) pose = 'happy';
+    if (countdown !== null) pose = 'howl';
+    else if (now < this.happyUntil) pose = 'happy';
     else if (s.office.moment?.kind === 'bailey') pose = 'fetch';
-    else if (countdown !== null) pose = 'howl';
     else if (s.time - s.lastShotAt < 8 || s.time < s.office.pizzaUntil) pose = 'sit';
-    if (pose !== this.pose) {
+    const say = pose === 'howl' ? (canHowl(s) ? 'Aroooo! (tap me)' : 'Aroooo!') : '';
+    if (pose !== this.pose || say !== this.sayText) {
       this.pose = pose;
+      this.sayText = say;
       (this.bailey.querySelector('.bailey-dog') as HTMLImageElement).src = POSES[pose];
       this.bailey.dataset.pose = pose;
-      this.bailey.querySelector('.bailey-say')!.textContent = pose === 'howl' ? 'Aroooo!' : '';
+      this.bailey.querySelector('.bailey-say')!.textContent = say;
+    }
+    // Her tooltip lists the tricks she knows.
+    if (s.office.scratches !== this.tipKey) {
+      this.tipKey = s.office.scratches;
+      const tricks = BAILEY.tricks.map((t) => `${s.office.scratches >= t.at ? '✓' : '·'} ${t.name}${s.office.scratches >= t.at ? '' : ` (${t.at - s.office.scratches} more scratches)`}`);
+      this.bailey.title = `Bailey (tap to scratch her ears)\nTricks:\n${tricks.join('\n')}`;
     }
     if (countdown !== null && !this.howled) {
       this.howled = true;

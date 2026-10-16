@@ -130,6 +130,27 @@ function boot(hotData: { save?: string }) {
   }
 }
 
+/**
+ * On the real website (not a preview), FLICK can be added to the home screen: a manifest
+ * for the icon and full-screen launch, and a service worker so it opens offline.
+ */
+function installable() {
+  const web = location.protocol === 'https:' || location.hostname === 'localhost';
+  let top = true;
+  try {
+    top = window.self === window.top;
+  } catch {
+    top = false;
+  }
+  if (!web || !top) return;
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = './manifest.webmanifest';
+  document.head.append(link);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => undefined);
+}
+installable();
+
 const hot = window.claude?.hot;
 if (hot?.ready) hot.ready(boot);
 else boot(hot?.data ?? {});

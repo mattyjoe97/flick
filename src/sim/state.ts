@@ -1,8 +1,8 @@
-import { DALE, MOMENTS, REMATCH, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type Target, type TeamId, type UpgradeId, type WeaponId } from './content';
+import { DALE, MOMENTS, REMATCH, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
 
 export interface Email {
   id: number;
@@ -120,7 +120,16 @@ export interface GameState {
   names: Partial<Record<'you' | TeamId, string>>;
 
   /** Bailey and the office: the moment up right now, the next one, pizza, the last ear scratch. */
-  office: { moment: { kind: MomentKind; until: number } | null; nextAt: number; pizzaUntil: number; pettedAt: number };
+  office: {
+    moment: { kind: MomentKind; until: number } | null;
+    nextAt: number;
+    pizzaUntil: number;
+    pettedAt: number;
+    /** Ear scratches that taught Bailey something (one counts every few seconds), and her last howl. */
+    scratches: number;
+    scratchedAt: number;
+    howledAt: number;
+  };
 
   /** Today's goals on Mr. Feeney's sticky note (what each counter read when the day began). */
   goals: { day: number; list: { id: string; base: number; done: boolean }[]; combo: number };
@@ -198,6 +207,7 @@ export interface GameState {
     barrages: number;
     barrageDamage: number;
     rematches: number;
+    howls: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -241,6 +251,8 @@ export type GameEvent =
   | { type: 'momentClaimed'; kind: MomentKind; text: string }
   | { type: 'momentGone'; kind: MomentKind }
   | { type: 'petted'; calmed: boolean }
+  | { type: 'trick'; id: TrickId }
+  | { type: 'howled' }
   | { type: 'goalDone'; id: string; text: string; all: boolean }
   | { type: 'goalsNew' }
   | { type: 'wound'; amount: number; size: number; grew: boolean }
@@ -280,7 +292,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     staff: {},
     staffPay: { owed: 0, at: 0 },
     names: {},
-    office: { moment: null, nextAt: MOMENTS.first, pizzaUntil: -999, pettedAt: -999 },
+    office: { moment: null, nextAt: MOMENTS.first, pizzaUntil: -999, pettedAt: -999, scratches: 0, scratchedAt: -999, howledAt: -999 },
     goals: { day: -1, list: [], combo: 0 },
     ball: { wound: 0, found: false },
     barrageAt: 0,
@@ -346,6 +358,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       barrages: 0,
       barrageDamage: 0,
       rematches: 0,
+      howls: 0,
     },
     events: [],
   };

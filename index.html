@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>FLICK</title>
     <meta name="description" content="An incremental game about an office rubber band war." />
+    <meta name="theme-color" content="#4a2d17" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FLICK" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   </head>
   <body>
     <div id="app">
@@ -313,6 +319,17 @@
         <section class="set-block">
           <h3>Sound</h3>
           <button type="button" class="paper-btn" id="sound-btn-2" aria-pressed="true"><span>Sound is on</span></button>
+        </section>
+        <section class="set-block" id="install-block">
+          <h3>Play full screen</h3>
+          <p id="install-text">Add FLICK to your home screen and it opens like an app: full screen, no browser bars, and it works with no connection.</p>
+          <button type="button" class="paper-btn paper-btn-strong" id="install-btn" hidden><span>Install FLICK</span></button>
+          <ul class="install-how" id="install-how">
+            <li><b>iPhone, Safari:</b> tap Share (the square with the arrow), then <b>Add to Home Screen</b>.</li>
+            <li><b>iPhone, Chrome:</b> tap Share (top right, or in the ⋯ menu), then <b>Add to Home Screen</b>.</li>
+            <li><b>Android:</b> open the browser menu (⋮), then <b>Install app</b> or <b>Add to Home screen</b>.</li>
+          </ul>
+          <p class="install-note" id="install-note">The home screen app keeps its own save. To bring your game with you, tap <b>Copy save</b> below, open the app, and paste it into <b>Import a save</b>.</p>
         </section>
         <section class="set-block">
           <h3>Export your save</h3>

@@ -113,7 +113,7 @@ export class UI {
     );
     this.office = new OfficeView(() => this.s, {
       say: (t) => this.say(t),
-      sound: { howl: () => this.sound.howl(), yip: () => this.sound.yip(), notify: () => this.sound.notify() },
+      sound: { howl: () => this.sound.howl(), yip: () => this.sound.yip(), notify: () => this.sound.notify(), learned: () => this.sound.grade('A') },
       claimed: (kind, from) => {
         this.sound.capture();
         if (kind === 'ball' || kind === 'bailey') this.bump('bands');
@@ -173,6 +173,50 @@ export class UI {
     this.bind();
     this.syncSound();
     this.watchTop();
+    this.setupInstall();
+  }
+
+  private installPrompt: { prompt(): Promise<void> } | null = null;
+  private installTipAt = 0;
+
+  /** Settings explains how to put FLICK on your home screen (Android can do it in one tap). */
+  private setupInstall() {
+    const standalone = window.matchMedia?.('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    if (standalone) {
+      $('install-text').textContent = 'You’re playing the home screen version. Nice.';
+      $('install-how').hidden = true;
+      $('install-note').hidden = true;
+      return;
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.installPrompt = e as unknown as { prompt(): Promise<void> };
+      $('install-btn').hidden = false;
+    });
+    $('install-btn').addEventListener('click', () => {
+      void this.installPrompt?.prompt();
+      this.installPrompt = null;
+      $('install-btn').hidden = true;
+    });
+    // On a phone, mention it once, a few minutes in.
+    let shown = false;
+    try {
+      shown = localStorage.getItem('flick.installTip') === '1';
+    } catch {
+      /* no storage: the tip may show again next time, which is fine */
+    }
+    if (!shown && window.matchMedia?.('(max-width: 760px)').matches) this.installTipAt = 1;
+  }
+
+  private maybeInstallTip() {
+    if (!this.installTipAt || this.s.time < 300 || this.s.lookBusy || walkbyCountdown(this.s) !== null) return;
+    this.installTipAt = 0;
+    this.flash = { text: 'Tip: add FLICK to your home screen to play full screen, with no browser bars. Settings (the gear) shows how.', until: performance.now() + 9000 };
+    try {
+      localStorage.setItem('flick.installTip', '1');
+    } catch {
+      /* fine */
+    }
   }
 
   /** Banners stick just under the top bar and status strip (whatever height they wrap to). */
@@ -909,6 +953,7 @@ export class UI {
     );
 
 
+    this.maybeInstallTip();
     this.renderFront(s, m.warning);
     this.renderAlerts(s, m.warning);
     this.renderFloor(s);
