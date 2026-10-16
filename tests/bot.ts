@@ -16,14 +16,14 @@ import {
   answerCall,
   answerMail,
   answerPhone,
+  checkCell,
   correctCall,
-  correctFix,
   correctMail,
   correctStamp,
-  fixCell,
   focusApp,
   stampReceipt,
   startRound,
+  typosLeft,
   type WorkKind,
 } from '../src/sim/work';
 import { mods, weapon } from '../src/sim/mods';
@@ -125,10 +125,14 @@ function doTask(s: GameState, style: BotStyle, mind: BotMind): boolean {
     const ok = correctStamp(r, i);
     later(s, mind, 'expense', () => stampReceipt(s, i, right || r.receipts![i].yours ? ok : !ok));
   } else {
-    const row = r.sheet!.rows.findIndex((x) => x.state === 'broken');
-    const truth = correctFix(r.sheet!.rows[row]);
-    const wrong = r.sheet!.rows[row].options.find((v) => v !== truth)!;
-    later(s, mind, 'sheet', () => fixCell(s, row, right ? truth : wrong));
+    // Right: click a typo. Wrong: click a cell that actually matched the printout.
+    const sh = r.sheet!;
+    const target = right
+      ? typosLeft(r)[0]
+      : sh.rows
+          .flatMap((row, i) => row.cells.map((_, col) => ({ row: i, col })))
+          .find((c) => !sh.typos.some((t) => t.row === c.row && t.col === c.col) && !sh.misses.some((m) => m.row === c.row && m.col === c.col))!;
+    later(s, mind, 'sheet', () => checkCell(s, target.row, target.col));
   }
   return true;
 }

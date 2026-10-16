@@ -303,8 +303,17 @@ export const CHATTER: { from: string; subject: string; body: string }[] = [
 export type SheetTabId = 'forecast' | 'budget' | 'headcount';
 
 /**
- * A sheet of rows that each add up to a Total. Some cells are broken (#REF!, #N/A…):
- * work out what belongs there from the rest of the row and pick it from three options.
+ * How a number got mistyped into your copy of the sheet:
+ *   wrong  a different number altogether (450 → 780)
+ *   zero   a zero too many or too few (450 → 4,500 or 45)
+ *   swap   two digits swapped (1,250 → 1,520)
+ *   digit  one digit off (450 → 460)
+ */
+export type TypoKind = 'wrong' | 'zero' | 'swap' | 'digit';
+
+/**
+ * Accounting's printout next to your copy of the same sheet. Whoever typed your copy
+ * made a few typos: spot the cells that don't match the printout and click them.
  */
 export interface SheetTab {
   id: SheetTabId;
@@ -319,8 +328,9 @@ export interface SheetTab {
   lo: number;
   hi: number;
   step: number;
-  /** Broken cells per sheet, and seconds you get to fix them. */
-  errors: number;
+  /** Typos per sheet, the kinds they can be (sneakier on harder sheets), and seconds to find them. */
+  typos: number;
+  kinds: TypoKind[];
   seconds: number;
 }
 
@@ -336,7 +346,8 @@ export const SHEET_TABS: SheetTab[] = [
     lo: 100,
     hi: 600,
     step: 10,
-    errors: 3,
+    typos: 3,
+    kinds: ['wrong', 'zero'],
     seconds: 45,
   },
   {
@@ -350,7 +361,8 @@ export const SHEET_TABS: SheetTab[] = [
     lo: 50,
     hi: 400,
     step: 10,
-    errors: 4,
+    typos: 4,
+    kinds: ['zero', 'swap', 'digit'],
     seconds: 60,
   },
   {
@@ -364,7 +376,8 @@ export const SHEET_TABS: SheetTab[] = [
     lo: 2,
     hi: 60,
     step: 1,
-    errors: 5,
-    seconds: 60,
+    typos: 5,
+    kinds: ['swap', 'digit'],
+    seconds: 70,
   },
 ];

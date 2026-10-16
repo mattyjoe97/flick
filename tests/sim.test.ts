@@ -11,11 +11,13 @@ import {
   callerDept,
   comboMult,
   correctCall,
-  correctFix,
   correctMail,
   correctStamp,
   directory,
-  fixCell,
+  checkCell,
+  mistype,
+  sheetValue,
+  typosLeft,
   focusApp,
   liveCombo,
   payGrade,
@@ -241,25 +243,57 @@ describe('work at your computer', () => {
     throw new Error('no seed produced your own receipt');
   });
 
-  it('spreadsheet: work out what belongs in each broken cell; one try each', () => {
+  it('spreadsheet: spot the typos against the printout; a cell that matched is a mistake (once)', () => {
     const s = desk(3);
     const r = open(s, 'sheet');
-    const broken = r.sheet!.rows.filter((x) => x.state === 'broken');
-    expect(broken.length).toBe(3);
-    for (const row of r.sheet!.rows) {
-      // Every row adds up, broken cell included (its true value is still stored).
-      const parts = row.cells.slice(0, -1).reduce((a, b) => a + b, 0);
-      expect(parts).toBe(row.cells[row.cells.length - 1]);
-      if (row.state === 'broken') {
-        expect(row.options).toContain(correctFix(row));
-        expect(new Set(row.options).size).toBe(3);
+    const sh = r.sheet!;
+    expect(sh.typos.length).toBe(3);
+    expect(r.items).toBe(3);
+    expect(new Set(sh.typos.map((t) => t.row)).size).toBe(3); // one per row
+    for (const row of sh.rows) expect(row.cells.slice(0, -1).reduce((a, b) => a + b, 0)).toBe(row.cells[row.cells.length - 1]);
+    for (const t of sh.typos) {
+      expect(t.shown).not.toBe(sh.rows[t.row].cells[t.col]);
+      expect(sheetValue(r, t.row, t.col)).toBe(t.shown);
+    }
+    // A cell that matched the printout: a mistake, but only the first time.
+    const fine = sh.rows.flatMap((row, i) => row.cells.map((_, col) => ({ row: i, col }))).find((c) => !sh.typos.some((t) => t.row === c.row && t.col === c.col))!;
+    expect(checkCell(s, fine.row, fine.col)!.ok).toBe(false);
+    expect(checkCell(s, fine.row, fine.col)).toBeNull();
+    expect(r.mistakes).toBe(1);
+    expect(r.done).toBe(0);
+    // Each typo found pays and shows the printout's number; the last one ends the sheet.
+    const [a, ...rest] = typosLeft(r);
+    const res = checkCell(s, a.row, a.col)!;
+    expect(res.ok).toBe(true);
+    expect(res.pay).toBeGreaterThan(0);
+    expect(sheetValue(r, a.row, a.col)).toBe(sh.rows[a.row].cells[a.col]);
+    expect(checkCell(s, a.row, a.col)).toBeNull();
+    for (const t of rest) checkCell(s, t.row, t.col);
+    expect(s.work.rounds.sheet).toBeNull();
+    expect(s.work.last?.grade).toBe('C'); // one slip in three
+  });
+
+  it('typos look like real typos', () => {
+    const s = desk(4);
+    for (const v of [7, 24, 50, 120, 450, 1250, 1300, 2205]) {
+      const swap = mistype(s, v, 'swap', 10);
+      if (swap !== null) expect([...String(swap)].sort().join('')).toBe([...String(v)].sort().join(''));
+      const zero = mistype(s, v, 'zero', 10)!;
+      expect([v * 10, v / 10]).toContain(zero);
+      const digit = mistype(s, v, 'digit', 1)!;
+      expect(String(digit).length).toBe(String(v).length);
+      const diff = [...String(v)].filter((d, i) => String(digit)[i] !== d).length;
+      expect(diff).toBe(1);
+      for (const kind of ['wrong', 'zero', 'swap', 'digit'] as const) {
+        const out = mistype(s, v, kind, 10);
+        if (out !== null) {
+          expect(out).toBeGreaterThan(0);
+          expect(out).not.toBe(v);
+        }
       }
     }
-    const i = r.sheet!.rows.indexOf(broken[0]);
-    const wrong = broken[0].options.find((v) => v !== correctFix(broken[0]))!;
-    expect(fixCell(s, i, wrong)!.ok).toBe(false);
-    expect(fixCell(s, i, correctFix(broken[0]))).toBeNull(); // one try
-    expect(r.mistakes).toBe(1);
+    expect(mistype(s, 7, 'swap', 1)).toBeNull();
+    expect(mistype(s, 1100, 'swap', 10)).not.toBe(110); // never a leading zero
   });
 
   it('a clean, quick round is an A with a bonus; running out of time counts the rest as mistakes', () => {
@@ -324,11 +358,14 @@ describe('work at your computer', () => {
       const s = desk(11);
       while (s.time < 120) {
         const r = open(s, kind);
-        const item = kind === 'mail' ? r.mail!.findIndex((m) => m.state === 'open') : kind === 'expense' ? r.receipts!.findIndex((x) => x.state === 'open') : r.sheet!.rows.findIndex((x) => x.state === 'broken');
+        const item = kind === 'mail' ? r.mail!.findIndex((m) => m.state === 'open') : kind === 'expense' ? r.receipts!.findIndex((x) => x.state === 'open') : 0;
         run(s, pace[kind]);
         if (kind === 'mail') answerMail(s, item, correctMail(r.mail![item]));
         else if (kind === 'expense') stampReceipt(s, item, correctStamp(r, item));
-        else fixCell(s, item, correctFix(r.sheet!.rows[item]));
+        else {
+          const t = typosLeft(r)[0];
+          checkCell(s, t.row, t.col);
+        }
       }
       return (s.salary / s.time) * 60;
     };

@@ -281,5 +281,3 @@ export const EXPENSE_EXCEPTIONS: { text: string; by: string }[] = [
 
 // ---------------------------------------------------------------- spreadsheet errors
 
-/** What a broken cell shows before you fix it. */
-export const CELL_ERRORS = ['#REF!', '#VALUE!', '#N/A', '#####', '#DIV/0!', '#NAME?'];

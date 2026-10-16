@@ -4,7 +4,7 @@
 //
 //   Mail         work email to Reply / Forward / Delete, and story email
 //   Phone        put callers through using today's directory
-//   Spreadsheet  fix the broken cells
+//   Spreadsheet  spot the typos against Accounting's printout
 //   Expenses     stamp receipts by today's rule
 //   Messenger    your coworkers, one conversation each
 //   Supply Catalog, Org Chart, My Documents, the Recycle Bin
@@ -61,7 +61,7 @@ const ICON: Record<AppId, string> = {
 const FEENEY_SAYS: Record<string, string[]> = {
   mail: ['Inbox zero. I like it.', 'Love a fast responder.'],
   phone: ['Great phone voice.', 'That’s how you handle a caller.'],
-  sheet: ['Love a good spreadsheet.', 'Those numbers add up. Good.'],
+  sheet: ['Love a good spreadsheet.', 'Matches the printout? Good.'],
   expenses: ['Watch those receipts. Good.', 'Accounting will be thrilled.'],
   chat: ['…Is that Messenger?', 'Chatting, are we?'],
   catalog: ['Ordering supplies? We’re low on everything.'],
@@ -365,7 +365,7 @@ export class ComputerView {
     for (const k of ['expense', 'sheet'] as const) {
       const app: AppId = k === 'expense' ? 'expenses' : 'sheet';
       if (ready[k] && !this.ready[k] && this.app !== app && s.time > 20)
-        this.toast(k, app, k === 'expense' ? 'Expense report' : 'Spreadsheet', k === 'expense' ? 'A new report is ready to stamp.' : 'Some cells broke. Again.');
+        this.toast(k, app, k === 'expense' ? 'Expense report' : 'Spreadsheet', k === 'expense' ? 'A new report is ready to stamp.' : 'Accounting sent a printout to check against.');
       this.ready[k] = ready[k];
     }
 

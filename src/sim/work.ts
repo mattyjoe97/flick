@@ -6,8 +6,8 @@
 //   Phone     one caller: transfer them to the right extension (the directory changes
 //             every day), take it yourself, or hang up on a prank
 //   Expenses  a report of receipts: stamp each Approve or Deny by today's rule
-//   Sheet     a spreadsheet with broken cells (#REF!): work out what belongs in each
-//             from the rest of its row and pick it from three options
+//   Sheet     Accounting's printout next to your copy of the sheet: click the cells
+//             that were typed wrong (no math, just spot the difference)
 //
 // Every item done right pays, cools Suspicion and builds the combo; a clean, quick round
 // earns a grade bonus on top. Each promotion multiplies everything work pays. Nothing
@@ -15,14 +15,13 @@
 //
 // Everything here is headless and deterministic so the pacing bots can play it.
 
-import { COMBO, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId } from './content';
+import { COMBO, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
 import { rand, randRange } from './rng';
 import type { GameState } from './state';
 import {
   CALLERS,
-  CELL_ERRORS,
   DEPARTMENTS,
   EXPENSE_EXCEPTIONS,
   EXPENSE_RULES,
@@ -56,11 +55,20 @@ export interface Receipt {
 
 export interface SheetRow {
   label: string;
-  cells: number[]; // the parts, then the Total
-  bad: number; // index of the broken cell in `cells`, or -1
-  error: string; // what the broken cell shows (#REF!...)
-  options: number[]; // three values to choose from, one of them right
-  state: 'ok' | 'broken' | 'fixed' | 'wrong';
+  cells: number[]; // the printout's numbers (the truth): the parts, then the Total
+}
+
+/** A number typed wrong into your copy. */
+export interface SheetTypo {
+  row: number;
+  col: number;
+  shown: number; // what your copy says
+  found: boolean;
+}
+
+export interface SheetCell {
+  row: number;
+  col: number;
 }
 
 export interface Round {
@@ -77,7 +85,7 @@ export interface Round {
   caller?: number; // index into CALLERS
   receipts?: Receipt[];
   rule?: { rule: number; except: number | null };
-  sheet?: { tab: SheetTabId; rows: SheetRow[] };
+  sheet?: { tab: SheetTabId; rows: SheetRow[]; typos: SheetTypo[]; misses: SheetCell[] };
 }
 
 export interface RoundResult {
@@ -160,6 +168,7 @@ export const WORK = {
   receiptSeconds: 5,
   // Spreadsheet
   sheetGap: 4,
+  sheetMissNoise: 1, // clicking a cell that matched the printout (a small slip, not a scandal)
   // Pay per item done right, before your pay grade, the chair and the combo.
   pay: { mail: 3, call: 12, expense: 2.4, sheet: 7 } as Record<WorkKind, number>,
   relief: { mail: 3, call: 6, expense: 2, sheet: 3 } as Record<WorkKind, number>,
@@ -417,9 +426,9 @@ export function startRound(s: GameState, kind: 'mail' | 'expense' | 'sheet'): Ro
   } else {
     if (s.time < w.sheetAt) return null;
     const tab = SHEET_TABS.find((t) => t.id === activeTab(s))!;
-    const rows = makeSheet(s, tab);
-    r = newRound(s, 'sheet', tab.errors, tab.seconds);
-    r.sheet = { tab: tab.id, rows };
+    const sheet = makeSheet(s, tab);
+    r = newRound(s, 'sheet', sheet.typos.length, tab.seconds);
+    r.sheet = { tab: tab.id, ...sheet, misses: [] };
   }
   w.rounds[kind] = r;
   s.lookBusy = true;
@@ -470,28 +479,64 @@ function makeReceipts(s: GameState, n: number, rule: { rule: number; except: num
   return out;
 }
 
-function makeSheet(s: GameState, tab: (typeof SHEET_TABS)[number]): SheetRow[] {
+function makeSheet(s: GameState, tab: (typeof SHEET_TABS)[number]): { rows: SheetRow[]; typos: SheetTypo[] } {
   const steps = Math.floor((tab.hi - tab.lo) / tab.step);
   const rows: SheetRow[] = tab.rows.map((label) => {
     const parts = tab.parts.map(() => tab.lo + Math.floor(rand(s) * (steps + 1)) * tab.step);
-    return { label, cells: [...parts, parts.reduce((a, b) => a + b, 0)], bad: -1, error: '', options: [], state: 'ok' };
+    return { label, cells: [...parts, parts.reduce((a, b) => a + b, 0)] };
   });
-  for (const i of shuffled(s, rows.length).slice(0, tab.errors)) {
-    const row = rows[i];
-    row.bad = Math.floor(rand(s) * row.cells.length) % row.cells.length;
-    row.error = pick(s, CELL_ERRORS);
-    row.state = 'broken';
-    const truth = row.cells[row.bad];
-    // Two decoys close enough that you have to actually do the sum.
-    const opts = new Set([truth]);
-    const deltas = [1, 2, 3, 5, 10].map((d) => d * tab.step);
-    for (let tries = 0; opts.size < 3 && tries < 20; tries++) {
-      const v = truth + pick(s, deltas) * (rand(s) < 0.5 ? -1 : 1);
-      if (v > 0) opts.add(v);
+  // One typo per row (in different rows), in any column, the Total included.
+  const typos: SheetTypo[] = [];
+  for (const row of shuffled(s, rows.length).slice(0, tab.typos)) {
+    const col = Math.floor(rand(s) * rows[row].cells.length) % rows[row].cells.length;
+    const truth = rows[row].cells[col];
+    let shown: number | null = null;
+    for (const kind of shuffled(s, tab.kinds.length).map((k) => tab.kinds[k])) {
+      shown = mistype(s, truth, kind, tab.step);
+      if (shown !== null) break;
     }
-    row.options = [...opts].map((v) => ({ v, k: rand(s) })).sort((a, b) => a.k - b.k).map((o) => o.v);
+    typos.push({ row, col, shown: shown ?? mistype(s, truth, 'wrong', tab.step)!, found: false });
   }
-  return rows;
+  return { rows, typos };
+}
+
+/** `v` as someone in a hurry might type it, or null if this kind of typo doesn't fit it. */
+export function mistype(s: GameState, v: number, kind: TypoKind, step: number): number | null {
+  const digits = String(v).split('');
+  let out: number | null = null;
+  if (kind === 'wrong') {
+    // Clearly different: at least a third off, still a round number like the rest.
+    const off = Math.max(step, Math.round((v * (0.35 + rand(s) * 0.5)) / step) * step);
+    out = rand(s) < 0.5 && v - off > 0 ? v - off : v + off;
+  } else if (kind === 'zero') {
+    out = v % 10 === 0 && rand(s) < 0.4 ? v / 10 : v * 10;
+  } else if (kind === 'swap') {
+    const spots = digits.map((_, i) => i).filter((i) => i + 1 < digits.length && digits[i] !== digits[i + 1] && !(i === 0 && digits[1] === '0'));
+    if (!spots.length) return null;
+    const i = pick(s, spots);
+    [digits[i], digits[i + 1]] = [digits[i + 1], digits[i]];
+    out = Number(digits.join(''));
+  } else {
+    // One digit nudged by 1 or 2 (never the leading digit down to zero).
+    const i = Math.floor(rand(s) * digits.length) % digits.length;
+    const d = Number(digits[i]);
+    const options = [d - 2, d - 1, d + 1, d + 2].filter((x) => x >= (i === 0 ? 1 : 0) && x <= 9);
+    if (!options.length) return null;
+    digits[i] = String(pick(s, options));
+    out = Number(digits.join(''));
+  }
+  return out !== null && out > 0 && out !== v ? out : null;
+}
+
+/** What your copy of the sheet says in a cell right now. */
+export function sheetValue(r: Round, row: number, col: number) {
+  const t = r.sheet!.typos.find((x) => x.row === row && x.col === col);
+  return t && !t.found ? t.shown : r.sheet!.rows[row].cells[col];
+}
+
+/** The typos still to find (bots and tests). */
+export function typosLeft(r: Round) {
+  return r.sheet!.typos.filter((t) => !t.found);
 }
 
 // ---------------------------------------------------------------- answering
@@ -621,17 +666,32 @@ export function stampReceipt(s: GameState, i: number, approve: boolean): ItemRes
   return res;
 }
 
-/** Put a value into the broken cell in row `row`. One try per cell. */
-export function fixCell(s: GameState, row: number, value: number): ItemResult | null {
+/**
+ * Click a cell of your copy that you think doesn't match the printout. A typo gets fixed
+ * (and pays); a cell that was fine counts as a mistake, once per cell.
+ */
+export function checkCell(s: GameState, row: number, col: number): ItemResult | null {
   const r = s.work.rounds.sheet;
-  const sr = r?.sheet?.rows[row];
-  if (!r || !sr || sr.state !== 'broken') return null;
-  const truth = sr.cells[sr.bad];
-  const ok = value === truth;
-  sr.state = ok ? 'fixed' : 'wrong';
-  const res = itemDone(s, r, ok, ok ? 'Fixed. The row adds up.' : `Not quite: it should be ${truth.toLocaleString('en-US')}.`);
-  if (r.done >= r.items) finishRound(s, 'sheet');
-  return res;
+  const sh = r?.sheet;
+  if (!r || !sh || !sh.rows[row] || col < 0 || col >= sh.rows[row].cells.length) return null;
+  const typo = sh.typos.find((t) => t.row === row && t.col === col);
+  if (typo) {
+    if (typo.found) return null;
+    typo.found = true;
+    const res = itemDone(s, r, true, `Fixed: the printout says ${sh.rows[row].cells[col].toLocaleString('en-US')}.`);
+    if (sh.typos.every((t) => t.found)) finishRound(s, 'sheet');
+    return res;
+  }
+  if (sh.misses.some((m) => m.row === row && m.col === col)) return null;
+  // A slip: it matched. A mistake for the grade and the combo, but not an item.
+  sh.misses.push({ row, col });
+  r.mistakes++;
+  workCombo(s, false);
+  s.stats.tasksWrong++;
+  bump(s, WORK.sheetMissNoise);
+  const text = 'That one matches the printout.';
+  s.events.push({ type: 'itemDone', kind: 'sheet', ok: false, pay: 0, text });
+  return { ok: false, pay: 0, text };
 }
 
 // ---------------------------------------------------------------- the end of a round
@@ -685,10 +745,6 @@ export function correctCall(s: GameState, caller: number): CallAnswer {
 export function correctStamp(r: Round, i: number) {
   const rc = r.receipts![i];
   return rc.yours ? false : receiptOk(rc, r.rule!);
-}
-
-export function correctFix(row: SheetRow) {
-  return row.cells[row.bad];
 }
 
 /** What a mail item needs (for the UI's hint after it's handled). */

@@ -1,47 +1,31 @@
-// Spreadsheet: every row's numbers add up to its Total, but some cells broke and show
-// "?" (with the error, #REF!, #N/A...). The formula bar spells the row out as a sum,
-// "140 + ? + 100 = 770", so you can work out the missing number and pick it from three.
-// One try per cell. Harder sheets pay more.
+// Spreadsheet: Accounting's printout sits next to your copy of the same sheet. Whoever
+// typed up your copy made a few typos. Spot the numbers that don't match the printout
+// and click them. No math, just spot the difference; harder sheets have sneakier typos
+// (1,250 typed as 1,520) and pay more. Clicking a number that matched is a mistake.
+//
+// Hovering (or moving the cursor over) a cell lights up the same cell on the printout,
+// so you can compare them side by side.
 
 import { SHEET_TABS, type SheetTabId } from '../../sim/content';
 import type { GameState } from '../../sim/state';
-import { fixCell, setSheetTab, startRound, tabUnlocked } from '../../sim/work';
+import { checkCell, setSheetTab, sheetValue, startRound, tabUnlocked, type Round } from '../../sim/work';
 import { clockHtml, esc, keyed, resultHtml, updateClock, type AppCtx, type AppView } from './common';
 
 const COLS = 'ABCDEFGH';
 const num = (n: number) => n.toLocaleString('en-US');
+const INSTRUCTION = 'Click the numbers in <b>your copy</b> that don’t match the <b>printout</b>.';
 
-/** The broken row as a sum with the gap in it, and (for a missing part) the subtraction that finds it. */
-function equationHtml(label: string, cells: number[], bad: number): string {
-  const q = '<b class="fx-q">?</b>';
-  const parts = cells.slice(0, -1);
-  const total = cells[cells.length - 1];
-  const sum = parts.map((v, j) => (j === bad ? q : num(v))).join(' + ');
-  const missingTotal = bad === cells.length - 1;
-  const solve = missingTotal
-    ? ''
-    : `<span class="fx-solve">so ${q} = ${num(total)} − ${parts
-        .filter((_, j) => j !== bad)
-        .map(num)
-        .join(' − ')}</span>`;
-  return `<span class="sheet-fx"><span class="fx-row">${esc(label)}:</span> <span class="fx-eq">${sum} = ${missingTotal ? q : `<b>${num(total)}</b>`}</span>${solve}</span>`;
-}
-
-/** A worked example for the start card, using this sheet's own columns. */
-function exampleHtml(parts: readonly string[]): string {
-  const vals = [100, 250, 50, 75].slice(0, parts.length);
-  const total = vals.reduce((a, b) => a + b, 0);
-  const gap = 1;
-  return `<table class="sheet-grid sheet-example" aria-label="Example">
-    <tr><td class="label"></td>${parts.map((p) => `<td class="head">${esc(p)}</td>`).join('')}<td class="head total">Total</td></tr>
-    <tr class="sel"><td class="label">Example</td>${vals.map((v, j) => `<td>${j === gap ? '<span class="cell-broken on"><small>#REF!</small>?</span>' : v}</td>`).join('')}<td class="total">${total}</td></tr>
-  </table>
-  <p class="sheet-example-fx">${vals.map((v, j) => (j === gap ? '<b class="fx-q">?</b>' : v)).join(' + ')} = <b>${total}</b>, so <b class="fx-q">?</b> = ${total} − ${vals.filter((_, j) => j !== gap).join(' − ')} = <b>${vals[gap]}</b></p>`;
-}
+/** A typo of the kind this sheet has, for the start card's example. */
+const EXAMPLES: Record<SheetTabId, { label: string; parts: number[]; at: number; typed: number; note: string }> = {
+  forecast: { label: 'South', parts: [600, 500, 130], at: 1, typed: 5000, note: 'an extra zero' },
+  budget: { label: 'Coffee', parts: [310, 250, 90, 120], at: 1, typed: 520, note: 'two digits swapped' },
+  headcount: { label: 'IT', parts: [12, 37, 5, 8], at: 1, typed: 38, note: 'one digit off' },
+};
 
 export class SheetApp implements AppView {
   work = 'sheet' as const;
-  private sel = -1; // the broken cell's row you're looking at
+  private cur = { row: 0, col: 0 }; // the keyboard cursor on your copy
+  private hover: string | null = null; // "row-col" lit on both sheets
   private outcome: { text: string; ok: boolean } | null = null;
   private showResult = 0;
 
@@ -50,16 +34,25 @@ export class SheetApp implements AppView {
     private ctx: AppCtx,
   ) {
     el.addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-row],button[data-pick],button[data-tab],button[data-start]');
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-cell],button[data-tab],button[data-start]');
       if (!b || b.disabled) return;
       const d = b.dataset;
       if (d.start !== undefined) this.start();
       else if (d.tab) {
         if (setSheetTab(this.s, d.tab as SheetTabId)) this.ctx.sound.type();
-      } else if (d.row !== undefined) this.sel = Number(d.row);
-      else if (d.pick !== undefined) this.pick(Number(d.pick));
+      } else if (d.cell) {
+        const [row, col] = d.cell.split('-').map(Number);
+        this.cur = { row, col };
+        this.check(row, col);
+      }
       this.el.dataset.key = '';
     });
+    // Point at a cell in your copy and its twin on the printout lights up.
+    el.addEventListener('mouseover', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-cell]');
+      if (b && b.dataset.cell !== this.hover) this.light(b.dataset.cell!);
+    });
+    el.addEventListener('mouseleave', () => this.light(null));
   }
 
   private get s() {
@@ -69,28 +62,50 @@ export class SheetApp implements AppView {
   private start() {
     const r = startRound(this.s, 'sheet');
     if (!r) return;
-    this.sel = r.sheet!.rows.findIndex((x) => x.state === 'broken');
+    this.cur = { row: 0, col: 0 };
+    this.hover = null;
     this.outcome = null;
     this.showResult = 0;
     this.ctx.sound.type();
   }
 
-  private pick(value: number) {
+  private check(row: number, col: number) {
     const s = this.s;
     const r = s.work.rounds.sheet;
-    if (!r || this.sel < 0) return;
-    const res = fixCell(s, this.sel, value);
+    if (!r) return;
+    const res = checkCell(s, row, col);
     if (!res) return;
     this.outcome = { text: res.text, ok: res.ok };
-    if (!res.ok) this.ctx.sound.miss();
-    if (!s.work.rounds.sheet) {
-      this.showResult = r.id;
+    if (res.ok) this.ctx.sound.type();
+    else this.ctx.sound.miss();
+    if (!s.work.rounds.sheet) this.showResult = r.id;
+  }
+
+  /** Light up a cell (and its row) on both sheets, and compare them in the formula bar. */
+  private light(key: string | null) {
+    this.hover = key;
+    const root = this.el;
+    root.querySelectorAll('.po-grid .hl').forEach((x) => x.classList.remove('hl'));
+    root.querySelectorAll('.hl-row').forEach((x) => x.classList.remove('hl-row'));
+    root.querySelectorAll('.sheet-grid .cell-btn.hl').forEach((x) => x.classList.remove('hl'));
+    const r = this.s.work.rounds.sheet;
+    const ref = root.querySelector('.sheet-ref');
+    const fx = root.querySelector('.sheet-fx');
+    if (!r) return;
+    if (!key) {
+      if (ref) ref.textContent = '';
+      if (fx) fx.innerHTML = INSTRUCTION;
       return;
     }
-    // On to the next broken cell, down the sheet and around.
-    const rows = r.sheet!.rows;
-    const order = [...rows.keys()].map((k) => (this.sel + 1 + k) % rows.length);
-    this.sel = order.find((k) => rows[k].state === 'broken') ?? -1;
+    const [row, col] = key.split('-').map(Number);
+    const pc = root.querySelector(`.po-grid [data-pc="${key}"]`);
+    pc?.classList.add('hl');
+    pc?.closest('tr')?.classList.add('hl-row');
+    const cell = root.querySelector(`.sheet-grid [data-cell="${key}"]`);
+    cell?.classList.add('hl');
+    cell?.closest('tr')?.classList.add('hl-row');
+    if (ref) ref.textContent = `${COLS[col + 1]}${row + 2}`;
+    if (fx) fx.innerHTML = `<b>${num(sheetValue(r, row, col))}</b> <span class="fx-vs">(the printout’s ${esc(r.sheet!.rows[row].label)} row is lit up)</span>`;
   }
 
   key(e: KeyboardEvent): boolean {
@@ -105,20 +120,16 @@ export class SheetApp implements AppView {
       }
       return false;
     }
-    const row = r.sheet!.rows[this.sel];
-    const n = Number(e.key);
-    if (row?.state === 'broken' && n >= 1 && n <= 3) this.pick(row.options[n - 1]);
-    else if (k === 'tab' || k === 'arrowdown' || k === 'arrowup') {
-      const rows = r.sheet!.rows;
-      const dir = k === 'arrowup' || e.shiftKey ? -1 : 1;
-      for (let step = 1; step <= rows.length; step++) {
-        const j = (this.sel + dir * step + rows.length * 2) % rows.length;
-        if (rows[j].state === 'broken') {
-          this.sel = j;
-          break;
-        }
-      }
-    } else return false;
+    const rows = r.sheet!.rows;
+    const cols = rows[0].cells.length;
+    const c = this.cur;
+    if (k === 'arrowup') c.row = (c.row + rows.length - 1) % rows.length;
+    else if (k === 'arrowdown') c.row = (c.row + 1) % rows.length;
+    else if (k === 'arrowleft') c.col = (c.col + cols - 1) % cols;
+    else if (k === 'arrowright' || k === 'tab') c.col = (c.col + 1) % cols;
+    else if (k === 'enter' || k === ' ') this.check(c.row, c.col);
+    else return false;
+    this.hover = `${c.row}-${c.col}`;
     this.el.dataset.key = '';
     return true;
   }
@@ -127,9 +138,65 @@ export class SheetApp implements AppView {
     const r = s.work.rounds.sheet;
     const last = s.work.last?.kind === 'sheet' && s.work.last.id === this.showResult ? s.work.last : null;
     const ready = s.time >= s.work.sheetAt;
-    const key = [r ? `${r.id}:${r.sheet!.rows.map((x) => x.state[0]).join('')}:${this.sel}` : '-', last?.id ?? '', ready, s.work.sheetTab, s.stage, s.targetIndex, this.outcome?.text ?? ''].join('|');
-    keyed(this.el, key, () => this.html(s, last, ready));
+    const sh = r?.sheet;
+    const state = sh ? `${r!.id}:${sh.typos.map((t) => (t.found ? 1 : 0)).join('')}:${sh.misses.length}:${this.cur.row}-${this.cur.col}` : '-';
+    const key = [state, last?.id ?? '', ready, s.work.sheetTab, s.stage, s.targetIndex, this.outcome?.text ?? ''].join('|');
+    if (keyed(this.el, key, () => this.html(s, last, ready))) this.light(r ? this.hover : null);
     updateClock(this.el, r);
+  }
+
+  private printoutHtml(r: Round, parts: readonly string[]) {
+    const rows = r.sheet!.rows;
+    return `<section class="printout" aria-label="Accounting's printout">
+      <p class="po-head"><b>Accounting · printout</b><span>The real numbers. Page 1 of 1.</span></p>
+      <table class="po-grid">
+        <tr class="po-cols"><td></td>${parts.map((p) => `<th>${esc(p)}</th>`).join('')}<th>Total</th></tr>
+        ${rows
+          .map(
+            (row, i) =>
+              `<tr><td class="label">${esc(row.label)}</td>${row.cells.map((v, j) => `<td data-pc="${i}-${j}"${j === row.cells.length - 1 ? ' class="total"' : ''}>${num(v)}</td>`).join('')}</tr>`,
+          )
+          .join('')}
+      </table>
+    </section>`;
+  }
+
+  private copyHtml(r: Round, parts: readonly string[]) {
+    const sh = r.sheet!;
+    const head = `<tr class="cols"><th></th>${['', ...parts, 'Total'].map((_, i) => `<th>${COLS[i]}</th>`).join('')}</tr>
+      <tr class="head"><th>1</th><td class="label"></td>${parts.map((p) => `<td class="head">${esc(p)}</td>`).join('')}<td class="head total">Total</td></tr>`;
+    const body = sh.rows
+      .map((row, i) => {
+        const cells = row.cells
+          .map((_, j) => {
+            const typo = sh.typos.find((t) => t.row === i && t.col === j);
+            const miss = sh.misses.some((m) => m.row === i && m.col === j);
+            const state = typo?.found ? 'fixed' : miss ? 'miss' : '';
+            const cur = this.cur.row === i && this.cur.col === j ? ' cur' : '';
+            const v = num(sheetValue(r, i, j));
+            const note = typo?.found ? 'fixed' : miss ? 'matches the printout' : 'click it if it doesn’t match';
+            return `<td class="c${j === row.cells.length - 1 ? ' total' : ''}"><button type="button" class="cell-btn ${state}${cur}" data-cell="${i}-${j}" aria-label="${esc(row.label)}, ${COLS[j + 1]}: ${v} (${note})"${state ? ' disabled' : ''}>${v}</button></td>`;
+          })
+          .join('');
+        return `<tr><th>${i + 2}</th><td class="label">${esc(row.label)}</td>${cells}</tr>`;
+      })
+      .join('');
+    return `<div class="sheet-scroll" aria-label="Your copy"><p class="copy-head"><b>Your copy</b> · has typos</p><table class="sheet-grid">${head}${body}</table></div>`;
+  }
+
+  private exampleHtml(tabId: SheetTabId, parts: readonly string[], typos: number) {
+    const ex = EXAMPLES[tabId];
+    const total = ex.parts.reduce((a, b) => a + b, 0);
+    const row = (typed: boolean) =>
+      `<tr><td class="label">${typed ? 'Your copy' : 'Printout'}</td>${ex.parts
+        .map((v, j) => (j === ex.at && typed ? `<td><span class="ex-typo">${num(ex.typed)}</span></td>` : `<td>${num(v)}</td>`))
+        .join('')}<td class="total">${num(total)}</td></tr>`;
+    return `<p>Accounting printed the real numbers. Whoever typed up your copy made <b>${typos} typos</b>. Click every number in your copy that doesn’t match the printout. No adding up needed.</p>
+      <table class="sheet-grid sheet-example" aria-label="Example">
+        <tr><td class="label">${esc(ex.label)}</td>${parts.map((p) => `<td class="head">${esc(p)}</td>`).join('')}<td class="head total">Total</td></tr>
+        ${row(false)}${row(true)}
+      </table>
+      <p class="hint">Here ${esc(parts[ex.at])} was typed wrong (${ex.note}), so you’d click it. Clicking a number that matches counts as a mistake.</p>`;
   }
 
   private html(s: GameState, last: GameState['work']['last'], ready: boolean) {
@@ -144,46 +211,22 @@ export class SheetApp implements AppView {
     let body = '';
     let formula = '<span class="sheet-ref">A1</span><span class="sheet-fx"></span>';
     if (r) {
-      const rows = r.sheet!.rows;
-      const head = `<tr class="cols"><th></th>${['', ...tab.parts, 'Total'].map((_, i) => `<th>${COLS[i]}</th>`).join('')}</tr>
-        <tr class="head"><th>1</th><td class="label"></td>${tab.parts.map((p) => `<td class="head">${esc(p)}</td>`).join('')}<td class="head total">Total</td></tr>`;
-      const body2 = rows
-        .map((row, i) => {
-          const cells = row.cells
-            .map((v, j) => {
-              const isTotal = j === row.cells.length - 1;
-              const cls = `${isTotal ? 'total' : ''}`;
-              if (j !== row.bad) return `<td class="${cls}">${num(v)}</td>`;
-              if (row.state === 'broken')
-                return `<td class="${cls}"><button type="button" class="cell-broken${i === this.sel ? ' on' : ''}" data-row="${i}" aria-label="Missing number in ${esc(row.label)}"><small>${esc(row.error)}</small>?</button></td>`;
-              return `<td class="${cls} ${row.state}">${num(v)}</td>`;
-            })
-            .join('');
-          return `<tr class="${i === this.sel ? 'sel' : ''}"><th>${i + 2}</th><td class="label">${esc(row.label)}</td>${cells}</tr>`;
-        })
-        .join('');
-      body = `<div class="sheet-scroll"><table class="sheet-grid">${head}${body2}</table></div>`;
-      const row = rows[this.sel];
-      if (row?.state === 'broken') {
-        const col = COLS[row.bad + 1];
-        formula = `<span class="sheet-ref">${col}${this.sel + 2}</span>${equationHtml(row.label, row.cells, row.bad)}
-          <span class="sheet-picks"><span class="fx-ask">Which number is the <b class="fx-q">?</b></span>${row.options.map((v, k) => `<button type="button" class="option" data-pick="${v}"><kbd>${k + 1}</kbd>${num(v)}</button>`).join('')}</span>`;
-      } else formula = `<span class="sheet-ref"></span><span class="sheet-fx">Click a cell with a <b class="fx-q">?</b> in it.</span>`;
+      body = `<div class="sheet-compare">${this.printoutHtml(r, tab.parts)}${this.copyHtml(r, tab.parts)}</div>`;
+      formula = `<span class="sheet-ref"></span><span class="sheet-fx">${INSTRUCTION}</span>`;
     } else if (last) body = `<div class="sheet-card">${resultHtml(last, { label: 'Next spreadsheet', data: 'data-start', disabled: !ready })}</div>`;
     else if (ready)
       body = `<div class="sheet-card"><div class="start-card sheet-intro"><h3>${esc(tab.file)}</h3>
-        <p>In every row, the numbers add up to the <b>Total</b> at the end. ${tab.errors} cells broke and show a <b class="fx-q">?</b>. Work out each missing number from the rest of its row, then pick it.</p>
-        ${exampleHtml(tab.parts)}
-        <p class="hint">One try per cell, ${tab.seconds} seconds for the sheet. Keys: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> to pick, <kbd>Tab</kbd> for the next <b>?</b>.</p>
+        ${this.exampleHtml(tab.id, tab.parts, tab.typos)}
+        <p class="hint">${tab.seconds} seconds for the sheet. Point at a number to see what the printout says. Arrow keys and <kbd>Enter</kbd> work too.</p>
         <button type="button" class="win-action strong" data-start>Open the spreadsheet <kbd>Enter</kbd></button></div></div>`;
     else body = `<div class="sheet-card"><div class="start-card quiet"><h3>Loading…</h3></div></div>`;
-    const left = r ? r.sheet!.rows.filter((x) => x.state === 'broken').length : 0;
+    const left = r ? r.items - r.done : 0;
     return `<div class="sheet">
       <div class="sheet-file"><span class="sheet-title">${esc(tab.file)}</span></div>
       <div class="sheet-formula">${formula}</div>
       ${r ? clockHtml() : ''}
       ${body}
-      <div class="sheet-foot"><div class="sheet-tabs">${tabs}</div><div class="sheet-status">${outcome}${r ? `<span>${left} broken cell${left === 1 ? '' : 's'} left</span>` : '<span>Ready</span>'}</div></div>
+      <div class="sheet-foot"><div class="sheet-tabs">${tabs}</div><div class="sheet-status">${outcome}${r ? `<span>${left} typo${left === 1 ? '' : 's'} left</span>` : '<span>Ready</span>'}</div></div>
     </div>`;
   }
 }

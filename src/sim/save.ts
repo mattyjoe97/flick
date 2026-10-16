@@ -85,6 +85,9 @@ function sanitize(s: GameState): boolean {
     const r = w.rounds[k];
     if (r && !(r.kind === k && Number.isFinite(r.limit) && Number.isFinite(r.used))) w.rounds[k] = null;
   }
+  // A spreadsheet from before the printout (broken cells) can't be finished: drop it.
+  const sh = w.rounds.sheet?.sheet;
+  if (w.rounds.sheet && !(sh && Array.isArray(sh.typos) && Array.isArray(sh.misses))) w.rounds.sheet = null;
   w.rounds.call = null; // a caller doesn't wait while the game is closed
   w.mailWaiting = Math.min(10, Math.max(0, Math.floor(Number(w.mailWaiting) || 0)));
   if (!Array.isArray(w.fraudAt)) w.fraudAt = [];
