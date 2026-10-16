@@ -74,6 +74,7 @@ body {
 
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: var(--font-ui);
   font-size: var(--t-md);
   line-height: 1.45;
@@ -114,9 +115,8 @@ kbd {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 8px 16px;
-  padding: 10px 20px;
+  padding: 8px max(20px, calc((100% - 1180px) / 2 + 20px));
   background: linear-gradient(180deg, #5b381d, var(--wood-dark));
   border-bottom: 3px solid #301c0d;
   box-shadow: 0 4px 10px rgba(20, 10, 2, 0.45);
@@ -142,8 +142,53 @@ kbd {
 .desk-tools {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(252, 251, 247, 0.12);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: rgba(252, 251, 247, 0.24);
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-btn .spk {
+  fill: currentColor;
+}
+
+.icon-btn .mute,
+.icon-btn.muted .wave {
+  display: none;
+}
+
+.icon-btn.muted .mute {
+  display: inline;
+}
+
+.hide-btn.alert {
+  animation: walkby-pulse 0.8s steps(2, jump-none) infinite;
 }
 
 .desk-clock {
@@ -210,11 +255,11 @@ kbd {
 
 .walkby {
   position: sticky;
-  top: calc(env(safe-area-inset-top, 0px) + 58px);
+  top: var(--top-h, 100px);
   z-index: 19;
   background: var(--alarm);
   color: #fff;
-  padding: 10px 20px;
+  padding: 10px max(20px, calc((100% - 1180px) / 2 + 20px));
   display: grid;
   gap: 6px;
   box-shadow: 0 6px 14px rgba(60, 0, 0, 0.4);
@@ -254,10 +299,12 @@ kbd {
 }
 
 .lockout {
+  position: relative;
+  z-index: 2;
   background: var(--alarm-pale);
   color: var(--alarm);
   border-bottom: 2px solid var(--alarm);
-  padding: 8px 20px;
+  padding: 8px max(20px, calc((100% - 1180px) / 2 + 20px));
   font-weight: 700;
 }
 
@@ -330,71 +377,183 @@ kbd {
   z-index: 2;
 }
 
-/* ------------------------------------------------------------ sticky notes */
+/* ------------------------------------------------------------ the status strip */
 
-.stickies {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+/* Your numbers on one strip of paper under the top bar, the same on every screen size. */
+.status {
+  position: sticky;
+  top: var(--hdr-h, 0px);
+  z-index: 19;
+  background: var(--paper);
+  border-bottom: 1px solid #d9d1bd;
+  box-shadow: 0 3px 8px rgba(30, 14, 4, 0.35);
 }
 
-.sticky {
+.status-row {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 6px 20px 7px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px 34px;
+}
+
+.stat {
   display: grid;
   align-content: start;
-  gap: 0;
-  min-height: 118px;
-  padding: 10px 12px 12px;
-  background: linear-gradient(180deg, var(--sticky-edge) 0 14px, var(--sticky) 14px);
-  box-shadow: var(--shadow);
-  transform: rotate(-2deg);
+  gap: 1px;
+  min-width: 0;
+  transform-origin: 30% 60%;
 }
 
-.sticky-salary {
-  background: linear-gradient(180deg, var(--sticky-green-edge) 0 14px, var(--sticky-green) 14px);
-  transform: rotate(1.6deg) translateY(4px);
+.stat-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
 }
 
-.sticky-label {
-  font-family: var(--font-hand);
-  font-size: var(--t-md);
-  color: var(--ink-2);
-  margin-top: 6px;
+.stat-val {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
 }
 
-.sticky-num {
+.stat-num {
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: var(--t-3xl);
+  font-size: 24px;
   line-height: 1.05;
   color: var(--pen);
   font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
-.sticky-rate {
-  font-family: var(--font-hand);
-  font-size: var(--t-sm);
+.stat-rate,
+.stat-note,
+.stat-grade {
+  font-size: var(--t-xs);
   color: var(--ink-2);
-  min-height: 1.2em;
+  line-height: 1.25;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ------------------------------------------------------------ suspicion mug */
+.stat-salary .stat-num {
+  color: #2f6b2a;
+}
 
-.suspicion {
-  display: flex;
+.stat-grade {
+  font-weight: 700;
+  color: #3d6a24;
+}
+
+/* Performance toward your next promotion. */
+.stat-perf {
+  display: block;
+  width: 100%;
+  min-width: 140px;
+  height: 4px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: rgba(61, 106, 36, 0.18);
+  overflow: hidden;
+}
+
+.stat-perf i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #3d6a24;
+  transition: width 0.3s;
+}
+
+.stat-perf.full i {
+  background: var(--marker-red);
+  animation: walkby-pulse 0.9s steps(2, jump-none) infinite;
+}
+
+.stat-susp {
+  flex: 1 1 200px;
+  max-width: 340px;
+}
+
+.susp-bar {
+  flex: 1;
+  align-self: center;
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: #ece6d8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.susp-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--coffee);
+  transition: width 0.25s linear, background 0.3s;
+}
+
+.stat-susp[data-level="caution"] .stat-num {
+  color: var(--caution);
+}
+
+.stat-susp[data-level="caution"] .susp-bar i {
+  background: var(--caution);
+}
+
+.stat-susp[data-level="danger"] .stat-num {
+  color: var(--alarm);
+}
+
+.stat-susp[data-level="danger"] .susp-bar i {
+  background: var(--alarm);
+}
+
+.stat-hr {
+  position: relative;
+  flex: 0 1 260px;
+}
+
+.stat-hr .stat-val {
   align-items: center;
-  gap: 4px;
+  min-height: 25px;
 }
+
+.stat.bump {
+  animation: bump 0.28s ease-out;
+}
+
+@keyframes bump {
+  40% {
+    transform: translateY(-3px) scale(1.06);
+  }
+}
+
+@media (max-width: 960px) {
+  .stat-rate {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------ the coffee mug on your desk (Suspicion) */
 
 .mug {
-  width: 112px;
-  flex: none;
+  width: 100%;
   overflow: visible;
-  filter: drop-shadow(0 6px 6px rgba(40, 20, 5, 0.4));
+  filter: drop-shadow(0 4px 3px rgba(40, 20, 5, 0.45));
 }
 
 .mug-glass {
-  fill: rgba(235, 244, 250, 0.55);
+  fill: rgba(235, 244, 250, 0.7);
   stroke: #e9eef2;
   stroke-width: 3;
 }
@@ -417,15 +576,15 @@ kbd {
   transition: y 0.25s linear;
 }
 
-.suspicion[data-level="caution"] .mug-liquid {
+[data-level="caution"] .mug-liquid {
   fill: var(--caution);
 }
 
-.suspicion[data-level="danger"] .mug-liquid {
+[data-level="danger"] .mug-liquid {
   fill: var(--alarm);
 }
 
-.suspicion[data-level="danger"] .mug-foam {
+[data-level="danger"] .mug-foam {
   fill: #f08a7f;
 }
 
@@ -444,7 +603,7 @@ kbd {
 
 .steam {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.75);
+  stroke: rgba(255, 255, 255, 0.85);
   stroke-width: 3;
   stroke-linecap: round;
   animation: steam 2.8s ease-in-out infinite;
@@ -467,55 +626,6 @@ kbd {
     opacity: 0;
     transform: translateY(-12px);
   }
-}
-
-.sticky.bump {
-  animation: bump 0.28s ease-out;
-}
-
-@keyframes bump {
-  40% {
-    transform: rotate(-3deg) translateY(-6px) scale(1.04);
-  }
-}
-
-.mug-tape {
-  flex: 1;
-  display: grid;
-  background: var(--tape);
-  padding: 8px 14px 8px 16px;
-  transform: rotate(1.2deg);
-  clip-path: polygon(0 4%, 3% 0, 97% 3%, 100% 0, 98% 50%, 100% 100%, 3% 97%, 0 100%, 2% 50%);
-  box-shadow: var(--shadow-low);
-  min-width: 0;
-}
-
-.mug-tape span:first-child {
-  font-family: var(--font-hand);
-  color: var(--ink-2);
-  font-size: var(--t-md);
-}
-
-.mug-tape b {
-  font-family: var(--font-hand);
-  font-size: var(--t-2xl);
-  line-height: 1.05;
-  color: var(--pen);
-  font-variant-numeric: tabular-nums;
-}
-
-.suspicion[data-level="caution"] .mug-tape b {
-  color: var(--caution);
-}
-
-.suspicion[data-level="danger"] .mug-tape b {
-  color: var(--alarm);
-}
-
-.susp-note {
-  font-size: var(--t-xs);
-  color: var(--ink-2);
-  line-height: 1.3;
 }
 
 /* ------------------------------------------------------------ index-card buttons */
@@ -578,6 +688,39 @@ kbd {
 .card-title {
   font-weight: 700;
   font-size: var(--t-md);
+}
+
+.card-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.card-pair .card-btn {
+  position: relative;
+  justify-items: center;
+  text-align: center;
+  padding: 10px 8px 8px;
+}
+
+.card-pair .card-btn:nth-child(2) {
+  transform: rotate(0.8deg);
+}
+
+.card-pair .card-art,
+#scrounge-btn.card-btn .card-art {
+  position: static;
+  order: -1;
+  width: 74px;
+  height: 46px;
+  object-fit: contain;
+  transform: none;
+  margin-bottom: 2px;
+}
+
+.card-pair small {
+  font-size: var(--t-sm);
+  line-height: 1.25;
 }
 
 .card-btn small {
@@ -686,6 +829,7 @@ kbd {
 
 .hand-svg {
   position: absolute;
+  z-index: 2;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -1201,6 +1345,52 @@ kbd {
   cursor: pointer;
 }
 
+/* The notepad under the controls: a tip (or what you just tried), then what just happened. */
+.notepad {
+  justify-self: center;
+  width: min(540px, 100%);
+  position: relative;
+  padding: 16px 18px 12px;
+  background:
+    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(0, 0, 0, 0)),
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(198, 213, 234, 0.6) 21px 22px) 0 44px / 100% calc(100% - 44px) no-repeat,
+    #fffbe6;
+  box-shadow: var(--shadow-low);
+  transform: rotate(-0.4deg);
+}
+
+.notepad::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 90px;
+  height: 18px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--tape);
+  opacity: 0.9;
+  clip-path: polygon(0 10%, 4% 0, 96% 6%, 100% 0, 98% 50%, 100% 100%, 3% 94%, 0 100%, 2% 50%);
+}
+
+.notepad .coach {
+  margin: 0 0 6px;
+  max-width: none;
+  padding: 0;
+  background: none;
+  transform: none;
+  box-shadow: none;
+  color: var(--pen);
+}
+
+.notepad .receipt {
+  width: auto;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  clip-path: none;
+  line-height: 22px;
+}
+
 /* Coach note: a sticky note you left yourself */
 .coach {
   justify-self: center;
@@ -1601,87 +1791,54 @@ kbd {
   white-space: pre-wrap;
 }
 
-/* ------------------------------------------------------------ HR file */
-
-.hr-file {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 4px 12px;
-  padding: 18px 14px 12px;
-  background: var(--manila);
-  border-radius: 2px 6px 4px 4px;
-  box-shadow: var(--shadow-low);
-  transform: rotate(0.6deg);
-}
-
-.hr-tab {
-  position: absolute;
-  top: -12px;
-  left: 10px;
-  padding: 2px 12px 4px;
-  background: var(--manila);
-  border-radius: 6px 6px 0 0;
-  font-family: var(--font-hand);
-  font-weight: 700;
-  font-size: var(--t-sm);
-  color: var(--ink);
-}
+/* ------------------------------------------------------------ HR file (on the status strip) */
 
 .hr-slips {
   display: flex;
-  gap: 5px;
+  gap: 3px;
 }
 
 .hr-slips i {
-  width: 22px;
-  height: 28px;
-  border: 2px dashed var(--manila-deep);
+  width: 13px;
+  height: 17px;
+  border: 1.5px dashed var(--manila-deep);
   border-radius: 2px;
 }
 
 .hr-slips i.on {
   border: none;
   background:
-    linear-gradient(var(--slip-print), var(--slip-print)) 4px 6px / 14px 2px no-repeat,
-    linear-gradient(var(--slip-print), var(--slip-print)) 4px 12px / 10px 2px no-repeat,
-    linear-gradient(var(--slip-print), var(--slip-print)) 4px 18px / 12px 2px no-repeat,
+    linear-gradient(var(--slip-print), var(--slip-print)) 2px 4px / 8px 1.5px no-repeat,
+    linear-gradient(var(--slip-print), var(--slip-print)) 2px 8px / 6px 1.5px no-repeat,
+    linear-gradient(var(--slip-print), var(--slip-print)) 2px 12px / 7px 1.5px no-repeat,
     var(--slip);
   box-shadow: 0 1px 2px rgba(40, 20, 5, 0.35);
-  transform: rotate(-3deg);
+  transform: rotate(-4deg);
 }
 
 .hr-slips i.on:nth-child(2) {
-  transform: rotate(2deg);
-}
-
-.hr-note {
-  margin: 0;
-  font-size: var(--t-sm);
-  color: var(--ink);
-  line-height: 1.3;
+  transform: rotate(3deg);
 }
 
 .hr-stamp {
   position: absolute;
-  right: 8px;
-  top: -24px;
-  padding: 2px 8px;
-  border: 3px solid var(--alarm);
-  border-radius: 4px;
+  right: 0;
+  top: -4px;
+  padding: 0 5px;
+  border: 2px solid var(--alarm);
+  border-radius: 3px;
   color: var(--alarm);
   font-weight: 800;
-  font-size: var(--t-sm);
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(252, 251, 247, 0.85);
-  transform: rotate(-6deg);
+  background: rgba(252, 251, 247, 0.9);
+  transform: rotate(-5deg);
 }
 
-.hr-file[data-level="final"] {
-  outline: 3px solid var(--alarm);
-  outline-offset: 2px;
+.stat-hr[data-level="final"] .stat-note {
+  color: var(--alarm);
+  font-weight: 700;
 }
 
 /* ------------------------------------------------------------ caught and fired */
@@ -1792,11 +1949,11 @@ kbd {
 
 .call-banner {
   position: sticky;
-  top: calc(env(safe-area-inset-top, 0px) + 58px);
+  top: var(--top-h, 100px);
   z-index: 60;
   background: var(--pen);
   color: #fff;
-  padding: 8px 20px;
+  padding: 8px max(20px, calc((100% - 1180px) / 2 + 20px));
   display: grid;
   gap: 6px;
   box-shadow: 0 6px 14px rgba(0, 20, 60, 0.4);
@@ -1824,46 +1981,11 @@ kbd {
 
 @media (max-width: 760px) {
   .call-banner {
-    top: calc(env(safe-area-inset-top, 0px) + 100px);
+    top: var(--top-h, 100px);
   }
 }
 
-/* ------------------------------------------------------------ the war screen: computer card */
-
-.computer-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  align-items: center;
-  gap: 4px 12px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  color: var(--ink);
-  background: linear-gradient(180deg, #e9e3d4, #d6cdb7);
-  box-shadow: var(--shadow), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
-}
-
-.computer-card:hover {
-  background: linear-gradient(180deg, #f2ecdd, #ddd4be);
-}
-
-.computer-card .pc-art {
-  width: 88px;
-  grid-row: span 2;
-}
-
-.computer-card .pc-text {
-  display: grid;
-  gap: 2px;
-}
-
-.computer-card small {
-  color: var(--ink-2);
-}
+/* ------------------------------------------------------------ badges and chips */
 
 .pc-badges {
   display: flex;
@@ -1891,10 +2013,6 @@ kbd {
 
 .pcb.promo {
   background: #1d6b33;
-}
-
-.computer-card.alert {
-  outline: 3px solid var(--alarm);
 }
 
 .hide-badge {
@@ -1938,15 +2056,6 @@ kbd {
 
 .app-org .graph-paper {
   margin-top: 16px;
-}
-
-@media (max-width: 760px) {
-  .computer-card {
-    grid-template-columns: 64px minmax(0, 1fr);
-  }
-  .computer-card .pc-art {
-    width: 64px;
-  }
 }
 
 
@@ -2107,6 +2216,50 @@ kbd {
 }
 
 @media (max-width: 760px) {
+  .desk-edge {
+    position: relative;
+    padding: 8px 14px;
+    gap: 8px 10px;
+  }
+  .desk-tools {
+    gap: 6px;
+  }
+  .hide-btn {
+    padding: 6px 10px 5px;
+  }
+  .status-row {
+    padding: 5px 14px 6px;
+    gap: 4px 16px;
+    justify-content: space-between;
+  }
+  .stat-num {
+    font-size: 21px;
+  }
+  .stat-rate,
+  .stat-grade,
+  .stat-note,
+  .hr-stamp {
+    display: none;
+  }
+  .stat-perf {
+    min-width: 0;
+  }
+  .stat-susp {
+    flex: 1 1 90px;
+    max-width: 130px;
+  }
+  .stat-hr {
+    flex: 0 0 auto;
+  }
+  .my-desk {
+    padding: 0;
+    border: 0;
+    border-image: none;
+    filter: none;
+  }
+  .my-desk .cards {
+    display: none;
+  }
   .desk {
     grid-template-columns: minmax(0, 1fr);
     gap: 22px;
@@ -2142,7 +2295,7 @@ kbd {
     padding-top: 10px;
   }
   .walkby {
-    top: calc(env(safe-area-inset-top, 0px) + 100px);
+    top: var(--top-h, 100px);
   }
   .title-tape span {
     font-size: 22px;
@@ -3833,38 +3986,6 @@ body.at-computer .desk-box.bulk {
   }
 }
 
-.sticky-grade {
-  display: block;
-  margin-top: 2px;
-  font-size: var(--t-xs);
-  font-weight: 700;
-  color: #3d6a24;
-  line-height: 1.2;
-}
-
-/* Performance toward your next promotion, drawn in pen under your title. */
-.sticky-perf {
-  display: block;
-  height: 5px;
-  margin-top: 3px;
-  border: 1px solid rgba(61, 106, 36, 0.55);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.sticky-perf i {
-  display: block;
-  width: 0;
-  height: 100%;
-  background: #3d6a24;
-  transition: width 0.3s;
-}
-
-.sticky-perf.full i {
-  background: #c62f28;
-  animation: walkby-pulse 0.9s steps(2, jump-none) infinite;
-}
-
 .tray-pay {
   padding: 2px 8px;
   border: 1px solid #a69f8e;
@@ -3956,14 +4077,14 @@ body.at-computer .desk-box.bulk {
   margin: 0;
 }
 
-/* ------------------------------------------------------------ Bailey, on the floor by your desk */
+/* ------------------------------------------------------------ Bailey, on the floor beside your chair */
 
 .bailey {
   position: absolute;
-  left: calc(50% - 320px);
-  top: 18px;
+  left: 0.5%;
+  bottom: -5%;
   z-index: 3;
-  width: 160px;
+  width: 15.5%;
   aspect-ratio: 279 / 239;
   padding: 0;
   border: 0;
@@ -4158,11 +4279,6 @@ body.at-computer .desk-box.bulk {
 }
 
 @media (max-width: 760px) {
-  .bailey {
-    left: 0;
-    top: 34px;
-    width: 96px;
-  }
   .bailey-say {
     left: 40%;
     font-size: 13px;
@@ -4241,27 +4357,19 @@ body.at-computer .desk-box.bulk {
   80% { transform: translate(-1px, 1px); }
 }
 
-/* On the desk, on the other side of the Flick key from Bailey. */
+/* The ball sits on your desk, in front of the view across the aisle. */
 .desk-ball {
   position: absolute;
-  left: calc(50% + 186px);
-  top: 0;
-  z-index: 3;
-  width: 150px;
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  pointer-events: none;
-}
-
-.desk-ball > * {
-  pointer-events: auto;
+  left: 25%;
+  bottom: 3%;
+  z-index: 2;
+  width: 11%;
+  aspect-ratio: 1;
 }
 
 .ball-btn {
-  position: relative;
-  width: 110px;
-  height: 110px;
+  position: absolute;
+  inset: 0;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -4277,7 +4385,7 @@ body.at-computer .desk-box.bulk {
   width: calc(100% * var(--ball-scale, 0.5));
   height: auto;
   transform-origin: 50% 100%;
-  filter: drop-shadow(1px 4px 2px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(1px 4px 2px rgba(0, 0, 0, 0.4));
   transition: width 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
   pointer-events: none;
 }
@@ -4321,29 +4429,33 @@ body.at-computer .desk-box.bulk {
   }
 }
 
+/* A little paper tag on the desk beside it: how far to the next size. */
 .ball-meter {
+  position: absolute;
+  left: 92%;
+  bottom: 4%;
   display: grid;
-  justify-items: center;
   gap: 2px;
-  width: 104px;
-  background: var(--tape);
-  padding: 2px 8px 4px;
-  box-shadow: var(--shadow-low);
-  clip-path: polygon(0 8%, 4% 0, 96% 6%, 100% 0, 98% 50%, 100% 100%, 3% 94%, 0 100%, 2% 50%);
+  padding: 1px 5px 3px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(30, 14, 4, 0.45);
+  transform: rotate(-3deg);
+  pointer-events: none;
 }
 
 .ball-name {
-  font-size: 11px;
+  font-size: clamp(8.5px, 1.3cqw, 11px);
   font-weight: 700;
   color: var(--ink);
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .ball-bar {
   display: block;
   width: 100%;
-  height: 5px;
-  border-radius: 3px;
+  height: 3px;
+  border-radius: 2px;
   background: rgba(60, 40, 20, 0.2);
   overflow: hidden;
 }
@@ -4357,21 +4469,28 @@ body.at-computer .desk-box.bulk {
 
 .ball-plus {
   position: absolute;
-  top: 30px;
+  top: -30%;
   left: 50%;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 18px;
+  font-size: clamp(14px, 2.4cqw, 20px);
   color: #ffe36e;
   -webkit-text-stroke: 1px #6b3d10;
   pointer-events: none;
   animation: float-up 0.9s ease-out both;
 }
 
+/* Under the view, only the controls: the Flick key and, from Stage 2, the Barrage key beside it. */
+.key-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
 .barrage-key {
-  width: 128px;
-  height: 64px;
-  margin-top: 4px;
+  width: 118px;
+  height: 84px;
   --key: #f0c9b5;
   --key-side: #c98d73;
   background: linear-gradient(180deg, #fbe3d6, var(--key));
@@ -4382,13 +4501,13 @@ body.at-computer .desk-box.bulk {
 }
 
 .barrage-key .key-word {
-  font-size: var(--t-lg);
-  margin-top: 2px;
+  font-size: var(--t-xl);
+  margin-top: 4px;
 }
 
 .barrage-key .key-letter {
-  top: 5px;
-  left: 10px;
+  top: 6px;
+  left: 11px;
   font-size: var(--t-sm);
 }
 
@@ -4419,7 +4538,7 @@ body.at-computer .desk-box.bulk {
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: 18px;
+  bottom: 19px;
   height: 3px;
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.12);
@@ -4437,36 +4556,18 @@ body.at-computer .desk-box.bulk {
 }
 
 @media (max-width: 760px) {
-  .desk-ball {
-    left: auto;
-    right: 0;
-    top: 0;
-    width: 96px;
-    gap: 2px;
-  }
-  .ball-btn {
-    width: 72px;
-    height: 72px;
-  }
-  .ball-meter {
-    width: 88px;
-    padding: 1px 6px 3px;
-  }
-  .ball-name {
-    font-size: 10px;
+  .key-row {
+    gap: 12px;
   }
   .barrage-key {
-    width: 92px;
-    height: 54px;
+    width: 96px;
+    height: 76px;
   }
   .barrage-key .key-word {
-    font-size: var(--t-md);
+    font-size: var(--t-lg);
   }
   .barrage-key .key-hint {
-    font-size: 9.5px;
-  }
-  .barrage-fill {
-    bottom: 14px;
+    font-size: 10px;
   }
   .barrage-key .key-letter {
     display: none;
@@ -4474,22 +4575,67 @@ body.at-computer .desk-box.bulk {
 }
 
 @media (max-width: 380px) {
-  .desk-ball {
-    width: 80px;
-  }
-  .ball-btn {
-    width: 64px;
-    height: 64px;
-  }
-  .ball-meter {
-    width: 78px;
-  }
   .barrage-key {
-    width: 78px;
+    width: 84px;
   }
   .barrage-key .long {
     display: none;
   }
+}
+
+/* ---------------------------------------------------------------- your desk, in the foreground of the view */
+
+.desk-front {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.desk-front > * {
+  pointer-events: auto;
+}
+
+/* The near edge of your desk runs along the bottom, from beside your chair to under your hand. */
+.desk-top {
+  position: absolute;
+  left: 17%;
+  right: 0;
+  bottom: 0;
+  height: 12%;
+  pointer-events: none;
+  border-top-left-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(255, 236, 205, 0.45) 0 2px, rgba(0, 0, 0, 0) 2px),
+    linear-gradient(180deg, rgba(50, 24, 6, 0) 40%, rgba(50, 24, 6, 0.25)),
+    url("../assets/art/desk-wood.webp") 0 0 / 300px 300px;
+  box-shadow: 0 -5px 10px rgba(20, 10, 2, 0.4), inset 2px 0 0 rgba(255, 236, 205, 0.25);
+}
+
+/* Beside it, the carpet where Bailey's bed is. */
+.desk-front::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 17%;
+  height: 12%;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0) 40%),
+    repeating-conic-gradient(#6a717b 0 25%, #737a84 0 50%) 0 0 / 8px 8px;
+}
+
+.mug-wrap {
+  position: absolute;
+  left: 18.5%;
+  bottom: 3.5%;
+  width: 5.2%;
+  pointer-events: none;
+}
+
+.floaters,
+.bubble {
+  z-index: 2;
 }
 
 @media (prefers-reduced-motion: reduce) {

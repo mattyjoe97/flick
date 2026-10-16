@@ -1,4 +1,4 @@
-// The office around you, on screen: Bailey in her bed on the floor by your desk (beside the Flick key),
+// The office around you, on screen: Bailey in her bed on the floor beside your chair,
 // the office moment card (pizza, a stray rubber band ball, Muffins, Joey...) that you
 // grab with a tap, and Mr. Feeney's sticky note of today's goals on your desktop.
 
@@ -50,8 +50,8 @@ export class OfficeView {
     private get: () => GameState,
     private hooks: OfficeHooks,
   ) {
-    // Bailey and her bed, on the floor by your desk, beside the Flick key.
-    const wrap = document.getElementById('arena')!;
+    // Bailey and her bed, on the floor beside your chair (the bottom-left corner of the view).
+    const wrap = document.getElementById('desk-front')!;
     this.bailey = document.createElement('button');
     this.bailey.type = 'button';
     this.bailey.className = 'bailey';

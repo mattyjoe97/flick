@@ -72,7 +72,7 @@ export function stepBall(s: GameState) {
   if (s.ball.found || !ballUnlocked(s)) return;
   s.ball.found = true;
   s.events.push({ type: 'ballReady' });
-  pushTicker(s, 'You knot a few spare bands together. It’s the start of a rubber band ball. (Tap it to wind more on.)');
+  pushTicker(s, 'You knot a few spare bands together. It’s the start of a rubber band ball.');
 }
 
 // ------------------------------------------------------------------ perks

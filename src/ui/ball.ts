@@ -41,6 +41,7 @@ export class BallView {
     private get: () => GameState,
     private hooks: BallHooks,
   ) {
+    // The ball sits on your desk, in the foreground of the view across the aisle.
     this.wrap = document.createElement('div');
     this.wrap.className = 'desk-ball';
     this.wrap.hidden = true;
@@ -48,21 +49,26 @@ export class BallView {
       <button type="button" class="ball-btn" aria-label="Your rubber band ball. Tap to wind spare bands on.">
         <img class="ball-img" alt="">
       </button>
-      <div class="ball-meter" aria-hidden="true"><b class="ball-name"></b><span class="ball-bar"><i></i></span></div>
+      <div class="ball-meter" aria-hidden="true"><b class="ball-name"></b><span class="ball-bar"><i></i></span></div>`;
+    document.getElementById('desk-front')!.append(this.wrap);
+    // The Barrage key sits beside the Flick key.
+    const keyBox = document.createElement('div');
+    keyBox.innerHTML = `
       <button type="button" class="keycap barrage-key" aria-keyshortcuts="V" hidden>
         <span class="key-letter" aria-hidden="true">V</span>
         <span class="key-word">Barrage</span>
         <span class="key-hint barrage-sub"></span>
         <span class="barrage-fill" aria-hidden="true"><i></i></span>
       </button>`;
-    document.getElementById('arena')!.append(this.wrap);
+    const key = keyBox.firstElementChild as HTMLButtonElement;
+    document.getElementById('key-row')!.append(key);
     this.btn = this.wrap.querySelector('.ball-btn')!;
     this.img = this.wrap.querySelector('.ball-img')!;
     this.bar = this.wrap.querySelector('.ball-bar i')!;
     this.label = this.wrap.querySelector('.ball-name')!;
-    this.key = this.wrap.querySelector('.barrage-key')!;
-    this.keySub = this.wrap.querySelector('.barrage-sub')!;
-    this.keyFill = this.wrap.querySelector('.barrage-fill i')!;
+    this.key = key;
+    this.keySub = key.querySelector('.barrage-sub')!;
+    this.keyFill = key.querySelector('.barrage-fill i')!;
     for (const el of [this.btn, this.key]) el.addEventListener('pointerdown', (e) => e.stopPropagation());
     // A tap shouldn't leave a focus ring behind (keyboard focus still gets one).
     this.btn.addEventListener('click', (e) => {
@@ -123,12 +129,13 @@ export class BallView {
     if (e.type === 'ballReady') {
       this.wrap.classList.add('new');
       setTimeout(() => this.wrap.classList.remove('new'), 6000);
-      this.hooks.say('You knot a few spare bands together: a rubber band ball. Tap it to wind spare bands on. It grows, and every size is a perk for good.');
+      this.hooks.say('That’s your rubber band ball, on your desk. Tap it to wind spare bands on: it grows, and every size is a perk for good.');
     }
   }
 
   render() {
     const s = this.s;
+    this.renderKey(s);
     const on = ballUnlocked(s);
     this.wrap.hidden = !on;
     if (!on) return;
@@ -146,8 +153,10 @@ export class BallView {
     const next = nextBallSize(s);
     this.label.textContent = next ? `${short(s.ball.wound)} / ${short(next.at)}` : `${BALL.sizes[size - 1].name}`;
     this.bar.style.width = `${(p * 100).toFixed(1)}%`;
+  }
 
-    // The Barrage key: only in the war, once you have a team.
+  /** The Barrage key: only in the war, once you have a team. */
+  private renderKey(s: GameState) {
     const show = barrageUnlocked(s) && !s.lookBusy;
     this.key.hidden = !show;
     if (!show) return;

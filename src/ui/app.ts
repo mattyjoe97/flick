@@ -162,18 +162,38 @@ export class UI {
     $('app').append(this.rolePop);
     this.bind();
     this.syncSound();
+    this.watchTop();
+  }
+
+  /** Banners stick just under the top bar and status strip (whatever height they wrap to). */
+  private watchTop() {
+    const bar = $('topbar');
+    const status = $('status');
+    const measure = () => {
+      const sticky = getComputedStyle(bar).position === 'sticky';
+      const hdr = sticky ? bar.offsetHeight : 0;
+      const root = document.documentElement.style;
+      root.setProperty('--hdr-h', `${hdr}px`);
+      root.setProperty('--top-h', `${hdr + status.offsetHeight}px`);
+    };
+    measure();
+    if (typeof ResizeObserver === 'function') new ResizeObserver(measure).observe(document.body);
+    window.addEventListener('resize', measure);
   }
 
   private syncSound() {
     const b = $('sound-btn');
-    b.textContent = this.sound.muted ? 'Sound off' : 'Sound on';
+    const label = this.sound.muted ? 'Sound off' : 'Sound on';
+    b.title = label;
+    b.setAttribute('aria-label', label);
     b.setAttribute('aria-pressed', String(!this.sound.muted));
+    b.classList.toggle('muted', this.sound.muted);
   }
 
-  /** A sticky note gives a little hop when its number jumps. */
+  /** A number on the status strip gives a little hop when it jumps. */
   private bump(which: 'bands' | 'salary') {
     if (reducedMotion()) return;
-    const el = document.querySelector(which === 'bands' ? '.sticky-bands' : '.sticky-salary');
+    const el = document.querySelector(which === 'bands' ? '.stat-bands' : '.stat-salary');
     if (!el) return;
     el.classList.remove('bump');
     void (el as HTMLElement).offsetWidth;
@@ -228,7 +248,6 @@ export class UI {
 
   private bind() {
     $('scrounge-btn').addEventListener('click', this.doScrounge);
-    $('work-btn').addEventListener('click', this.doWork);
     $('order-btn').addEventListener('click', this.doOrder);
     $('closet-btn').addEventListener('click', () => this.closet.show());
     $('rack').addEventListener('click', (e) => {
@@ -562,11 +581,10 @@ export class UI {
 
   private shotsThisFrame = 0;
 
-  /** Where your Salary is on screen right now (the taskbar at your computer, the sticky note at war). */
+  /** Where your Salary is on screen right now (the taskbar at your computer, the status strip at war). */
   private salaryTarget(): HTMLElement {
     if (this.s.lookBusy) return $('tray-pay');
-    const note = document.querySelector<HTMLElement>('.sticky-salary');
-    return onScreen(note) ? note : $('mini');
+    return $('status').querySelector<HTMLElement>('.stat-salary')!;
   }
 
   /** Money in: coins fly from wherever it came from into your Salary. */
@@ -588,7 +606,7 @@ export class UI {
       return;
     }
     if (e.source === 'team') {
-      // Your team's pay drops in quietly: a coin or two from Staffing, or a bump on the sticky note.
+      // Your team's pay drops in quietly: a coin or two from Staffing, or a bump on your Salary.
       if (!this.s.lookBusy) return this.bump('salary');
       const icon = document.querySelector<HTMLElement>('#desktop [data-app="staffing"]');
       moneyBurst(onScreen(icon) ? icon! : $('screen'), to, 2, 0, hop);
@@ -774,7 +792,8 @@ export class UI {
     $('perf').classList.toggle('full', ready);
     const susp = Math.min(100, s.suspicion);
     this.set('susp-num', susp.toFixed(0));
-    // The mug fills from y=114 (empty) to y=18 (full).
+    $('susp-bar').style.width = `${susp.toFixed(1)}%`;
+    // The mug on your desk fills from y=114 (empty) to y=18 (full).
     const liquidY = 114 - 96 * (susp / 100);
     $('susp-fill').setAttribute('y', liquidY.toFixed(1));
     $('susp-fill').setAttribute('height', (114 - liquidY).toFixed(1));
@@ -783,11 +802,12 @@ export class UI {
     $('suspicion').setAttribute('aria-valuenow', susp.toFixed(0));
     const level = susp >= 75 ? 'danger' : susp >= 50 ? 'caution' : 'calm';
     $('suspicion').dataset.level = level;
+    $('desk-front').dataset.level = level;
     this.set('susp-note', onFinalWarning(s) && susp >= 75 ? "One more and you're fired." : suspicionNote(susp));
     const sup = s.supplies;
     this.set(
       'scrounge-sub',
-      sup.find ? 'Something good in there!' : sup.drawer > 0 ? `${fmt(sup.drawer)} stray band${sup.drawer === 1 ? '' : 's'} inside` : 'Empty. More turn up soon.',
+      sup.find ? 'Something good in there!' : sup.drawer > 0 ? `${fmt(sup.drawer)} band${sup.drawer === 1 ? '' : 's'} inside` : 'Empty for now',
     );
     this.set(
       'order-sub',
@@ -797,7 +817,7 @@ export class UI {
           ? `On its way: ${Math.ceil(Math.max(0, sup.order.arriveAt - s.time))} s`
           : `$${m.order.price} for ${m.order.amount} bands`,
     );
-    this.set('order-title', sup.box ? 'Open the box' : 'Order supplies');
+    this.set('order-title', sup.box ? 'Open the box' : 'Order');
     $<HTMLButtonElement>('order-btn').disabled = !sup.box && s.salary < m.order.price;
 
     // HR file
@@ -816,10 +836,6 @@ export class UI {
           : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.`,
     );
 
-    this.set(
-      'mini',
-      `Bands ${fmt(s.bands)}    Salary ${money(s.salary)}    Suspicion ${susp.toFixed(0)}${ups ? `    Write-ups ${ups}/${TUNING.writeUpsToFinal}${final ? ' (final!)' : ''}` : ''}`,
-    );
 
     this.renderFront(s, m.warning);
     this.renderAlerts(s, m.warning);
@@ -998,17 +1014,11 @@ export class UI {
     });
   }
 
-  /** Badges on the computer card and button, and the phone ringing while you're at war. */
+  /** The badge on the Your computer button, and the phone ringing while you're at war. */
   private renderComputerHints(s: GameState) {
     const mail = s.work.mailWaiting + (s.work.rounds.mail ? s.work.rounds.mail.items - s.work.rounds.mail.done : 0) + s.unread;
     const call = ringingCall(s);
     const chat = chatUnread(s);
-    const bits: string[] = [];
-    if (call) bits.push('<b class="pcb ring">Phone!</b>');
-    if (reviewReady(s)) bits.push('<b class="pcb promo">Review!</b>');
-    if (mail) bits.push(`<b class="pcb">${mail > 9 ? '9+' : mail} mail</b>`);
-    if (chat) bits.push(`<b class="pcb chat">${chat} chat</b>`);
-    this.rebuild('pc-badges', bits.join(''), () => ($('pc-badges').innerHTML = bits.join('')));
     const total = mail + chat + (call ? 1 : 0);
     const hb = $('hide-badge');
     hb.hidden = total === 0 || s.lookBusy;
@@ -1028,7 +1038,7 @@ export class UI {
         }
       }
     }
-    $('work-btn').classList.toggle('alert', !!call);
+    $('hide-btn').classList.toggle('alert', !!call);
   }
 
   private renderPanes(s: GameState) {

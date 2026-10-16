@@ -8,10 +8,10 @@
   </head>
   <body>
     <div id="app">
-      <header class="desk-edge">
+      <header class="desk-edge" id="topbar">
         <div class="title-tape"><span>FLICK</span></div>
+        <span class="desk-clock" id="clock" aria-label="Office clock">Week 1, Mon 9:00 AM</span>
         <div class="desk-tools">
-          <span class="desk-clock" id="clock" aria-label="Office clock">Week 1, Mon 9:00 AM</span>
           <label class="speed" id="speed-wrap" hidden>Speed
             <select id="speed">
               <option value="1">×1</option>
@@ -19,11 +19,39 @@
               <option value="50">×50</option>
             </select>
           </label>
-          <button type="button" class="tool-btn" id="sound-btn" aria-pressed="true">Sound on</button>
-          <button type="button" class="tool-btn" id="settings-btn">Settings</button>
           <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false">Your computer <kbd>Esc</kbd><span class="hide-badge" id="hide-badge" hidden></span></button>
+          <button type="button" class="icon-btn" id="sound-btn" aria-pressed="true" aria-label="Sound" title="Sound on">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l6 6M22 9l-6 6"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="settings-btn" aria-label="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/><path d="M19.4 13.5l1.8 1.4-2 3.4-2.1-.8a7.6 7.6 0 0 1-1.9 1.1L15 20.8h-4l-.3-2.2a7.6 7.6 0 0 1-1.9-1.1l-2.1.8-2-3.4 1.8-1.4a7.7 7.7 0 0 1 0-3L2.7 9.1l2-3.4 2.1.8a7.6 7.6 0 0 1 1.9-1.1L11 3.2h4l.3 2.2a7.6 7.6 0 0 1 1.9 1.1l2.1-.8 2 3.4-1.8 1.4a7.7 7.7 0 0 1 0 3z"/></svg>
+          </button>
         </div>
       </header>
+
+      <div class="status" id="status" aria-label="Your numbers">
+        <div class="status-row">
+          <div class="stat stat-bands">
+            <span class="stat-label">Bands</span>
+            <span class="stat-val"><b class="stat-num" id="bands">10</b><small class="stat-rate" id="bands-rate"></small></span>
+          </div>
+          <div class="stat stat-salary">
+            <span class="stat-label">Salary</span>
+            <span class="stat-val"><b class="stat-num" id="salary">$0</b><small class="stat-rate" id="salary-rate"></small><span class="stat-grade" id="pay-grade">Junior Associate</span></span>
+            <span class="stat-perf" id="perf" aria-hidden="true"><i id="perf-fill"></i></span>
+          </div>
+          <div class="stat stat-susp" id="suspicion" data-level="calm" role="meter" aria-labelledby="susp-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span class="stat-label" id="susp-label">Suspicion</span>
+            <span class="stat-val"><b class="stat-num" id="susp-num">0</b><span class="susp-bar" aria-hidden="true"><i id="susp-bar"></i></span></span>
+            <small class="stat-note" id="susp-note">Nobody suspects a thing.</small>
+          </div>
+          <div class="stat stat-hr" id="hr-file" data-level="clean">
+            <span class="stat-label">HR file</span>
+            <span class="stat-val"><span class="hr-slips" id="hr-slips" aria-hidden="true"><i></i><i></i><i></i></span><small class="stat-note" id="hr-note">Clean record.</small></span>
+            <span class="hr-stamp" id="hr-stamp" hidden>Final warning</span>
+          </div>
+        </div>
+      </div>
 
       <div class="walkby" id="walkby" role="alert" hidden>
         <p><strong>Footsteps!</strong> Mr. Feeney is coming. Get on your computer: press <kbd>Esc</kbd>.</p>
@@ -37,94 +65,32 @@
 
       <main class="desk">
         <section class="my-desk" aria-label="Your desk">
-          <div class="stickies">
-            <div class="sticky sticky-bands">
-              <span class="sticky-label">Bands</span>
-              <span class="sticky-num" id="bands">10</span>
-              <span class="sticky-rate" id="bands-rate"></span>
-            </div>
-            <div class="sticky sticky-salary">
-              <span class="sticky-label">Salary</span>
-              <span class="sticky-num" id="salary">$0</span>
-              <span class="sticky-rate" id="salary-rate"></span>
-              <span class="sticky-grade" id="pay-grade">Junior Associate</span>
-              <span class="sticky-perf" id="perf" aria-hidden="true"><i id="perf-fill"></i></span>
-            </div>
-          </div>
-
           <nav class="shop-list" id="shop-list" aria-labelledby="shop-h">
             <h2 class="shop-h" id="shop-h">Shopping list</h2>
             <ol class="shop-rows" id="shop-rows"></ol>
           </nav>
 
-          <div class="suspicion" id="suspicion" data-level="calm" role="meter" aria-labelledby="susp-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <svg class="mug" viewBox="0 0 150 128" aria-hidden="true">
-              <defs>
-                <clipPath id="mug-inside">
-                  <path d="M20 18 H98 V98 Q98 114 82 114 H36 Q20 114 20 98 Z"></path>
-                </clipPath>
-              </defs>
-              <path class="mug-handle" d="M104 38 C136 38 136 90 104 90"></path>
-              <path class="mug-glass" d="M14 12 H104 V98 Q104 120 82 120 H36 Q14 120 14 98 Z"></path>
-              <g clip-path="url(#mug-inside)">
-                <rect class="mug-liquid" id="susp-fill" x="20" y="114" width="78" height="0"></rect>
-                <rect class="mug-foam" id="susp-foam" x="20" y="112" width="78" height="3"></rect>
-              </g>
-              <line class="mug-tick" x1="20" y1="66" x2="32" y2="66"></line>
-              <line class="mug-tick" x1="20" y1="42" x2="32" y2="42"></line>
-              <path class="mug-shine" d="M24 24 V92"></path>
-              <path class="steam s1" d="M46 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
-              <path class="steam s2" d="M70 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
-            </svg>
-            <div class="mug-tape">
-              <span id="susp-label">Suspicion</span>
-              <b id="susp-num">0</b>
-              <span class="susp-note" id="susp-note">Nobody suspects a thing.</span>
-            </div>
-          </div>
-
-          <div class="hr-file" id="hr-file" data-level="clean">
-            <span class="hr-tab">HR file</span>
-            <div class="hr-slips" id="hr-slips" aria-hidden="true"><i></i><i></i><i></i></div>
-            <p class="hr-note" id="hr-note">Clean record.</p>
-            <span class="hr-stamp" id="hr-stamp" hidden>Final warning</span>
-          </div>
-
-          <button type="button" class="computer-card" id="work-btn">
-            <svg class="pc-art" viewBox="0 0 120 92" aria-hidden="true">
-              <rect x="10" y="4" width="100" height="66" rx="6" fill="#d9d2c0" stroke="#23272d" stroke-width="3"/>
-              <rect x="19" y="12" width="82" height="50" rx="2" fill="#2a6f8f" stroke="#23272d" stroke-width="2"/>
-              <rect x="25" y="18" width="14" height="11" rx="1" fill="#fff8e8"/><rect x="25" y="34" width="14" height="11" rx="1" fill="#fff8e8"/>
-              <rect x="46" y="22" width="48" height="34" rx="1" fill="#f4f6f8"/><rect x="46" y="22" width="48" height="6" fill="#1f4a9a"/>
-              <path d="M52 34 H88 M52 40 H84 M52 46 H80" stroke="#9aa5b1" stroke-width="2"/>
-              <path d="M44 70 L40 84 H80 L76 70 Z" fill="#c9c1ad" stroke="#23272d" stroke-width="3" stroke-linejoin="round"/>
-            </svg>
-            <span class="pc-text"><span class="card-title">Your computer <kbd>Esc</kbd></span>
-            <small id="work-sub">Email, expenses, the phone. Safe from walk-bys.</small></span>
-            <span class="pc-badges" id="pc-badges" aria-live="polite"></span>
-          </button>
-
           <div class="cards">
-            <button type="button" class="card-btn has-art" id="scrounge-btn">
-              <span class="card-title">Scrounge drawer <kbd>S</kbd></span>
-              <small id="scrounge-sub">15 stray bands inside</small>
-            </button>
             <button type="button" class="card-btn has-art" id="closet-btn">
               <span class="card-title">Supply closet <kbd>D</kbd></span>
               <small id="closet-sub">Dale from Facilities. Don’t ask.</small>
               <b class="card-badge" id="closet-badge" hidden></b>
             </button>
-            <button type="button" class="card-btn has-art" id="order-btn">
-              <span class="card-title"><span id="order-title">Order supplies</span> <kbd>O</kbd></span>
-              <small id="order-sub">$5 for 50 bands</small>
-            </button>
+            <div class="card-pair">
+              <button type="button" class="card-btn has-art" id="scrounge-btn">
+                <span class="card-title">Drawer <kbd>S</kbd></span>
+                <small id="scrounge-sub">15 stray bands inside</small>
+              </button>
+              <button type="button" class="card-btn has-art" id="order-btn">
+                <span class="card-title"><span id="order-title">Order</span> <kbd>O</kbd></span>
+                <small id="order-sub">$5 for 50 bands</small>
+              </button>
+            </div>
           </div>
-
         </section>
 
         <section class="front" aria-labelledby="stage-line">
           <h2 class="tape-label" id="stage-line">Stage 1: Desk Skirmish</h2>
-          <p class="mini" id="mini" aria-hidden="true"></p>
           <div class="scene-wrap">
             <div class="scene" id="scene"></div>
             <div class="scene-ui">
@@ -141,6 +107,29 @@
               </div>
               <div class="floaters" id="floaters" aria-hidden="true"></div>
             </div>
+            <div class="desk-front" id="desk-front">
+              <div class="desk-top" aria-hidden="true"></div>
+              <div class="mug-wrap" aria-hidden="true">
+                <svg class="mug" viewBox="0 0 150 128">
+                  <defs>
+                    <clipPath id="mug-inside">
+                      <path d="M20 18 H98 V98 Q98 114 82 114 H36 Q20 114 20 98 Z"></path>
+                    </clipPath>
+                  </defs>
+                  <path class="mug-handle" d="M104 38 C136 38 136 90 104 90"></path>
+                  <path class="mug-glass" d="M14 12 H104 V98 Q104 120 82 120 H36 Q14 120 14 98 Z"></path>
+                  <g clip-path="url(#mug-inside)">
+                    <rect class="mug-liquid" id="susp-fill" x="20" y="114" width="78" height="0"></rect>
+                    <rect class="mug-foam" id="susp-foam" x="20" y="112" width="78" height="3"></rect>
+                  </g>
+                  <line class="mug-tick" x1="20" y1="66" x2="32" y2="66"></line>
+                  <line class="mug-tick" x1="20" y1="42" x2="32" y2="42"></line>
+                  <path class="mug-shine" d="M24 24 V92"></path>
+                  <path class="steam s1" d="M46 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
+                  <path class="steam s2" d="M70 6 q-7 -9 0 -16 q7 -7 0 -14"></path>
+                </svg>
+              </div>
+            </div>
           </div>
           <div class="launcher" id="arena">
             <p class="twist" id="twist" hidden></p>
@@ -149,23 +138,26 @@
                 <div class="tension-track"><div class="tension-fill" id="tension-fill"></div><span class="tension-sweet"></span></div>
                 <span class="tension-label" id="tension-label">Hold to stretch</span>
               </div>
-            <button type="button" class="keycap" id="flick-btn" aria-keyshortcuts="F">
-              <span class="key-letter" aria-hidden="true">F</span>
-              <span class="key-word">Flick</span>
-              <span class="key-hint">hold to stretch</span>
-            </button>
+            <div class="key-row" id="key-row">
+              <button type="button" class="keycap" id="flick-btn" aria-keyshortcuts="F">
+                <span class="key-letter" aria-hidden="true">F</span>
+                <span class="key-word">Flick</span>
+                <span class="key-hint">hold to stretch</span>
+              </button>
+            </div>
             <div class="rack" id="rack" role="group" aria-label="Your weapons: press 1 to 4 to switch"></div>
             <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
             </div>
             <div class="mini-actions">
               <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
-              <button type="button" class="mini-btn mini-pc" data-mini="work">Computer</button>
               <button type="button" class="mini-btn" data-mini="order">Order</button>
               <button type="button" class="mini-btn" data-mini="closet">Closet<b class="mini-badge" id="mini-closet-badge" hidden></b></button>
             </div>
           </div>
-          <p class="coach" id="coach"></p>
-          <ol class="receipt" id="ticker" aria-live="polite"></ol>
+          <div class="notepad">
+            <p class="coach" id="coach"></p>
+            <ol class="receipt" id="ticker" aria-live="polite"></ol>
+          </div>
 
         </section>
 
