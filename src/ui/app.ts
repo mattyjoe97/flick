@@ -1,4 +1,4 @@
-import { BARRAGE, COWORKERS, PROMOTION, ROLES, TARGETS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
+import { BARRAGE, COWORKERS, PROMOTION, ROLES, TARGETS, TEAMS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
 import {
   assign,
   buyBack,
@@ -32,6 +32,8 @@ import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
 import { OfficeView } from './office';
 import { BallView } from './ball';
+import { FloorView } from './floor';
+import { leadName, seatCap, seatCost, seats, teamUnlocked } from '../sim/staff';
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
@@ -76,6 +78,9 @@ export class UI {
   private closet: ClosetView;
   private office: OfficeView;
   private ball: BallView;
+  private floor: FloorView;
+  /** Where you are while you're away from the war: at your computer, or out on your floor. */
+  private place: 'pc' | 'floor' = 'pc';
   private lastRing = 0;
   private rolePop: HTMLElement;
   private rolePopFor: CoworkerId | null = null;
@@ -119,6 +124,11 @@ export class UI {
       say: (t) => this.say(t),
       act: (fn) => this.act(fn),
       sound: { wind: (grew) => this.sound.wind(grew) },
+    });
+    this.floor = new FloorView(() => this.s, {
+      back: () => this.toggleHide(false),
+      computer: () => this.toggleHide(true),
+      sound: { stamp: () => this.sound.stamp(), miss: () => this.sound.miss(), grab: () => this.sound.grab() },
     });
     this.computer = new ComputerView(() => this.s, {
       say: (t) => this.say(t),
@@ -282,6 +292,7 @@ export class UI {
       true,
     );
     $('hide-btn').addEventListener('click', () => this.toggleHide());
+    $('floor-btn').addEventListener('click', () => this.openFloor());
     $('sound-btn').addEventListener('click', () => {
       this.sound.toggle();
       this.syncSound();
@@ -406,6 +417,15 @@ export class UI {
       if (this.closet.onKey(e)) e.preventDefault();
       return;
     }
+    if (this.floor.isOpen) {
+      // Out on your floor: Esc closes a card, then takes you back to the war.
+      if (this.floor.onKey(e)) e.preventDefault();
+      else if (k === 'escape' || k === 'b' || k === 't') {
+        e.preventDefault();
+        this.toggleHide(false);
+      } else if (k === 'w' && ringingCall(this.s) && !e.repeat) this.answerPhone();
+      return;
+    }
     if (k === 'escape' || k === 'b') {
       e.preventDefault();
       this.toggleHide();
@@ -428,6 +448,7 @@ export class UI {
     else if (k === 'o') this.doOrder();
     else if (k === 'd') this.closet.show();
     else if (k === 'v') this.ball.barrage();
+    else if (k === 't') this.openFloor();
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
   }
 
@@ -490,18 +511,35 @@ export class UI {
   private toggleHide(force?: boolean) {
     const on = force ?? !this.s.lookBusy;
     if (on) {
-      this.launcher.cancel();
-      this.drawer.close();
-      this.closet.close();
-      this.closeRolePop();
+      this.leaveWar();
+      this.place = 'pc';
     }
     setLookBusy(this.s, on);
     this.syncComputer();
   }
 
-  /** Shows or hides the computer to match the game (answering the phone also sits you down). */
+  /** T, or Your floor in the top bar: go and see your team (that counts as working too). */
+  private openFloor() {
+    if (!teamUnlocked(this.s, 'temp')) return;
+    this.leaveWar();
+    this.place = 'floor';
+    setLookBusy(this.s, true);
+    this.syncComputer();
+  }
+
+  private leaveWar() {
+    this.launcher.cancel();
+    this.drawer.close();
+    this.closet.close();
+    this.closeRolePop();
+  }
+
+  /** Shows the computer or your floor to match the game (answering the phone also sits you down). */
   private syncComputer() {
-    const on = this.s.lookBusy;
+    const busy = this.s.lookBusy;
+    if (!busy) this.place = 'pc';
+    this.floor.setOpen(busy && this.place === 'floor');
+    const on = busy && this.place === 'pc';
     const pc = $('computer');
     if (pc.hidden === !on) return;
     pc.hidden = !on;
@@ -511,7 +549,7 @@ export class UI {
     if (on) this.computer.opened();
     else {
       this.computer.closed();
-      $('hide-btn').focus();
+      if (!busy) $('hide-btn').focus();
     }
   }
 
@@ -850,6 +888,7 @@ export class UI {
     this.drawer.render();
     this.office.render();
     this.ball.render();
+    this.floor.render();
     this.delivery.render();
     this.closet.render();
     this.scene.render();
@@ -1023,6 +1062,11 @@ export class UI {
     const hb = $('hide-badge');
     hb.hidden = total === 0 || s.lookBusy;
     this.set('hide-badge', total > 9 ? '9+' : String(total));
+    this.floor.setComputerBadge(total, !!call);
+    // Your floor opens up with your first hire, with a dot when there's someone you could hire.
+    const floorBtn = $('floor-btn');
+    floorBtn.hidden = !teamUnlocked(s, 'temp');
+    floorBtn.classList.toggle('dot', TEAMS.some((t) => teamUnlocked(s, t.id) && seats(s, t.id) < seatCap(s, t.id) && s.salary >= seatCost(s, t.id)));
 
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
@@ -1138,6 +1182,7 @@ function coachHint(s: GameState): string {
   const m = mods(s);
   if (walkbyCountdown(s) !== null && !s.lookBusy) return 'Footsteps! Press Esc to get on your computer before Mr. Feeney arrives.';
   if (s.lookBusy && s.walkby.arrivesAt === null && s.suspicion < 10) return '';
+  if (teamUnlocked(s, 'temp') && seats(s, 'temp') === 0) return `You can hire people now. Go to Your floor (T) and hire ${leadName(s, TEAMS[0])}, the Temp.`;
   if (!t) return '';
   if (ringingCall(s)) return 'Your desk phone is ringing. Press W to answer: it puts you at your computer.';
   if (s.stats.shots === 0) return 'Gary started it. Flick back: press F or click Flick.';
