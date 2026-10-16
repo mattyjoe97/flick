@@ -25,6 +25,7 @@
               <option value="50">×50</option>
             </select>
           </label>
+          <button type="button" class="tool-btn floor-btn" id="map-btn" aria-keyshortcuts="M" hidden>The 4th floor <kbd>M</kbd></button>
           <button type="button" class="tool-btn floor-btn" id="floor-btn" aria-keyshortcuts="T" hidden>Your floor <kbd>T</kbd></button>
           <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false"><span class="kb">Your computer</span><span class="tp">Computer</span> <kbd>Esc</kbd><span class="hide-badge" id="hide-badge" hidden></span></button>
           <button type="button" class="icon-btn" id="sound-btn" aria-pressed="true" aria-label="Sound" title="Sound on">
@@ -176,6 +177,7 @@
         <button type="button" class="bar-btn" data-mini="order"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/></svg><span id="bar-order">Order</span></button>
         <button type="button" class="bar-btn" data-mini="closet"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><circle cx="15.5" cy="12" r="1.2"/></svg><span>Closet</span><b class="mini-badge" id="mini-closet-badge" hidden></b></button>
         <button type="button" class="bar-btn" data-mini="floor" id="bar-floor" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 20c.5-4 3-6 5.5-6s5 2 5.5 6M13 19.5c.4-3 2-4.5 3.5-4.5s3.2 1.5 3.6 4.5"/></svg><span>Floor</span><b class="mini-badge dot" id="bar-floor-dot" hidden></b></button>
+        <button type="button" class="bar-btn" data-mini="map" id="bar-map" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14"/></svg><span>Map</span><b class="mini-badge dot" id="bar-map-dot" hidden></b></button>
         <button type="button" class="bar-btn" data-mini="list"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span>List</span></button>
       </nav>
 

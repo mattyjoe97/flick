@@ -332,7 +332,8 @@ export class UI {
     $('rack').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-slot]');
       if (!b) return;
-      if (b.dataset.slot === 'more') this.closet.show(b.dataset.go);
+      if (b.dataset.slot === 'more' && b.dataset.map !== undefined) this.openMap();
+      else if (b.dataset.slot === 'more') this.closet.show(b.dataset.go);
       else this.switchWeapon(Number(b.dataset.slot));
     });
     $('shop-rows').addEventListener('click', (e) => {
@@ -362,6 +363,7 @@ export class UI {
     );
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('floor-btn').addEventListener('click', () => this.openFloor());
+    $('map-btn').addEventListener('click', () => this.openMap());
     for (const id of ['sound-btn', 'sound-btn-2'])
       $(id).addEventListener('click', () => {
         this.sound.toggle();
@@ -371,7 +373,7 @@ export class UI {
     $('app').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-mini]');
       if (!b) return;
-      const go = b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet' | 'floor' | 'list';
+      const go = b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet' | 'floor' | 'map' | 'list';
       if (go !== 'list') this.showList(false);
       ({
         scrounge: this.doScrounge,
@@ -379,6 +381,7 @@ export class UI {
         order: this.doOrder,
         closet: () => this.closet.show(),
         floor: () => this.openFloor(),
+        map: () => this.openMap(),
         list: () => this.showList(!document.body.classList.contains('list-open')),
       })[go]();
     });
@@ -649,7 +652,24 @@ export class UI {
     if (this.s.stage < 3 || this.s.lookBusy) return;
     this.showList(false);
     this.map.show();
+    if (!this.mapSeen) {
+      this.mapSeen = true;
+      try {
+        localStorage.setItem('flick.mapSeen', '1');
+      } catch {
+        /* the dot just shows again next time */
+      }
+    }
   }
+
+  /** The Map button has a dot until you've opened the map once. */
+  private mapSeen = (() => {
+    try {
+      return localStorage.getItem('flick.mapSeen') === '1';
+    } catch {
+      return false;
+    }
+  })();
 
   /** Shows the computer or your floor to match the game (answering the phone also sits you down). */
   private syncComputer() {
@@ -716,7 +736,7 @@ export class UI {
         if (e.how === 'lookout') this.bump('bands');
         if (e.how === 'lost') this.sound.miss();
       } else if (e.type === 'rebrand') this.say(this.s.ticker[0]?.text ?? '');
-      else if (e.type === 'delivery' && e.auto) this.bump('bands');
+
       else if (e.type === 'capture') this.sound.capture();
       else if (e.type === 'enemyShot') {
         this.sound.incoming();
@@ -907,7 +927,7 @@ export class UI {
       $('stage-dlg-h').textContent = 'Stage 3: Department War';
       $('stage-dlg-body').innerHTML = `
         <p>Rick is out, and the east side of Floor 4 answers to you${mins ? ` (that took ${mins} min)` : ''}. The rest of the floor does not recognize this.</p>
-        <p><strong>Four departments</strong> are left. Pick who to fight on the <strong>map</strong> (tap the nameplate${matchMedia?.('(hover: hover)').matches ? ' or press M' : ''}). Each one you take is yours for good:</p>
+        <p><strong>Four departments</strong> are left. Pick who to fight on the <strong>map</strong> (${touch() ? 'tap <b>Map</b> at the bottom' : '<b>The 4th floor</b> in the top bar, or press M'}). Each one you take is yours for good:</p>
         <ul class="stage-list">${DEPARTMENTS.map((d) => `<li><b>${esc(d.label)}:</b> ${esc(d.prize.charAt(0).toLowerCase() + d.prize.slice(1))}</li>`).join('')}</ul>
         <p>Each one you take makes the rest tougher. They’ll also raid Dale’s <strong>supply closet</strong>, which pays you bands while it’s yours: chase them off. And your old rivals still want rematches.</p>`;
     } else if (stage === 4) {
@@ -936,6 +956,17 @@ export class UI {
     $(id).textContent = value;
   }
 
+  /**
+   * A number on the status strip. The handwriting font's digits are all different widths
+   * (a 1 is half as wide as an 8), so each digit gets a slot of its own: counting up never
+   * nudges anything sideways.
+   */
+  private setNum(id: string, value: string) {
+    if (this.text.get(id) === value) return;
+    this.text.set(id, value);
+    $(id).innerHTML = value.replace(/\d/g, (d) => `<i class="dg">${d}</i>`);
+  }
+
   private rebuild(key: string, value: string, build: () => void) {
     if (this.keys.get(key) === value) return;
     this.keys.set(key, value);
@@ -959,9 +990,9 @@ export class UI {
     }
 
     // Desk
-    this.set('bands', fmt(s.bands));
+    this.setNum('bands', fmt(s.bands));
     this.set('bands-rate', m.bandsPerSec > 0 ? `+${rate(m.bandsPerSec)}/s` : '');
-    this.set('salary', money(s.salary));
+    this.setNum('salary', money(s.salary));
     this.set('salary-rate', m.salaryPerSec > 0 ? `+$${rate(m.salaryPerSec)}/s` : '');
     const grade = payGrade(s);
     const ready = reviewReady(s);
@@ -970,7 +1001,7 @@ export class UI {
     $('perf-fill').style.width = `${(share * 100).toFixed(1)}%`;
     $('perf').classList.toggle('full', ready);
     const susp = Math.min(100, s.suspicion);
-    this.set('susp-num', susp.toFixed(0));
+    this.setNum('susp-num', susp.toFixed(0));
     $('susp-bar').style.width = `${susp.toFixed(1)}%`;
     // The mug on your desk fills from y=114 (empty) to y=18 (full).
     const liquidY = 114 - 96 * (susp / 100);
@@ -1147,7 +1178,8 @@ export class UI {
       });
       if (next) {
         const label = locked || money(price);
-        slots.push(`<button type="button" class="rack-slot more${locked ? ' locked' : ''}" data-slot="more" data-go="w:${next.id}" data-price="${locked ? '' : price}"
+        const toMap = !!next.needsDept && s.stage === 3 && !deptTaken(s, next.needsDept);
+        slots.push(`<button type="button" class="rack-slot more${locked ? ' locked' : ''}" data-slot="more" data-go="w:${next.id}"${toMap ? ' data-map' : ''} data-price="${locked ? '' : price}"
           title="Next: ${esc(next.name)}, from Dale’s closet" aria-label="Next weapon: ${esc(next.name)}, ${esc(label)}"><span class="rack-plus" aria-hidden="true">+</span><img src="${GUN_ART[next.id]}" alt="" draggable="false"><span class="rack-price">${esc(locked && locked === 'Engineer' ? 'Needs Engineer' : label)}</span></button>`);
       }
       $('rack').innerHTML = slots.join('');
@@ -1265,6 +1297,12 @@ export class UI {
     floorBtn.classList.toggle('dot', canHire);
     $('bar-floor').hidden = floorBtn.hidden;
     $('bar-floor-dot').hidden = !canHire;
+    // From Stage 3: the map of the floor.
+    const war = s.stage >= 3;
+    $('map-btn').hidden = !war;
+    $('map-btn').classList.toggle('dot', war && !this.mapSeen);
+    $('bar-map').hidden = !war;
+    $('bar-map-dot').hidden = !war || this.mapSeen;
 
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
@@ -1423,12 +1461,21 @@ function coachHint(s: GameState): string {
   if (s.stats.tasksDone === 0 && s.time > 90) return 'Your computer (Esc) is where you work: emails and expense reports pay Salary, and Mr. Feeney can’t catch you there.';
   if (s.stage === 2 && w.id !== 'repeater' && s.ownedWeapons.includes('clothespin') && targetDefeated(s, 'printer'))
     return 'Assign Dave as Engineer to unlock the Binder-Clip Repeater.';
+  if (s.stage === 2 && TARGETS[s.targetIndex]?.id === 'rick' && s.ownedWeapons.includes('repeater'))
+    return 'Beat Rick and the rest of the 4th floor opens up: four departments to take, and the Drill Gatling.';
   // The Department War.
   if (s.war.closet.raid) return `${dept(s.war.closet.raid.dept).label} is raiding the supply closet! Chase them off before they get away.`;
   const fd = fightingDept(s);
   if (fd === 'accounting' && s.stats.charged < 30) return 'Doris only feels stretched shots: hold Flick and let go at full stretch.';
   if (fd === 'it' && firewallUp(s)) return 'The firewall is up: your shots do half. A good moment for a Barrage (V), which goes straight through.';
-  if (s.stage === 3 && deptsTaken(s) === 0 && s.time - (s.stats.stage2At ?? 0) < 300) return 'Tap the nameplate to open the map and pick a department. Each one you take is yours for good.';
-  if (deptTaken(s, 'it') && !s.ownedWeapons.includes('gatling')) return 'IT is yours: Dale can get you the Drill-Powered Gatling now (D).';
+  if (s.stage === 3 && deptsTaken(s) === 0 && s.time - (s.stats.stage2At ?? 0) < 300)
+    return touch() ? 'Tap Map (at the bottom) to pick a department to fight. Each one you take is yours for good.' : 'Open the map (M, or The 4th floor up top) to pick a department to fight. Each one you take is yours for good.';
+  if (s.stage === 3 && !deptTaken(s, 'it') && fightingDept(s) !== 'it' && s.ownedWeapons.includes('repeater') && s.stats.depts === 0)
+    return touch() ? 'Want the Drill Gatling? Take IT first: tap Map and pick IT.' : 'Want the Drill Gatling? Take IT first: open the map (M) and pick IT.';
+  if (deptTaken(s, 'it') && !s.ownedWeapons.includes('gatling')) {
+    if (!m.hasEngineer) return 'IT is yours. To build the Drill Gatling, make Dave (or anyone) an Engineer: tap them in the office.';
+    const price = priceOf(s, WEAPONS.find((x) => x.id === 'gatling')!.price);
+    return s.salary >= price ? 'IT is yours: Dale has the Drill-Powered Gatling for you now. Supply closet (D).' : `IT is yours: the Drill Gatling is ${money(price)} from Dale. Save up (your computer pays).`;
+  }
   return '';
 }

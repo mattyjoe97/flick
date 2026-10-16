@@ -416,13 +416,15 @@ kbd {
   box-shadow: 0 3px 8px rgba(30, 14, 4, 0.35);
 }
 
+/* Fixed columns: a number getting longer never pushes the others along. */
 .status-row {
   max-width: 1180px;
   margin: 0 auto;
   padding: 6px 20px 7px;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px 34px;
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(200px, 1.6fr) minmax(170px, 1.4fr) minmax(150px, 1fr);
+  align-items: start;
+  gap: 6px 28px;
 }
 
 .stat {
@@ -450,6 +452,7 @@ kbd {
 }
 
 .stat-num {
+  flex: none;
   font-family: var(--font-hand);
   font-weight: 700;
   font-size: 24px;
@@ -457,6 +460,19 @@ kbd {
   color: var(--pen);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  transform-origin: 0 60%;
+}
+
+/* Every digit in a slot of the same width (the handwriting font's digits aren't). */
+.stat-num .dg {
+  display: inline-block;
+  width: 0.57em;
+  text-align: center;
+  font-style: normal;
+}
+
+.stat-susp .stat-num {
+  min-width: 1.72em;
 }
 
 .stat-rate,
@@ -506,8 +522,7 @@ kbd {
 }
 
 .stat-susp {
-  flex: 1 1 200px;
-  max-width: 340px;
+  min-width: 0;
 }
 
 .susp-bar {
@@ -547,7 +562,7 @@ kbd {
 
 .stat-hr {
   position: relative;
-  flex: 0 1 260px;
+  min-width: 0;
 }
 
 .stat-hr .stat-val {
@@ -555,13 +570,14 @@ kbd {
   min-height: 25px;
 }
 
-.stat.bump {
+/* A jump in a number: the number itself gives a small pop (nothing around it moves). */
+.stat.bump .stat-num {
   animation: bump 0.28s ease-out;
 }
 
 @keyframes bump {
   40% {
-    transform: translateY(-3px) scale(1.06);
+    transform: scale(1.08);
   }
 }
 
@@ -2275,8 +2291,8 @@ kbd {
   }
   .status-row {
     padding: 5px 14px 6px;
-    gap: 4px 16px;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr) minmax(0, 1fr) auto;
+    gap: 4px 12px;
   }
   .stat-num {
     font-size: 21px;
@@ -2290,13 +2306,7 @@ kbd {
   .stat-perf {
     min-width: 0;
   }
-  .stat-susp {
-    flex: 1 1 90px;
-    max-width: 130px;
-  }
-  .stat-hr {
-    flex: 0 0 auto;
-  }
+
   .my-desk {
     padding: 0;
     border: 0;
@@ -5479,6 +5489,7 @@ body.at-computer .desk-box.bulk {
   .clock-week,
   #sound-btn,
   #floor-btn,
+  #map-btn,
   .kb,
   kbd {
     display: none !important;

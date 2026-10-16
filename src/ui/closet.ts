@@ -445,7 +445,7 @@ export class ClosetView {
       if (isConfiscated(s, w.id)) act = `<p class="tag-note">In Mr. Feeney's drawer</p>`;
       else if (s.weapon === w.id) act = `<span class="stamp blue">Equipped</span>`;
       else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
-      else if (w.stage > s.stage) act = `<p class="tag-note">Stage ${w.stage}</p>`;
+      else if (w.stage > s.stage) act = `<p class="tag-note">${w.needsDept ? 'Stage 3: beat Rick, then take IT on the map. IT has the parts.' : `Stage ${w.stage}`}</p>`;
       else if (!weaponAvailable(s, w.id)) act = '<p class="tag-note">IT has the parts. Take IT first (on the map).</p>';
       else if (w.needsEngineer && !mods(s).hasEngineer) act = `<p class="tag-note">Needs someone assigned as Engineer to build it</p>`;
       else act = `${dealBtn(onDeal)}<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}">Buy ${money(price)}</button>`;
