@@ -322,6 +322,9 @@ export class UI {
 
     // No long-press menus on the things you hold.
     for (const el of [$('flick-btn'), $('scene'), $('desk-front'), $('key-row')]) el.addEventListener('contextmenu', (e) => e.preventDefault());
+    // On iPhones a long press still brings up the text magnifier unless the touch itself
+    // is cancelled. Flick and the office work on pointer events, so they don't need it.
+    for (const el of [$('flick-btn'), $('scene')]) el.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
     // Hold the Flick key (or your hand) to stretch the band; let go to fire.
     for (const el of [$('flick-btn'), $('scene')]) {
       el.addEventListener('pointerdown', (e) => {

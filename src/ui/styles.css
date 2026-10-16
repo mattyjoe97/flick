@@ -91,6 +91,12 @@ textarea {
   color: inherit;
 }
 
+/* Quick taps (petting Bailey, winding the ball) must never zoom the page on a double
+   tap. Pinch-to-zoom still works. */
+html {
+  touch-action: manipulation;
+}
+
 /* It's a game: holding a key or the office must never select text or pop up the
    phone's long-press menu. Text you type (and your save) can still be selected. */
 body {
