@@ -78,7 +78,7 @@ const EVENT_LINES: Record<string, Line[]> = {
     { id: 'up6', from: 'Gary', text: 'they gave you a bigger chair didn’t they. I can tell' },
   ],
   // Team leads talk as '@<team>' so a rename shows up everywhere (see chatName).
-  'hired:temp': [{ id: 'h1', from: '@temp', text: 'ok I’m in. which stapler is the good one. also Muffins is under your desk, don’t step on her', replies: [{ text: 'the red one', then: 'cool. it’s mine now' }, { text: 'Muffins??', then: 'she’s a cat. she has a badge. it’s fine' }] }],
+  'hired:temp': [{ id: 'h1', from: '@temp', text: 'ok I’m in. which stapler is the good one. also Muffins is under your desk, don’t step on him', replies: [{ text: 'the red one', then: 'cool. it’s mine now' }, { text: 'Muffins??', then: 'he’s a cat. he has a badge. it’s fine' }] }],
   'hired:receptionist': [{ id: 'h2', from: '@receptionist', text: 'Front desk is staffed! I’ll put the important calls through. Joey says hi.', replies: [{ text: 'hi Joey', then: 'he wagged. that’s a yes' }, { text: 'is Joey allowed here?', then: 'he has a lanyard now, so yes' }] }],
   'hired:bookkeeper': [{ id: 'h3', from: '@bookkeeper', text: 'I have reviewed your expense history. We should talk.', replies: [{ text: 'about what?', then: 'Rubber bands. 400,000 of them.' }, { text: 'no we shouldn’t', then: 'Understood. I have made a note.' }] }],
   'hired:analyst': [{ id: 'h4', from: '@analyst', text: 'Ran the numbers. This team is 14% more efficient with me on it. You’re welcome.' }],

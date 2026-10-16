@@ -21,7 +21,7 @@ export const MOMENT_TEXT: Record<MomentKind, { title: string; text: string; grab
   bonus: { title: 'Spot bonuses!', text: 'Mr. Feeney is handing out envelopes. Look busy.', grab: 'Take one' },
   coffee: { title: 'Fresh pot of coffee', text: 'Your work pays double for a bit.', grab: 'Pour a cup' },
   bailey: { title: 'Bailey found something', text: 'She’s very proud of it. Go see.', grab: 'Good girl!' },
-  muffins: { title: 'Muffins is on a desk', text: 'Across the aisle, eyeing a stapler.', grab: 'Let her' },
+  muffins: { title: 'Muffins is on a desk', text: 'Across the aisle, eyeing a stapler.', grab: 'Let him' },
   joey: { title: 'Joey has a tennis ball', text: 'Mr. Feeney looks… interested.', grab: 'Throw it' },
 };
 
