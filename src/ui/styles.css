@@ -6025,7 +6025,7 @@ button.dept:focus-visible {
 .dept-scene {
   position: relative;
   display: block;
-  aspect-ratio: 336 / 208;
+  aspect-ratio: 352 / 212;
   border: 2px solid var(--ink);
   border-radius: 6px;
   overflow: hidden;
@@ -6044,10 +6044,56 @@ button.dept:focus-visible {
 
 .dept-flag {
   position: absolute;
-  right: 4%;
-  top: 6%;
-  width: 34%;
+  right: 3%;
+  top: 4%;
+  width: 26%;
   filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+/* A department surrenders: the white flag goes up over their barricade. */
+.flag-pop {
+  position: absolute;
+  z-index: 3;
+  width: 13%;
+  transform: translate(-6%, -98%);
+  transform-origin: 6% 98%;
+  pointer-events: none;
+  filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, 0.35));
+  animation: flag-pop 2.2s ease-out forwards;
+}
+
+@keyframes flag-pop {
+  0% {
+    transform: translate(-6%, -40%) rotate(-30deg);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-6%, -98%) rotate(6deg);
+    opacity: 1;
+  }
+  30%,
+  40%,
+  50% {
+    transform: translate(-6%, -98%) rotate(-6deg);
+  }
+  35%,
+  45% {
+    transform: translate(-6%, -98%) rotate(6deg);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-6%, -98%) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flag-pop {
+    animation-duration: 1.6s;
+    animation-name: fade-out;
+  }
 }
 
 .dept-who {
@@ -6326,4 +6372,13 @@ button.dept:focus-visible {
 /* Money floating off the nameplate stays behind the map. */
 body.in-map .money-floater {
   display: none;
+}
+
+@keyframes fade-out {
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

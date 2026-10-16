@@ -67,7 +67,7 @@ export const PEOPLE: Record<string, Person> = {
   steve: { skin: '#e0ac83', hair: '#6b4a2e', style: 'short', shirt: '#e8e3d8', tie: '#556b2f', headset: true },
   linda: { skin: '#8d5a3b', hair: '#1f1b18', style: 'bob', shirt: '#2e7d6b', earrings: true, rest: 'smug' },
   dave: { skin: '#f2c9a5', hair: '#3b2a1e', style: 'short', shirt: '#555d66', glasses: 'square', beard: true, hoodie: true },
-  // The department bosses: stand-ins until their painted portraits arrive.
+  // The department bosses (their painted portraits are used; the drawing is only a fallback).
   derek: {
     skin: '#f1dccb', hair: '#3b2a1e', style: 'slick', shirt: '#2b2d31', hoodie: true, glasses: 'square', beard: true, lanyard: '#1d1f22', rest: 'smug',
     lines: {

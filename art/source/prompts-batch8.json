@@ -1,0 +1,680 @@
+{
+  "game": "FLICK",
+  "batch": 8,
+  "assets": [
+    {
+      "file": "176_derek_idle.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. One new head-and-shoulders bust, facing the viewer absolutely STRAIGHT ON, shoulders square, ears equally visible, head upright with no tilt or yaw; natural forward parallel gaze. 1024x1280 portrait canvas. Exact intended registration: face center (512,620), pupil line y560, chin y760, outer ears x332 and692 (360px ear-to-ear); head top around y315; generous transparent air across top 265px. All hair, accessories and clothes within x60..960; torso widens toward bottom, cropped only at the BOTTOM edge, no hands. The references are STYLE references only: draw the described new character, not a copy of the references. SUBJECT: DEREK VOSS, IT Systems Administrator: man in his late30s, very pale skin, long straight dark-brown hair combed back into a LOW PONYTAIL HIDDEN behind his head (long slicked-back hair, not a short haircut); a short scruffy dark goatee, thick black rectangular glasses with ONE small flat pale-blue screen-glare shape in each lens, eyes still clearly visible. Black zip-up hoodie OPEN over plain dark-grey T-shirt. A black lanyard crowded with ONE blank white keycard and EXACTLY THREE separate small USB sticks, each with a tiny silver plug end, clearly visible. Idle expression smug and half-lidded, one eyebrow raised, thin one-sided closed-mouth smirk.",
+      "reference_assets": [
+        "50_gary_idle.png",
+        "143_analyst_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "revisions": [
+        {
+          "source_file": "176_derek_idle_corrected.png",
+          "prompt": "Precisely edit this FLICK Derek portrait. Keep its detailed crisp cartoon rendering, same clothes, glasses, ONE white keycard and exactly THREE USB sticks. Correct only these points: 1) Derek's skin is VERY PALE ivory, cool light skin, visibly paler than Gary, not tan or peach; retain clear flat cel-shadow shapes and tiny flat highlights. 2) The low ponytail is entirely HIDDEN behind his head: remove the brown tail protruding beside the left neck/shoulder, keep long slicked-back dark-brown hair on his head. 3) Face squarely straight forward with no head yaw: nose bridge, mouth and chin centered, eyes looking naturally forward. Keep the smug half-lidded eyes, raised eyebrow and thin one-sided smirk. Same goatee, same large transparent top margin, same bust framing and transparent PNG background. Everything else unchanged. No text or logos.",
+          "reference_assets": [
+            "176_derek_idle.png"
+          ]
+        }
+      ],
+      "scripted_finishing": {
+        "source": "176_derek_idle_corrected.png",
+        "source_landmarks": {
+          "center_x": 560,
+          "eye_y": 605,
+          "chin_y": 851,
+          "ear_width": 420
+        },
+        "scale": [
+          0.8571428571428571,
+          0.8130081300813008
+        ],
+        "translation": [
+          32.0,
+          68.130081300813
+        ],
+        "registration": {
+          "face_center": [
+            512,
+            620
+          ],
+          "eye_pupils_y": 560,
+          "chin_y_approx": 760,
+          "outer_ear_x": [
+            332,
+            692
+          ]
+        },
+        "finishing": "Alpha cleanup and one resample per source region; no image blur or palette reduction."
+      }
+    },
+    {
+      "file": "177_derek_hit.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK derek portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Eyes SQUEEZED SHUT in tight curved lines, mouth OPEN in a vertical oval for a silent startled OW, ONE small red welt on the visible forehead. No tears, no sweat, no words or sound lines. Keep all glasses, earpieces and facial hair, with squeezed-shut eyes clearly visible through any glasses. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "176_derek_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "176_derek_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "178_derek_angry.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK derek portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: STRONGLY furrowed brows, glaring forward eyes and a clearly visible strip of GRITTED TEETH in a tense angry mouth. No red welt, no sweat, no extra effects. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "176_derek_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "176_derek_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "179_derek_worried.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK derek portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Raised brows pinched together, WIDE WORRIED eyes looking forward with natural parallel gaze, a nervous wobbly CLOSED mouth, and exactly ONE small pale-blue sweat bead on the temple on the RIGHT side of the image, within the face silhouette beside the glasses. No red welt. No second bead. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "176_derek_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "176_derek_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "180_doris_idle.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. One new head-and-shoulders bust, facing the viewer absolutely STRAIGHT ON, shoulders square, ears equally visible, head upright with no tilt or yaw; natural forward parallel gaze. 1024x1280 portrait canvas. Exact intended registration: face center (512,620), pupil line y560, chin y760, outer ears x332 and692 (360px ear-to-ear); head top around y315; generous transparent air across top 265px. All hair, accessories and clothes within x60..960; torso widens toward bottom, cropped only at the BOTTOM edge, no hands. The references are STYLE references only: draw the described new character, not a copy of the references. SUBJECT: DORIS KEMPER, Accounting Controller: East Asian woman in her early60s, mature realistic adult facial proportions, sharp chin-length silver-grey bob with BLUNT STRAIGHT BANGS, thin red cat-eye glasses, small pearl stud earrings. Structured navy blazer with sharply tailored shoulders over a cream blouse with a neat bow at the collar. Idle expression thin pressed lips, one eyebrow raised above the glasses, flat unimpressed auditor stare. Glasses permit clearly visible eyes.",
+      "reference_assets": [
+        "50_gary_idle.png",
+        "143_analyst_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "180_doris_idle.png",
+        "source_landmarks": {
+          "center_x": 560,
+          "eye_y": 660,
+          "chin_y": 886,
+          "ear_width": 390
+        },
+        "scale": [
+          0.9230769230769231,
+          0.8849557522123894
+        ],
+        "translation": [
+          -4.923076923076906,
+          -24.070796460177007
+        ],
+        "registration": {
+          "face_center": [
+            512,
+            620
+          ],
+          "eye_pupils_y": 560,
+          "chin_y_approx": 760,
+          "outer_ear_x": [
+            332,
+            692
+          ]
+        },
+        "finishing": "Alpha cleanup and one resample per source region; no image blur or palette reduction."
+      }
+    },
+    {
+      "file": "181_doris_hit.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK doris portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Eyes SQUEEZED SHUT in tight curved lines, mouth OPEN in a vertical oval for a silent startled OW, ONE small red welt on the visible forehead. No tears, no sweat, no words or sound lines. Keep all glasses, earpieces and facial hair, with squeezed-shut eyes clearly visible through any glasses. Keep the blunt bangs fixed; the forehead welt or sweat must fit in visible skin, not on the hair. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "180_doris_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "180_doris_idle.png",
+        "expression_alignment_translation": [
+          0,
+          1
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "182_doris_angry.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK doris portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: STRONGLY furrowed brows, glaring forward eyes and a clearly visible strip of GRITTED TEETH in a tense angry mouth. No red welt, no sweat, no extra effects. Keep the blunt bangs fixed; the forehead welt or sweat must fit in visible skin, not on the hair. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "180_doris_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "180_doris_idle.png",
+        "expression_alignment_translation": [
+          -1,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "183_doris_worried.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK doris portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Raised brows pinched together, WIDE WORRIED eyes looking forward with natural parallel gaze, a nervous wobbly CLOSED mouth, and exactly ONE small pale-blue sweat bead on the temple on the RIGHT side of the image, within the face silhouette beside the glasses. No red welt. No second bead. Keep the blunt bangs fixed; the forehead welt or sweat must fit in visible skin, not on the hair. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "180_doris_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "180_doris_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "184_tony_idle.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. One new head-and-shoulders bust, facing the viewer absolutely STRAIGHT ON, shoulders square, ears equally visible, head upright with no tilt or yaw; natural forward parallel gaze. 1024x1280 portrait canvas. Exact intended registration: face center (512,620), pupil line y560, chin y760, outer ears x332 and692 (360px ear-to-ear); head top around y315; generous transparent air across top 265px. All hair, accessories and clothes within x60..960; torso widens toward bottom, cropped only at the BOTTOM edge, no hands. The references are STYLE references only: draw the described new character, not a copy of the references. SUBJECT: BIG TONY, Mailroom Supervisor: huge barrel-chested man mid50s, olive skin, salt-and-pepper BUZZ CUT, heavy dark brows, slightly crooked boxer's nose, dark stubble on a BIG SQUARE JAW, very thick neck. One thin wooden TOOTHPICK at the corner of his mouth tilted up (must be visible). Short-sleeved light-grey work shirt under a heavy tan CANVAS WORK APRON. Exactly THREE tan rubber bands looped tightly around ONE apron SHOULDER STRAP. Massive broad shoulders, widest in cast but within x60..960. Idle expression heavy-lidded and completely unbothered. Head upright frontal, no hands.",
+      "reference_assets": [
+        "50_gary_idle.png",
+        "143_analyst_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "184_tony_idle.png",
+        "source_landmarks": {
+          "center_x": 561,
+          "eye_y": 560,
+          "chin_y": 831,
+          "ear_width": 434
+        },
+        "scale": [
+          0.8294930875576036,
+          0.7380073800738007
+        ],
+        "translation": [
+          46.65437788018437,
+          146.71586715867159
+        ],
+        "registration": {
+          "face_center": [
+            512,
+            620
+          ],
+          "eye_pupils_y": 560,
+          "chin_y_approx": 760,
+          "outer_ear_x": [
+            332,
+            692
+          ]
+        },
+        "finishing": "Alpha cleanup and one resample per source region; no image blur or palette reduction."
+      }
+    },
+    {
+      "file": "185_tony_hit.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK tony portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Eyes SQUEEZED SHUT in tight curved lines, mouth OPEN in a vertical oval for a silent startled OW, ONE small red welt on the visible forehead. No tears, no sweat, no words or sound lines. Keep all glasses, earpieces and facial hair, with squeezed-shut eyes clearly visible through any glasses. ESSENTIAL: retain the wooden TOOTHPICK in the mouth corner in this expression; do not remove it. Retain stubble, square jaw and crooked nose. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "184_tony_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "184_tony_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "186_tony_angry.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK tony portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: STRONGLY furrowed brows, glaring forward eyes and a clearly visible strip of GRITTED TEETH in a tense angry mouth. No red welt, no sweat, no extra effects. ESSENTIAL: retain the wooden TOOTHPICK in the mouth corner in this expression; do not remove it. Retain stubble, square jaw and crooked nose. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "184_tony_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "184_tony_idle.png",
+        "expression_alignment_translation": [
+          0,
+          3
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "187_tony_worried.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK tony portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Raised brows pinched together, WIDE WORRIED eyes looking forward with natural parallel gaze, a nervous wobbly CLOSED mouth, and exactly ONE small pale-blue sweat bead on the temple on the RIGHT side of the image, within the face silhouette beside the glasses. No red welt. No second bead. ESSENTIAL: retain the wooden TOOTHPICK in the mouth corner in this expression; do not remove it. Retain stubble, square jaw and crooked nose. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "184_tony_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "184_tony_idle.png",
+        "expression_alignment_translation": [
+          0,
+          1
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "188_skyler_idle.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. One new head-and-shoulders bust, facing the viewer absolutely STRAIGHT ON, shoulders square, ears equally visible, head upright with no tilt or yaw; natural forward parallel gaze. 1024x1280 portrait canvas. Exact intended registration: face center (512,620), pupil line y560, chin y760, outer ears x332 and692 (360px ear-to-ear); head top around y315; generous transparent air across top 265px. All hair, accessories and clothes within x60..960; torso widens toward bottom, cropped only at the BOTTOM edge, no hands. The references are STYLE references only: draw the described new character, not a copy of the references. SUBJECT: SKYLER BRANDT, Marketing Brand Lead: woman late20s, deep brown skin, short bleached PLATINUM-BLONDE TIGHT CURLS cropped close at the sides, oversized round TORTOISESHELL glasses, small gold hoop earrings, ONE plain white wireless earbud visible. Mustard-yellow turtleneck under oversized cream blazer. Idle expression bright performative smile SHOWING TEETH, eyebrows lifted. Head upright frontal, clear eyes looking toward viewer. Adult facial proportions, not a child.",
+      "reference_assets": [
+        "50_gary_idle.png",
+        "143_analyst_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "revisions": [
+        {
+          "source_file": "188_skyler_idle_corrected.png",
+          "prompt": "Precise single-material color edit. Change ONLY all visible skin of this exact FLICK portrait (face, both ears and neck) to a deep warm chocolate BROWN skin tone, approximately #70462F base with #513322 cel-shade and a small #986644 highlight. This character is a dark-skinned Black woman, not medium tan. Preserve EXACTLY the existing face shape, expression, eye gaze, all shapes and crisp detail. Preserve the platinum-blonde curls and all hair edges, tortoiseshell glasses, gold hoops, white earbud, mustard turtleneck, cream blazer and canvas registration pixel-identically. No other changes. Flat clean cartoon fills with one cel-shade; no texture or gradient. Transparent PNG, no text.",
+          "reference_assets": [
+            "188_skyler_idle.png"
+          ]
+        }
+      ],
+      "scripted_finishing": {
+        "source": "188_skyler_idle.png",
+        "source_landmarks": {
+          "center_x": 560,
+          "eye_y": 594,
+          "chin_y": 833,
+          "ear_width": 434
+        },
+        "scale": [
+          0.8294930875576036,
+          0.8368200836820083
+        ],
+        "translation": [
+          47.48387096774195,
+          62.92887029288704
+        ],
+        "registration": {
+          "face_center": [
+            512,
+            620
+          ],
+          "eye_pupils_y": 560,
+          "chin_y_approx": 760,
+          "outer_ear_x": [
+            332,
+            692
+          ]
+        },
+        "finishing": "Alpha cleanup and one resample per source region; no image blur or palette reduction."
+      }
+    },
+    {
+      "file": "189_skyler_hit.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK skyler portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Eyes SQUEEZED SHUT in tight curved lines, mouth OPEN in a vertical oval for a silent startled OW, ONE small red welt on the visible forehead. No tears, no sweat, no words or sound lines. Keep all glasses, earpieces and facial hair, with squeezed-shut eyes clearly visible through any glasses. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "188_skyler_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "188_skyler_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "190_skyler_angry.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK skyler portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: STRONGLY furrowed brows, glaring forward eyes and a clearly visible strip of GRITTED TEETH in a tense angry mouth. No red welt, no sweat, no extra effects. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "188_skyler_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "188_skyler_idle.png",
+        "expression_alignment_translation": [
+          -6,
+          5
+        ],
+        "head_scale_correction": [
+          0.83,
+          0.84
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "191_skyler_worried.png",
+      "prompt": "FACE-ONLY EDIT of the supplied FLICK skyler portrait. The image is the exact master: preserve its dimensions, framing, every pixel of hair, ears, glasses shape, earrings, earbuds, neck, clothing, lanyards and other accessories. Head straight-on, same location and size; torso and transparent air unchanged. Preserve crisp detailed flat cartoon drawing and all its colors; no smoothing, blur or restyling. Change ONLY the face to this expression: Raised brows pinched together, WIDE WORRIED eyes looking forward with natural parallel gaze, a nervous wobbly CLOSED mouth, and exactly ONE small pale-blue sweat bead on the temple on the RIGHT side of the image, within the face silhouette beside the glasses. No red welt. No second bead. Transparent RGBA PNG, 1024x1280. No text, logos, background, cast shadow or border.",
+      "reference_assets": [
+        "188_skyler_idle.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "188_skyler_idle.png",
+        "expression_alignment_translation": [
+          0,
+          0
+        ],
+        "outside_face_changed_pixels": 0,
+        "method": "Register the generated face to the idle master, composite only inside the recorded face polygon, restore all pixels outside it verbatim; no global blur or palette reduction."
+      }
+    },
+    {
+      "file": "192_cover_it.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. Landscape 1400x800. One single joined desk barricade, frontal elevation STRAIGHT ON AT EYE LEVEL, NO top-down view and no three-quarter perspective. Invisible desktop baseline at y780; no actual desk, background or shadow. Horizontal alpha bounds approximately x100..1300 (1200px wide), centered x700. Scale matches a 360px-wide human head; a chunky CRT is about420px wide. U-shaped silhouette: tall left and right end towers can reach y60; ALL content in the MIDDLE x500..900 must stay at y340 or LOWER (clear transparent upper-middle rectangle). This is essential so the portrait behind can peek over. Entire object fits, generous transparent margin. Do not draw the boss or any people. CONTENT: Old IT computer junk: left end x90..490 a tower of TWO beige chunky CRT monitors stacked vertically; right end x910..1310 another tower of TWO beige CRT monitors. Four monitors total, dark-grey screens each with ONE faint thin green horizontal scan-line; no text or symbols. In the LOW middle x500..900 a row of grey rack-mounted network switches with tiny green and amber LED DOTS ONLY, beige desktop computer towers lying on their sides beneath. Big tangle of blue and grey network cables draping across the front and spilling down to baseline y780. Everything front-facing, CRT screens rectangular and directly face viewer.",
+      "reference_assets": [
+        "111_keyboard.png",
+        "149_band_ball_3.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source_bbox": [
+          62,
+          136,
+          1598,
+          855
+        ],
+        "desk_line_y": 780,
+        "center_x": 700,
+        "middle_clear_rectangle": [
+          500,
+          0,
+          901,
+          340
+        ],
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "reference_crt_width_px_approx": 420
+        },
+        "source_horizontal_knots": [
+          62,
+          560,
+          1090,
+          1598
+        ],
+        "destination_horizontal_knots": [
+          80,
+          500,
+          901,
+          1320
+        ],
+        "top_y": 81,
+        "finishing": "Source alpha cleanup, full-detail resampling and baseline registration. No texture filters."
+      }
+    },
+    {
+      "file": "193_cover_accounting.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. Landscape 1400x800. One single joined desk barricade, frontal elevation STRAIGHT ON AT EYE LEVEL, NO top-down view and no three-quarter perspective. Invisible desktop baseline at y780; no actual desk, background or shadow. Horizontal alpha bounds approximately x100..1300 (1200px wide), centered x700. Scale matches a 360px-wide human head; a chunky CRT is about420px wide. U-shaped silhouette: tall left and right end towers can reach y60; ALL content in the MIDDLE x500..900 must stay at y340 or LOWER (clear transparent upper-middle rectangle). This is essential so the portrait behind can peek over. Entire object fits, generous transparent margin. Do not draw the boss or any people. CONTENT: Accounting fortress: a continuous wall of dark-green, black and burgundy ring binders. Low middle has horizontal stacks of flat binders, blank spines. Both ends have taller towers of upright binders like castle turrets, NO spine labels. On the RIGHT end tower a beige printing adding machine with blank buttons and a long CURL of absolutely blank off-white paper tape spilling down its front; no printed marks. On the LEFT tower a cup full of sharpened yellow pencils. Clear low center below y340; all tall props on ends only.",
+      "reference_assets": [
+        "111_keyboard.png",
+        "149_band_ball_3.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source_bbox": [
+          61,
+          68,
+          1632,
+          852
+        ],
+        "desk_line_y": 780,
+        "center_x": 700,
+        "middle_clear_rectangle": [
+          500,
+          0,
+          901,
+          340
+        ],
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "reference_crt_width_px_approx": 420
+        },
+        "source_horizontal_knots": [
+          61,
+          1632
+        ],
+        "destination_horizontal_knots": [
+          80,
+          1320
+        ],
+        "top_y": 60,
+        "finishing": "Source alpha cleanup, full-detail resampling and baseline registration. No texture filters."
+      }
+    },
+    {
+      "file": "194_cover_mailroom.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. Landscape 1400x800. One single joined desk barricade, frontal elevation STRAIGHT ON AT EYE LEVEL, NO top-down view and no three-quarter perspective. Invisible desktop baseline at y780; no actual desk, background or shadow. Horizontal alpha bounds approximately x100..1300 (1200px wide), centered x700. Scale matches a 360px-wide human head; a chunky CRT is about420px wide. U-shaped silhouette: tall left and right end towers can reach y60; ALL content in the MIDDLE x500..900 must stay at y340 or LOWER (clear transparent upper-middle rectangle). This is essential so the portrait behind can peek over. Entire object fits, generous transparent margin. Do not draw the boss or any people. CONTENT: Mailroom supply fortress: LEFT end a grey metal-framed canvas mail hamper cart on castor wheels, heaped far above its rim with a large mountain of loose ordinary tan rubber-band loops. RIGHT end a tall stack of brown cardboard parcels, each wrapped crosswise with tan rubber bands (NOT printed tape), no shipping labels. Bridging LOW middle: row of grey plastic mail trays filled with plain off-white envelopes, no writing or stamps. Hamper wheels, trays and parcels meet the invisible desktop line; preserve clear space above the low center.",
+      "reference_assets": [
+        "111_keyboard.png",
+        "149_band_ball_3.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source_bbox": [
+          19,
+          60,
+          1639,
+          878
+        ],
+        "desk_line_y": 780,
+        "center_x": 700,
+        "middle_clear_rectangle": [
+          500,
+          0,
+          901,
+          340
+        ],
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "reference_crt_width_px_approx": 420
+        },
+        "source_horizontal_knots": [
+          19,
+          1639
+        ],
+        "destination_horizontal_knots": [
+          80,
+          1320
+        ],
+        "top_y": 60,
+        "finishing": "Source alpha cleanup, full-detail resampling and baseline registration. No texture filters."
+      }
+    },
+    {
+      "file": "195_cover_marketing.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. Landscape 1400x800. One single joined desk barricade, frontal elevation STRAIGHT ON AT EYE LEVEL, NO top-down view and no three-quarter perspective. Invisible desktop baseline at y780; no actual desk, background or shadow. Horizontal alpha bounds approximately x100..1300 (1200px wide), centered x700. Scale matches a 360px-wide human head; a chunky CRT is about420px wide. U-shaped silhouette: tall left and right end towers can reach y60; ALL content in the MIDDLE x500..900 must stay at y340 or LOWER (clear transparent upper-middle rectangle). This is essential so the portrait behind can peek over. Entire object fits, generous transparent margin. Do not draw the boss or any people. CONTENT: Marketing barricade: LEFT end a tall ring light on thin black tabletop tripod, ring luminous warm-white flat fill without glow haze. LOW middle an open silver laptop viewed directly from BACK, lid covered in a handful of plain colorful ROUND and STAR-shaped stickers, no logos, no letters; a tall clear plastic cup of iced cold brew with GREEN straw next to laptop, keeping cup and straw below y340. RIGHT end a white foam-core presentation board on small tabletop easel, colorful blank sticky notes and paint-swatch cards arranged on the board, absolutely no writing, plus a small potted succulent beside its foot. All objects connected into low desk barricade composition; no desks.",
+      "reference_assets": [
+        "111_keyboard.png",
+        "149_band_ball_3.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source_bbox": [
+          47,
+          100,
+          1637,
+          901
+        ],
+        "desk_line_y": 780,
+        "center_x": 700,
+        "middle_clear_rectangle": [
+          500,
+          0,
+          901,
+          340
+        ],
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "reference_crt_width_px_approx": 420
+        },
+        "source_horizontal_knots": [
+          47,
+          1637
+        ],
+        "destination_horizontal_knots": [
+          80,
+          1320
+        ],
+        "top_y": 60,
+        "finishing": "Source alpha cleanup, full-detail resampling and baseline registration. No texture filters."
+      }
+    },
+    {
+      "file": "196_white_flag.png",
+      "prompt": "FLICK game asset. Clean crisp flat 2D vector cartoon matching the attached FLICK cast, bold even dark-brown outlines #332A24, roughly 12px on a 1024px canvas. Warm muted colors, flat fills, one clean cel-shade shape and one small flat highlight per shape, upper-left light. Detailed confident character drawing, adult proportions, never chibi. No blur, texture, gradients, photorealism, 3D, background, floor, cast shadow or frame. Absolutely NO letters, numbers, words, labels, logos, brand marks or watermarks anywhere. Truly transparent RGBA PNG. A single surrender flag for an office rubber-band war: a slightly crumpled off-white handkerchief with a few clean flat wrinkle shapes, tied by ONE corner near the TOP of a 12-inch wooden ruler used as a flagpole. Wooden ruler has short measurement tick marks ONLY, absolutely NO numbers or letters. The ruler leans precisely about15 degrees to the RIGHT from vertical, bottom-end center at (230,620) on a 640x640 square canvas, top near (365,110). Handkerchief flows from the knot towards the RIGHT with a soft waving edge. Entire handkerchief and ruler fit with margins except bottom is close to y620. No hand, no person, no scenery, no shadow. Outline about7px.",
+      "reference_assets": [
+        "111_keyboard.png"
+      ],
+      "generation": "Built-in ImageGen",
+      "transparent_background": true,
+      "requested_size": [
+        640,
+        640
+      ],
+      "scripted_finishing": {
+        "ruler_bottom_end_point": [
+          230,
+          620
+        ],
+        "ruler_lean_degrees_right": 15,
+        "source_anchor": [
+          326.0,
+          1202.0
+        ],
+        "source_axis_top": [
+          546.0,
+          136.0
+        ],
+        "source_angle_degrees": 11.660929254953988,
+        "rotation_clockwise_degrees": 3.339070745046012,
+        "uniform_scale": 0.4434138152777594,
+        "finishing": "Source alpha cleanup and a single affine resample about the recorded ruler anchor."
+      }
+    }
+  ]
+}

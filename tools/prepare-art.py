@@ -441,6 +441,29 @@ closet_art["pets"] = pet_art
 closet_art["idBadge"] = {"w": 320, "h": 500, "photo": [70, 125, 180, 225]}
 print("batch 7 done", pet_art)
 
+# ---------------------------------------------------------------- batch 8: the Department War
+#
+# The four barricades share one canvas (1400 x 800, at the portraits' scale, resting on a
+# desk line at y=780), so they share one crop and the game places them all the same way.
+# `middle` is how high each one comes up in the middle (where the boss's face shows).
+b8 = {a["file"]: a for a in json.loads((SRC / "asset-manifest-batch8.json").read_text())["assets"]}
+cover_stems = {"it": "192_cover_it", "accounting": "193_cover_accounting", "mailroom": "194_cover_mailroom", "marketing": "195_cover_marketing"}
+cims = {k: Image.open(SRC / f"{st}.png").convert("RGBA") for k, st in cover_stems.items()}
+cbxs = [solid_box(im, 4) for im in cims.values()]
+cbox = (min(b[0] for b in cbxs), min(b[1] for b in cbxs), max(b[2] for b in cbxs), max(b[3] for b in cbxs))
+middle = {}
+for k, im in cims.items():
+    csize, cr = save_fit(im, cbox, 760, f"cover-{k}")
+    mid = im.crop((500, 0, 901, im.height)).getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox()
+    middle[k] = mid[1] if mid else 780
+closet_art["covers"] = {"w": csize[0], "h": csize[1], "box": list(cbox), "desk": 780, "centerX": 700, "middle": middle}
+flag = Image.open(SRC / "196_white_flag.png").convert("RGBA")
+fbox = solid_box(flag, 4)
+fsize, fr = save_fit(flag, fbox, 256, "white-flag")
+fb = b8["196_white_flag.png"]["registration"]["ruler_bottom_end_point"]
+closet_art["flag"] = {"w": fsize[0], "h": fsize[1], "foot": [round((fb[0] - fbox[0]) / (fbox[2] - fbox[0]), 4), round((fb[1] - fbox[1]) / (fbox[3] - fbox[1]), 4)]}
+print("batch 8 done", closet_art["covers"], closet_art["flag"])
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
@@ -448,7 +471,7 @@ print("batch 7 done", pet_art)
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
 faces = sorted(
-    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162)),
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191)),
     key=lambda f: int(f.stem.split("_")[0]),
 )
 # The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would

@@ -8,7 +8,8 @@ import { drawPerson, PEOPLE, type Mood } from './characters';
 import { PORTRAIT, PORTRAITS } from './portrait-art';
 
 /** Bust-box units per source pixel: painted heads come out about as big as the drawn ones. */
-const U = 0.19;
+export const PORTRAIT_UNIT = 0.19;
+const U = PORTRAIT_UNIT;
 
 const [X0, Y0, X1, Y1] = PORTRAIT.crop;
 const BOX = {

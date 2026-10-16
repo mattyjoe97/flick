@@ -9,7 +9,13 @@ import { mods } from '../sim/mods';
 import { firewallUp } from '../sim/war';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
-import { portrait, portraitStack, setPortraitMood, warmPortraits } from './portraits';
+import { PORTRAIT_UNIT, portrait, portraitStack, setPortraitMood, warmPortraits } from './portraits';
+import { CLOSET_ART } from './portrait-art';
+import coverIt from '../assets/art/cover-it.webp';
+import coverAccounting from '../assets/art/cover-accounting.webp';
+import coverMailroom from '../assets/art/cover-mailroom.webp';
+import coverMarketing from '../assets/art/cover-marketing.webp';
+import whiteFlag from '../assets/art/white-flag.webp';
 
 const W = 800;
 const H = 420;
@@ -235,7 +241,7 @@ export class Scene {
     this.enterAt = performance.now();
     this.nextDuck = performance.now() + 7000;
     this.drawPeople(true);
-    this.coverLayer.innerHTML = cover(id);
+    this.coverLayer.innerHTML = coverSvg(id);
     this.bubble.hidden = true;
   }
 
@@ -314,6 +320,17 @@ export class Scene {
     } else if (e.type === 'review') {
       this.angryUntil = now + 1500;
       this.say('Let’s set up a quick performance review.', 2400);
+    } else if (e.type === 'deptTaken') {
+      // The white flag goes up over their barricade.
+      const at = this.pct(470, 150);
+      const img = document.createElement('img');
+      img.className = 'flag-pop';
+      img.src = whiteFlag;
+      img.alt = '';
+      img.style.left = `${at.left}%`;
+      img.style.top = `${at.top}%`;
+      this.fx.append(img);
+      setTimeout(() => img.remove(), 2300);
     } else if (e.type === 'rebrand') {
       this.say('Exciting news: I’m rebranding!', 2400);
     } else if (e.type === 'capture') {
@@ -633,8 +650,31 @@ function mix(a: string, b: string, t: number) {
 
 /** Whatever the target is hiding behind, drawn on their desk above the wall. */
 export function coverSvg(id: string): string {
-  return cover(id);
+  return paintedCover(id) ?? cover(id);
 }
+
+const COVER_ART: Record<string, string> = { it: coverIt, accounting: coverAccounting, mailroom: coverMailroom, marketing: coverMarketing };
+
+/**
+ * A department's painted barricade. It's painted at the portraits' scale, so it goes in at
+ * the same scale as the boss (one person, in the middle slot), centred on them, with the low
+ * middle just under their chin. The bottom of it sinks behind the cubicle wall, like their desk.
+ */
+function paintedCover(id: string): string | null {
+  const href = COVER_ART[id];
+  if (!href) return null;
+  const c = CLOSET_ART.covers;
+  const slot = targetSlots(1)[0];
+  const k = PORTRAIT_UNIT * slot.scale; // scene units per source pixel
+  const faceX = slot.x + 60 * slot.scale;
+  const chinY = 70 + 60 * slot.scale + (760 - 620) * k;
+  const top = chinY + 8 - (c.middle[id as keyof typeof c.middle] - c.box[1]) * k;
+  const x = faceX - (c.centerX - c.box[0]) * k;
+  return `<image href="${href}" x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${((c.box[2] - c.box[0]) * k).toFixed(1)}" height="${((c.box[3] - c.box[1]) * k).toFixed(1)}" preserveAspectRatio="none"/>`;
+}
+
+/** The painted surrender flag, for the map. */
+export const WHITE_FLAG = whiteFlag;
 
 function cover(id: string): string {
   const o = 'stroke="#2b2522" stroke-width="3" stroke-linejoin="round"';
@@ -691,8 +731,8 @@ function cover(id: string): string {
   }
 }
 
-// The department barricades (drawn stand-ins until the painted ones arrive). Each keeps the
-// middle low so the boss's face shows over it, with taller things at the ends.
+// The department barricades, drawn (the painted ones above are used when they're there). Each
+// keeps the middle low so the boss's face shows over it, with taller things at the ends.
 
 function crt(x: number, y: number, o: string) {
   return `<g transform="translate(${x} ${y})"><rect width="76" height="58" rx="8" fill="#d9d2c0" ${o}/><rect x="9" y="8" width="58" height="38" rx="5" fill="#3a3f45"/><rect x="14" y="27" width="40" height="3" fill="#6fd36f" opacity="0.6"/><rect x="26" y="58" width="24" height="6" fill="#bfb7a3" ${o}/></g>`;

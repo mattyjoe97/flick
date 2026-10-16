@@ -12,7 +12,7 @@ import { closetIsYours } from '../sim/mods';
 import { currentTarget, deptMax, deptTaken, deptsTaken, rematchOrder, type GameState } from '../sim/state';
 import { chaseRaid, dept, fight } from '../sim/war';
 import { TARGET_PEOPLE, PEOPLE, type Mood } from './characters';
-import { coverSvg } from './scene';
+import { coverSvg, WHITE_FLAG } from './scene';
 import { faceSvg, portrait } from './portraits';
 
 const esc = (text: string) =>
@@ -20,17 +20,17 @@ const esc = (text: string) =>
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`;
 
-/** A little white surrender flag on a ruler (until the painted one arrives). */
-const FLAG = `<svg class="dept-flag" viewBox="0 0 64 64" aria-hidden="true"><line x1="16" y1="60" x2="28" y2="6" stroke="#2b2522" stroke-width="7" stroke-linecap="round"/><line x1="16" y1="60" x2="28" y2="6" stroke="#e7c27a" stroke-width="4" stroke-linecap="round"/><path d="M28 8 Q40 2 54 9 Q47 17 56 25 Q41 21 25 27 Z" fill="#fff" stroke="#2b2522" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
+/** The white flag on a ruler that goes up over a department you've taken. */
+const FLAG = `<img class="dept-flag" src="${WHITE_FLAG}" alt="" draggable="false">`;
 
 /** The boss behind their barricade, cropped from the fight scene. */
 function deptPicture(id: string, mood: Mood) {
   const who = TARGET_PEOPLE[id]?.[0];
   const person = who ? `<g transform="translate(313 70) scale(1.45)">${portrait(who, mood)}</g>` : '';
-  return `<svg class="dept-pic" viewBox="232 54 336 208" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <rect x="232" y="54" width="336" height="208" fill="#d7dde2"/><rect x="232" y="54" width="336" height="18" fill="#c9d0d6"/>
+  return `<svg class="dept-pic" viewBox="224 50 352 212" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <rect x="224" y="50" width="352" height="212" fill="#d7dde2"/><rect x="224" y="50" width="352" height="18" fill="#c9d0d6"/>
     ${person}${coverSvg(id)}
-    <rect x="232" y="250" width="336" height="12" fill="#c9ced4"/></svg>`;
+    <rect x="224" y="250" width="352" height="12" fill="#c9ced4"/></svg>`;
 }
 
 export interface WarHooks {

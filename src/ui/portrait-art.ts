@@ -69,6 +69,22 @@ import friendA_idle from '../assets/art/face-friendA-idle.webp';
 import friendA_happy from '../assets/art/face-friendA-happy.webp';
 import friendB_idle from '../assets/art/face-friendB-idle.webp';
 import friendB_happy from '../assets/art/face-friendB-happy.webp';
+import derek_idle from '../assets/art/face-derek-idle.webp';
+import derek_hit from '../assets/art/face-derek-hit.webp';
+import derek_angry from '../assets/art/face-derek-angry.webp';
+import derek_worried from '../assets/art/face-derek-worried.webp';
+import doris_idle from '../assets/art/face-doris-idle.webp';
+import doris_hit from '../assets/art/face-doris-hit.webp';
+import doris_angry from '../assets/art/face-doris-angry.webp';
+import doris_worried from '../assets/art/face-doris-worried.webp';
+import tony_idle from '../assets/art/face-tony-idle.webp';
+import tony_hit from '../assets/art/face-tony-hit.webp';
+import tony_angry from '../assets/art/face-tony-angry.webp';
+import tony_worried from '../assets/art/face-tony-worried.webp';
+import skyler_idle from '../assets/art/face-skyler-idle.webp';
+import skyler_hit from '../assets/art/face-skyler-hit.webp';
+import skyler_angry from '../assets/art/face-skyler-angry.webp';
+import skyler_worried from '../assets/art/face-skyler-worried.webp';
 
 /** Every portrait shares this crop of a 1024 x 1280 canvas, and this face registration. */
 export const PORTRAIT = { crop: [55, 254, 964, 1280], w: 354, h: 400, face: [512, 620], earToEar: 360 };
@@ -99,7 +115,11 @@ export const PORTRAITS: Record<string, Record<string, string>> = {
   you4: { idle: you4_idle, happy: you4_happy },
   friendA: { idle: friendA_idle, happy: friendA_happy },
   friendB: { idle: friendB_idle, happy: friendB_happy },
+  derek: { idle: derek_idle, hit: derek_hit, angry: derek_angry, worried: derek_worried },
+  doris: { idle: doris_idle, hit: doris_hit, angry: doris_angry, worried: doris_worried },
+  tony: { idle: tony_idle, hit: tony_hit, angry: tony_angry, worried: tony_worried },
+  skyler: { idle: skyler_idle, hit: skyler_hit, angry: skyler_angry, worried: skyler_worried },
 };
 
 /** Dale and his closet, in sprite pixels; `face`, `pegboard` and `table` are fractions. */
-export const CLOSET_ART = {"dale": {"w": 595, "h": 900, "face": [0.5214, 0.271]}, "daleHead": {"w": 200, "h": 232}, "psst": {"w": 243, "h": 440}, "room": {"w": 2048, "h": 1152, "pegboard": [0.3149, 0.1927, 0.8789, 0.572], "table": [0.3296, 0.6337, 0.8472, 0.6528]}, "gun_ruler": {"w": 640, "h": 112}, "gun_clothespin": {"w": 640, "h": 235}, "gun_repeater": {"w": 640, "h": 343}, "gun_gatling": {"w": 640, "h": 247}, "icon_silent": {"w": 240, "h": 224}, "icon_rummage": {"w": 240, "h": 225}, "icon_training": {"w": 240, "h": 216}, "icon_calendar": {"w": 240, "h": 210}, "icon_closet": {"w": 240, "h": 220}, "icon_thick": {"w": 240, "h": 188}, "icon_waxed": {"w": 240, "h": 190}, "mat": {"w": 512, "h": 1024, "slice": 110}, "plant": {"w": 300, "h": 290}, "clipboard": {"w": 338, "h": 420}, "coin": {"w": 96, "h": 95}, "cash": {"w": 160, "h": 125}, "icon_organizer": {"w": 240, "h": 204}, "icon_autoreply": {"w": 240, "h": 189}, "icon_chair": {"w": 176, "h": 240}, "icon_riser": {"w": 230, "h": 240}, "icon_bulk": {"w": 231, "h": 240}, "icon_carpet": {"w": 240, "h": 188}, "icon_macros": {"w": 240, "h": 234}, "icon_walls": {"w": 172, "h": 240}, "bezel": {"w": 512, "h": 512, "slice": 100, "frame": 75}, "monitor_badge": {"w": 256, "h": 59}, "keyboard": {"w": 800, "h": 256}, "mouse": {"w": 233, "h": 256}, "desk_phone": {"w": 384, "h": 259}, "grade_ring": {"w": 256, "h": 256}, "ink_stamp": {"w": 450, "h": 137}, "ball_1": {"w": 382, "h": 384}, "ball_2": {"w": 384, "h": 384}, "ball_3": {"w": 384, "h": 355}, "ball_4": {"w": 384, "h": 283}, "stapler": {"w": 220, "h": 126}, "pets": {"bailey": {"w": 279, "h": 239, "x": 258, "y": 527}, "joey": {"w": 422, "h": 343, "x": 128, "y": 337}, "muffins": {"w": 185, "h": 167, "x": 344, "y": 657}}, "idBadge": {"w": 320, "h": 500, "photo": [70, 125, 180, 225]}} as const;
+export const CLOSET_ART = {"dale": {"w": 595, "h": 900, "face": [0.5214, 0.271]}, "daleHead": {"w": 200, "h": 232}, "psst": {"w": 243, "h": 440}, "room": {"w": 2048, "h": 1152, "pegboard": [0.3149, 0.1927, 0.8789, 0.572], "table": [0.3296, 0.6337, 0.8472, 0.6528]}, "gun_ruler": {"w": 640, "h": 112}, "gun_clothespin": {"w": 640, "h": 235}, "gun_repeater": {"w": 640, "h": 343}, "gun_gatling": {"w": 640, "h": 247}, "icon_silent": {"w": 240, "h": 224}, "icon_rummage": {"w": 240, "h": 225}, "icon_training": {"w": 240, "h": 216}, "icon_calendar": {"w": 240, "h": 210}, "icon_closet": {"w": 240, "h": 220}, "icon_thick": {"w": 240, "h": 188}, "icon_waxed": {"w": 240, "h": 190}, "mat": {"w": 512, "h": 1024, "slice": 110}, "plant": {"w": 300, "h": 290}, "clipboard": {"w": 338, "h": 420}, "coin": {"w": 96, "h": 95}, "cash": {"w": 160, "h": 125}, "icon_organizer": {"w": 240, "h": 204}, "icon_autoreply": {"w": 240, "h": 189}, "icon_chair": {"w": 176, "h": 240}, "icon_riser": {"w": 230, "h": 240}, "icon_bulk": {"w": 231, "h": 240}, "icon_carpet": {"w": 240, "h": 188}, "icon_macros": {"w": 240, "h": 234}, "icon_walls": {"w": 172, "h": 240}, "bezel": {"w": 512, "h": 512, "slice": 100, "frame": 75}, "monitor_badge": {"w": 256, "h": 59}, "keyboard": {"w": 800, "h": 256}, "mouse": {"w": 233, "h": 256}, "desk_phone": {"w": 384, "h": 259}, "grade_ring": {"w": 256, "h": 256}, "ink_stamp": {"w": 450, "h": 137}, "ball_1": {"w": 382, "h": 384}, "ball_2": {"w": 384, "h": 384}, "ball_3": {"w": 384, "h": 355}, "ball_4": {"w": 384, "h": 283}, "stapler": {"w": 220, "h": 126}, "pets": {"bailey": {"w": 279, "h": 239, "x": 258, "y": 527}, "joey": {"w": 422, "h": 343, "x": 128, "y": 337}, "muffins": {"w": 185, "h": 167, "x": 344, "y": 657}}, "idBadge": {"w": 320, "h": 500, "photo": [70, 125, 180, 225]}, "covers": {"w": 760, "h": 444, "box": [76, 56, 1324, 785], "desk": 780, "centerX": 700, "middle": {"it": 352, "accounting": 528, "mailroom": 344, "marketing": 456}}, "flag": {"w": 218, "h": 256, "foot": [0.0567, 0.9798]}} as const;

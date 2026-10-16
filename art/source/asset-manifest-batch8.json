@@ -1,0 +1,1673 @@
+{
+  "game": "FLICK",
+  "batch": 8,
+  "title": "The Department War (Stage 3)",
+  "asset_count": 21,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "checks": {
+    "exact_filenames_dimensions_rgba": true,
+    "transparent_backgrounds": true,
+    "transparent_pixels_have_zero_rgb": true,
+    "portrait_safe_box": true,
+    "twelve_expression_variants_pixel_matched_outside_face": true,
+    "barricade_desk_line_y780": true,
+    "barricade_clear_middle_above_y340": true,
+    "flag_anchor_230_620": true,
+    "no_text_or_logos_visual_review": true
+  },
+  "expression_pixel_proofs": [
+    {
+      "file": "177_derek_hit.png",
+      "base": "176_derek_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82640
+    },
+    {
+      "file": "178_derek_angry.png",
+      "base": "176_derek_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82526
+    },
+    {
+      "file": "179_derek_worried.png",
+      "base": "176_derek_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82592
+    },
+    {
+      "file": "181_doris_hit.png",
+      "base": "180_doris_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 67788
+    },
+    {
+      "file": "182_doris_angry.png",
+      "base": "180_doris_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 67745
+    },
+    {
+      "file": "183_doris_worried.png",
+      "base": "180_doris_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 67730
+    },
+    {
+      "file": "185_tony_hit.png",
+      "base": "184_tony_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82677
+    },
+    {
+      "file": "186_tony_angry.png",
+      "base": "184_tony_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82721
+    },
+    {
+      "file": "187_tony_worried.png",
+      "base": "184_tony_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 82645
+    },
+    {
+      "file": "189_skyler_hit.png",
+      "base": "188_skyler_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 80798
+    },
+    {
+      "file": "190_skyler_angry.png",
+      "base": "188_skyler_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 81183
+    },
+    {
+      "file": "191_skyler_worried.png",
+      "base": "188_skyler_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 80648
+    }
+  ],
+  "assets": [
+    {
+      "file": "176_derek_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        62,
+        330,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "e50d3eb3794b6107c086fa05131ffc360b4049ea08461abd58b53436dadfeca7",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "derek",
+        "expression_base": "176_derek_idle.png",
+        "face_edit_polygon": [
+          [
+            408,
+            423
+          ],
+          [
+            618,
+            423
+          ],
+          [
+            650,
+            488
+          ],
+          [
+            657,
+            535
+          ],
+          [
+            654,
+            646
+          ],
+          [
+            626,
+            703
+          ],
+          [
+            589,
+            751
+          ],
+          [
+            451,
+            751
+          ],
+          [
+            398,
+            708
+          ],
+          [
+            373,
+            647
+          ],
+          [
+            368,
+            530
+          ],
+          [
+            385,
+            477
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "177_derek_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        62,
+        330,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "a0580400faa44308428b82027830d5bcaa59602755dec14aef7829c9acaa2014",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "derek",
+        "expression_base": "176_derek_idle.png",
+        "face_edit_polygon": [
+          [
+            408,
+            423
+          ],
+          [
+            618,
+            423
+          ],
+          [
+            650,
+            488
+          ],
+          [
+            657,
+            535
+          ],
+          [
+            654,
+            646
+          ],
+          [
+            626,
+            703
+          ],
+          [
+            589,
+            751
+          ],
+          [
+            451,
+            751
+          ],
+          [
+            398,
+            708
+          ],
+          [
+            373,
+            647
+          ],
+          [
+            368,
+            530
+          ],
+          [
+            385,
+            477
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "178_derek_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        62,
+        330,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "b7000484513ae0983f2a3422b02b62cfbdbc762b008371b990a0bb396c4e4202",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "derek",
+        "expression_base": "176_derek_idle.png",
+        "face_edit_polygon": [
+          [
+            408,
+            423
+          ],
+          [
+            618,
+            423
+          ],
+          [
+            650,
+            488
+          ],
+          [
+            657,
+            535
+          ],
+          [
+            654,
+            646
+          ],
+          [
+            626,
+            703
+          ],
+          [
+            589,
+            751
+          ],
+          [
+            451,
+            751
+          ],
+          [
+            398,
+            708
+          ],
+          [
+            373,
+            647
+          ],
+          [
+            368,
+            530
+          ],
+          [
+            385,
+            477
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "179_derek_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        62,
+        330,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "5c0062c87f64f99d3f4d0e19a7b578e30ce3b0c8d3fba01934b64a90507a179e",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "derek",
+        "expression_base": "176_derek_idle.png",
+        "face_edit_polygon": [
+          [
+            408,
+            423
+          ],
+          [
+            618,
+            423
+          ],
+          [
+            650,
+            488
+          ],
+          [
+            657,
+            535
+          ],
+          [
+            654,
+            646
+          ],
+          [
+            626,
+            703
+          ],
+          [
+            589,
+            751
+          ],
+          [
+            451,
+            751
+          ],
+          [
+            398,
+            708
+          ],
+          [
+            373,
+            647
+          ],
+          [
+            368,
+            530
+          ],
+          [
+            385,
+            477
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "180_doris_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        93,
+        295,
+        937,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "aac166d1e397f8980fab08f1be7d0c81ba21f0e8238ee4e1a01d7a0be1370edb",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "doris",
+        "expression_base": "180_doris_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            487
+          ],
+          [
+            635,
+            487
+          ],
+          [
+            655,
+            524
+          ],
+          [
+            654,
+            643
+          ],
+          [
+            621,
+            703
+          ],
+          [
+            565,
+            758
+          ],
+          [
+            459,
+            758
+          ],
+          [
+            412,
+            713
+          ],
+          [
+            374,
+            650
+          ],
+          [
+            368,
+            531
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "181_doris_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        93,
+        295,
+        937,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "a13fd37b74a45b091a639639d4292aff9af814d92360f385bfc9e96ee5a7ada9",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "doris",
+        "expression_base": "180_doris_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            487
+          ],
+          [
+            635,
+            487
+          ],
+          [
+            655,
+            524
+          ],
+          [
+            654,
+            643
+          ],
+          [
+            621,
+            703
+          ],
+          [
+            565,
+            758
+          ],
+          [
+            459,
+            758
+          ],
+          [
+            412,
+            713
+          ],
+          [
+            374,
+            650
+          ],
+          [
+            368,
+            531
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "182_doris_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        93,
+        295,
+        937,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d46ee5a15203cdacfe6d508eeff56c65067276b58cff6485a01b78fe24173de1",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "doris",
+        "expression_base": "180_doris_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            487
+          ],
+          [
+            635,
+            487
+          ],
+          [
+            655,
+            524
+          ],
+          [
+            654,
+            643
+          ],
+          [
+            621,
+            703
+          ],
+          [
+            565,
+            758
+          ],
+          [
+            459,
+            758
+          ],
+          [
+            412,
+            713
+          ],
+          [
+            374,
+            650
+          ],
+          [
+            368,
+            531
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "183_doris_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        93,
+        295,
+        937,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "8d90891621968679f8f1aa3c7f778c8d0686c316b455fbad39de6396fd352d1b",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "doris",
+        "expression_base": "180_doris_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            487
+          ],
+          [
+            635,
+            487
+          ],
+          [
+            655,
+            524
+          ],
+          [
+            654,
+            643
+          ],
+          [
+            621,
+            703
+          ],
+          [
+            565,
+            758
+          ],
+          [
+            459,
+            758
+          ],
+          [
+            412,
+            713
+          ],
+          [
+            374,
+            650
+          ],
+          [
+            368,
+            531
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "184_tony_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        394,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9470c5a61346c47ea0c3d809611fa6b304489454d968fdc71d73f6b4acc8b264",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "tony",
+        "expression_base": "184_tony_idle.png",
+        "face_edit_polygon": [
+          [
+            398,
+            442
+          ],
+          [
+            629,
+            442
+          ],
+          [
+            650,
+            501
+          ],
+          [
+            661,
+            610
+          ],
+          [
+            649,
+            683
+          ],
+          [
+            617,
+            735
+          ],
+          [
+            570,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            402,
+            721
+          ],
+          [
+            371,
+            659
+          ],
+          [
+            370,
+            520
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "185_tony_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        394,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "a14997a2b91925b8aed69d0aedf82d7e9bf44face0caca25f3552a571545f6a2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "tony",
+        "expression_base": "184_tony_idle.png",
+        "face_edit_polygon": [
+          [
+            398,
+            442
+          ],
+          [
+            629,
+            442
+          ],
+          [
+            650,
+            501
+          ],
+          [
+            661,
+            610
+          ],
+          [
+            649,
+            683
+          ],
+          [
+            617,
+            735
+          ],
+          [
+            570,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            402,
+            721
+          ],
+          [
+            371,
+            659
+          ],
+          [
+            370,
+            520
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "186_tony_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        394,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "62819a4ebdf121d5e0739e8f3edbc9f50cb7cc4f43b8634a8f1c7fe9b91acf36",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "tony",
+        "expression_base": "184_tony_idle.png",
+        "face_edit_polygon": [
+          [
+            398,
+            442
+          ],
+          [
+            629,
+            442
+          ],
+          [
+            650,
+            501
+          ],
+          [
+            661,
+            610
+          ],
+          [
+            649,
+            683
+          ],
+          [
+            617,
+            735
+          ],
+          [
+            570,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            402,
+            721
+          ],
+          [
+            371,
+            659
+          ],
+          [
+            370,
+            520
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "187_tony_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        394,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "1c1f5bd8a0d204706b4cf5f7a5c400a2f99e60ddfe98c0c5bbb8df79ee1df8c4",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "tony",
+        "expression_base": "184_tony_idle.png",
+        "face_edit_polygon": [
+          [
+            398,
+            442
+          ],
+          [
+            629,
+            442
+          ],
+          [
+            650,
+            501
+          ],
+          [
+            661,
+            610
+          ],
+          [
+            649,
+            683
+          ],
+          [
+            617,
+            735
+          ],
+          [
+            570,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            402,
+            721
+          ],
+          [
+            371,
+            659
+          ],
+          [
+            370,
+            520
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "188_skyler_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        81,
+        286,
+        944,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "4cfe5132dec7bb0aacb5c6dcc5cf4007d75898c84eb624c9ef8bd804748ecff2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "skyler",
+        "expression_base": "188_skyler_idle.png",
+        "face_edit_polygon": [
+          [
+            417,
+            433
+          ],
+          [
+            616,
+            433
+          ],
+          [
+            650,
+            486
+          ],
+          [
+            660,
+            532
+          ],
+          [
+            655,
+            640
+          ],
+          [
+            624,
+            711
+          ],
+          [
+            574,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            401,
+            709
+          ],
+          [
+            371,
+            638
+          ],
+          [
+            371,
+            514
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "189_skyler_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        81,
+        286,
+        944,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "c427cfad1dab4e042bfc7110e452956d281c963c53db545feefa7a8c2b3e3753",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "skyler",
+        "expression_base": "188_skyler_idle.png",
+        "face_edit_polygon": [
+          [
+            417,
+            433
+          ],
+          [
+            616,
+            433
+          ],
+          [
+            650,
+            486
+          ],
+          [
+            660,
+            532
+          ],
+          [
+            655,
+            640
+          ],
+          [
+            624,
+            711
+          ],
+          [
+            574,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            401,
+            709
+          ],
+          [
+            371,
+            638
+          ],
+          [
+            371,
+            514
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "190_skyler_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        81,
+        286,
+        944,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "7cfe799f756e28c66a5dfefbc1c3e94d5e8a8f3f0c9a464618429d04fd02c277",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "skyler",
+        "expression_base": "188_skyler_idle.png",
+        "face_edit_polygon": [
+          [
+            417,
+            433
+          ],
+          [
+            616,
+            433
+          ],
+          [
+            650,
+            486
+          ],
+          [
+            660,
+            532
+          ],
+          [
+            655,
+            640
+          ],
+          [
+            624,
+            711
+          ],
+          [
+            574,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            401,
+            709
+          ],
+          [
+            371,
+            638
+          ],
+          [
+            371,
+            514
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "191_skyler_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        81,
+        286,
+        944,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "ca3c723967dd899b3188d2782c3e97ad4ad3c6087b64fa2167b046499b45c93b",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "skyler",
+        "expression_base": "188_skyler_idle.png",
+        "face_edit_polygon": [
+          [
+            417,
+            433
+          ],
+          [
+            616,
+            433
+          ],
+          [
+            650,
+            486
+          ],
+          [
+            660,
+            532
+          ],
+          [
+            655,
+            640
+          ],
+          [
+            624,
+            711
+          ],
+          [
+            574,
+            758
+          ],
+          [
+            451,
+            758
+          ],
+          [
+            401,
+            709
+          ],
+          [
+            371,
+            638
+          ],
+          [
+            371,
+            514
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "192_cover_it.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        81,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "e10d294d61cdaac717d223e63275ee5dcf37b29d82547d02f0d153bf6e22275d",
+      "registration": {
+        "desk_line_y": 780,
+        "center_x": 700,
+        "barricade_width_px": 1240,
+        "portrait_ear_to_ear_scale_px": 360,
+        "reference_crt_width_px_approx": 420,
+        "clear_middle_x_inclusive": [
+          500,
+          900
+        ],
+        "clear_middle_above_y": 340,
+        "actual_middle_top_alpha_y": 351
+      }
+    },
+    {
+      "file": "193_cover_accounting.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9971b5fa4a08cf4377c163d2d7f5c45beb835fa4b6c8bea6b3346fc0783d912e",
+      "registration": {
+        "desk_line_y": 780,
+        "center_x": 700,
+        "barricade_width_px": 1240,
+        "portrait_ear_to_ear_scale_px": 360,
+        "reference_crt_width_px_approx": 420,
+        "clear_middle_x_inclusive": [
+          500,
+          900
+        ],
+        "clear_middle_above_y": 340,
+        "actual_middle_top_alpha_y": 528
+      }
+    },
+    {
+      "file": "194_cover_mailroom.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "4dc5404bedea1c3e0fc6a92f1a745e6c2afcca7242e3b9f536d5eb1dd4de826d",
+      "registration": {
+        "desk_line_y": 780,
+        "center_x": 700,
+        "barricade_width_px": 1240,
+        "portrait_ear_to_ear_scale_px": 360,
+        "reference_crt_width_px_approx": 420,
+        "clear_middle_x_inclusive": [
+          500,
+          900
+        ],
+        "clear_middle_above_y": 340,
+        "actual_middle_top_alpha_y": 344
+      }
+    },
+    {
+      "file": "195_cover_marketing.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "8f0034617a5437d5b5c20ad9a68174af582db28a35525057be63b635383cbe44",
+      "registration": {
+        "desk_line_y": 780,
+        "center_x": 700,
+        "barricade_width_px": 1240,
+        "portrait_ear_to_ear_scale_px": 360,
+        "reference_crt_width_px_approx": 420,
+        "clear_middle_x_inclusive": [
+          500,
+          900
+        ],
+        "clear_middle_above_y": 340,
+        "actual_middle_top_alpha_y": 456
+      }
+    },
+    {
+      "file": "196_white_flag.png",
+      "size": [
+        640,
+        640
+      ],
+      "width": 640,
+      "height": 640,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        210,
+        138,
+        625,
+        626
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "dcf5bad9bbd98150620799f469fa866e3ee6c578c1dfbe165a59d115c2e11077",
+      "registration": {
+        "ruler_bottom_end_point": [
+          230,
+          620
+        ],
+        "ruler_lean_degrees_right": 15
+      }
+    }
+  ]
+}
