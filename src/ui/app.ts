@@ -185,6 +185,7 @@ export class UI {
       const root = document.documentElement.style;
       root.setProperty('--hdr-h', `${hdr}px`);
       root.setProperty('--top-h', `${hdr + status.offsetHeight}px`);
+      root.setProperty('--bar-h', `${$('bottom-bar').offsetHeight}px`);
     };
     measure();
     if (typeof ResizeObserver === 'function') new ResizeObserver(measure).observe(document.body);
@@ -198,6 +199,9 @@ export class UI {
     b.setAttribute('aria-label', label);
     b.setAttribute('aria-pressed', String(!this.sound.muted));
     b.classList.toggle('muted', this.sound.muted);
+    const b2 = $('sound-btn-2');
+    b2.querySelector('span')!.textContent = this.sound.muted ? 'Sound is off (turn on)' : 'Sound is on (turn off)';
+    b2.setAttribute('aria-pressed', String(!this.sound.muted));
   }
 
   /** A number on the status strip gives a little hop when it jumps. */
@@ -293,18 +297,31 @@ export class UI {
     );
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('floor-btn').addEventListener('click', () => this.openFloor());
-    $('sound-btn').addEventListener('click', () => {
-      this.sound.toggle();
-      this.syncSound();
-    });
-    $('arena').addEventListener('click', (e) => {
+    for (const id of ['sound-btn', 'sound-btn-2'])
+      $(id).addEventListener('click', () => {
+        this.sound.toggle();
+        this.syncSound();
+      });
+    // The desk buttons (the phone's bottom bar, and the List sheet's close button).
+    $('app').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-mini]');
       if (!b) return;
-      ({ scrounge: this.doScrounge, work: this.doWork, order: this.doOrder, closet: () => this.closet.show() })[b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet']();
+      const go = b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet' | 'floor' | 'list';
+      if (go !== 'list') this.showList(false);
+      ({
+        scrounge: this.doScrounge,
+        work: this.doWork,
+        order: this.doOrder,
+        closet: () => this.closet.show(),
+        floor: () => this.openFloor(),
+        list: () => this.showList(!document.body.classList.contains('list-open')),
+      })[go]();
     });
     $('back-btn').addEventListener('click', () => this.toggleHide(false));
     $('call-answer').addEventListener('click', () => this.answerPhone());
 
+    // No long-press menus on the things you hold.
+    for (const el of [$('flick-btn'), $('scene'), $('desk-front'), $('key-row')]) el.addEventListener('contextmenu', (e) => e.preventDefault());
     // Hold the Flick key (or your hand) to stretch the band; let go to fire.
     for (const el of [$('flick-btn'), $('scene')]) {
       el.addEventListener('pointerdown', (e) => {
@@ -527,7 +544,13 @@ export class UI {
     this.syncComputer();
   }
 
+  /** Phones: the shopping list and what just happened, in a sheet over the bottom bar. */
+  private showList(on: boolean) {
+    document.body.classList.toggle('list-open', on);
+  }
+
   private leaveWar() {
+    this.showList(false);
     this.launcher.cancel();
     this.drawer.close();
     this.closet.close();
@@ -573,6 +596,7 @@ export class UI {
         this.sound.barrage();
         this.onBarrage(e);
       } else if (e.type === 'wound') this.bump('bands');
+      else if (e.type === 'rematch' && !this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
       else if (e.type === 'caught') {
         this.onCaught(e);
         this.sound.caught();
@@ -786,7 +810,8 @@ export class UI {
           <dt>Walk-bys survived</dt><dd>${s.stats.hides} of ${s.stats.hides + s.stats.walkbysSpotted}</dd>
           <dt>Team</dt><dd>${s.allies.length} ${s.allies.length === 1 ? 'coworker' : 'coworkers'}</dd>
         </dl>
-        <p>The war is over for now (Stage 3, Department War, comes next), but your career isn't. Keep working, get promoted, and build your team in Staffing. The top of the ladder is CEO.</p>`;
+        <p>But nobody in this office can let things go. The people you beat want <strong>rematches</strong>: Gary first, then everyone else, a little tougher every round and worth more every time (a bounty and some Performance toward your next promotion). Your career keeps going too: work, get promoted, and build your team on Your floor. The top of the ladder is CEO.</p>
+        <p>Stage 3, the Department War, is coming.</p>`;
     }
     $('stage-dlg-ok').textContent = stage === 3 ? 'Keep playing' : 'Back to it';
     if (!dlg.open) dlg.showModal();
@@ -815,7 +840,12 @@ export class UI {
     this.shotsThisFrame = 0;
 
     this.syncComputer();
-    this.set('clock', officeClock(s.time));
+    const clockText = officeClock(s.time);
+    if (this.text.get('clock') !== clockText) {
+      this.text.set('clock', clockText);
+      const [week, day] = clockText.split(', ');
+      $('clock').innerHTML = day ? `<span class="clock-week">${esc(week)}, </span>${esc(day)}` : esc(clockText);
+    }
 
     // Desk
     this.set('bands', fmt(s.bands));
@@ -856,6 +886,7 @@ export class UI {
           : `$${m.order.price} for ${m.order.amount} bands`,
     );
     this.set('order-title', sup.box ? 'Open the box' : 'Order');
+    this.set('bar-order', sup.box ? 'Open box' : 'Order');
     $<HTMLButtonElement>('order-btn').disabled = !sup.box && s.salary < m.order.price;
 
     // HR file
@@ -892,13 +923,13 @@ export class UI {
     this.delivery.render();
     this.closet.render();
     this.scene.render();
-    this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion());
+    this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion(), this.scene.handShift());
     void dt;
   }
 
   private renderFront(s: GameState, _warning: number) {
     const t = currentTarget(s);
-    this.set('stage-line', STAGE_NAMES[s.stage]);
+    this.set('stage-line', s.stage >= 3 && s.rematch ? `Rematches · round ${s.rematch.round}` : STAGE_NAMES[s.stage]);
     const w = weapon(s);
     const flickBtn = $<HTMLButtonElement>('flick-btn');
     if (t) {
@@ -909,8 +940,10 @@ export class UI {
       this.set('resolve-num', `${fmt(Math.ceil(r))} / ${fmt(t.resolve)}`);
       $('resolve-fill').style.width = `${(r / t.resolve) * 100}%`;
       const tw = $('twist');
-      tw.hidden = !t.twist;
-      if (t.twist) this.set('twist', t.twist);
+      // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
+      const twist = s.stage >= 3 ? `${t.twist ? `${t.twist} ` : ''}Worth ${money(t.bounty)} and some Performance.` : t.twist;
+      tw.hidden = !twist;
+      if (twist) this.set('twist', twist);
     } else {
       this.set('np-name', 'Floor 4, east side');
       this.set('np-title', 'Under new management');
@@ -936,7 +969,7 @@ export class UI {
 
     // Coach line: a temporary message wins, then the most useful hint.
     const msg = this.flash && this.flash.until > performance.now() ? this.flash.text : coachHint(s);
-    this.set('coach', msg);
+    this.set('coach', forTouch(msg));
   }
 
   /** Your guns on a little rack under the Flick key, numbered 1–4, plus a slot for the next one. */
@@ -1046,10 +1079,12 @@ export class UI {
 
   private renderTicker(s: GameState) {
     this.rebuild('ticker', String(s.ticker[0]?.id ?? 0), () => {
-      $('ticker').innerHTML = s.ticker
+      const html = s.ticker
         .slice(0, 4)
         .map((t) => `<li>${esc(t.text)}</li>`)
         .join('');
+      $('ticker').innerHTML = html;
+      $('ticker-2').innerHTML = html;
     });
   }
 
@@ -1065,8 +1100,11 @@ export class UI {
     this.floor.setComputerBadge(total, !!call);
     // Your floor opens up with your first hire, with a dot when there's someone you could hire.
     const floorBtn = $('floor-btn');
+    const canHire = TEAMS.some((t) => teamUnlocked(s, t.id) && seats(s, t.id) < seatCap(s, t.id) && s.salary >= seatCost(s, t.id));
     floorBtn.hidden = !teamUnlocked(s, 'temp');
-    floorBtn.classList.toggle('dot', TEAMS.some((t) => teamUnlocked(s, t.id) && seats(s, t.id) < seatCap(s, t.id) && s.salary >= seatCost(s, t.id)));
+    floorBtn.classList.toggle('dot', canHire);
+    $('bar-floor').hidden = floorBtn.hidden;
+    $('bar-floor-dot').hidden = !canHire;
 
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
@@ -1174,6 +1212,20 @@ function suspicionNote(v: number) {
   if (v < 75) return 'HR has your name on a sticky note.';
   if (v < 90) return 'Mr. Feeney wants to circle back.';
   return 'One more flick and you are in a meeting.';
+}
+
+/** On a phone there are no keys to press: tips talk about the buttons instead. */
+const touch = () => window.matchMedia?.('(max-width: 760px)').matches ?? false;
+function forTouch(text: string) {
+  if (!text || !touch()) return text;
+  return text
+    .replace(/press F or click Flick/g, 'tap Flick')
+    .replace(/hold Flick \(or F\)/gi, (m) => (m[0] === 'H' ? 'Hold Flick' : 'hold Flick'))
+    .replace(/[Pp]ress Esc to get on your computer/g, (m) => (m[0] === 'P' ? 'Tap Computer' : 'tap Computer'))
+    .replace(/[Pp]ress W to answer/g, (m) => (m[0] === 'P' ? 'Tap Answer' : 'tap Answer'))
+    .replace(/Dale sells it in the supply closet: press D/g, 'Dale sells it in the supply closet: tap Closet')
+    .replace(/ ?\((?:Esc|[A-Z])\)/g, '')
+    .replace(/ \(or [A-Z]\)/g, '');
 }
 
 function coachHint(s: GameState): string {

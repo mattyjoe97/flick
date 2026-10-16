@@ -314,7 +314,8 @@ export class Launcher {
   }
 
   /** Call every frame with the weapon and the point (in scene units) to aim at. */
-  update(w: WeaponId, aim: { x: number; y: number }, reduced: boolean) {
+  /** `shift`: how far left of the corner your wrist sits (a narrow view crops the right side). */
+  update(w: WeaponId, aim: { x: number; y: number }, reduced: boolean, shift = 0) {
     if (w !== this.weaponId) this.build(w);
     const now = performance.now();
     const dt = Math.min(0.05, (now - this.lastFrame) / 1000);
@@ -338,7 +339,7 @@ export class Launcher {
     }
 
     // Turn smoothly toward the target at the wrist. The art points left; mirror it if we ever aim right.
-    const pivot = PIVOTS[w];
+    const pivot = { x: PIVOTS[w].x - shift, y: PIVOTS[w].y };
     const sp = this.sprite;
     const toTarget = Math.atan2(aim.y - pivot.y, aim.x - pivot.x);
     // The barrel (or fingertip) sits above the wrist, so turn a little further so that line, not the wrist's, meets the target.

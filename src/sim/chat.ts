@@ -68,6 +68,7 @@ const EVENT_LINES: Record<string, Line[]> = {
   'ball:2': [{ id: 'bl2', from: 'Kevin', text: 'your ball is so big now. can I hold it', replies: [{ text: 'no', then: 'ok. can I look at it' }, { text: 'gently', then: 'I will be SO gentle' }] }],
   'ball:3': [{ id: 'bl3', from: 'Marjorie', text: 'In 1994 Harold from Payroll had one the size of a cantaloupe. Yours is bigger, dear. Harold would be proud.' }],
   'ball:4': [{ id: 'bl4', from: 'Gary', text: 'I think your ball ate my stapler. I want it back but I’m scared to ask it', replies: [{ text: 'it’s ours now', then: 'it’s not even a good stapler' }, { text: 'reach in', then: 'I am NOT reaching in there' }] }],
+  rematch: [{ id: 'rm1', from: 'Gary', text: 'ok that one doesn’t count. best of seven', replies: [{ text: 'deal', then: 'I will be training. with the fan' }, { text: 'it counts', then: 'agree to disagree' }] }],
   barrage: [{ id: 'br1', from: 'Gary', text: 'did we just. all fire at once. I’ve never felt so alive', replies: [{ text: 'again?', then: 'give me a minute to find more bands' }, { text: 'that was the plan', then: 'there was a PLAN??' }] }],
   promoted: [
     { id: 'up1', from: 'Gary', text: 'you got PROMOTED? for what', replies: [{ text: 'excellence', then: 'I have also been excellent. nobody noticed' }, { text: 'no idea', then: 'that tracks honestly' }] },

@@ -20,7 +20,7 @@
             </select>
           </label>
           <button type="button" class="tool-btn floor-btn" id="floor-btn" aria-keyshortcuts="T" hidden>Your floor <kbd>T</kbd></button>
-          <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false">Your computer <kbd>Esc</kbd><span class="hide-badge" id="hide-badge" hidden></span></button>
+          <button type="button" class="hide-btn" id="hide-btn" aria-pressed="false"><span class="kb">Your computer</span><span class="tp">Computer</span> <kbd>Esc</kbd><span class="hide-badge" id="hide-badge" hidden></span></button>
           <button type="button" class="icon-btn" id="sound-btn" aria-pressed="true" aria-label="Sound" title="Sound on">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l6 6M22 9l-6 6"/></svg>
           </button>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="walkby" id="walkby" role="alert" hidden>
-        <p><strong>Footsteps!</strong> Mr. Feeney is coming. Get on your computer: press <kbd>Esc</kbd>.</p>
+        <p><strong>Footsteps!</strong> Mr. Feeney is coming. Get on your computer: <span class="kb">press <kbd>Esc</kbd></span><span class="tp">tap Computer</span>.</p>
         <div class="walkby-clock"><span id="walkby-fill"></span></div>
       </div>
       <div class="call-banner" id="call-banner" role="alert" hidden>
@@ -66,6 +66,7 @@
 
       <main class="desk">
         <section class="my-desk" aria-label="Your desk">
+          <button type="button" class="sheet-close" data-mini="list" aria-label="Close">×</button>
           <nav class="shop-list" id="shop-list" aria-labelledby="shop-h">
             <h2 class="shop-h" id="shop-h">Shopping list</h2>
             <ol class="shop-rows" id="shop-rows"></ol>
@@ -88,6 +89,10 @@
               </button>
             </div>
           </div>
+          <section class="phone-log" aria-label="What just happened">
+            <h2 class="shop-h">What just happened</h2>
+            <ol class="receipt" id="ticker-2"></ol>
+          </section>
         </section>
 
         <section class="front" aria-labelledby="stage-line">
@@ -149,13 +154,8 @@
             <div class="rack" id="rack" role="group" aria-label="Your weapons: press 1 to 4 to switch"></div>
             <p class="weapon-line" id="weapon-line">Finger Flick: 1 damage, 1 band per shot</p>
             </div>
-            <div class="mini-actions">
-              <button type="button" class="mini-btn" data-mini="scrounge">Scrounge</button>
-              <button type="button" class="mini-btn" data-mini="order">Order</button>
-              <button type="button" class="mini-btn" data-mini="closet">Closet<b class="mini-badge" id="mini-closet-badge" hidden></b></button>
-            </div>
           </div>
-          <div class="notepad">
+          <div class="desk-notes">
             <p class="coach" id="coach"></p>
             <ol class="receipt" id="ticker" aria-live="polite"></ol>
           </div>
@@ -163,6 +163,14 @@
         </section>
 
       </main>
+
+      <nav class="bottom-bar" id="bottom-bar" aria-label="Your desk">
+        <button type="button" class="bar-btn" data-mini="scrounge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="1.5"/><path d="M3 11h18M10 14.5h4"/></svg><span>Drawer</span></button>
+        <button type="button" class="bar-btn" data-mini="order"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/></svg><span id="bar-order">Order</span></button>
+        <button type="button" class="bar-btn" data-mini="closet"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><circle cx="15.5" cy="12" r="1.2"/></svg><span>Closet</span><b class="mini-badge" id="mini-closet-badge" hidden></b></button>
+        <button type="button" class="bar-btn" data-mini="floor" id="bar-floor" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 20c.5-4 3-6 5.5-6s5 2 5.5 6M13 19.5c.4-3 2-4.5 3.5-4.5s3.2 1.5 3.6 4.5"/></svg><span>Floor</span><b class="mini-badge dot" id="bar-floor-dot" hidden></b></button>
+        <button type="button" class="bar-btn" data-mini="list"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span>List</span></button>
+      </nav>
 
       <div class="computer" id="computer" hidden>
         <div class="pc-setup">
@@ -303,6 +311,10 @@
       <dialog class="dlg" id="settings-dlg" aria-labelledby="settings-h">
         <h2 id="settings-h">Settings</h2>
         <section class="set-block">
+          <h3>Sound</h3>
+          <button type="button" class="paper-btn" id="sound-btn-2" aria-pressed="true"><span>Sound is on</span></button>
+        </section>
+        <section class="set-block">
           <h3>Export your save</h3>
           <p>Copy this text somewhere safe. Paste it into Import on any browser to continue.</p>
           <textarea id="export-text" rows="3" readonly></textarea>
@@ -324,7 +336,7 @@
             <button type="button" class="paper-btn" id="reset-no"><span>Keep my game</span></button>
           </div>
         </section>
-        <p class="set-keys">Keys: <kbd>F</kbd> flick, <kbd>Esc</kbd> or <kbd>B</kbd> your computer, <kbd>W</kbd> answer the phone, <kbd>S</kbd> scrounge your drawer, <kbd>O</kbd> order supplies (or open the box), <kbd>D</kbd> Dale’s supply closet, <kbd>1</kbd>–<kbd>4</kbd> switch weapons (at your computer: replies and extensions).</p>
+        <p class="set-keys kb">Keys: <kbd>F</kbd> flick, <kbd>Esc</kbd> or <kbd>B</kbd> your computer, <kbd>W</kbd> answer the phone, <kbd>S</kbd> scrounge your drawer, <kbd>O</kbd> order supplies (or open the box), <kbd>D</kbd> Dale’s supply closet, <kbd>V</kbd> Barrage, <kbd>T</kbd> your floor, <kbd>1</kbd>–<kbd>4</kbd> switch weapons (at your computer: replies and extensions).</p>
         <form method="dialog"><button class="paper-btn paper-btn-strong">Close</button></form>
       </dialog>
     </div>

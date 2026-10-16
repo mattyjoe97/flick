@@ -56,6 +56,7 @@ function migrate(file: SaveFile): GameState | null {
   if (file.version < 9) s.office.nextAt = s.time + MOMENTS.first;
   s.goals = { ...base.goals, ...(file.state.goals ?? {}) };
   s.ball = { ...base.ball, ...(file.state.ball ?? {}) };
+  s.rematch = file.state.rematch ?? null;
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
@@ -107,6 +108,9 @@ function sanitize(s: GameState): boolean {
   if (!Array.isArray(s.goals.list)) s.goals = { day: -1, list: [], combo: 0 };
   if (!Number.isFinite(s.office.nextAt)) s.office.nextAt = s.time + MOMENTS.first;
   s.ball = { wound: Math.max(0, Math.floor(Number(s.ball.wound) || 0)), found: !!s.ball.found };
+  const r = s.rematch;
+  if (r && !(Number.isInteger(r.round) && r.round >= 1 && Number.isInteger(r.index) && r.index >= 0 && r.index < 5 && Number(r.resolve) > 0 && Number.isFinite(r.bounty))) s.rematch = null;
+  if (s.stage < 3) s.rematch = null;
   s.barrageAt = Math.min(s.barrageAt, s.time + 60);
   const c = s.career;
   c.rank = Math.min(PAY_GRADES.length - 1, Math.max(0, Math.floor(Number(c.rank) || 0)));

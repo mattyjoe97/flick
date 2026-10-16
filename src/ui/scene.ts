@@ -55,6 +55,23 @@ const ALLY_SLOTS = [
   { x: 214, y: 248, back: true },
 ];
 
+/** The part of the 800 x 420 scene that's on screen (a tall phone view crops the sides). */
+export interface SceneView {
+  x0: number;
+  y0: number;
+  w: number;
+  h: number;
+}
+
+/** Where your allies stand: the bottom-left corner, squeezed in when the sides are cropped. */
+function allySlots(v: SceneView) {
+  if (v.x0 <= 1) return ALLY_SLOTS.map((s) => ({ ...s, scale: 0.8 }));
+  // Room between the left edge of the view and the target's nameplate.
+  const k = Math.max(0.45, Math.min(1, (262 - v.x0) / 268));
+  // Squeezed in, they stand a little taller so Bailey's bed doesn't hide their faces.
+  return ALLY_SLOTS.map((s) => ({ x: v.x0 + s.x * k, y: s.y - (1 - k) * 34, back: s.back, scale: 0.8 * Math.max(0.8, k) }));
+}
+
 function headPos(slot: Slot) {
   return { x: slot.x + 60 * slot.scale, y: 70 + 58 * slot.scale };
 }
@@ -93,6 +110,8 @@ export class Scene {
   private minuteKey = -1;
   private nextFlicker = 0;
   private feeney: { phase: 'off' | 'walk' | 'stop' | 'leave'; x: number; t: number; spotted: boolean } = { phase: 'off', x: -140, t: 0, spotted: false };
+  private view: SceneView = { x0: 0, y0: 0, w: W, h: H };
+  private viewKey = '';
   private nextStep = 0;
 
   constructor(
@@ -344,7 +363,8 @@ export class Scene {
     const tip = this.hooks.handTip();
     const r = this.root.getBoundingClientRect();
     if (!tip || r.width === 0) return { x: 400, y: H + 30 };
-    return { x: ((tip.x - r.left) / r.width) * W, y: ((tip.y - r.top) / r.height) * H };
+    const v = this.view;
+    return { x: v.x0 + ((tip.x - r.left) / r.width) * v.w, y: v.y0 + ((tip.y - r.top) / r.height) * v.h };
   }
 
   private aimPoint() {
@@ -358,8 +378,8 @@ export class Scene {
   private allyHead(id?: string) {
     const s = this.getState();
     const i = Math.max(0, s.allies.findIndex((a) => a.id === id));
-    const slot = ALLY_SLOTS[i % ALLY_SLOTS.length];
-    return { x: slot.x + 48, y: slot.y + 40 };
+    const slot = allySlots(this.view)[i % ALLY_SLOTS.length];
+    return { x: slot.x + 60 * slot.scale, y: slot.y + 50 * slot.scale };
   }
 
   private recoil(id: string) {
@@ -403,8 +423,9 @@ export class Scene {
     if (reduced()) return;
     const b = document.createElement('span');
     b.className = big ? 'burst big' : 'burst';
-    b.style.left = `${(x / W) * 100}%`;
-    b.style.top = `${(y / H) * 100}%`;
+    const at = this.pct(x, y);
+    b.style.left = `${at.left}%`;
+    b.style.top = `${at.top}%`;
     this.fx.appendChild(b);
     setTimeout(() => b.remove(), 320);
   }
@@ -415,8 +436,9 @@ export class Scene {
       const u = 1 - t;
       const x = u * u * p.x0 + 2 * u * t * p.cx + t * t * p.x1;
       const y = u * u * p.y0 + 2 * u * t * p.cy + t * t * p.y1;
-      p.el.style.left = `${(x / W) * 100}%`;
-      p.el.style.top = `${(y / H) * 100}%`;
+      const at = this.pct(x, y);
+      p.el.style.left = `${at.left}%`;
+      p.el.style.top = `${at.top}%`;
       p.el.style.transform = `translate(-50%, -50%) rotate(${(p.spin * (now - p.t0)) / 1000}deg) scale(${1.25 - 0.45 * t})`;
       if (t >= 1) {
         p.el.remove();
@@ -429,10 +451,39 @@ export class Scene {
 
   // ---------------------------------------------------------------- per frame
 
+  /** Work out how much of the scene fits the box it's drawn in (it's sliced to fill it). */
+  private measure() {
+    const r = this.root.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return;
+    const a = r.width / r.height;
+    const w = a < W / H ? H * a : W;
+    const h = a < W / H ? H : W / a;
+    const key = `${w.toFixed(1)}x${h.toFixed(1)}`;
+    if (key === this.viewKey) return;
+    this.viewKey = key;
+    this.view = { x0: (W - w) / 2, y0: (H - h) / 2, w, h };
+    this.allyKey = '';
+    // The clock and the safety sign are near the edges: hide them once they'd be cut off.
+    this.svg.querySelector<SVGGElement>('.clock')!.style.display = this.view.x0 > 30 ? 'none' : '';
+    this.svg.querySelector<SVGGElement>('.incident-sign')!.style.display = this.view.x0 > 10 ? 'none' : '';
+  }
+
+  /** A point in scene units as a position in percent of the box on screen. */
+  private pct(x: number, y: number) {
+    const v = this.view;
+    return { left: ((x - v.x0) / v.w) * 100, top: ((y - v.y0) / v.h) * 100 };
+  }
+
+  /** How far your hand has to move left to stay in view when the right side is cropped. */
+  handShift() {
+    return this.view.x0;
+  }
+
   render() {
     const s = this.getState();
     const now = performance.now();
     const t = currentTarget(s);
+    this.measure();
 
     // Target and cover
     const id = t?.id ?? 'none';
@@ -460,15 +511,17 @@ export class Scene {
     const key = s.allies.map((a) => a.id).join(',');
     if (key !== this.allyKey) {
       this.allyKey = key;
+      const slots = allySlots(this.view);
       const drawAlly = (a: { id: string }, i: number) => {
-        const sl = ALLY_SLOTS[i % ALLY_SLOTS.length];
-        return `<g class="ally" data-ally="${a.id}"><title>${COWORKER_NAMES[a.id] ?? ''}: click to change role</title><g transform="translate(${sl.x} ${sl.y}) scale(0.8)">${portrait(a.id)}</g></g>`;
+        const sl = slots[i % slots.length];
+        return `<g class="ally" data-ally="${a.id}"><title>${COWORKER_NAMES[a.id] ?? ''}: click to change role</title><g transform="translate(${sl.x.toFixed(1)} ${sl.y.toFixed(1)}) scale(${sl.scale.toFixed(3)})">${portrait(a.id)}</g></g>`;
       };
+      const wallR = slots[2].x + 128 * slots[2].scale;
       // Back row first so the front row overlaps it.
       const order = s.allies.map((a, i) => ({ a, i })).sort((p, q) => Number(ALLY_SLOTS[q.i % 6].back) - Number(ALLY_SLOTS[p.i % 6].back));
       this.allyLayer.innerHTML =
         order.map(({ a, i }) => drawAlly(a, i)).join('') +
-        `<rect x="0" y="356" width="300" height="${H - 356}" fill="url(#fabric)"/><rect x="-4" y="350" width="308" height="9" rx="2" fill="#c9ced4"/>`;
+        `<rect x="0" y="356" width="${wallR.toFixed(1)}" height="${H - 356}" fill="url(#fabric)"/><rect x="-4" y="350" width="${(wallR + 8).toFixed(1)}" height="9" rx="2" fill="#c9ced4"/>`;
       this.allyLayer.style.display = s.allies.length ? '' : 'none';
     }
 
@@ -550,7 +603,7 @@ export class Scene {
   floaterOrigin() {
     const sl = targetSlots(Math.max(1, this.people.length));
     const h = headPos(sl[Math.floor(Math.random() * sl.length)]);
-    return { left: (h.x / W) * 100, top: ((h.y - 40) / H) * 100 };
+    return this.pct(h.x, h.y - 40);
   }
 }
 

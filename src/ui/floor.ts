@@ -245,7 +245,8 @@ export class FloorView {
     const cost = seatCost(s, t.id);
     const canHire = unlocked && n < seatCap(s, t.id) && s.salary >= cost;
     const person = n > 0 ? `<span class="st-person">${portraitSvg(t.portrait, 'idle')}</span><span class="st-person st-happy">${portraitSvg(t.portrait, 'happy')}</span>` : '<span class="st-chair" aria-hidden="true"></span>';
-    const pet = t.pet && n > 0 ? `<img class="st-pet ${t.pet}" src="${PETS[t.pet].poses[0]}" alt="${PETS[t.pet].name}" title="${PETS[t.pet].name}" draggable="false">` : '';
+    // Muffins lies on Adam's desk; Joey lies on the floor by the front desk. Each casts a little shadow.
+    const pet = t.pet && n > 0 ? `<span class="st-pet ${t.pet}" title="${PETS[t.pet].name}"><i class="st-shadow" aria-hidden="true"></i><img src="${PETS[t.pet].poses[0]}" alt="${PETS[t.pet].name}" draggable="false"></span>` : '';
     const plate =
       state === 'hired'
         ? `<span class="st-plate"><b>${esc(name)}</b><small>${esc(t.title)}</small></span>`
@@ -265,7 +266,9 @@ export class FloorView {
       <button type="button" class="station ${kind} ${state}${canHire ? ' afford' : ''}${this.selected === t.id ? ' on' : ''}" data-team="${t.id}" aria-label="${esc(label)}">
         <span class="st-back" aria-hidden="true"></span>
         ${person}
-        <span class="st-desk" aria-hidden="true"></span>
+        <span class="st-top" aria-hidden="true"></span>
+        <span class="st-front" aria-hidden="true"></span>
+        <span class="st-floor" aria-hidden="true"></span>
         ${pet}
         ${plate}
         ${desks}
@@ -359,8 +362,8 @@ export class FloorView {
     const now = performance.now();
     if (now < this.nextPose) return;
     this.nextPose = now + 6000 + Math.random() * 8000;
-    this.room.querySelectorAll<HTMLImageElement>('.st-pet').forEach((img) => {
-      const pet = img.classList.contains('muffins') ? 'muffins' : 'joey';
+    this.room.querySelectorAll<HTMLImageElement>('.st-pet img').forEach((img) => {
+      const pet = img.parentElement!.classList.contains('muffins') ? 'muffins' : 'joey';
       const poses = PETS[pet].poses;
       img.src = poses[Math.floor(Math.random() * poses.length)];
     });

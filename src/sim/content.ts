@@ -375,6 +375,27 @@ export const BARRAGE = {
   cooldown: 90,
 };
 
+/**
+ * Rematches: once the department is yours, nobody here can let it go. The people you
+ * beat come back one after another, a little tougher every round and worth more: a
+ * bounty (at least a few minutes of your team's pay) and a bit of Performance.
+ */
+export const REMATCH = {
+  order: ['gary4', 'brad', 'printer', 'taskforce', 'rick'],
+  first: 0.5, // round 1: they come back at half their old Resolve
+  growth: 1.35, // and each round after that, this much tougher
+  bountyMinutes: [1, 1.5, 2, 3, 6], // of your team's steady pay, if that beats the old bounty
+  bountyGrowth: 0.5, // the old bounty, +50% a round (times your pay grade)
+  review: [0.02, 0.02, 0.03, 0.04, 0.08], // share of your next promotion
+  lines: {
+    gary4: { intro: 'Gary wants a rematch. He bought a bigger fan.', defeat: 'Gary switches the fan off and sighs.', note: 'Gary’s new savings jar' },
+    brad: { intro: 'Brad says last time was a fluke. Best of three.', defeat: 'Brad reframes the loss as a learning opportunity.', note: 'Brad’s bonus check' },
+    printer: { intro: 'Janet and Ron have restocked the toner. All of it.', defeat: 'PC LOAD LETTER. The Printer Corner surrenders again.', note: 'the printer’s new petty cash' },
+    taskforce: { intro: 'The Q3 Task Force has reconvened as the Q4 Task Force.', defeat: 'The Task Force tables the discussion until next quarter.', note: 'the Task Force’s new offsite budget' },
+    rick: { intro: 'Rick is back from working from home. He looks rested.', defeat: 'Rick is working from home again. For now.', note: 'Rick’s new discretionary fund' },
+  } as Record<string, { intro: string; defeat: string; note: string }>,
+};
+
 /** Mr. Feeney's sticky note on your monitor: three small goals every work day. */
 export const GOALS = {
   perDay: 3,

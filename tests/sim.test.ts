@@ -4,9 +4,10 @@ import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/si
 import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
 import { claimMoment, petBailey } from '../src/sim/office';
 import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
-import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS } from '../src/sim/content';
+import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS, REMATCH } from '../src/sim/content';
+import { rematchStats } from '../src/sim/rematch';
 import { ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
-import { addSuspicion, applyOffline, barrage, barrageSize, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
+import { addSuspicion, applyOffline, barrage, barrageSize, canFlick, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
 import {
@@ -38,7 +39,7 @@ import { CALLERS, MAIL } from '../src/sim/workdata';
 import { buddies, chatName, chatUnread, readThread, replyOptions, sendReply, typing } from '../src/sim/chat';
 import { affordable, forSale, itemKey, shoppingList } from '../src/sim/shop';
 import { deserialize, exportSave, importSave, serialize } from '../src/sim/save';
-import { newAlly, newGame } from '../src/sim/state';
+import { currentTarget, newAlly, newGame } from '../src/sim/state';
 import { playBot, STYLES } from './bot';
 
 function run(s: ReturnType<typeof newGame>, seconds: number) {
@@ -1115,6 +1116,70 @@ describe('the rubber band ball and the Barrage', () => {
     const migrated = deserialize(JSON.stringify(old))!.state;
     expect(migrated.ball).toEqual({ wound: 0, found: false });
     expect(migrated.barrageAt).toBe(0);
+  });
+});
+
+describe('rematches after the war', () => {
+  const lastFight = () => {
+    const s = newGame(5);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    s.office.nextAt = 1e9;
+    s.stage = 2;
+    s.targetIndex = TARGETS.length - 1;
+    s.targetResolve = 0.5;
+    s.bands = 1000;
+    return s;
+  };
+  const win = (s: ReturnType<typeof newGame>) => {
+    s.targetResolve = 0.5;
+    s.nextFlickAt = 0;
+    s.flickLockUntil = 0;
+    s.suspicion = 0;
+    expect(flick(s).ok).toBe(true);
+  };
+
+  it('beating Rick starts the rematches: Gary first, at half his old Resolve', () => {
+    const s = lastFight();
+    win(s);
+    expect(s.stage).toBe(3);
+    expect(s.rematch).toMatchObject({ round: 1, index: 0 });
+    const t = currentTarget(s)!;
+    expect(t.id).toBe('gary4');
+    expect(t.resolve).toBe(Math.round(TARGETS.find((x) => x.id === 'gary4')!.resolve * REMATCH.first));
+    expect(s.targetResolve).toBe(t.resolve);
+    expect(canFlick(s).ok).toBe(true);
+  });
+
+  it('each win pays a bounty and some Performance, then the next one walks up; after Rick, a tougher round', () => {
+    const s = lastFight();
+    win(s);
+    for (let i = 0; i < REMATCH.order.length; i++) {
+      const salary = s.salary;
+      const review = s.career.review;
+      const bounty = currentTarget(s)!.bounty;
+      win(s);
+      expect(s.salary).toBeGreaterThanOrEqual(salary + bounty);
+      expect(s.career.review).toBeGreaterThan(review);
+    }
+    expect(s.stats.rematches).toBe(REMATCH.order.length);
+    expect(s.rematch).toMatchObject({ round: 2, index: 0 });
+    expect(currentTarget(s)!.resolve).toBe(rematchStats(s, 2, 0).resolve);
+    expect(rematchStats(s, 2, 0).resolve).toBeGreaterThan(rematchStats(s, 1, 0).resolve);
+  });
+
+  it('old saves that finished the war get their rematch on the next step', () => {
+    const s = lastFight();
+    s.stage = 3;
+    s.targetResolve = 0;
+    const file = JSON.parse(serialize(s));
+    file.version = 10;
+    delete file.state.rematch;
+    const back = deserialize(JSON.stringify(file))!.state;
+    expect(back.rematch).toBeNull();
+    run(back, 0.2);
+    expect(currentTarget(back)?.id).toBe('gary4');
   });
 });
 

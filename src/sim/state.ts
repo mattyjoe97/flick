@@ -1,8 +1,8 @@
-import { DALE, MOMENTS, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type TeamId, type UpgradeId, type WeaponId } from './content';
+import { DALE, MOMENTS, REMATCH, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type Target, type TeamId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 10;
+export const SAVE_VERSION = 11;
 
 export interface Email {
   id: number;
@@ -129,6 +129,9 @@ export interface GameState {
   ball: { wound: number; found: boolean };
   barrageAt: number;
 
+  /** After the war: who's back for a rematch (an index into REMATCH.order), which round, and what they're worth. */
+  rematch: { round: number; index: number; resolve: number; bounty: number } | null;
+
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
     threads: ChatThread[];
@@ -194,6 +197,7 @@ export interface GameState {
     winds: number;
     barrages: number;
     barrageDamage: number;
+    rematches: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -242,6 +246,7 @@ export type GameEvent =
   | { type: 'wound'; amount: number; size: number; grew: boolean }
   | { type: 'ballReady' }
   | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
+  | { type: 'rematch'; round: number; index: number }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -279,6 +284,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     goals: { day: -1, list: [], combo: 0 },
     ball: { wound: 0, found: false },
     barrageAt: 0,
+    rematch: null,
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -339,6 +345,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       winds: 0,
       barrages: 0,
       barrageDamage: 0,
+      rematches: 0,
     },
     events: [],
   };
@@ -359,6 +366,13 @@ export function pushTicker(s: GameState, text: string) {
   if (s.ticker.length > 6) s.ticker.length = 6;
 }
 
-export function currentTarget(s: GameState) {
-  return s.stage <= 2 ? TARGETS[s.targetIndex] : undefined;
+/** Who you're flicking at right now: the war's next target, a rematch, or nobody. */
+export function currentTarget(s: GameState): Target | undefined {
+  if (s.stage <= 2) return TARGETS[s.targetIndex];
+  const r = s.rematch;
+  if (!r) return undefined;
+  const base = TARGETS.find((t) => t.id === REMATCH.order[r.index]);
+  if (!base) return undefined;
+  const line = REMATCH.lines[base.id];
+  return { ...base, resolve: r.resolve, bounty: r.bounty, bountyNote: line?.note ?? base.bountyNote, desks: 0 };
 }

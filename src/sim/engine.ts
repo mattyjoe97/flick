@@ -9,6 +9,7 @@ import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
 import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
+import { rematchWon, startRematch, stepRematch } from './rematch';
 
 export { openBox } from './supplies';
 
@@ -100,6 +101,9 @@ function getFired(s: GameState) {
     s.desks = Math.max(0, s.desks - lostDesks);
     s.targetIndex = first;
     s.targetResolve = TARGETS[first].resolve;
+    s.sinceLastHit = 999;
+  } else if (s.rematch) {
+    s.targetResolve = s.rematch.resolve;
     s.sinceLastHit = 999;
   }
   s.suspicion = 0;
@@ -215,6 +219,11 @@ function fire(
 function capture(s: GameState) {
   const t = currentTarget(s);
   if (!t) return;
+  if (s.stage >= 3) {
+    rematchWon(s);
+    addSuspicion(s, TUNING.captureNoise);
+    return;
+  }
   s.desks += t.desks;
   // They drop whatever money they had stashed, and you get a promotion (work pays more).
   s.salary += t.bounty;
@@ -262,6 +271,8 @@ function capture(s: GameState) {
   addSuspicion(s, TUNING.captureNoise);
   pushEmail(s, 'Accounting', 'We have noticed', 'Your department has acquired 400,000 rubber bands this quarter. We will be in touch. Regards, Accounting.', 'win');
   s.events.push({ type: 'stage', stage: 3 });
+  // Nobody in this office can let it go.
+  startRematch(s, 1, 0);
 }
 
 function startTarget(s: GameState, index: number) {
@@ -324,7 +335,8 @@ export function step(s: GameState, dt: number) {
 
   // Events
   walkbys(s, m.warning, m.walkbyIntervalMult);
-  if (target && target.stage === 1 && s.time >= s.nextGaryFlickAt) {
+  // Gary flicks back (in a rematch, only while you're actually fighting him).
+  if (target && target.stage === 1 && s.time >= s.nextGaryFlickAt && (s.stage === 1 || s.time - s.lastShotAt < 60)) {
     s.nextGaryFlickAt = s.time + randRange(s, TUNING.garyFlickMin, TUNING.garyFlickMax);
     s.bands += TUNING.garyFlickBands;
     s.events.push({ type: 'enemyShot' });
@@ -358,6 +370,7 @@ export function step(s: GameState, dt: number) {
   stepOffice(s);
   stepGoals(s);
   stepBall(s);
+  stepRematch(s);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
@@ -416,7 +429,7 @@ const no = (reason: string): ActionResult => ({ ok: false, reason });
 
 /** Checks whether you could flick right now (used before starting to stretch the band). */
 export function canFlick(s: GameState): ActionResult {
-  if (s.stage > 2) return no('There is no one left to flick. For now.');
+  if (!currentTarget(s)) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
@@ -428,7 +441,7 @@ export function canFlick(s: GameState): ActionResult {
  * holding; `perfect` means you let go in the sweet spot at full stretch.
  */
 export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
-  if (s.stage > 2) return no('There is no one left to flick. For now.');
+  if (!currentTarget(s)) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   const w = weapon(s);
@@ -471,9 +484,9 @@ export function barrageCooldown(s: GameState) {
   return Math.max(0, s.barrageAt - s.time);
 }
 
-/** Barrages come with your team: from Stage 2 on, while there's someone to throw at. */
+/** Barrages come with your team: from Stage 2 on (rematches too), while there's someone to throw at. */
 export function barrageUnlocked(s: GameState) {
-  return s.stage === 2;
+  return s.stage >= 2 && !!currentTarget(s);
 }
 
 export function canBarrage(s: GameState): ActionResult {
@@ -662,7 +675,7 @@ function stepDale(s: GameState) {
     else if (s.time >= d.deal.until) dealOver(s, 'expired');
     return;
   }
-  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.stage > 2) return;
+  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || !currentTarget(s)) return;
   const opts = dealOptions(s);
   if (opts.length === 0) {
     d.nextDealAt = s.time + 60;
@@ -731,7 +744,7 @@ export function applyOffline(s: GameState, seconds: number) {
       s,
       'Out of Office',
       'While you were away',
-      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(passive).toLocaleString('en-US')}.${team >= 1 ? ` Your team made $${Math.floor(team).toLocaleString('en-US')}.` : ''}${bands >= 100 && ballUnlocked(s) ? ` Wind the bands onto your ball${s.stage === 2 ? ', or save them for a Barrage' : ''}.` : ''}`,
+      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(passive).toLocaleString('en-US')}.${team >= 1 ? ` Your team made $${Math.floor(team).toLocaleString('en-US')}.` : ''}${bands >= 100 && ballUnlocked(s) ? ` Wind the bands onto your ball${barrageUnlocked(s) ? ', or save them for a Barrage' : ''}.` : ''}`,
       'flavor',
     );
   }
