@@ -13,7 +13,7 @@ export const ROLES: { id: Role; name: string; effect: string }[] = [
 
 // ---------------------------------------------------------------- weapons
 
-export type WeaponId = 'flick' | 'ruler' | 'clothespin' | 'repeater';
+export type WeaponId = 'flick' | 'ruler' | 'clothespin' | 'repeater' | 'gatling';
 
 export interface Weapon {
   id: WeaponId;
@@ -26,6 +26,8 @@ export interface Weapon {
   price: number;
   stage: number; // first stage it can be bought in
   needsEngineer?: boolean;
+  /** A department you have to take first (its people have the parts). */
+  needsDept?: DeptId;
 }
 
 export const WEAPONS: Weapon[] = [
@@ -33,13 +35,14 @@ export const WEAPONS: Weapon[] = [
   { id: 'ruler', name: 'Ruler Launcher', blurb: 'A 12-inch ruler and a confident wrist.', damage: 3, burst: 1, noise: 1.2, reload: 0.1, price: 15, stage: 1 },
   { id: 'clothespin', name: 'Clothespin Pistol', blurb: 'Hot-glued. Trigger action. Surprisingly accurate.', damage: 7, burst: 1, noise: 1.4, reload: 0.2, price: 100, stage: 1 },
   { id: 'repeater', name: 'Binder-Clip Repeater', blurb: 'Three bands per trigger pull. Dave designed it on a napkin.', damage: 7, burst: 3, noise: 3.0, reload: 0.3, price: 420, stage: 2, needsEngineer: true },
+  { id: 'gatling', name: 'Drill-Powered Gatling', blurb: 'IT’s cordless drill and a spool. Six bands a spin.', damage: 9, burst: 6, noise: 5.0, reload: 0.4, price: 15000, stage: 3, needsEngineer: true, needsDept: 'it' },
 ];
 
 // ---------------------------------------------------------------- targets
 
 export interface Target {
   id: string;
-  stage: 1 | 2;
+  stage: number; // 1 and 2: the first war; 3: the departments
   name: string; // on the nameplate
   title: string; // second line of the nameplate
   position: string; // what they're hiding behind right now
@@ -104,6 +107,102 @@ export const TARGETS: Target[] = [
     defeat: { from: 'Rick', subject: 'Out of office', body: 'I am out of the office indefinitely. Please direct all questions to whoever is in charge now. Apparently that is you.' },
   },
 ];
+
+// ---------------------------------------------------------------- Stage 3: the Department War
+
+export type DeptId = 'it' | 'accounting' | 'mailroom' | 'marketing';
+
+/**
+ * The rest of the floor. Each department is run by a boss who fights from behind a
+ * barricade of their department's junk. Take them in any order: each one you take gives
+ * you something for good, and puts the others on alert (they get tougher).
+ */
+export interface Department extends Target {
+  dept: DeptId;
+  label: string; // the department's name on the map
+  short: string; // how the boss is referred to ("Derek")
+  perk: string; // what taking it gives you, completing "You get ..."
+  prize: string; // the same, in a few words (the map, the welcome)
+}
+
+export const DEPARTMENTS: Department[] = [
+  {
+    id: 'it', dept: 'it', label: 'IT', short: 'Derek', stage: 3, name: 'Derek Voss', title: 'Systems Administrator', position: 'Behind a wall of old computers',
+    resolve: 120000, regenPct: 0.008, desks: 4, bounty: 4000, bountyNote: 'IT’s “hardware budget”',
+    twist: 'Firewall: every 45 s it goes up for 10 s and stops half of every shot. Barrages go straight through.',
+    perk: 'the Drill-Powered Gatling, and supply orders that place and open themselves',
+    prize: 'The Drill Gatling, and supplies that order themselves',
+    intro: { from: 'Derek (IT)', subject: 'Ticket #4471: rubber bands', body: 'Your ticket has been received. Priority: low. Expected response time: never. IT does not surrender. IT closes tickets.' },
+    defeat: { from: 'Derek (IT)', subject: 'Ticket #4471: resolved', body: 'Fine. Your workstation has admin rights now, and I wrote you a script that orders your supplies. Take the drill. Please stop unplugging my servers.' },
+  },
+  {
+    id: 'accounting', dept: 'accounting', label: 'Accounting', short: 'Doris', stage: 3, name: 'Doris Kemper', title: 'Controller', position: 'Behind a fortress of ledgers',
+    resolve: 140000, regenPct: 0.008, desks: 5, bounty: 6000, bountyNote: 'the petty cash Accounting swears doesn’t exist',
+    twist: 'Doris only respects effort: quick taps hit for half. Stretch your shots.',
+    perk: '25% more pay for everything you and your team do at work',
+    prize: '+25% pay on all work',
+    intro: { from: 'Doris Kemper', subject: 'Re: We have noticed', body: 'This is Doris Kemper, Controller. Your rubber band spend has been flagged. Accounting does not surrender. Accounting reconciles.' },
+    defeat: { from: 'Doris Kemper', subject: 'Surrender (under protest)', body: 'Accounting has surrendered. We would like it noted that we are surrendering under protest. Your team’s pay has been adjusted upward. Do not make us regret it.' },
+  },
+  {
+    id: 'mailroom', dept: 'mailroom', label: 'Mailroom', short: 'Tony', stage: 3, name: 'Big Tony', title: 'Mailroom Supervisor', position: 'On top of the band pile',
+    resolve: 110000, regenPct: 0.008, desks: 3, bounty: 3500, bountyNote: 'Tony’s poker winnings',
+    twist: 'Tony fires back every 20 s: a fistful of bands lands on your desk. Free ammo, but loud.',
+    perk: '10 more bands a second, straight from the mailroom',
+    prize: '+10 bands a second',
+    intro: { from: 'Big Tony', subject: 'You got a package', body: 'Every rubber band in this building comes through my mailroom. Every one. Think about that.' },
+    defeat: { from: 'Big Tony', subject: 'Return to sender', body: 'Alright. You got moxie, kid. The mailroom’s yours. I’ll have the bands sent up. All of ’em.' },
+  },
+  {
+    id: 'marketing', dept: 'marketing', label: 'Marketing', short: 'Skyler', stage: 3, name: 'Skyler Brandt', title: 'Brand Lead', position: 'Behind the ring light',
+    resolve: 130000, regenPct: 0.008, desks: 6, bounty: 5000, bountyNote: 'the swag budget',
+    twist: 'Rebrand: the first time Skyler drops below half, she rebrands and gets a quarter of her Resolve back.',
+    perk: 'hiring that costs 30% less (Marketing writes your job ads now)',
+    prize: 'Hiring costs 30% less',
+    intro: { from: 'Skyler (Marketing)', subject: 'Quick sync re: your campaign', body: 'Love the energy! Unfortunately Marketing owns the narrative. We’re going to win this war in the court of public opinion. And with rubber bands.' },
+    defeat: { from: 'Skyler (Marketing)', subject: 'Exciting news!', body: 'Thrilled to announce that Marketing is joining your team! This is a merger, not a surrender. I’ve already made a deck.' },
+  },
+];
+
+/** The Department War's rules and perks. */
+export const WAR = {
+  reinforce: 1.4, // every department you take makes the others this much tougher
+  bountyMinutes: 10, // a department's bounty: at least this many minutes of your team's pay
+  review: 0.12, // and this share of your next promotion
+  firewall: { every: 45, up: 10, mult: 0.5 }, // IT
+  tapBelow: 0.3, // Accounting: shots stretched less than this...
+  tapMult: 0.5, // ...hit for this much
+  tony: { every: 20, bands: 15, noise: 3 }, // the Mailroom fires back
+  rebrandAt: 0.5, // Marketing rebrands below this share of Resolve...
+  rebrandBack: 0.25, // ...and gets this share back
+  mailroomRate: 10, // bands a second, once the Mailroom is yours
+  accountingPay: 1.25,
+  marketingHire: 0.7,
+  autoOrderCushion: 5, // IT's script only orders when you have this many orders' worth of cash
+  /**
+   * Dale's supply closet is contested ground. Hold it and it pays out bands; departments
+   * you haven't taken sneak in to raid it. Chase them off (they drop what they grabbed),
+   * or your Lookouts might catch them. A raid that gets away loses you the closet for a
+   * while, and the raiders take the bands back to their department.
+   */
+  closet: {
+    bonus: 3, // bands a second while it's yours
+    firstAt: 120, // seconds into the Department War
+    gap: [180, 300] as [number, number],
+    seconds: 20, // how long you have to chase them off
+    lost: 120, // seconds the closet is theirs after a raid gets away
+    heal: 0.1, // of the raiders' Resolve, back
+    dropSeconds: 15, // chasing them off: they drop this many seconds of your band income
+    dropMin: 40,
+    lookoutEach: 0.25, // chance a raid is caught per point of Lookout power
+    lookoutMax: 0.75,
+  },
+};
+
+/** Anyone you've ever fought, by id (rematches look them up here). */
+export function targetById(id: string): Target | undefined {
+  return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id);
+}
 
 // ---------------------------------------------------------------- coworkers
 
@@ -398,19 +497,26 @@ export const BARRAGE = {
  * bounty (at least a few minutes of your team's pay) and a bit of Performance.
  */
 export const REMATCH = {
-  order: ['gary4', 'brad', 'printer', 'taskforce', 'rick'],
+  /** After the Department War, the department bosses join the rotation too. */
+  order: ['gary4', 'brad', 'printer', 'taskforce', 'rick', 'it', 'accounting', 'mailroom', 'marketing'],
   first: 0.5, // round 1: they come back at half their old Resolve
   growth: 1.35, // and each round after that, this much tougher
-  bountyMinutes: [1, 1.5, 2, 3, 6], // of your team's steady pay, if that beats the old bounty
+  bountyMinutes: [1, 1.5, 2, 3, 6, 5, 5, 5, 5], // of your team's steady pay, if that beats the old bounty
   bountyGrowth: 0.5, // the old bounty, +50% a round (times your pay grade)
-  review: [0.02, 0.02, 0.03, 0.04, 0.08], // share of your next promotion
+  review: [0.02, 0.02, 0.03, 0.04, 0.08, 0.05, 0.05, 0.05, 0.05], // share of your next promotion
   lines: {
     gary4: { intro: 'Gary wants a rematch. He bought a bigger fan.', defeat: 'Gary switches the fan off and sighs.', note: 'Gary’s new savings jar' },
     brad: { intro: 'Brad says last time was a fluke. Best of three.', defeat: 'Brad reframes the loss as a learning opportunity.', note: 'Brad’s bonus check' },
     printer: { intro: 'Janet and Ron have restocked the toner. All of it.', defeat: 'PC LOAD LETTER. The Printer Corner surrenders again.', note: 'the printer’s new petty cash' },
     taskforce: { intro: 'The Q3 Task Force has reconvened as the Q4 Task Force.', defeat: 'The Task Force tables the discussion until next quarter.', note: 'the Task Force’s new offsite budget' },
     rick: { intro: 'Rick is back from working from home. He looks rested.', defeat: 'Rick is working from home again. For now.', note: 'Rick’s new discretionary fund' },
+    it: { intro: 'Derek has restored IT from a backup.', defeat: 'Derek closes the ticket again. Won’t fix.', note: 'IT’s new “hardware budget”' },
+    accounting: { intro: 'Accounting has found an error in the surrender paperwork.', defeat: 'Doris surrenders again. Under protest. Again.', note: 'Accounting’s new petty cash' },
+    mailroom: { intro: 'Big Tony says the last war got lost in the mail.', defeat: 'Tony tips his cap. Return to sender.', note: 'Tony’s new poker winnings' },
+    marketing: { intro: 'Skyler has rebranded the Department War as “Season 2”.', defeat: 'Skyler calls it a soft launch.', note: 'the new swag budget' },
   } as Record<string, { intro: string; defeat: string; note: string }>,
+  /** How many of `order` are in the rotation before the Department War is won. */
+  firstWar: 5,
 };
 
 /** Mr. Feeney's sticky note on your monitor: three small goals every work day. */

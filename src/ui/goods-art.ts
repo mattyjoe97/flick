@@ -3,6 +3,7 @@
 import gunRuler from '../assets/art/gun-ruler.webp';
 import gunClothespin from '../assets/art/gun-clothespin.webp';
 import gunRepeater from '../assets/art/gun-repeater.webp';
+import gunGatling from '../assets/art/gun-gatling.webp';
 import fingerBand from '../assets/art/prop-band_a.webp';
 import iconSilent from '../assets/art/icon-silent.webp';
 import iconRummage from '../assets/art/icon-rummage.webp';
@@ -22,7 +23,7 @@ import iconWalls from '../assets/art/icon-walls.webp';
 import type { UpgradeId, WeaponId } from '../sim/content';
 
 /** Each weapon as it hangs on Dale's pegboard (the Finger Flick is just a rubber band). */
-export const GUN_ART: Record<WeaponId, string> = { flick: fingerBand, ruler: gunRuler, clothespin: gunClothespin, repeater: gunRepeater };
+export const GUN_ART: Record<WeaponId, string> = { flick: fingerBand, ruler: gunRuler, clothespin: gunClothespin, repeater: gunRepeater, gatling: gunGatling };
 
 export const ICON_ART: Record<UpgradeId, string> = {
   rummage: iconRummage,

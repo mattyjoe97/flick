@@ -1,8 +1,8 @@
-import { DALE, MOMENTS, REMATCH, TARGETS, TUNING, type CoworkerId, type MomentKind, type Role, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { DALE, DEPARTMENTS, MOMENTS, REMATCH, TARGETS, TUNING, WAR, targetById, type CoworkerId, type DeptId, type Department, type MomentKind, type Role, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 12;
+export const SAVE_VERSION = 13;
 
 export interface Email {
   id: number;
@@ -70,7 +70,7 @@ export interface GameState {
   salary: number;
   suspicion: number;
 
-  stage: 1 | 2 | 3; // 3 = first slice complete
+  stage: 1 | 2 | 3 | 4; // 3 = the Department War, 4 = the whole floor is yours
   targetIndex: number;
   targetResolve: number;
   sinceLastHit: number;
@@ -138,8 +138,14 @@ export interface GameState {
   ball: { wound: number; found: boolean };
   barrageAt: number;
 
-  /** After the war: who's back for a rematch (an index into REMATCH.order), which round, and what they're worth. */
-  rematch: { round: number; index: number; resolve: number; bounty: number } | null;
+  /**
+   * After the first war: who's back for a rematch (an index into REMATCH.order), which
+   * round, what they're worth, and the Resolve they have left while you're busy elsewhere.
+   */
+  rematch: { round: number; index: number; resolve: number; bounty: number; left?: number } | null;
+
+  /** Stage 3, the Department War: how much fight each department has left, and the supply closet. */
+  war: WarState;
 
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
@@ -208,10 +214,38 @@ export interface GameState {
     barrageDamage: number;
     rematches: number;
     howls: number;
+    depts: number;
+    raidsStopped: number;
+    raidsLost: number;
+    stage3At: number | null;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
   events: GameEvent[];
+}
+
+export interface WarState {
+  /** Share of its Resolve each department has left (it keeps it while you fight someone else). */
+  depts: Record<DeptId, { share: number; taken: boolean; met: boolean; rebranded: boolean }>;
+  /** Who you're fighting: a department, or your old rivals' rematches. */
+  fighting: DeptId | 'rematch';
+  /** When Big Tony next fires back. */
+  tonyAt: number;
+  /** The supply closet: a raid in progress, when the next one comes, and how long it's theirs. */
+  closet: { raid: { dept: DeptId; until: number } | null; nextAt: number; lostUntil: number };
+  /** The UI has shown the Department War's welcome (old saves see it once). */
+  announced: boolean;
+}
+
+export function newWar(): WarState {
+  const d = () => ({ share: 1, taken: false, met: false, rebranded: false });
+  return {
+    depts: { it: d(), accounting: d(), mailroom: d(), marketing: d() },
+    fighting: 'it',
+    tonyAt: 0,
+    closet: { raid: null, nextAt: 0, lostUntil: -999 },
+    announced: false,
+  };
 }
 
 export type GameEvent =
@@ -238,7 +272,7 @@ export type GameEvent =
   | { type: 'taskAuto'; kind: WorkKind; who: string }
   | { type: 'callMissed' }
   | { type: 'chat'; from: string }
-  | { type: 'delivery'; amount: number; free: boolean }
+  | { type: 'delivery'; amount: number; free: boolean; auto?: boolean }
   | { type: 'find'; kind: FindKind }
   | { type: 'boxSpotted'; noise: number }
   | { type: 'deal' }
@@ -259,6 +293,11 @@ export type GameEvent =
   | { type: 'ballReady' }
   | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
   | { type: 'rematch'; round: number; index: number }
+  | { type: 'fight'; id: DeptId | 'rematch' }
+  | { type: 'rebrand' }
+  | { type: 'raid'; dept: DeptId }
+  | { type: 'raidOver'; dept: DeptId; how: 'chased' | 'lookout' | 'lost'; bands: number }
+  | { type: 'deptTaken'; id: DeptId }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -297,6 +336,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     ball: { wound: 0, found: false },
     barrageAt: 0,
     rematch: null,
+    war: newWar(),
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -359,6 +399,10 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       barrageDamage: 0,
       rematches: 0,
       howls: 0,
+      depts: 0,
+      raidsStopped: 0,
+      raidsLost: 0,
+      stage3At: null,
     },
     events: [],
   };
@@ -379,12 +423,40 @@ export function pushTicker(s: GameState, text: string) {
   if (s.ticker.length > 6) s.ticker.length = 6;
 }
 
-/** Who you're flicking at right now: the war's next target, a rematch, or nobody. */
+/** Has this department surrendered? */
+export function deptTaken(s: GameState, id: DeptId) {
+  return !!s.war?.depts[id]?.taken;
+}
+
+/** How many departments you've taken. */
+export function deptsTaken(s: GameState) {
+  return DEPARTMENTS.filter((d) => deptTaken(s, d.dept)).length;
+}
+
+/** A department's full Resolve right now: every one you've taken puts the rest on alert. */
+export function deptMax(s: GameState, id: DeptId) {
+  const d = DEPARTMENTS.find((x) => x.dept === id)!;
+  return Math.round(d.resolve * Math.pow(WAR.reinforce, deptsTaken(s)));
+}
+
+/** A department as a target, at its current strength. */
+export function deptTarget(s: GameState, id: DeptId): Department {
+  const d = DEPARTMENTS.find((x) => x.dept === id)!;
+  return { ...d, resolve: deptMax(s, id) };
+}
+
+/** Who's in the rematch rotation: your old rivals, and the department bosses once the floor is yours. */
+export function rematchOrder(s: GameState): string[] {
+  return s.stage >= 4 ? REMATCH.order : REMATCH.order.slice(0, REMATCH.firstWar);
+}
+
+/** Who you're flicking at right now: the war's next target, a department, a rematch, or nobody. */
 export function currentTarget(s: GameState): Target | undefined {
   if (s.stage <= 2) return TARGETS[s.targetIndex];
+  if (s.stage === 3 && s.war && s.war.fighting !== 'rematch') return deptTarget(s, s.war.fighting);
   const r = s.rematch;
   if (!r) return undefined;
-  const base = TARGETS.find((t) => t.id === REMATCH.order[r.index]);
+  const base = targetById(rematchOrder(s)[r.index]);
   if (!base) return undefined;
   const line = REMATCH.lines[base.id];
   return { ...base, resolve: r.resolve, bounty: r.bounty, bountyNote: line?.note ?? base.bountyNote, desks: 0 };

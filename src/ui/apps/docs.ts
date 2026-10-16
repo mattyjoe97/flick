@@ -49,7 +49,11 @@ ${tick(s.stage >= 2)} make Gary surrender
 ${tick(s.stage >= 2 && s.targetIndex > 4)} Brad. obviously
 ${tick(s.stage >= 2 && s.targetIndex > 5)} the Printer Corner
 ${tick(s.stage >= 2 && s.targetIndex > 6)} the Q3 Task Force
-${tick(s.stage > 2)} Rick
+${tick(s.stage > 2)} Rick${s.stage >= 3 ? `
+${tick(!!s.war?.depts.it.taken)} IT (get the drill)
+${tick(!!s.war?.depts.accounting.taken)} Accounting (under protest)
+${tick(!!s.war?.depts.mailroom.taken)} the Mailroom
+${tick(!!s.war?.depts.marketing.taken)} Marketing` : ''}
 [ ] finish the Q3 deck
 [ ] return the stapler`,
   },

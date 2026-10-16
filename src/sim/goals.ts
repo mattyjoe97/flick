@@ -38,7 +38,9 @@ export const GOAL_DEFS: GoalDef[] = [
   { id: 'scrounge', text: 'Find 15 bands in your drawer', target: 15, count: (s) => s.stats.bandsScrounged ?? 0, when: war },
   { id: 'wind', text: 'Wind 100 bands onto your ball', target: 100, count: (s) => s.stats.winds ?? 0, when: ballUnlocked },
   { id: 'barrage', text: 'Call a Barrage', target: 1, count: (s) => s.stats.barrages ?? 0, when: (s) => s.stage >= 2 && war(s) },
-  { id: 'rematch', text: 'Win a rematch', target: 1, count: (s) => s.stats.rematches ?? 0, when: (s) => s.stage >= 3 },
+  { id: 'rematch', text: 'Win a rematch', target: 1, count: (s) => s.stats.rematches ?? 0, when: (s) => s.stage >= 4 },
+  { id: 'raid', text: 'Stop a raid on the supply closet', target: 1, count: (s) => s.stats.raidsStopped ?? 0, when: (s) => s.stage === 3 },
+  { id: 'dent', text: 'Knock 30,000 Resolve off the departments', target: 30000, count: (s) => s.stats.damage ?? 0, when: (s) => s.stage === 3 },
 ];
 
 export function goalDef(id: string) {

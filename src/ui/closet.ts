@@ -29,6 +29,7 @@ import {
   takeDeal,
   targetDefeated,
   upgradeAvailable,
+  weaponAvailable,
 } from '../sim/engine';
 import { has, isConfiscated, mods } from '../sim/mods';
 import type { GameState } from '../sim/state';
@@ -40,6 +41,7 @@ const PITCH: Record<string, string> = {
   ruler: 'Twelve inches. Well. Six now.',
   clothespin: 'Hot-glued it myself. Mostly.',
   repeater: 'Dave’s design. I just sell it. Three bands a pull.',
+  gatling: 'IT’s drill. Don’t ask how I got it. Six bands a spin.',
   rummage: 'Bring a light. You’d be amazed what’s back there.',
   waxed: 'Waxed. Smooth draw, late snap.',
   silent: 'Fingerless. For the professional.',
@@ -84,8 +86,9 @@ const GUN_SPOTS: Record<string, [number, number, number]> = {
   ruler: [PEG[0] + (PEG[2] - PEG[0]) * 0.27, PEG[1] + (PEG[3] - PEG[1]) * 0.25, 0.23],
   clothespin: [PEG[0] + (PEG[2] - PEG[0]) * 0.73, PEG[1] + (PEG[3] - PEG[1]) * 0.28, 0.23],
   repeater: [PEG[0] + (PEG[2] - PEG[0]) * 0.32, PEG[1] + (PEG[3] - PEG[1]) * 0.62, 0.18],
+  gatling: [PEG[0] + (PEG[2] - PEG[0]) * 0.73, PEG[1] + (PEG[3] - PEG[1]) * 0.66, 0.21],
 };
-const GUN_ORDER: WeaponId[] = ['ruler', 'clothespin', 'repeater'];
+const GUN_ORDER: WeaponId[] = ['ruler', 'clothespin', 'repeater', 'gatling'];
 /** Four things on the table top, three on the floor underneath it. */
 function goodsSpot(i: number): [number, number, number] {
   const w = 0.075;
@@ -253,7 +256,7 @@ export class ClosetView {
     if (s.hr.confiscated) return 'lost';
     for (const id of GUN_ORDER) {
       const w = WEAPONS.find((x) => x.id === id)!;
-      if (!s.ownedWeapons.includes(id) && w.stage <= s.stage && s.salary >= priceOf(s, w.price)) return `w:${id}`;
+      if (!s.ownedWeapons.includes(id) && weaponAvailable(s, id) && s.salary >= priceOf(s, w.price)) return `w:${id}`;
     }
     for (const u of this.goods(s)) if (!has(s, u.id) && upgradeAvailable(s, u.id) && s.salary >= priceOf(s, u.price)) return `u:${u.id}`;
     if (this.forms(s).some((u) => !has(s, u.id) && upgradeAvailable(s, u.id) && s.salary >= priceOf(s, u.price))) return 'forms';
@@ -354,6 +357,7 @@ export class ClosetView {
       if (s.ownedWeapons.includes(w.id)) return { text: 'Yours', cls: 'mine' };
       if (deal?.kind === 'weapon' && deal.id === w.id) return { text: `Deal ${money(deal.price)}`, cls: 'deal' };
       if (w.stage > s.stage) return { text: `Stage ${w.stage}`, cls: 'locked' };
+      if (!weaponAvailable(s, w.id)) return { text: 'Take IT first', cls: 'locked' };
       if (w.needsEngineer && !mods(s).hasEngineer) return { text: 'Needs an Engineer', cls: 'locked' };
       return { text: money(priceOf(s, w.price)), cls: s.salary >= priceOf(s, w.price) ? 'afford' : '' };
     }
@@ -442,6 +446,7 @@ export class ClosetView {
       else if (s.weapon === w.id) act = `<span class="stamp blue">Equipped</span>`;
       else if (owned) act = `<button type="button" class="buy" data-weapon="${w.id}">Equip</button>`;
       else if (w.stage > s.stage) act = `<p class="tag-note">Stage ${w.stage}</p>`;
+      else if (!weaponAvailable(s, w.id)) act = '<p class="tag-note">IT has the parts. Take IT first (on the map).</p>';
       else if (w.needsEngineer && !mods(s).hasEngineer) act = `<p class="tag-note">Needs someone assigned as Engineer to build it</p>`;
       else act = `${dealBtn(onDeal)}<button type="button" class="buy" data-weapon="${w.id}" data-price="${price}">Buy ${money(price)}</button>`;
       this.detail.innerHTML = `<h3>${esc(w.name)}</h3><p>${esc(w.blurb)}</p>

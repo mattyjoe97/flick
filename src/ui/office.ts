@@ -204,8 +204,11 @@ export class OfficeView {
     const el = document.getElementById('goals-note');
     if (!el) return;
     const rows = s.goals.list.map((_, i) => goalProgress(s, i));
+    // Big counts (Resolve knocked off) read in thousands.
+    const count = (g: { done: number; target: number }) =>
+      g.target >= 1000 ? `${Math.floor(g.done / 1000)}k/${Math.round(g.target / 1000)}k` : `${Math.floor(g.done)}/${g.target}`;
     const day = Math.floor(s.time / WORK.dayLength);
-    const key = `${day}|${rows.map((r) => `${r.done}/${r.target}${r.finished ? '!' : ''}`).join(',')}`;
+    const key = `${day}|${rows.map((r) => `${count(r)}${r.finished ? '!' : ''}`).join(',')}`;
     if (key === this.notesKey) return;
     this.notesKey = key;
     const r = goalReward(s);
@@ -214,7 +217,7 @@ export class OfficeView {
       <ul>${rows
         .map(
           (g) =>
-            `<li class="${g.finished ? 'done' : ''}"><i aria-hidden="true">${g.finished ? '✓' : ''}</i><span>${esc(g.text)}</span>${g.target > 1 && !g.finished ? `<em>${g.done}/${g.target}</em>` : ''}</li>`,
+            `<li class="${g.finished ? 'done' : ''}"><i aria-hidden="true">${g.finished ? '✓' : ''}</i><span>${esc(g.text)}</span>${g.target > 1 && !g.finished ? `<em>${count(g)}</em>` : ''}</li>`,
         )
         .join('')}</ul>
       <small class="gn-pay">Each: Performance + ${money(r.cash)}</small>`;

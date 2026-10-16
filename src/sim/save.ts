@@ -1,5 +1,6 @@
-import { COWORKERS, MOMENTS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
-import { newGame, SAVE_VERSION, type GameState } from './state';
+import { COWORKERS, DEPARTMENTS, MOMENTS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { deptMax, newGame, newWar, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
+import { warForOldSave } from './war';
 
 export const SAVE_KEY = 'flick.save';
 
@@ -59,9 +60,22 @@ function migrate(file: SaveFile): GameState | null {
   s.goals = { ...base.goals, ...(file.state.goals ?? {}) };
   s.ball = { ...base.ball, ...(file.state.ball ?? {}) };
   s.rematch = file.state.rematch ?? null;
+  // The Department War: saves from before it that had already beaten Rick open it with their rematch.
+  if (file.version < 13 || !file.state.war) {
+    s.war = newWar();
+    if (s.stage >= 3) warForOldSave(s);
+  } else s.war = mergeWar(file.state.war);
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
+}
+
+function mergeWar(saved: Partial<WarState>): WarState {
+  const base = newWar();
+  const depts = { ...base.depts };
+  for (const d of DEPARTMENTS) depts[d.dept] = { ...base.depts[d.dept], ...(saved.depts?.[d.dept] ?? {}) };
+  // A raid doesn't wait while the game is closed.
+  return { ...base, ...saved, depts, closet: { ...base.closet, ...(saved.closet ?? {}), raid: null } };
 }
 
 /** Before version 7, Messenger was one log; now it's a conversation per person. */
@@ -81,7 +95,7 @@ function sanitize(s: GameState): boolean {
   const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n);
   if (![s.time, s.bands, s.salary, s.suspicion, s.targetResolve, s.desks].every(finite)) return false;
   if (s.targetIndex < 0 || s.targetIndex >= TARGETS.length) return false;
-  if (![1, 2, 3].includes(s.stage)) return false;
+  if (![1, 2, 3, 4].includes(s.stage)) return false;
   s.bands = Math.max(0, s.bands);
   s.salary = Math.max(0, s.salary);
   s.suspicion = Math.min(99, Math.max(0, s.suspicion));
@@ -114,8 +128,32 @@ function sanitize(s: GameState): boolean {
   if (!Number.isFinite(s.office.howledAt)) s.office.howledAt = -999;
   s.ball = { wound: Math.max(0, Math.floor(Number(s.ball.wound) || 0)), found: !!s.ball.found };
   const r = s.rematch;
-  if (r && !(Number.isInteger(r.round) && r.round >= 1 && Number.isInteger(r.index) && r.index >= 0 && r.index < 5 && Number(r.resolve) > 0 && Number.isFinite(r.bounty))) s.rematch = null;
+  if (r && !(Number.isInteger(r.round) && r.round >= 1 && Number.isInteger(r.index) && r.index >= 0 && r.index < rematchOrder(s).length && Number(r.resolve) > 0 && Number.isFinite(r.bounty))) s.rematch = null;
+  if (r && s.rematch && !(Number.isFinite(r.left) && r.left! >= 0)) r.left = r.resolve;
   if (s.stage < 3) s.rematch = null;
+  const war = s.war;
+  const was = war.fighting;
+  for (const d of DEPARTMENTS) {
+    const w = war.depts[d.dept];
+    w.share = Math.min(1, Math.max(0, Number(w.share)));
+    if (!Number.isFinite(w.share)) w.share = 1;
+    w.taken = !!w.taken;
+    w.met = !!w.met;
+    w.rebranded = !!w.rebranded;
+  }
+  if (war.fighting !== 'rematch' && !DEPARTMENTS.some((d) => d.dept === war.fighting)) war.fighting = 'rematch';
+  if (war.fighting !== 'rematch' && war.depts[war.fighting].taken) war.fighting = DEPARTMENTS.find((d) => !war.depts[d.dept].taken)?.dept ?? 'rematch';
+  if (s.stage >= 4) war.fighting = 'rematch';
+  // If we had to change who you're fighting, their Resolve comes with them.
+  if (war.fighting !== was && s.stage >= 3) {
+    if (war.fighting === 'rematch') s.targetResolve = s.rematch?.left ?? s.rematch?.resolve ?? 0;
+    else s.targetResolve = war.depts[war.fighting].share * deptMax(s, war.fighting);
+  }
+  if (!Number.isFinite(war.tonyAt)) war.tonyAt = s.time;
+  const cl = war.closet;
+  if (!Number.isFinite(cl.nextAt)) cl.nextAt = s.time + 120;
+  if (!Number.isFinite(cl.lostUntil)) cl.lostUntil = -999;
+  war.announced = !!war.announced;
   s.barrageAt = Math.min(s.barrageAt, s.time + 60);
   const c = s.career;
   c.rank = Math.min(PAY_GRADES.length - 1, Math.max(0, Math.floor(Number(c.rank) || 0)));

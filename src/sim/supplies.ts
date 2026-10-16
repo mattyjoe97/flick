@@ -10,9 +10,10 @@
 // bands that sit around unopened.
 
 import { chatEvent } from './chat';
+import { WAR } from './content';
 import { has, mods } from './mods';
 import { rand } from './rng';
-import { pushTicker, type GameState } from './state';
+import { deptTaken, pushTicker, type GameState } from './state';
 
 export type FindKind = 'tangle' | 'ball' | 'change';
 
@@ -30,8 +31,8 @@ export const SUPPLIES = {
   findChance: 0.05, // per refill tick, when there's nothing good in the drawer already
   findWeights: { tangle: 6, change: 3, ball: 1 } as Record<FindKind, number>,
   tangle: 5, // bands
-  ball: [0, 25, 60, 120], // bands, by stage
-  change: [0, 3, 8, 15], // dollars, by stage
+  ball: [0, 25, 60, 120, 200], // bands, by stage
+  change: [0, 3, 8, 15, 25], // dollars, by stage
   deliverySeconds: 10,
   boxNoise: 6, // Suspicion when Mr. Feeney walks past an unopened box
   bulkAt: 200, // a box this big comes in the huge box
@@ -64,11 +65,30 @@ export function stepSupplies(s: GameState) {
     deliver(s, p.order.amount, false);
     p.order = null;
   }
+  autoOrder(s);
+}
+
+/** Once IT is yours, Derek's script orders bands when you run low (if there's cash to spare). */
+function autoOrder(s: GameState) {
+  const p = s.supplies;
+  if (!deptTaken(s, 'it') || p.order) return;
+  const o = mods(s).order;
+  if (s.bands >= o.amount / 2 || s.salary < o.price * WAR.autoOrderCushion) return;
+  s.salary -= o.price;
+  s.stats.ordersPlaced++;
+  p.order = { amount: o.amount, arriveAt: s.time + SUPPLIES.deliverySeconds };
 }
 
 /** A box of bands lands on your desk (or gets added to the one already there). */
 export function deliver(s: GameState, amount: number, free: boolean) {
   const p = s.supplies;
+  // IT's script signs for your orders and puts the bands straight in your drawer.
+  if (!free && deptTaken(s, 'it')) {
+    s.bands += amount;
+    s.stats.boxesOpened++;
+    s.events.push({ type: 'delivery', amount, free, auto: true });
+    return;
+  }
   if (p.box) p.box.amount += amount;
   else p.box = { amount, arrivedAt: s.time, free };
   s.events.push({ type: 'delivery', amount: p.box.amount, free });
@@ -87,12 +107,12 @@ export function grab(s: GameState, pick: 'band' | 'find' = s.supplies.find ? 'fi
     p.find = null;
     s.stats.finds++;
     if (item === 'change') {
-      const salary = SUPPLIES.change[s.stage];
+      const salary = SUPPLIES.change[Math.min(s.stage, SUPPLIES.change.length - 1)];
       s.salary += salary;
       return { ok: true, item, bands: 0, salary };
     }
     if (item === 'ball') chatEvent(s, 'find:ball');
-    const bands = item === 'ball' ? SUPPLIES.ball[s.stage] : SUPPLIES.tangle * mods(s).scrounge;
+    const bands = item === 'ball' ? SUPPLIES.ball[Math.min(s.stage, SUPPLIES.ball.length - 1)] : SUPPLIES.tangle * mods(s).scrounge;
     s.bands += bands;
     s.stats.bandsScrounged += bands;
     return { ok: true, item, bands, salary: 0 };

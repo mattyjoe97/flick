@@ -6,7 +6,7 @@
 // show "Gary is typing…". Some lines can be answered with one of two quick replies,
 // and a few replies get an answer back (or do something, like Dale finding you a deal).
 
-import { TEAMS } from './content';
+import { TEAMS, type DeptId } from './content';
 import { rand, randRange } from './rng';
 import type { ChatThread, GameState } from './state';
 
@@ -30,6 +30,7 @@ interface Line {
 const has = (s: GameState, id: string) => s.allies.some((a) => a.id === id);
 const stage1 = (s: GameState) => s.stage === 1;
 const stage2 = (s: GameState) => s.stage === 2;
+const holdingOut = (id: DeptId) => (s: GameState) => s.stage === 3 && !s.war.depts[id].taken;
 
 /** Said once, right when something happens. */
 const EVENT_LINES: Record<string, Line[]> = {
@@ -41,6 +42,14 @@ const EVENT_LINES: Record<string, Line[]> = {
   'capture:printer': [{ id: 'p1', from: 'Ron', text: 'PC LOAD LETTER. we surrender. nobody knows what it means' }],
   'capture:taskforce': [{ id: 't1', from: 'Q3 Task Force', text: 'This group chat has been archived.' }],
   'capture:rick': [{ id: 'r1', from: 'Rick', text: 'I’ll be working from home. Indefinitely.' }],
+  'capture:it': [{ id: 'd-it', from: 'Dave', text: 'you beat Derek?? we shared a desk for six years. he labeled his half', replies: [{ text: 'want the drill?', then: 'I already have plans for the drill' }, { text: 'he says hi', then: 'no he doesn’t' }] }],
+  'capture:accounting': [{ id: 'd-ac', from: 'Marjorie', text: 'Doris has never lost an audit, dear. Until today. She’ll never forgive you. Well done.' }],
+  'capture:mailroom': [{ id: 'd-ma', from: 'Kevin', text: 'the MAILROOM is ours?? Tony once made me sort rubber bands for a week. by COLOR', replies: [{ text: 'they’re all tan', then: 'THAT’S WHAT I SAID' }, { text: 'revenge', then: 'sweet sweet revenge' }] }],
+  'capture:marketing': [{ id: 'd-mk', from: 'Brad', text: 'Marketing joined you? Sales has always respected Marketing. (Sales has never respected Marketing.)' }],
+  rebrand: [{ id: 'd-rb', from: 'Gary', text: 'did Skyler just rebrand in the middle of a war. can she DO that', replies: [{ text: 'apparently', then: 'I want a rebrand' }, { text: 'keep firing', then: 'firing. rebranding my aim' }] }],
+  'war:start': [{ id: 'd-ws', from: 'Dale (Facilities)', text: 'heads up. the other departments have been eyeing my closet. keep it yours and it keeps paying you', replies: [{ text: 'paying how?', then: 'bands. I leave the door open a crack. you know how it is' }, { text: 'on it', then: 'good. I’ll be in the closet. obviously' }] }],
+  'raid:chased': [{ id: 'd-rc', from: 'Dale (Facilities)', text: 'saw you chase them out. my closet thanks you. (I’ll know if anything’s missing)' }],
+  'raid:lost': [{ id: 'd-rl', from: 'Dale (Facilities)', text: 'somebody just walked out of my closet with a box of bands. that’s YOUR closet now, friend. act like it' }],
   'recruit:kevin': [{ id: 'rk', from: 'Kevin', text: 'omg I’m on the team!! do I get a title. or a desk', replies: [{ text: 'you get a role', then: 'a ROLE. like in a movie' }, { text: 'neither', then: 'still worth it' }] }],
   'recruit:marjorie': [{ id: 'rm', from: 'Marjorie', text: 'I’ll keep an eye out, dear. I always do.' }],
   'recruit:steve': [{ id: 'rs', from: 'Steve', text: 'sorry, were you talking? I’m in. going on mute' }],
@@ -127,6 +136,11 @@ const BANTER: Line[] = [
       { text: 'not now Dale', then: 'your loss. closet’s open.' },
     ],
   },
+  { id: 'b-w1', from: 'Dave', text: 'IT keeps a cordless drill in the server room. I’ve seen what it can do with a spool. Just saying.', when: holdingOut('it') },
+  { id: 'b-w2', from: 'Gary', text: 'Accounting counts every band. you have to really pull back on Doris or she doesn’t even notice', when: holdingOut('accounting') },
+  { id: 'b-w3', from: 'Marjorie', text: 'Big Tony fires back, dear. Free bands, but he’s loud about it.', when: holdingOut('mailroom') },
+  { id: 'b-w4', from: 'Kevin', text: 'Skyler made a mood board about beating you. it’s actually really nice', when: holdingOut('marketing'), replies: [{ text: 'send it to me', then: 'it’s mostly pictures of you looking sad' }, { text: 'traitor', then: 'I said it was NICE. not that I liked it' }] },
+  { id: 'b-w5', from: 'Marjorie', text: 'A Lookout or two will keep an eye on the supply closet while you’re busy, dear.', when: (s) => s.stage === 3 },
   { id: 'b-d2', from: 'Marjorie', text: 'If Dale offers you a deal, dear, count your fingers after.', when: (s) => s.dale.introduced },
   { id: 'b-hr', from: 'HR', text: 'This is an automated reminder that Wellness Wednesday is this Wednesday.' },
   { id: 'b-rr', from: 'Marjorie', text: 'Do a report right and quickly, dear, and Accounting pays a little extra. They grade everything.', when: (s) => s.stats.rounds > 2 },

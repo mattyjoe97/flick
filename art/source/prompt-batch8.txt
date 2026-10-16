@@ -1,0 +1,79 @@
+FLICK — ART BATCH 8: the Department War (Stage 3)
+
+Same game, same chat. Every earlier FLICK image here (the office scene, the desk props, Dale and his closet, the painted coworker portraits from batches 4, 6 and 7, the rubber band ball) is the STYLE AND PALETTE reference for this batch. Match it exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+After beating Rick, the player takes the war to the rest of the floor. Four departments each have a boss who fights from behind a barricade made of their department's junk. This batch is those four bosses (four faces each), their four barricades, and a surrender flag.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on clothing, screens, binder spines, paper, stickers and badges (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching pairs) is authorized as before.
+
+Number the files exactly as below (they continue after 175_id_badge.png). Deliver all 21 PNGs in a folder named batch8 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch8.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch8.json (the prompt used for each file), like earlier batches.
+
+==================================================
+PORTRAIT FORMAT (section A)
+==================================================
+
+EXACTLY the batch 4 / batch 6 / batch 7 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. Keep ALL hair, glasses, earbuds and clothing between x=60 and x=960 and BELOW y=265 (the game crops everything outside that box), with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+Each boss has four files. The _idle file comes first; the other three are the SAME image with ONLY the face changed (everything outside the face pixel-identical), using the same expression set as Gary, Brad and Rick:
+  _hit     = eyes SQUEEZED SHUT, mouth an open oval (a silent "OW"), a small red welt on the forehead.
+  _angry   = strongly furrowed brows, glaring eyes, gritted teeth.
+  _worried = raised brows pinched together, wide worried eyes, a nervous wobbly closed mouth, one bead of pale blue sweat on the RIGHT temple.
+
+==================================================
+A. THE FOUR DEPARTMENT BOSSES (16 files)
+==================================================
+
+IT: DEREK VOSS, Systems Administrator. Hasn't seen daylight since the server migration.
+A man in his late 30s with very pale skin; long straight dark-brown hair pulled back into a low ponytail (the tail hidden behind his head); a short scruffy dark goatee; thick black rectangular glasses with one flat pale-blue screen-glare shape on each lens; a black zip-up hoodie worn open over a plain dark-grey t-shirt (no print); a black lanyard crowded with a blank white keycard and three small USB sticks.
+Idle: smug and half-lidded, one eyebrow up, a thin one-sided smirk ("have you tried turning it off and on again").
+  176_derek_idle.png / 177_derek_hit.png / 178_derek_angry.png / 179_derek_worried.png
+
+ACCOUNTING: DORIS KEMPER, Controller. Has audited three CEOs and liked none of them.
+An East Asian woman in her early 60s; a sharp chin-length silver-grey bob with blunt straight bangs; thin red cat-eye glasses; small pearl stud earrings; a structured navy blazer with sharp shoulders over a cream blouse with a neat bow at the collar.
+Idle: lips pressed thin, one eyebrow raised above the glasses, a flat, unimpressed auditor's stare.
+  180_doris_idle.png / 181_doris_hit.png / 182_doris_angry.png / 183_doris_worried.png
+
+MAILROOM: BIG TONY, Mailroom Supervisor. Sits on the biggest pile of rubber bands in the building.
+A huge, barrel-chested man in his mid 50s with olive skin; a salt-and-pepper buzz cut; heavy dark eyebrows; a slightly crooked boxer's nose; dark stubble on a big square jaw; a thick neck; a wooden toothpick in the corner of his mouth (keep it in all four faces); a short-sleeved light-grey work shirt under a heavy tan canvas work apron, with three tan rubber bands stretched around the apron's shoulder strap. His shoulders are the widest in the cast but still stay inside the x=60..960 box.
+Idle: heavy-lidded and completely unbothered, the toothpick tilted up.
+  184_tony_idle.png / 185_tony_hit.png / 186_tony_angry.png / 187_tony_worried.png
+
+MARKETING: SKYLER BRANDT, Brand Lead. Calls the war "a campaign".
+A woman in her late 20s with deep brown skin; short bleached platinum-blonde tight curls, cropped close at the sides; oversized round tortoiseshell glasses; small gold hoop earrings; one plain white wireless earbud; a mustard-yellow turtleneck under an oversized cream blazer.
+Idle: a bright, on-brand performative smile showing teeth, eyebrows lifted ("love that energy").
+  188_skyler_idle.png / 189_skyler_hit.png / 190_skyler_angry.png / 191_skyler_worried.png
+
+==================================================
+B. THE BARRICADES (4 files)
+==================================================
+
+Each boss fights from behind a low barricade on their desk. The game draws the boss's portrait BEHIND the barricade, so the barricade hides their body and they pop up over it to fire (and duck down behind it).
+
+FORMAT for all four: 1400 x 800 transparent PNG. Seen STRAIGHT ON at eye level from across the office (the same frontal view as the portraits, NOT from above). Drawn at the SAME SCALE as the portraits (a head is 360px wide ear to ear, so a chunky office CRT monitor is about 420px wide). The barricade rests on an invisible desk-top line at y=780 (everything touches or sits on it), horizontally centred on x=700, between about 1000 and 1250px wide.
+IMPORTANT: keep the MIDDLE band (x=500 to 900) LOW, no higher than y=340, so the boss's face shows above it. The two ends may rise higher, up to y=60, like towers on either side of the boss.
+Record the desk line (780), the scale and each barricade's alpha bounding box in the manifest.
+
+192_cover_it.png — a barricade of old computer junk: at each end, a stack of two chunky beige CRT monitors (dark grey screens with one faint green scan-line, no text) rising like towers; in the low middle, a row of grey rack-mounted network switches with rows of tiny blinking green and amber LED dots (dots only, no labels), with beige computer towers on their sides beneath them; a big tangle of blue and grey network cables draping over the front and spilling down to the desk line.
+
+193_cover_accounting.png — a fortress wall of ring binders: dark green, black and burgundy binders stacked flat in the low middle and standing upright at the two ends as taller towers like castle turrets (blank spines, NO labels); a beige printing adding machine on top of the right tower with a long curl of blank paper tape spilling down the front; a cup of sharpened yellow pencils on top of the left tower.
+
+194_cover_mailroom.png — the mailroom's supply: on the left, a grey-framed canvas mail hamper cart on castor wheels, heaped high above its rim with a mountain of loose tan rubber bands (the same tan band colour as the game's bands); on the right, a tall stack of brown cardboard parcels, each wrapped crosswise with tan rubber bands; bridging the low middle, a row of grey plastic mail trays filled with plain envelopes (no writing, no stamps).
+
+195_cover_marketing.png — a marketing setup: on the left, a tall ring light on a thin black tripod, the ring glowing warm white; in the low middle, an open silver laptop seen from the back with its lid covered in plain colourful round and star-shaped stickers (no logos, no letters) and a tall plastic cup of iced cold brew with a green straw; on the right, a white foam-core presentation board on a small tabletop easel covered in colourful sticky notes and paint-swatch cards (blank, no writing), and a small potted succulent.
+
+==================================================
+C. THE SURRENDER FLAG (1 file)
+==================================================
+
+196_white_flag.png — 640 x 640. A white handkerchief, slightly crumpled with soft wrinkles, tied by one corner near the top of a 12-inch wooden ruler used as the flagpole (tick marks only, NO numbers). The ruler leans about 15 degrees to the right, its bottom end near the bottom-left of the canvas (around x=230, y=620); the handkerchief waves out to the right. Record the ruler's bottom-end point in the manifest.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 21 PNGs, numbered 176 to 196, exactly the sizes above.
+- No text, numbers, letters, logos, cartoon characters or prints anywhere: not on shirts, lanyards, screens, binders, paper tape, envelopes, parcels, stickers or the ruler.
+- Portraits (176 to 191) use the batch 4 registration exactly and stay inside x=60..960 and below y=265.
+- Each boss's four faces are pixel-matched outside the face.
+- Barricades (192 to 195) share the 1400 x 800 canvas, the desk line at y=780, the portrait scale, and keep the middle band x=500..900 below y=340.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch8 folder.

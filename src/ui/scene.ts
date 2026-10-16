@@ -6,6 +6,7 @@
 import { COWORKERS } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
+import { firewallUp } from '../sim/war';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
 import { portrait, portraitStack, setPortraitMood, warmPortraits } from './portraits';
@@ -89,6 +90,7 @@ export class Scene {
   private peopleLayer!: SVGGElement;
   private duckLayer!: SVGGElement;
   private coverLayer!: SVGGElement;
+  private firewallG!: SVGGElement;
   private allyLayer!: SVGGElement;
   private feeneyG!: SVGGElement;
   private fx!: HTMLElement;
@@ -196,6 +198,7 @@ export class Scene {
         <rect x="0" y="186" width="${W}" height="8" fill="#c9ced4"/>
         <g id="duck"><g class="bob"><g id="people"></g></g></g>
         <g id="cover"></g>
+        <g id="firewall" class="firewall" aria-hidden="true"><rect x="236" y="62" width="328" height="190" rx="6" fill="rgba(80,160,255,0.16)" stroke="#5fb0ff" stroke-width="4"/><g stroke="#8ec9ff" stroke-opacity="0.55" stroke-width="2">${Array.from({ length: 9 }, (_, i) => `<line x1="${272 + i * 32}" y1="64" x2="${272 + i * 32}" y2="250"/>`).join('')}${Array.from({ length: 5 }, (_, i) => `<line x1="238" y1="${94 + i * 32}" x2="562" y2="${94 + i * 32}"/>`).join('')}</g></g>
         <rect x="150" y="${WALL_TOP + 4}" width="500" height="${H - WALL_TOP}" fill="url(#fabric)"/>
         <rect x="146" y="${WALL_TOP - 4}" width="508" height="10" rx="2" fill="#c9ced4"/>
         <g id="allies"></g>
@@ -215,6 +218,7 @@ export class Scene {
     this.peopleLayer = this.svg.querySelector('#people')!;
     this.duckLayer = this.svg.querySelector('#duck')!;
     this.coverLayer = this.svg.querySelector('#cover')!;
+    this.firewallG = this.svg.querySelector('#firewall')!;
     this.allyLayer = this.svg.querySelector('#allies')!;
     this.feeneyG = this.svg.querySelector('#feeney')!;
     this.fx = this.root.querySelector('#scene-fx')!;
@@ -310,6 +314,8 @@ export class Scene {
     } else if (e.type === 'review') {
       this.angryUntil = now + 1500;
       this.say('Let’s set up a quick performance review.', 2400);
+    } else if (e.type === 'rebrand') {
+      this.say('Exciting news: I’m rebranding!', 2400);
     } else if (e.type === 'capture') {
       this.duckUntil = now + 900;
     } else if (e.type === 'walkby') {
@@ -503,6 +509,7 @@ export class Scene {
         if (l && now - this.enterAt > 2500) this.say(l);
       }
     }
+    this.firewallG.classList.toggle('up', firewallUp(s));
     const ducking = now < this.duckUntil || now - this.enterAt < 350;
     this.duckLayer.classList.toggle('ducked', ducking || !t);
     this.drawPeople();
@@ -625,6 +632,10 @@ function mix(a: string, b: string, t: number) {
 }
 
 /** Whatever the target is hiding behind, drawn on their desk above the wall. */
+export function coverSvg(id: string): string {
+  return cover(id);
+}
+
 function cover(id: string): string {
   const o = 'stroke="#2b2522" stroke-width="3" stroke-linejoin="round"';
   const postits = () => {
@@ -667,8 +678,79 @@ function cover(id: string): string {
       return `<g><rect x="270" y="214" width="260" height="34" rx="3" fill="#fff" ${o}/><text x="400" y="238" text-anchor="middle" font-family="Kalam, cursive" font-weight="700" font-size="21" fill="#c62f28">Q3 TASK FORCE</text></g>`;
     case 'rick':
       return `<g><rect x="232" y="56" width="336" height="196" fill="rgba(170,210,235,0.32)" stroke="#9fb3c2" stroke-width="5"/><line x1="400" y1="56" x2="400" y2="252" stroke="#9fb3c2" stroke-width="5"/><g stroke="#ffffff" stroke-opacity="0.55" stroke-width="3">${Array.from({ length: 7 }, (_, i) => `<line x1="236" x2="396" y1="${62 + i * 9}" y2="${62 + i * 9}"/>`).join('')}</g><path d="M250 210 L300 120 M262 230 L330 110" stroke="#fff" stroke-opacity="0.5" stroke-width="4"/><rect x="408" y="150" width="6" height="26" rx="2" fill="#7c8a96"/></g>`;
+    case 'it':
+      return itCover(o);
+    case 'accounting':
+      return accountingCover(o);
+    case 'mailroom':
+      return mailroomCover(o);
+    case 'marketing':
+      return marketingCover(o);
     default:
       return '';
   }
+}
+
+// The department barricades (drawn stand-ins until the painted ones arrive). Each keeps the
+// middle low so the boss's face shows over it, with taller things at the ends.
+
+function crt(x: number, y: number, o: string) {
+  return `<g transform="translate(${x} ${y})"><rect width="76" height="58" rx="8" fill="#d9d2c0" ${o}/><rect x="9" y="8" width="58" height="38" rx="5" fill="#3a3f45"/><rect x="14" y="27" width="40" height="3" fill="#6fd36f" opacity="0.6"/><rect x="26" y="58" width="24" height="6" fill="#bfb7a3" ${o}/></g>`;
+}
+
+function itCover(o: string) {
+  const leds = Array.from({ length: 4 }, (_, row) =>
+    Array.from({ length: 9 }, (_, i) => `<circle class="led${(i + row) % 3 === 0 ? ' blink' : ''}" cx="${344 + i * 13.5}" cy="${222 + row * 8}" r="2.2" fill="${(i * 7 + row) % 4 === 0 ? '#f0b13c' : '#6fd36f'}"/>`).join(''),
+  ).join('');
+  return `<g>
+    <rect x="334" y="214" width="132" height="38" rx="3" fill="#7b828b" ${o}/>${leds}
+    ${crt(256, 194, o)}${crt(262, 130, o)}${crt(468, 194, o)}${crt(462, 130, o)}
+    <g fill="none" stroke-linecap="round" stroke-width="5"><path d="M340 214 C330 236 352 246 344 262" stroke="#3d7fc4"/><path d="M372 216 C378 240 356 248 368 262" stroke="#8e98a3"/><path d="M430 216 C420 236 446 244 436 262" stroke="#3d7fc4"/><path d="M458 214 C470 232 452 250 462 262" stroke="#8e98a3"/></g>
+  </g>`;
+}
+
+function binder(x: number, y: number, w: number, h: number, fill: string, o: string) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${fill}" ${o}/><circle cx="${x + w / 2}" cy="${y + h * 0.78}" r="${Math.min(w, h) * 0.14}" fill="#e9e3d2"/>`;
+}
+
+function accountingCover(o: string) {
+  const cols = ['#2f5d44', '#2b2522', '#7a2e33', '#2f5d44', '#7a2e33', '#2b2522'];
+  const tower = (x0: number) => cols.map((c, i) => binder(x0 + i * 11, 140 + (i % 2) * 6, 11, 112 - (i % 2) * 6, c, o)).join('');
+  const flat = [0, 1, 2, 3].map((i) => `<rect x="${336 - i * 2}" y="${244 - i * 10}" width="${128 + i * 4}" height="10" rx="2" fill="${cols[i]}" ${o}/>`).join('');
+  return `<g>${flat}${tower(262)}${tower(472)}
+    <g transform="translate(468 112)"><rect width="72" height="30" rx="5" fill="#d9d2c0" ${o}/><rect x="10" y="6" width="34" height="10" fill="#3a3f45"/><g fill="#bfb7a3">${[0, 1, 2].map((i) => `<rect x="${50}" y="${5 + i * 7}" width="14" height="5" rx="1"/>`).join('')}</g></g>
+    <path d="M500 112 C496 96 512 92 506 76" fill="none" stroke="#fbf8ef" stroke-width="9" stroke-linecap="round"/><path d="M500 112 C496 96 512 92 506 76" fill="none" stroke="#2b2522" stroke-width="1.5" opacity="0.4"/>
+    <g transform="translate(278 116)"><rect width="22" height="24" rx="3" fill="#8e98a3" ${o}/>${[4, 9, 14].map((x) => `<rect x="${x}" y="-12" width="3.5" height="16" fill="#f0c24a"/>`).join('')}</g>
+  </g>`;
+}
+
+function mailroomCover(o: string) {
+  const bands = Array.from({ length: 26 }, (_, i) => {
+    const x = 270 + ((i * 37) % 110);
+    const y = 150 + ((i * 23) % 44) + Math.abs(x - 325) * 0.25;
+    return `<ellipse cx="${x}" cy="${y}" rx="${9 + (i % 3) * 3}" ry="${4 + (i % 2) * 2}" fill="none" stroke="#c9a66b" stroke-width="3" transform="rotate(${(i * 41) % 180} ${x} ${y})"/>`;
+  }).join('');
+  const parcel = (x: number, y: number, w: number, h: number) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#b98a55" ${o}/><line x1="${x + w * 0.35}" y1="${y}" x2="${x + w * 0.35}" y2="${y + h}" stroke="#e2c38d" stroke-width="4"/><line x1="${x}" y1="${y + h * 0.55}" x2="${x + w}" y2="${y + h * 0.55}" stroke="#e2c38d" stroke-width="4"/>`;
+  return `<g>
+    <path d="M262 186 Q262 150 330 146 Q392 150 392 186 Z" fill="#e6cf9e" ${o}/>${bands}
+    <rect x="260" y="184" width="134" height="68" rx="4" fill="#c7a46e" ${o}/><rect x="256" y="180" width="142" height="8" rx="3" fill="#8e98a3" ${o}/>
+    <rect x="384" y="226" width="78" height="26" rx="3" fill="#8e98a3" ${o}/>${[0, 1, 2, 3].map((i) => `<rect x="${392 + i * 15}" y="216" width="11" height="14" fill="#fbf8ef" stroke="#2b2522" stroke-width="1.5"/>`).join('')}
+    ${parcel(462, 204, 80, 48)}${parcel(470, 160, 64, 44)}${parcel(484, 126, 44, 34)}
+  </g>`;
+}
+
+function marketingCover(o: string) {
+  const stickers = ['#ff9fb2', '#8fd0f5', '#ffe36e', '#9fe0a0'].map((c, i) => `<circle cx="${370 + i * 20}" cy="${228 + (i % 2) * 10}" r="6" fill="${c}"/>`).join('');
+  return `<g>
+    <g stroke="#2b2522" stroke-width="3"><line x1="290" y1="168" x2="270" y2="252"/><line x1="290" y1="168" x2="310" y2="252"/><line x1="290" y1="168" x2="290" y2="252"/></g>
+    <circle cx="290" cy="132" r="34" fill="none" stroke="#2b2522" stroke-width="15"/><circle class="ring" cx="290" cy="132" r="34" fill="none" stroke="#fff6d6" stroke-width="9"/>
+    <path d="M352 252 L360 212 L444 212 L452 252 Z" fill="#c9ced4" ${o}/>${stickers}
+    <g transform="translate(456 196)"><path d="M0 0 L22 0 L19 56 L3 56 Z" fill="#6b4a2e" fill-opacity="0.85" ${o}/><rect x="2" y="8" width="18" height="8" fill="#fbf8ef" opacity="0.5"/><line x1="14" y1="-14" x2="11" y2="10" stroke="#3a9d5d" stroke-width="4"/></g>
+    <g transform="translate(486 136)"><rect width="62" height="82" rx="2" fill="#fbf8ef" ${o}/>${[
+      [8, 8, '#ffe36e'], [32, 10, '#ff9fb2'], [10, 34, '#8fd0f5'], [34, 38, '#9fe0a0'], [18, 58, '#ffc46b'],
+    ].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="18" height="18" fill="${c}"/>`).join('')}<line x1="10" y1="82" x2="2" y2="116" stroke="#6b4a2e" stroke-width="4"/><line x1="52" y1="82" x2="60" y2="116" stroke="#6b4a2e" stroke-width="4"/></g>
+    <g transform="translate(470 234)"><path d="M0 18 L4 0 L20 0 L24 18 Z" fill="#c1693c" ${o}/><path d="M6 0 Q12 -16 18 0" fill="#5b9a5b" ${o}/></g>
+  </g>`;
 }
 

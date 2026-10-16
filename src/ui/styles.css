@@ -5618,14 +5618,24 @@ body.at-computer .desk-box.bulk {
     width: 100%;
   }
 
+  /* Five guns (with the Gatling) still fit on one row: the slots shrink a little. */
   .rack {
     order: 1;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 74px);
+    justify-content: center;
     gap: 6px;
     margin: 0;
   }
 
+  .rack[hidden] {
+    display: none;
+  }
+
   .rack-slot {
-    width: 74px;
+    min-width: 0;
+    width: auto;
     height: 42px;
   }
 
@@ -5808,8 +5818,10 @@ body.at-computer .desk-box.bulk {
   .key-row .barrage-key {
     height: 108px;
   }
+  .rack {
+    grid-auto-columns: minmax(0, 84px);
+  }
   .rack-slot {
-    width: 84px;
     height: 50px;
   }
 }
@@ -5826,4 +5838,492 @@ body.at-computer .desk-box.bulk {
   .desk-notes .coach {
     -webkit-line-clamp: 1;
   }
+}
+
+/* ------------------------------------------------------------------ Stage 3: the Department War */
+
+/* The nameplate opens the map from Stage 3 on. */
+.nameplate.opens-map {
+  position: relative;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.nameplate.opens-map:hover,
+.nameplate.opens-map:focus-visible {
+  border-color: #f3dca0;
+  outline-color: #3a2c23;
+}
+
+.np-map {
+  position: absolute;
+  right: -12px;
+  top: -14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px 1px 5px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--sticky);
+  color: var(--ink);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.3;
+  box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.35);
+  transform: rotate(-4deg);
+}
+
+.np-map[hidden] {
+  display: none;
+}
+
+.np-map svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* IT's firewall over the barricade, and the line under the nameplate when it's up. */
+#firewall {
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+
+#firewall.up {
+  opacity: 1;
+  animation: fw-flicker 1.4s ease-in-out infinite;
+}
+
+@keyframes fw-flicker {
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.position.alarm {
+  padding: 0 8px;
+  border-radius: 4px;
+  background: #2f7fd8;
+  font-style: normal;
+  font-weight: 700;
+}
+
+#cover .led.blink {
+  animation: led-blink 0.9s steps(2, jump-none) infinite;
+}
+
+@keyframes led-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.stage-list {
+  margin: 0.4em 0 0.6em;
+  padding-left: 1.2em;
+}
+
+.stage-list li {
+  margin: 0.2em 0;
+}
+
+/* The map of the 4th floor: a sheet over your desk, like Dale's closet. */
+.warmap {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: auto;
+  padding: 14px 18px 30px;
+  padding-top: max(14px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(30px, env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    #1f3a52;
+  color: var(--ink);
+}
+
+.warmap-room {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.warmap-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.warmap-sum {
+  margin: 10px 0 12px;
+  color: #e7eef5;
+  font-size: var(--t-sm, 14px);
+  line-height: 1.35;
+}
+
+.warmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dept {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 8px 8px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+}
+
+button.dept {
+  cursor: pointer;
+}
+
+button.dept:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 5px 0 rgba(0, 0, 0, 0.45);
+}
+
+button.dept:focus-visible {
+  outline: 3px solid var(--sticky);
+  outline-offset: 2px;
+}
+
+.dept.fighting {
+  background: #fff6d6;
+  box-shadow: 0 0 0 4px #f0b13c, 3px 3px 0 4px rgba(0, 0, 0, 0.45);
+}
+
+.dept.taken {
+  background: #eef5e8;
+}
+
+.dept-label {
+  justify-self: start;
+  padding: 1px 10px;
+  background: var(--tape);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.25;
+  transform: rotate(-1.5deg);
+}
+
+.dept-scene {
+  position: relative;
+  display: block;
+  aspect-ratio: 336 / 208;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #d7dde2;
+}
+
+.dept-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dept.taken .dept-pic {
+  filter: saturate(0.6);
+}
+
+.dept-flag {
+  position: absolute;
+  right: 4%;
+  top: 6%;
+  width: 34%;
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+.dept-who {
+  display: grid;
+  line-height: 1.15;
+}
+
+.dept-who b {
+  font-size: 15px;
+}
+
+.dept-who small {
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.dept-bar {
+  display: block;
+  height: 8px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #ece6d8;
+  overflow: hidden;
+}
+
+.dept-bar i {
+  display: block;
+  height: 100%;
+  background: var(--marker-red);
+}
+
+.dept-left {
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.dept-prize {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.dept-prize.got {
+  color: #2f6b3c;
+  font-weight: 700;
+}
+
+.dept-act {
+  justify-self: stretch;
+  margin-top: 2px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+}
+
+.dept.fighting .dept-act {
+  background: #f0b13c;
+  color: var(--ink);
+}
+
+.dept.taken .dept-act {
+  background: #2f6b3c;
+}
+
+.dept-act.raid {
+  background: var(--marker-red);
+}
+
+.closet-scene {
+  background: radial-gradient(ellipse at 50% 30%, #6b543f, #2b211b);
+}
+
+.closet-scene img {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 96%;
+  transform: translateX(-50%);
+}
+
+.closet-card.lost .closet-scene img {
+  filter: grayscale(0.8) brightness(0.8);
+}
+
+.closet-scene .raider {
+  position: absolute;
+  right: 6%;
+  bottom: 6%;
+  width: 38%;
+  aspect-ratio: 1;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #d7dde2;
+  overflow: hidden;
+}
+
+.closet-scene .raider svg,
+.rematch-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.closet-card.raided {
+  border-color: var(--marker-red);
+  animation: raid-pulse 1s ease-in-out infinite;
+}
+
+.raid-now {
+  color: var(--marker-red);
+}
+
+@keyframes raid-pulse {
+  50% {
+    box-shadow: 0 0 0 5px rgba(198, 47, 40, 0.5), 3px 3px 0 rgba(0, 0, 0, 0.45);
+  }
+}
+
+.rematch-scene {
+  display: grid;
+  place-items: center;
+}
+
+.rematch-scene svg {
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
+}
+
+/* A department raiding the supply closet: they lean in from the right. */
+.raid-pop {
+  position: fixed;
+  z-index: 52;
+  right: 0;
+  top: 30%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: min(440px, calc(100vw - 8px));
+  pointer-events: none;
+  animation: raid-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.raid-pop[hidden] {
+  display: none;
+}
+
+.raid-pop > * {
+  pointer-events: auto;
+}
+
+.raid-bubble {
+  padding: 10px 12px 8px;
+  border: 3px solid var(--marker-red);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.raid-text {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: var(--t-md, 17px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.raid-face {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #d7dde2;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.raid-face svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes raid-in {
+  from {
+    transform: translateX(105%);
+  }
+}
+
+@keyframes raid-drop {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .warmap {
+    padding-inline: 10px;
+  }
+  .warmap-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .dept {
+    padding: 6px 6px 8px;
+    gap: 4px;
+  }
+  .dept-label {
+    font-size: 15px;
+  }
+  .dept-who b {
+    font-size: 14px;
+  }
+  .dept-prize {
+    font-size: 12px;
+  }
+  .dept-act {
+    font-size: 13px;
+    padding: 4px 6px;
+  }
+  .warmap-top .closet-back {
+    padding: 6px 10px;
+  }
+  /* On a phone the raid shows up over the top of the office, clear of Flick. */
+  .raid-pop {
+    top: calc(var(--top-h, 110px) + 8px);
+    left: 8px;
+    right: 8px;
+    max-width: none;
+    justify-content: center;
+    animation-name: raid-drop;
+  }
+  .raid-bubble {
+    padding: 7px 10px 6px;
+  }
+  .raid-text {
+    font-size: 15px;
+  }
+  .raid-pop .psst-actions {
+    margin-top: 5px;
+  }
+  .raid-face {
+    width: 56px;
+    height: 56px;
+  }
+  .np-map {
+    font-size: 11px;
+    top: -12px;
+    right: -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raid-pop,
+  .closet-card.raided,
+  #firewall.up,
+  #cover .led.blink {
+    animation: none;
+  }
+}
+
+/* Long dialogs scroll on short phone screens (with room for the tape label at the top). */
+@media (max-width: 760px) {
+  .dlg {
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    padding-top: 44px;
+  }
+}
+
+/* Money floating off the nameplate stays behind the map. */
+body.in-map .money-floater {
+  display: none;
 }

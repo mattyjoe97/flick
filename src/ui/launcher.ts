@@ -13,6 +13,8 @@ import flickEmpty from '../assets/art/flick-empty.webp';
 import rulerEmpty from '../assets/art/ruler-empty.webp';
 import clothespinEmpty from '../assets/art/clothespin-empty.webp';
 import repeaterEmpty from '../assets/art/repeater-empty.webp';
+// The Gatling's spool is painted loaded (it has no bands for the game to draw).
+import gatlingLoaded from '../assets/art/gatling-loaded.webp';
 import bandSnapped from '../assets/art/band-snapped.webp';
 
 const ART: Record<WeaponId, { sprite: LauncherSprite; art: string }> = {
@@ -20,6 +22,8 @@ const ART: Record<WeaponId, { sprite: LauncherSprite; art: string }> = {
   ruler: { sprite: SPRITES.ruler, art: rulerEmpty },
   clothespin: { sprite: SPRITES.clothespin, art: clothespinEmpty },
   repeater: { sprite: SPRITES.repeater, art: repeaterEmpty },
+  // The Gatling is drawn a little smaller than true scale so its barrel stops short of whoever you're aiming at.
+  gatling: { sprite: { ...SPRITES.gatling, unit: SPRITES.gatling.unit * 0.8 }, art: gatlingLoaded },
 };
 
 /** Where your wrist is in the scene (800 x 420). Everything turns around this point to aim. */
@@ -28,7 +32,11 @@ const PIVOTS: Record<WeaponId, { x: number; y: number }> = {
   ruler: { x: 764, y: 396 },
   clothespin: { x: 764, y: 394 },
   repeater: { x: 762, y: 390 },
+  gatling: { x: 780, y: 410 },
 };
+
+/** The Gatling's long barrel would cover whoever you're aiming at: it points at their chest instead (the bands still fly at their head). */
+const AIM_LOW: Partial<Record<WeaponId, number>> = { gatling: 75 };
 
 // Band animation timing (ms). After a shot the band springs off the front, then a fresh
 // one is hooked on and pulled back into place. With several bands, each goes in turn.
@@ -340,6 +348,7 @@ export class Launcher {
 
     // Turn smoothly toward the target at the wrist. The art points left; mirror it if we ever aim right.
     const pivot = { x: PIVOTS[w].x - shift, y: PIVOTS[w].y };
+    aim = { x: aim.x, y: aim.y + (AIM_LOW[w] ?? 0) };
     const sp = this.sprite;
     const toTarget = Math.atan2(aim.y - pivot.y, aim.x - pivot.x);
     // The barrel (or fingertip) sits above the wrist, so turn a little further so that line, not the wrist's, meets the target.

@@ -67,6 +67,36 @@ export const PEOPLE: Record<string, Person> = {
   steve: { skin: '#e0ac83', hair: '#6b4a2e', style: 'short', shirt: '#e8e3d8', tie: '#556b2f', headset: true },
   linda: { skin: '#8d5a3b', hair: '#1f1b18', style: 'bob', shirt: '#2e7d6b', earrings: true, rest: 'smug' },
   dave: { skin: '#f2c9a5', hair: '#3b2a1e', style: 'short', shirt: '#555d66', glasses: 'square', beard: true, hoodie: true },
+  // The department bosses: stand-ins until their painted portraits arrive.
+  derek: {
+    skin: '#f1dccb', hair: '#3b2a1e', style: 'slick', shirt: '#2b2d31', hoodie: true, glasses: 'square', beard: true, lanyard: '#1d1f22', rest: 'smug',
+    lines: {
+      hit: ['That’s a P1!', 'Ow, my uptime!', 'Reopening this ticket!'],
+      idle: ['Have you tried turning it off and on again?', 'Your ticket is in the queue.', 'Firewall’s up. Probably.'],
+    },
+  },
+  doris: {
+    skin: '#ecd0b0', hair: '#c9c4bd', style: 'bob', shirt: '#2c3e64', glasses: 'round', earrings: true,
+    lines: {
+      hit: ['That will be noted.', 'Unacceptable!', 'I am reconciling that.'],
+      idle: ['Every band is accounted for.', 'Receipts, please.', 'Under protest.'],
+    },
+  },
+  tony: {
+    skin: '#c99a72', hair: '#6e6a66', style: 'short', shirt: '#b49a6a', rest: 'smug',
+    lines: {
+      hit: ['Hey!', 'Watch it, kid.', 'That one stung.'],
+      idle: ['Every band comes through me.', 'Sign here.', 'You want a package? I got packages.'],
+      fire: ['Special delivery!', 'Return to sender!'],
+    },
+  },
+  skyler: {
+    skin: '#6b4228', hair: '#efe3c2', style: 'curly', shirt: '#d9a43a', glasses: 'round', earrings: true, rest: 'happy',
+    lines: {
+      hit: ['Off brand!', 'Not the blazer!', 'Let’s take that offline!'],
+      idle: ['Love that energy!', 'Let’s circle back.', 'This is so on-brand for you.'],
+    },
+  },
   // Stand-in until his painted art arrives.
   dale: { skin: '#d8b08a', hair: '#5c554c', style: 'slick', shirt: '#6e7b43', lanyard: '#3a3f45', glasses: 'square', rest: 'smug' },
 };
@@ -81,6 +111,10 @@ export const TARGET_PEOPLE: Record<string, string[]> = {
   printer: ['janet', 'ron'],
   taskforce: ['tf1', 'tf2', 'tf3'],
   rick: ['rick'],
+  it: ['derek'],
+  accounting: ['doris'],
+  mailroom: ['tony'],
+  marketing: ['skyler'],
 };
 
 function hair(p: Person): string {

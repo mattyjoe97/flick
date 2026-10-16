@@ -1,4 +1,4 @@
-import { BARRAGE, COWORKERS, PROMOTION, ROLES, TARGETS, TEAMS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
+import { BARRAGE, COWORKERS, DEPARTMENTS, PROMOTION, ROLES, TARGETS, TEAMS, TUNING, WEAPONS, type CoworkerId, type Role } from '../sim/content';
 import {
   assign,
   buyBack,
@@ -18,7 +18,9 @@ import {
   type ActionResult,
 } from '../sim/engine';
 import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
-import { currentTarget, type GameEvent, type GameState } from '../sim/state';
+import { currentTarget, deptTaken, deptsTaken, type GameEvent, type GameState } from '../sim/state';
+import { dept, fightingDept, firewallClock, firewallUp } from '../sim/war';
+import { MapView, RaidAlert } from './war';
 import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
 import { Sound } from './sound';
@@ -61,7 +63,8 @@ const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce
 const STAGE_NAMES: Record<number, string> = {
   1: 'Stage 1: Desk Skirmish',
   2: 'Stage 2: Cubicle Alliance',
-  3: 'Stage 2 complete: the department is yours',
+  3: 'Stage 3: Department War',
+  4: 'The 4th floor is yours',
 };
 
 export class UI {
@@ -79,6 +82,10 @@ export class UI {
   private office: OfficeView;
   private ball: BallView;
   private floor: FloorView;
+  private map: MapView;
+  private raid: RaidAlert;
+  /** The Department War's welcome opens the map when you close it. */
+  private mapAfterStage = false;
   /** Where you are while you're away from the war: at your computer, or out on your floor. */
   private place: 'pc' | 'floor' = 'pc';
   private lastRing = 0;
@@ -164,6 +171,20 @@ export class UI {
         $('closet-btn').focus();
       },
     }, this.sound);
+    const warHooks = {
+      say: (t: string) => this.say(t),
+      bump: (w: 'bands' | 'salary') => this.bump(w),
+      opened: () => {
+        this.launcher.cancel();
+        this.drawer.close();
+        this.closet.close();
+        document.body.classList.add('in-map');
+      },
+      closed: () => document.body.classList.remove('in-map'),
+      sound: { grab: () => this.sound.grab(), capture: () => this.sound.capture(), notify: () => this.sound.notify(), miss: () => this.sound.miss() },
+    };
+    this.map = new MapView(() => this.s, warHooks);
+    this.raid = new RaidAlert(() => this.s, warHooks, () => this.map.isOpen);
     this.rolePop = document.createElement('div');
     this.rolePop.className = 'role-pop';
     this.rolePop.id = 'role-pop';
@@ -362,6 +383,19 @@ export class UI {
       })[go]();
     });
     $('back-btn').addEventListener('click', () => this.toggleHide(false));
+    $<HTMLDialogElement>('stage-dlg').addEventListener('close', () => {
+      if (!this.mapAfterStage) return;
+      this.mapAfterStage = false;
+      this.openMap();
+    });
+    // From Stage 3 the nameplate opens the map of the floor.
+    $('nameplate').addEventListener('click', () => this.openMap());
+    $('nameplate').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.openMap();
+      }
+    });
     $('call-answer').addEventListener('click', () => this.answerPhone());
 
     // No long-press menus on the things you hold.
@@ -481,6 +515,10 @@ export class UI {
       if (this.closet.onKey(e)) e.preventDefault();
       return;
     }
+    if (this.map.isOpen) {
+      if (this.map.onKey(e)) e.preventDefault();
+      return;
+    }
     if (this.floor.isOpen) {
       // Out on your floor: Esc closes a card, then takes you back to the war.
       if (this.floor.onKey(e)) e.preventDefault();
@@ -513,6 +551,7 @@ export class UI {
     else if (k === 'd') this.closet.show();
     else if (k === 'v') this.ball.barrage();
     else if (k === 't') this.openFloor();
+    else if (k === 'm') this.openMap();
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
   }
 
@@ -601,7 +640,15 @@ export class UI {
     this.launcher.cancel();
     this.drawer.close();
     this.closet.close();
+    this.map.close();
     this.closeRolePop();
+  }
+
+  /** M, or the nameplate (from Stage 3): the map of the floor, to pick who to fight. */
+  private openMap() {
+    if (this.s.stage < 3 || this.s.lookBusy) return;
+    this.showList(false);
+    this.map.show();
   }
 
   /** Shows the computer or your floor to match the game (answering the phone also sits you down). */
@@ -661,6 +708,15 @@ export class UI {
         this.say('A write-up fell out of your HR file.');
       } else if (e.type === 'spotted') this.say('Mr. Feeney saw that. Next time, get on your computer (Esc) when you hear footsteps.');
       else if (e.type === 'stage') this.onStage(e.stage);
+      else if (e.type === 'deptTaken') {
+        this.sound.grade('A');
+        this.say(`${dept(e.id).label} surrenders! You get: ${dept(e.id).prize.charAt(0).toLowerCase()}${dept(e.id).prize.slice(1)}.`);
+      } else if (e.type === 'raidOver') {
+        if (e.how !== 'chased') this.say(this.s.ticker[0]?.text ?? '');
+        if (e.how === 'lookout') this.bump('bands');
+        if (e.how === 'lost') this.sound.miss();
+      } else if (e.type === 'rebrand') this.say(this.s.ticker[0]?.text ?? '');
+      else if (e.type === 'delivery' && e.auto) this.bump('bands');
       else if (e.type === 'capture') this.sound.capture();
       else if (e.type === 'enemyShot') {
         this.sound.incoming();
@@ -846,21 +902,29 @@ export class UI {
         <p>Your Shooters keep firing while you're at your computer, at half speed.</p>
         <p><strong>New: Barrage (V).</strong> You and every Shooter empty your pockets at once: a pile of bands in one huge volley. Loud, and once every ${BARRAGE.cooldown / 60 === 1 ? 'minute' : `${BARRAGE.cooldown} seconds`}. Stockpile bands for it.</p>`;
     } else if (stage === 3) {
-      const mins = Math.round((s.stats.stage2At ?? s.time) / 60);
-      $('stage-dlg-h').textContent = 'The department is yours';
+      const mins = s.stats.stage2At ? Math.round(s.stats.stage2At / 60) : 0;
+      s.war.announced = true;
+      $('stage-dlg-h').textContent = 'Stage 3: Department War';
       $('stage-dlg-body').innerHTML = `
-        <p>Rick is out of the office indefinitely. The east side of Floor 4 answers to you, and Accounting has noticed.</p>
+        <p>Rick is out, and the east side of Floor 4 answers to you${mins ? ` (that took ${mins} min)` : ''}. The rest of the floor does not recognize this.</p>
+        <p><strong>Four departments</strong> are left. Pick who to fight on the <strong>map</strong> (tap the nameplate${matchMedia?.('(hover: hover)').matches ? ' or press M' : ''}). Each one you take is yours for good:</p>
+        <ul class="stage-list">${DEPARTMENTS.map((d) => `<li><b>${esc(d.label)}:</b> ${esc(d.prize.charAt(0).toLowerCase() + d.prize.slice(1))}</li>`).join('')}</ul>
+        <p>Each one you take makes the rest tougher. They’ll also raid Dale’s <strong>supply closet</strong>, which pays you bands while it’s yours: chase them off. And your old rivals still want rematches.</p>`;
+    } else if (stage === 4) {
+      const mins = Math.round(((s.stats.stage3At ?? s.time) - (s.stats.stage2At ?? 0)) / 60);
+      $('stage-dlg-h').textContent = 'The 4th floor is yours';
+      $('stage-dlg-body').innerHTML = `
+        <p>IT, Accounting, the Mailroom and Marketing all answer to you now. HR would like everyone to know that they are neutral, and that they are watching.</p>
         <dl>
-          <dt>Time at war</dt><dd>${mins} min</dd>
-          <dt>Shots fired</dt><dd>${fmt(s.stats.shots)}</dd>
-          <dt>Times caught</dt><dd>${s.stats.caught}</dd>
-          <dt>Walk-bys survived</dt><dd>${s.stats.hides} of ${s.stats.hides + s.stats.walkbysSpotted}</dd>
-          <dt>Team</dt><dd>${s.allies.length} ${s.allies.length === 1 ? 'coworker' : 'coworkers'}</dd>
+          <dt>Department War</dt><dd>${mins} min</dd>
+          <dt>Raids stopped</dt><dd>${s.stats.raidsStopped} of ${s.stats.raidsStopped + s.stats.raidsLost}</dd>
+          <dt>Desks</dt><dd>${s.desks}</dd>
         </dl>
-        <p>But nobody in this office can let things go. The people you beat want <strong>rematches</strong>: Gary first, then everyone else, a little tougher every round and worth more every time (a bounty and some Performance toward your next promotion). Your career keeps going too: work, get promoted, and build your team on Your floor. The top of the ladder is CEO.</p>
-        <p>Stage 3, the Department War, is coming.</p>`;
+        <p>The closet is yours for good. The rematches keep coming, and now the department bosses want theirs too. Keep climbing: the top of the ladder is CEO.</p>
+        <p>Stage 4, Floor Domination, is coming.</p>`;
     }
-    $('stage-dlg-ok').textContent = stage === 3 ? 'Keep playing' : 'Back to it';
+    $('stage-dlg-ok').textContent = stage === 3 ? 'Open the map' : stage === 4 ? 'Keep playing' : 'Back to it';
+    this.mapAfterStage = stage === 3;
     if (!dlg.open) dlg.showModal();
   }
 
@@ -964,6 +1028,10 @@ export class UI {
       this.computer.render();
       this.closeRolePop();
     }
+    this.map.render();
+    this.raid.render();
+    // Old saves that were already past Rick get the Department War's welcome once.
+    if (s.stage >= 3 && !s.war.announced && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(3);
     this.drawer.render();
     this.office.render();
     this.ball.render();
@@ -977,19 +1045,52 @@ export class UI {
 
   private renderFront(s: GameState, _warning: number) {
     const t = currentTarget(s);
-    this.set('stage-line', s.stage >= 3 && s.rematch ? `Rematches · round ${s.rematch.round}` : STAGE_NAMES[s.stage]);
+    const fd = fightingDept(s);
+    this.set(
+      'stage-line',
+      fd
+        ? `${STAGE_NAMES[3]} · ${deptsTaken(s)} of 4 taken`
+        : s.stage >= 3 && s.rematch
+          ? `${s.stage === 3 ? 'Stage 3 · ' : ''}Rematches · round ${s.rematch.round}`
+          : STAGE_NAMES[s.stage],
+    );
+    // From Stage 3 the nameplate is a button: it opens the map.
+    this.rebuild('np-map', String(s.stage >= 3), () => {
+      const on = s.stage >= 3;
+      const plate = $('nameplate');
+      $('np-map').hidden = !on;
+      plate.classList.toggle('opens-map', on);
+      if (on) {
+        plate.setAttribute('role', 'button');
+        plate.tabIndex = 0;
+        plate.title = 'The map of the floor (M)';
+      } else {
+        plate.removeAttribute('role');
+        plate.removeAttribute('tabindex');
+        plate.removeAttribute('title');
+      }
+    });
     const w = weapon(s);
     const flickBtn = $<HTMLButtonElement>('flick-btn');
     if (t) {
       this.set('np-name', t.name);
       this.set('np-title', t.title);
-      this.set('position', t.position);
+      // IT's firewall: when it's up, and when it's coming.
+      if (fd === 'it') {
+        const c = Math.ceil(firewallClock(s));
+        this.set('position', firewallUp(s) ? `Firewall up! Down in ${c} s` : `${t.position}. Firewall in ${c} s`);
+      } else this.set('position', t.position);
+      $('position').classList.toggle('alarm', firewallUp(s));
       const r = Math.max(0, s.targetResolve);
       this.set('resolve-num', `${fmt(Math.ceil(r))} / ${fmt(t.resolve)}`);
       $('resolve-fill').style.width = `${(r / t.resolve) * 100}%`;
       const tw = $('twist');
       // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
-      const twist = s.stage >= 3 ? `${t.twist ? `${t.twist} ` : ''}Worth ${money(t.bounty)} and some Performance.` : t.twist;
+      const twist = fd
+        ? `${t.twist} Prize: ${dept(fd).prize.charAt(0).toLowerCase()}${dept(fd).prize.slice(1)}.`
+        : s.stage >= 3
+          ? `${t.twist ? `${t.twist} ` : ''}Worth ${money(t.bounty)} and some Performance.`
+          : t.twist;
       tw.hidden = !twist;
       if (twist) this.set('twist', twist);
     } else {
@@ -1025,7 +1126,15 @@ export class UI {
     const m = mods(s);
     const owned = WEAPONS.filter((w) => s.ownedWeapons.includes(w.id));
     const next = WEAPONS.find((w) => w.price > 0 && !s.ownedWeapons.includes(w.id) && w.stage <= s.stage + 1);
-    const locked = next ? (next.stage > s.stage ? `Stage ${next.stage}` : next.needsEngineer && !m.hasEngineer ? 'Engineer' : '') : '';
+    const locked = next
+      ? next.stage > s.stage
+        ? `Stage ${next.stage}`
+        : next.needsDept && !deptTaken(s, next.needsDept)
+          ? `Take ${dept(next.needsDept).label}`
+          : next.needsEngineer && !m.hasEngineer
+            ? 'Engineer'
+            : ''
+      : '';
     const price = next ? priceOf(s, next.price) : 0;
     const eff = weapon(s).id;
     const key = [owned.map((w) => w.id).join(), eff, s.hr.confiscated?.weapon ?? '', left === null ? '' : Math.ceil(left), next?.id ?? '', price, locked].join('|');
@@ -1101,7 +1210,7 @@ export class UI {
   }
 
   private renderFloor(s: GameState) {
-    this.rebuild('floor', `${s.stage}:${s.targetIndex}`, () => {
+    this.rebuild('floor', `${s.stage}:${s.targetIndex}:${deptsTaken(s)}`, () => {
       const groups: { label: string; desks: number; state: 'mine' | 'taken' | 'enemy' }[] = [
         { label: 'You', desks: 1, state: 'mine' },
       ];
@@ -1113,6 +1222,8 @@ export class UI {
         seen.add(label);
         groups.push({ label, desks: t.desks, state: targetDefeated(s, t.id) ? 'taken' : 'enemy' });
       }
+      // From Stage 3, the rest of the floor.
+      if (s.stage >= 3) for (const d of DEPARTMENTS) groups.push({ label: d.label, desks: d.desks, state: deptTaken(s, d.dept) ? 'taken' : 'enemy' });
       $('floorplan').innerHTML = groups
         .map(
           (g) => `<div class="desk-group" title="${esc(g.label)}: ${g.state === 'enemy' ? 'holding out' : 'yours'}">
@@ -1120,8 +1231,9 @@ export class UI {
             <span>${esc(g.label)}</span></div>`,
         )
         .join('');
-      const total = TARGETS.reduce((n, t) => n + t.desks, 0);
+      const total = TARGETS.reduce((n, t) => n + t.desks, 0) + (s.stage >= 3 ? DEPARTMENTS.reduce((n, d) => n + d.desks, 0) : 0);
       $('floor-note').textContent = `${s.desks} of ${total} desks captured, each +0.25 bands/s`;
+      $('floor-h').textContent = s.stage >= 3 ? 'Floor 4' : 'Floor 4, east side';
     });
   }
 
@@ -1311,5 +1423,12 @@ function coachHint(s: GameState): string {
   if (s.stats.tasksDone === 0 && s.time > 90) return 'Your computer (Esc) is where you work: emails and expense reports pay Salary, and Mr. Feeney can’t catch you there.';
   if (s.stage === 2 && w.id !== 'repeater' && s.ownedWeapons.includes('clothespin') && targetDefeated(s, 'printer'))
     return 'Assign Dave as Engineer to unlock the Binder-Clip Repeater.';
+  // The Department War.
+  if (s.war.closet.raid) return `${dept(s.war.closet.raid.dept).label} is raiding the supply closet! Chase them off before they get away.`;
+  const fd = fightingDept(s);
+  if (fd === 'accounting' && s.stats.charged < 30) return 'Doris only feels stretched shots: hold Flick and let go at full stretch.';
+  if (fd === 'it' && firewallUp(s)) return 'The firewall is up: your shots do half. A good moment for a Barrage (V), which goes straight through.';
+  if (s.stage === 3 && deptsTaken(s) === 0 && s.time - (s.stats.stage2At ?? 0) < 300) return 'Tap the nameplate to open the map and pick a department. Each one you take is yours for good.';
+  if (deptTaken(s, 'it') && !s.ownedWeapons.includes('gatling')) return 'IT is yours: Dale can get you the Drill-Powered Gatling now (D).';
   return '';
 }

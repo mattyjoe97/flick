@@ -34,6 +34,7 @@ import {
   type WorkKind,
 } from '../src/sim/work';
 import { mods, weapon } from '../src/sim/mods';
+import { chaseRaid, fightingDept } from '../src/sim/war';
 import { newGame, type GameState } from '../src/sim/state';
 
 export interface BotStyle {
@@ -42,6 +43,8 @@ export interface BotStyle {
   ball?: boolean;
   /** Keeps ordering supplies to stockpile for Barrages (a player who buys bands to throw). */
   stockpile?: boolean;
+  /** Keeps fighting after the first slice (the Department War, rematches) instead of only working. */
+  war3?: boolean;
   actionsPerSecond: number;
   hideAbove: number; // Suspicion level that makes the bot hide
   resumeBelow: number;
@@ -162,13 +165,15 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   // Reviews get taken as soon as they're ready.
   if (style.doesWork && reviewReady(s)) promote(s);
   // After the first slice there's no one to flick: every spare band goes on the ball.
-  if (s.stage > 2 && style.ball !== false && s.bands >= 10) wind(s);
-  if (s.stage > 2) {
+  if (s.stage > 2 && !style.war3 && style.ball !== false && s.bands >= 10) wind(s);
+  if (s.stage > 2 && !style.war3) {
     shop(s);
     setLookBusy(s, true);
     doTask(s, style, mind);
     return;
   }
+  // A raid on the supply closet gets chased off (it pops up right in front of you).
+  if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
   const countdown = walkbyCountdown(s);
   // A ringing phone gets answered: that's work, and it puts you at your computer.
   if (s.work.ringing && doTask(s, style, mind)) return;
@@ -210,6 +215,11 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
       setLookBusy(s, true);
       return;
     }
+  }
+  // Doris only feels stretched shots: hold each one (about a second a shot).
+  if (fightingDept(s) === 'accounting') {
+    if (s.time - s.lastShotAt >= 1) flick(s, 1);
+    return;
   }
   flick(s);
 }

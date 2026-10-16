@@ -3,7 +3,7 @@
 // his shelves, office upgrades on the Procurement clipboard). Coworkers join from the Org Chart.
 
 import { COWORKERS, UPGRADES, WEAPONS, type CoworkerId, type UpgradeId, type WeaponId } from './content';
-import { coworkerAvailable, priceOf, upgradeAvailable } from './engine';
+import { coworkerAvailable, priceOf, upgradeAvailable, weaponAvailable } from './engine';
 import { has, mods } from './mods';
 import type { GameState } from './state';
 
@@ -17,7 +17,7 @@ export function forSale(s: GameState): ShopItem[] {
   const items: ShopItem[] = [];
   const m = mods(s);
   for (const w of WEAPONS) {
-    if (w.price === 0 || s.ownedWeapons.includes(w.id) || w.stage > s.stage) continue;
+    if (w.price === 0 || s.ownedWeapons.includes(w.id) || !weaponAvailable(s, w.id)) continue;
     if (w.needsEngineer && !m.hasEngineer) continue;
     items.push({ kind: 'weapon', id: w.id, name: w.name, price: priceOf(s, w.price) });
   }

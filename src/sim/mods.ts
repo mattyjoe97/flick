@@ -1,5 +1,5 @@
-import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
-import type { GameState } from './state';
+import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { deptTaken, type GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
   return s.upgrades.includes(id);
@@ -44,6 +44,11 @@ export function knowsTrick(s: GameState, id: TrickId) {
   return (s.office?.scratches ?? 0) >= t.at;
 }
 
+/** From the Department War on, Dale's closet pays you bands unless a raid just got away. */
+export function closetIsYours(s: GameState) {
+  return s.stage >= 3 && s.time >= (s.war?.closet.lostUntil ?? -999);
+}
+
 /** On Final Warning: one more write-up and you're fired. */
 export function onFinalWarning(s: GameState) {
   return (s.hr?.writeUps ?? 0) >= TUNING.writeUpsToFinal;
@@ -62,7 +67,9 @@ export function mods(s: GameState) {
     (has(s, 'closet') ? TUNING.closetRate : 0) +
     gatherers * TUNING.gathererRate +
     s.desks * TUNING.deskRate +
-    (knowsTrick(s, 'fetch') ? BAILEY.fetchRate : 0);
+    (knowsTrick(s, 'fetch') ? BAILEY.fetchRate : 0) +
+    (deptTaken(s, 'mailroom') ? WAR.mailroomRate : 0) +
+    (closetIsYours(s) ? WAR.closet.bonus : 0);
 
   const lookBusyMult = has(s, 'macros') ? 3 : 2;
   const basePay = (has(s, 'autoreply') ? TUNING.autoReplyPay : 0) + covers * TUNING.coverPay;

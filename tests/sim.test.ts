@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CAREER, COMBO, DALE, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { CAREER, COMBO, DALE, DEPARTMENTS, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { fight } from '../src/sim/war';
 import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/sim/career';
 import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
 import { baileyHowl, canHowl, claimMoment, nextTrick, petBailey } from '../src/sim/office';
@@ -1211,11 +1212,14 @@ describe('rematches after the war', () => {
     expect(flick(s).ok).toBe(true);
   };
 
-  it('beating Rick starts the rematches: Gary first, at half his old Resolve', () => {
+  it('beating Rick starts the Department War, with Gary waiting for a rematch at half his old Resolve', () => {
     const s = lastFight();
     win(s);
     expect(s.stage).toBe(3);
+    expect(currentTarget(s)?.id).toBe('it');
+    expect(s.targetResolve).toBe(DEPARTMENTS[0].resolve);
     expect(s.rematch).toMatchObject({ round: 1, index: 0 });
+    expect(fight(s, 'rematch').ok).toBe(true);
     const t = currentTarget(s)!;
     expect(t.id).toBe('gary4');
     expect(t.resolve).toBe(Math.round(TARGETS.find((x) => x.id === 'gary4')!.resolve * REMATCH.first));
@@ -1226,7 +1230,8 @@ describe('rematches after the war', () => {
   it('each win pays a bounty and some Performance, then the next one walks up; after Rick, a tougher round', () => {
     const s = lastFight();
     win(s);
-    for (let i = 0; i < REMATCH.order.length; i++) {
+    fight(s, 'rematch');
+    for (let i = 0; i < REMATCH.firstWar; i++) {
       const salary = s.salary;
       const review = s.career.review;
       const bounty = currentTarget(s)!.bounty;
@@ -1234,7 +1239,7 @@ describe('rematches after the war', () => {
       expect(s.salary).toBeGreaterThanOrEqual(salary + bounty);
       expect(s.career.review).toBeGreaterThan(review);
     }
-    expect(s.stats.rematches).toBe(REMATCH.order.length);
+    expect(s.stats.rematches).toBe(REMATCH.firstWar);
     expect(s.rematch).toMatchObject({ round: 2, index: 0 });
     expect(currentTarget(s)!.resolve).toBe(rematchStats(s, 2, 0).resolve);
     expect(rematchStats(s, 2, 0).resolve).toBeGreaterThan(rematchStats(s, 1, 0).resolve);
@@ -1250,7 +1255,12 @@ describe('rematches after the war', () => {
     const back = deserialize(JSON.stringify(file))!.state;
     expect(back.rematch).toBeNull();
     run(back, 0.2);
+    // They keep their rematch, and the Department War opens on the map.
     expect(currentTarget(back)?.id).toBe('gary4');
+    expect(back.war.fighting).toBe('rematch');
+    expect(back.war.announced).toBe(false);
+    expect(fight(back, 'it').ok).toBe(true);
+    expect(currentTarget(back)?.id).toBe('it');
   });
 });
 

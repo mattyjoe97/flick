@@ -1,7 +1,7 @@
 import { BAILEY, BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { allyPower, coworker, has, isConfiscated, knowsTrick, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
-import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
+import { currentTarget, deptMax, deptTaken, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
 import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
@@ -9,7 +9,8 @@ import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
 import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
-import { rematchWon, startRematch, stepRematch } from './rematch';
+import { rematchWon, stepRematch } from './rematch';
+import { afterHit, deptWon, fightingDept, shotMult, startWar, stepWar } from './war';
 
 export { openBox } from './supplies';
 
@@ -104,6 +105,10 @@ function getFired(s: GameState) {
     s.desks = Math.max(0, s.desks - lostDesks);
     s.targetIndex = first;
     s.targetResolve = TARGETS[first].resolve;
+    s.sinceLastHit = 999;
+  } else if (fightingDept(s)) {
+    // The department you were fighting gets all its Resolve back (the ones you took stay yours).
+    s.targetResolve = deptMax(s, fightingDept(s)!);
     s.sinceLastHit = 999;
   } else if (s.rematch) {
     s.targetResolve = s.rematch.resolve;
@@ -205,8 +210,9 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  const dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage;
+  const dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge);
   s.targetResolve -= dmg;
+  afterHit(s);
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
   s.stats.shots++;
@@ -223,7 +229,8 @@ function capture(s: GameState) {
   const t = currentTarget(s);
   if (!t) return;
   if (s.stage >= 3) {
-    rematchWon(s);
+    if (fightingDept(s)) deptWon(s);
+    else rematchWon(s);
     addSuspicion(s, TUNING.captureNoise);
     return;
   }
@@ -267,15 +274,16 @@ function capture(s: GameState) {
     return;
   }
 
-  // End of Stage 2: end of the first slice.
+  // End of Stage 2: the Department War begins.
   s.stats.stage2At = s.time;
   s.stage = 3;
   s.targetResolve = 0;
-  addSuspicion(s, TUNING.captureNoise);
   pushEmail(s, 'Accounting', 'We have noticed', 'Your department has acquired 400,000 rubber bands this quarter. We will be in touch. Regards, Accounting.', 'win');
+  startWar(s);
+  // Nobody in this office can let it go: your old rivals wait on the map for rematches.
+  stepRematch(s);
+  addSuspicion(s, TUNING.captureNoise);
   s.events.push({ type: 'stage', stage: 3 });
-  // Nobody in this office can let it go.
-  startRematch(s, 1, 0);
 }
 
 function startTarget(s: GameState, index: number) {
@@ -374,6 +382,7 @@ export function step(s: GameState, dt: number) {
   stepGoals(s);
   stepBall(s);
   stepRematch(s);
+  stepWar(s, addSuspicion);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
@@ -518,6 +527,7 @@ export function barrage(s: GameState): ActionResult {
   s.targetResolve -= dmg;
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
+  afterHit(s);
   s.barrageAt = s.time + BARRAGE.cooldown;
   s.stats.barrages = (s.stats.barrages ?? 0) + 1;
   s.stats.barrageDamage = (s.stats.barrageDamage ?? 0) + dmg;
@@ -556,7 +566,7 @@ export function setLookBusy(s: GameState, on: boolean): ActionResult {
 
 export function weaponAvailable(s: GameState, id: WeaponId) {
   const w = WEAPONS.find((w) => w.id === id)!;
-  return s.stage >= w.stage;
+  return s.stage >= w.stage && (!w.needsDept || deptTaken(s, w.needsDept));
 }
 
 export function buyWeapon(s: GameState, id: WeaponId): ActionResult {
@@ -567,7 +577,8 @@ export function buyWeapon(s: GameState, id: WeaponId): ActionResult {
     s.weapon = id;
     return ok;
   }
-  if (!weaponAvailable(s, id)) return no(`Unlocks in Stage ${w.stage}.`);
+  if (s.stage < w.stage) return no(`Unlocks in Stage ${w.stage}.`);
+  if (!weaponAvailable(s, id)) return no('IT has the parts. Take IT first.');
   if (w.needsEngineer && !mods(s).hasEngineer) return no('Needs someone assigned as Engineer.');
   const price = priceOf(s, w.price);
   if (s.salary < price) return no(`Costs $${price}.`);
@@ -646,7 +657,7 @@ function dealOptions(s: GameState): DaleDeal[] {
   const off = () => 1 - randRange(s, DALE.discount[0], DALE.discount[1]);
   const opts: DaleDeal[] = [];
   for (const w of WEAPONS) {
-    if (w.price === 0 || s.ownedWeapons.includes(w.id) || w.stage > s.stage) continue;
+    if (w.price === 0 || s.ownedWeapons.includes(w.id) || !weaponAvailable(s, w.id)) continue;
     if (w.needsEngineer && !mods(s).hasEngineer) continue;
     opts.push({ kind: 'weapon', id: w.id, price: Math.ceil(priceOf(s, w.price) * off()), until, early: false });
   }
@@ -678,7 +689,7 @@ function stepDale(s: GameState) {
     else if (s.time >= d.deal.until) dealOver(s, 'expired');
     return;
   }
-  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || !currentTarget(s)) return;
+  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.war?.closet.raid || !currentTarget(s)) return;
   const opts = dealOptions(s);
   if (opts.length === 0) {
     d.nextDealAt = s.time + 60;
@@ -742,6 +753,9 @@ export function applyOffline(s: GameState, seconds: number) {
   suppliesOffline(s);
   s.dale.deal = null;
   s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);
+  // Nobody raids the closet while you're away (and one in progress gives up).
+  s.war.closet.raid = null;
+  s.war.closet.nextAt = Math.max(s.war.closet.nextAt, s.time + 60);
   if (bands >= 1 || salary >= 1) {
     pushEmail(
       s,
