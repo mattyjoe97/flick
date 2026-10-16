@@ -41,7 +41,8 @@ Work comes in short rounds with a clock and a grade (A to F). Every item done ri
 - **Spreadsheet:** Accounting's printout (greenbar paper, holes down the sides) sits next to your copy of the same sheet, and whoever typed your copy made a few typos. Click the numbers that don't match. No adding up. Pointing at a number lights up its twin on the printout; clicking one that matched is a mistake. The Budget and Headcount sheets unlock as you progress, pay more and have sneakier typos (swapped digits, one digit off).
 - **Expenses:** stamp each receipt Approved or Denied by today's rule (it changes daily, and gains an exception once you're senior). Your own rubber band order sometimes turns up: approve it for free bands, if you don't mind Accounting noticing.
 - **Messenger:** a buddy list with away messages and a conversation with each coworker. Their bubbles on the left, yours on the right, "Gary is typing…", and quick replies when there's something to say back (Dale might find you a deal).
-- **Supply Catalog, Org Chart, My Documents, Recycle Bin:** band orders; your team (recruiting, roles, promotions and the floor plan); and a few files to poke at.
+- **Staffing:** your career and the people you hire (see below).
+- **Supply Catalog, Org Chart, My Documents, Recycle Bin:** band orders; your allies in the war (recruiting, roles, promotions and the floor plan); and a few files to poke at.
 
 Bands come from three places besides Gary. **Your desk drawer** (S) slides open full of junk and a few stray bands; your hand picks them out one at a time, and a few more turn up every few seconds. Sometimes there's something better in there: a tangle of bands, a rubber band ball, or loose change. **Supply orders** (O) get stamped and sent off in an inter-office envelope; 10 seconds later a box lands on your desk, and you open it (O again) for the bands. Don't leave it sitting there: Mr. Feeney asks about unopened boxes.
 
@@ -49,7 +50,11 @@ Bands come from three places besides Gary. **Your desk drawer** (S) slides open 
 
 You don't have to go looking. The **shopping list** on your desk always shows the next weapon and the cheapest things you could buy, with a bar filling up toward each price; tap one and you're at Dale's with it in your hand (or at the Org Chart, for a coworker). A red number on the closet card says how many things you can afford right now. The guns you own sit on a **rack** under the Flick key, numbered 1–4, with the next one on an empty hook. Click a teammate in the office to change their role on the spot.
 
-**Money.** Work pays Salary and cools Suspicion. Items done one after another build a **combo** (each one inside 15 seconds of the last adds 10% pay, up to ×2); a wrong answer or a long pause ends it. A quick player earns about the same per minute from any of the four jobs. Coins fly into your Salary when you're paid. Beating someone pays their **bounty** (Gary's lunch money, Brad's commission check, the Printer Corner's petty cash, Rick's discretionary fund) and **promotes you**: each promotion is a pay grade, from Junior Associate (×1) to Floor Manager (×4), that multiplies everything work pays. Nothing piles up or goes overdue.
+**Money.** Work pays Salary and cools Suspicion. Items done one after another build a **combo** (each one inside 15 seconds of the last adds 10% pay, up to ×2); a wrong answer or a long pause ends it. A quick player earns about the same per minute from any of the four jobs. Coins fly into your Salary when you're paid. Beating someone pays their **bounty** (Gary's lunch money, Brad's commission check, the Printer Corner's petty cash, Rick's discretionary fund). Nothing piles up or goes overdue.
+
+**Your career.** Things done right at your computer fill your **Performance** bar (a clean, quick round counts extra, and the more senior you are the more your work counts). When it's full, Mr. Feeney calls you in: go to your review in Staffing (or from his email), answer one question (any answer is fine), and you're promoted. There are 16 ranks, from Junior Associate (work ×1) through Floor Manager (×4) and Director (×6.5) to CEO (×25). The bar stops at full until you show up, so promotions never happen while you're away. Old saves keep the pay grade the war gave them.
+
+**Your team.** Some promotions let you hire someone: a Temp (answers email), a Receptionist (takes calls), a Bookkeeper (stamps receipts), an Analyst (fixes spreadsheets) and an Assistant Manager (makes every other team faster). Each team starts with its lead and grows a seat at a time; your headcount budget goes up by one seat with every promotion, every seat costs more than the last, and training (Lunch-and-learn up to a Six Sigma black belt) makes a whole team half again as productive. They earn 35% of what you would for the same work, all the time, and keep earning while the game is closed (up to 8 hours), and their work adds a little Performance. Playing straight through, CEO takes about 3½ hours; checking in for ten minutes an hour, about 10.
 
 Getting caught (Suspicion reaches 100) puts a write-up in your HR file, sends your equipped weapon to Mr. Feeney's drawer for 3 minutes (Dale can get it back for half its price), and lets your target regroup. A write-up fades after 10 minutes without getting caught. Three write-ups is Final Warning; get caught again and you're fired: you lose your bands and this stage's progress, keep your weapons, upgrades and team, and HR rehires you on Monday with a clean file.
 
@@ -74,6 +79,8 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `src/sim/mods.ts` | Values derived from upgrades and allies |
 | `src/sim/save.ts` | Saving, loading, migration, export and import |
 | `src/sim/work.ts` | Your job as graded rounds: mail, calls, expense reports and spreadsheets, pay grades and the combo |
+| `src/sim/career.ts` | Performance, reviews with Mr. Feeney and promotions |
+| `src/sim/staff.ts` | The teams you hire: seats, headcount budgets, training, their pay (also offline) |
 | `src/sim/workdata.ts` | The words for your job: emails, callers, receipts, expense rules, the phone directory |
 | `src/sim/shop.ts` | What's for sale, the shopping list and the affordable-count badges |
 | `src/sim/chat.ts` | Messenger: a conversation per person, typing delays, quick replies, the buddy list |
@@ -82,7 +89,7 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `src/ui/portraits.ts` | Places the painted coworker portraits in the scene and swaps their expressions |
 | `src/ui/characters.ts` | Each coworker's lines and resting face (plus the old drawn fallback) |
 | `src/ui/computer.ts` | Your computer: the desk, monitor, desktop, Start menu, windows, taskbar, notifications, screensaver and Mr. Feeney's reflection |
-| `src/ui/apps/` | The computer's apps: Mail, Phone, Expenses, Spreadsheet, Messenger, My Documents and the Catalog |
+| `src/ui/apps/` | The computer's apps: Mail, Phone, Expenses, Spreadsheet, Messenger, Staffing, My Documents and the Catalog |
 | `src/ui/supplies.ts` | The drawer (your hand picking bands out of the junk), the order paperwork and the delivery box |
 | `src/ui/closet.ts` | The supply closet, the only shop: Dale, his pegboard of weapons, band upgrades, the Procurement clipboard, Lost and Found, and his "Psst" deals |
 | `src/ui/goods-art.ts` | Pictures of everything for sale, shared by the closet, shopping list and weapon rack |
@@ -92,7 +99,7 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `art/source/` | Full-size original art (hands, weapons, bands), generated with Astra |
 | `src/ui/sound.ts` | Sound effects synthesized in code |
 | `src/ui/` (other) | The desk layout, panels, dialogs and input |
-| `tests/` | Unit tests and the pacing bots |
+| `tests/` | Unit tests, the pacing bots, and the career pacing test (hours to CEO) |
 
 The simulation never touches the page, so tests can play the whole game in about a second. Balancing mostly means editing numbers in `content.ts` and running `npm test`, which prints how long each bot took per stage and how often it got caught.
 

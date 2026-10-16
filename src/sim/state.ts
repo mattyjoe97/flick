@@ -1,8 +1,8 @@
-import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
+import { DALE, TARGETS, TUNING, type CoworkerId, type Role, type TeamId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 export interface Email {
   id: number;
@@ -13,6 +13,8 @@ export interface Email {
   kind: 'story' | 'warning' | 'flavor' | 'win';
   /** A coworker asking to join: Mail shows a Recruit button. */
   recruit?: CoworkerId;
+  /** Mr. Feeney calling you in: Mail shows a button to go to your performance review. */
+  review?: boolean;
 }
 
 export interface Ally {
@@ -106,6 +108,14 @@ export interface GameState {
   /** Your job at your computer: mail, the phone, expense reports and spreadsheets. */
   work: WorkState;
 
+  /** Your career: your rank (PAY_GRADES), and Performance toward the next review. */
+  career: { rank: number; review: number };
+
+  /** The teams working for you: seats filled, training level, and work in progress. */
+  staff: Partial<Record<TeamId, { seats: number; level: number; done: number }>>;
+  /** Your team's pay since the last coin drop, and when the next drop is. */
+  staffPay: { owed: number; at: number };
+
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
     threads: ChatThread[];
@@ -157,6 +167,8 @@ export interface GameState {
     bestCombo: number;
     rounds: number;
     gradeA: number;
+    teamEarned: number;
+    teamDone: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -191,7 +203,11 @@ export type GameEvent =
   | { type: 'find'; kind: FindKind }
   | { type: 'boxSpotted'; noise: number }
   | { type: 'deal' }
-  | { type: 'pay'; amount: number; source: 'work' | 'bounty'; combo?: number; note?: string }
+  | { type: 'pay'; amount: number; source: 'work' | 'bounty' | 'team'; combo?: number; note?: string }
+  | { type: 'reviewReady'; rank: number }
+  | { type: 'promoted'; rank: number }
+  | { type: 'hired'; team: TeamId; seats: number }
+  | { type: 'trained'; team: TeamId; level: number }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -221,6 +237,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     walkby: { nextAt: TUNING.firstWalkby, arrivesAt: null },
     hr: { writeUps: 0, lastWriteUpAt: 0, confiscated: null },
     work: newWorkState(),
+    career: { rank: 0, review: 0 },
+    staff: {},
+    staffPay: { owed: 0, at: 0 },
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -267,6 +286,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       bestCombo: 0,
       rounds: 0,
       gradeA: 0,
+      teamEarned: 0,
+      teamDone: 0,
     },
     events: [],
   };

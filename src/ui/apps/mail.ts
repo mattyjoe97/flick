@@ -4,6 +4,7 @@
 
 import { COWORKERS, ROLES, type CoworkerId } from '../../sim/content';
 import { coworkerAvailable, recruit } from '../../sim/engine';
+import { reviewReady } from '../../sim/career';
 import type { GameState } from '../../sim/state';
 import { answerMail, burstSize, startRound, type MailAnswer } from '../../sim/work';
 import { DEPARTMENTS, MAIL } from '../../sim/workdata';
@@ -26,7 +27,7 @@ export class MailApp implements AppView {
   constructor(
     private el: HTMLElement,
     private ctx: AppCtx,
-    private hooks: { recruited(id: CoworkerId): void },
+    private hooks: { recruited(id: CoworkerId): void; review(): void },
   ) {
     el.addEventListener('click', (e) => this.onClick(e));
   }
@@ -47,7 +48,7 @@ export class MailApp implements AppView {
   // ---------------------------------------------------------------- input
 
   private onClick(e: Event) {
-    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-folder],[data-act],[data-reply],[data-dept],[data-item],[data-story],[data-recruit],[data-start]');
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-folder],[data-act],[data-reply],[data-dept],[data-item],[data-story],[data-recruit],[data-start],[data-review]');
     if (!b || (b as HTMLButtonElement).disabled) return;
     const d = b.dataset;
     if (d.folder) {
@@ -62,6 +63,7 @@ export class MailApp implements AppView {
     else if (d.reply !== undefined) this.answer({ act: 'reply', choice: Number(d.reply) });
     else if (d.dept) this.answer({ act: 'forward', dept: d.dept as (typeof DEPARTMENTS)[number] });
     else if (d.story) this.storySel = Number(d.story);
+    else if (d.review !== undefined) return this.hooks.review();
     else if (d.recruit) {
       const id = d.recruit as CoworkerId;
       const r = recruit(this.s, id);
@@ -153,6 +155,7 @@ export class MailApp implements AppView {
       unreadStory,
       this.storySel ?? '',
       s.allies.length,
+      reviewReady(s),
     ].join('|');
     keyed(this.el, key, () => this.html(s, last));
     updateClock(this.el, r);
@@ -240,6 +243,7 @@ export class MailApp implements AppView {
         <header class="mail-head"><span><b>From:</b> ${esc(sel.from)}</span><span><b>Subject:</b> ${esc(sel.subject)}</span><time>${officeTime(sel.t)}</time></header>
         <p class="mail-text">${esc(sel.body)}</p>
         ${this.recruitHtml(s, sel.recruit)}
+        ${sel.review ? (reviewReady(s) ? `<p class="mail-recruit"><button type="button" class="win-action strong" data-review>Go to your performance review</button></p>` : `<p class="mail-recruit"><span class="stamp blue">Done</span> You’ve had this review.</p>`) : ''}
       </article>
     </div>`;
   }

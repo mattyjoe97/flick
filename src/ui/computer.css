@@ -2432,6 +2432,347 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Ccircle cx='24' cy='21' r='14' fill='%23d94a3d' stroke='%231b1e22' stroke-width='3'/%3E%3Cpath d='M24 10 V21' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M17 15 A9 9 0 1 0 31 15' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
+/* ------------------------------------------------------------ Staffing: your career and your team */
+
+.app-staffing {
+  padding: 0;
+}
+
+.staffing {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+}
+
+.career {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid #d6d2c8;
+  background: #fbfaf6;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Your employee badge (your painted portrait goes in the photo window later). */
+.id-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 0 8px 10px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #c9c4b6, 2px 3px 6px rgba(0, 0, 0, 0.15);
+  transform: rotate(-2deg);
+}
+
+.id-strip {
+  width: calc(100% + 16px);
+  height: 14px;
+  border-radius: 8px 8px 0 0;
+  background: #2a6f8f;
+}
+
+.id-photo {
+  display: grid;
+  place-items: end center;
+  width: 64px;
+  height: 78px;
+  overflow: hidden;
+  border: 1px solid #b9b3a3;
+  background:
+    radial-gradient(circle at 50% 38%, #8b97a6 0 17px, transparent 18px),
+    radial-gradient(ellipse 34px 22px at 50% 100%, #8b97a6 98%, transparent),
+    #dfe5ea;
+}
+
+.id-you {
+  margin-bottom: 2px;
+  padding: 0 4px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.id-name {
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.id-line {
+  width: 70%;
+  height: 3px;
+  background: #e2dfd8;
+}
+
+.career-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.career-info h3 {
+  margin: 2px 0 10px;
+  font-size: 22px;
+}
+
+.career-info h3 small {
+  margin-left: 6px;
+  font-size: 14px;
+  color: #1d6b33;
+}
+
+.career-info .hint {
+  margin: 8px 0 0;
+}
+
+.perf {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  overflow: hidden;
+  border: 2px solid;
+  border-color: var(--os-lo) var(--os-hi) var(--os-hi) var(--os-lo);
+  background: #ecebe6;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.perf-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: #6cc173;
+  transition: width 0.3s;
+}
+
+.perf.full .perf-fill {
+  background: #e0b13c;
+}
+
+.perf b {
+  position: relative;
+}
+
+.review-btn {
+  margin-top: 10px;
+  padding: 10px 18px;
+  font-size: 16px;
+  animation: review-glow 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes review-glow {
+  to {
+    background: #fff3c4;
+  }
+}
+
+.teams h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.teams h3 small {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d6b33;
+}
+
+.teams ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d6d2c8;
+  background: #fff;
+}
+
+.tm-face {
+  width: 72px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e8eef3;
+}
+
+.tm-face svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tm-body h4 {
+  margin: 0 0 2px;
+  font-size: 16px;
+}
+
+.tm-body h4 small {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.tm-does {
+  margin: 0 0 3px;
+  font-size: 13px;
+}
+
+.tm-pay {
+  color: #1d6b33;
+}
+
+.tm-quote {
+  margin: 0 0 8px;
+  font-family: var(--font-hand);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.tm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tm-actions .win-action {
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.tm-cap,
+.tm-lock {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.team.locked {
+  background: #f4f3ef;
+}
+
+.team.locked .tm-face svg {
+  filter: brightness(0) opacity(0.22);
+}
+
+.team.locked h4 {
+  color: var(--ink-3);
+}
+
+/* Mr. Feeney's office: one question, then the promotion. */
+.perf-review {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  max-width: 760px;
+  margin: 18px auto;
+  padding: 18px 22px;
+  border: 1px solid #d6d2c8;
+  background: #fbfaf6;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
+  animation: result-in 0.3s ease-out;
+}
+
+.rv-face {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #e2d6bf;
+}
+
+.rv-face svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.rv-kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.rv-say,
+.rv-you {
+  margin: 0 0 12px;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.rv-you {
+  font-style: italic;
+  color: var(--ink-2);
+}
+
+.rv-answers {
+  display: grid;
+  gap: 8px;
+}
+
+.rv-promo {
+  position: relative;
+  padding: 12px 0 0;
+  border-top: 1px dashed #c9c4b6;
+}
+
+.rv-promo h3 {
+  margin: 4px 0 8px;
+  font-size: 26px;
+}
+
+.rv-promo ul {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.rv-stamp {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  padding: 10px 24px;
+  color: #1d7a3a;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+  animation: stamp-slam 0.25s cubic-bezier(0.3, 1.4, 0.5, 1) 0.15s both;
+}
+
+.rv-stamp::before {
+  content: "";
+  position: absolute;
+  inset: -4px -6px;
+  z-index: -1;
+  background: url("../assets/art/ink-stamp.webp") center / 100% 100% no-repeat;
+  filter: hue-rotate(128deg) saturate(0.85) brightness(0.8);
+}
+
 /* ------------------------------------------------------------ smaller screens */
 
 @media (max-width: 1100px) {
@@ -2648,6 +2989,51 @@
   .product {
     grid-template-columns: minmax(0, 1fr);
   }
+  .staffing {
+    padding: 8px;
+    gap: 10px;
+  }
+  .career {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px;
+  }
+  .id-photo {
+    width: 52px;
+    height: 62px;
+  }
+  .career-info h3 {
+    font-size: 18px;
+  }
+  .teams ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .team {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px;
+  }
+  .tm-face {
+    width: 56px;
+    height: 64px;
+  }
+  .perf-review {
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 12px;
+    margin: 8px 0;
+    padding: 12px;
+  }
+  .rv-say,
+  .rv-you {
+    font-size: 15px;
+  }
+  .rv-stamp {
+    position: static;
+    display: inline-block;
+    margin: 4px 0 0 6px;
+    padding: 6px 16px;
+    font-size: 16px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2663,7 +3049,9 @@
   .round-result,
   .dots i,
   .flyer,
-  .tray-combo.max {
+  .tray-combo.max,
+  .review-btn,
+  .rv-stamp {
     animation: none;
   }
 }

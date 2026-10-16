@@ -31,6 +31,7 @@ import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
 import { chatUnread } from '../sim/chat';
+import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
 import { GUN_ART, ICON_ART } from './goods-art';
 
@@ -114,6 +115,10 @@ export class UI {
         this.sound.capture();
         this.bump('salary');
         this.say(`${COWORKERS.find((c) => c.id === id)!.name} joined your team.`);
+      },
+      promoted: () => {
+        this.sound.grade('A');
+        this.sound.kaching();
       },
     }, this.sound);
     const supplyHooks = { say: (t: string) => this.say(t), bump: (w: 'bands' | 'salary') => this.bump(w) };
@@ -510,6 +515,12 @@ export class UI {
         this.sound.incoming();
         this.bump('bands');
       } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
+      else if (e.type === 'reviewReady') {
+        if (!this.s.lookBusy) {
+          this.say('Mr. Feeney wants to see you about a promotion. Go to your review in Staffing, on your computer.');
+          this.sound.notify();
+        }
+      } else if (e.type === 'hired') this.sound.capture();
       else if (e.type === 'pay') this.onPay(e);
       else if (e.type === 'walkby') {
         this.closet.kickOut();
@@ -545,11 +556,17 @@ export class UI {
     };
     if (e.source === 'bounty') {
       const from = $('nameplate');
-      const g = payGrade(this.s);
       const note = e.note ? e.note.charAt(0).toUpperCase() + e.note.slice(1) : '';
-      bigFloater(from, `+${money(e.amount)}`, `${esc(note)}<br>Promoted to ${esc(g.title)}: work pays ×${g.mult}`);
+      bigFloater(from, `+${money(e.amount)}`, esc(note));
       moneyBurst(from, to, 6, 3, hop);
       this.sound.kaching();
+      return;
+    }
+    if (e.source === 'team') {
+      // Your team's pay drops in quietly: a coin or two from Staffing, or a bump on the sticky note.
+      if (!this.s.lookBusy) return this.bump('salary');
+      const icon = document.querySelector<HTMLElement>('#desktop [data-app="staffing"]');
+      moneyBurst(onScreen(icon) ? icon! : $('screen'), to, 2, 0, hop);
       return;
     }
     if (!this.s.lookBusy) return;
@@ -666,7 +683,7 @@ export class UI {
           <dt>Walk-bys survived</dt><dd>${s.stats.hides} of ${s.stats.hides + s.stats.walkbysSpotted}</dd>
           <dt>Team</dt><dd>${s.allies.length} ${s.allies.length === 1 ? 'coworker' : 'coworkers'}</dd>
         </dl>
-        <p>That's the end of this first build. Stage 3, Department War, comes next. You can keep the game running, or start over from Settings.</p>`;
+        <p>The war is over for now (Stage 3, Department War, comes next), but your career isn't. Keep working, get promoted, and build your team in Staffing. The top of the ladder is CEO.</p>`;
     }
     $('stage-dlg-ok').textContent = stage === 3 ? 'Keep playing' : 'Back to it';
     if (!dlg.open) dlg.showModal();
@@ -703,7 +720,11 @@ export class UI {
     this.set('salary', money(s.salary));
     this.set('salary-rate', m.salaryPerSec > 0 ? `+$${rate(m.salaryPerSec)}/s` : '');
     const grade = payGrade(s);
-    this.set('pay-grade', `${grade.title}${grade.mult > 1 ? ` · work ×${grade.mult}` : ''}`);
+    const ready = reviewReady(s);
+    this.set('pay-grade', ready ? 'Promotion ready! (Staffing)' : `${grade.title}${grade.mult > 1 ? ` · work ×${grade.mult}` : ''}`);
+    const share = s.career.rank >= TOP_RANK ? 1 : Math.min(1, s.career.review / reviewNeed(s.career.rank));
+    $('perf-fill').style.width = `${(share * 100).toFixed(1)}%`;
+    $('perf').classList.toggle('full', ready);
     const susp = Math.min(100, s.suspicion);
     this.set('susp-num', susp.toFixed(0));
     // The mug fills from y=114 (empty) to y=18 (full).
@@ -935,6 +956,7 @@ export class UI {
     const chat = chatUnread(s);
     const bits: string[] = [];
     if (call) bits.push('<b class="pcb ring">Phone!</b>');
+    if (reviewReady(s)) bits.push('<b class="pcb promo">Review!</b>');
     if (mail) bits.push(`<b class="pcb">${mail > 9 ? '9+' : mail} mail</b>`);
     if (chat) bits.push(`<b class="pcb chat">${chat} chat</b>`);
     this.rebuild('pc-badges', bits.join(''), () => ($('pc-badges').innerHTML = bits.join('')));

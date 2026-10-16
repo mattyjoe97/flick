@@ -1,4 +1,6 @@
-import { COWORKERS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { COWORKERS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { promote, reviewReady } from '../src/sim/career';
+import { hire, seatCap, seatCost, seats, teamUnlocked, train, trainCost } from '../src/sim/staff';
 import {
   buyUpgrade,
   buyWeapon,
@@ -56,14 +58,20 @@ interface BotMind {
   coin: number; // deterministic pseudo-random for mistakes
 }
 
-/** Plays the game headlessly and returns the final state. */
-export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345): GameState {
+/** Plays the game headlessly and returns the final state (by default, until the first slice is done). */
+export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345, until: (s: GameState) => boolean = (s) => s.stage >= 3): GameState {
   const s = newGame(seed);
+  runBot(s, style, maxSeconds, until, seed);
+  return s;
+}
+
+/** Keeps a bot playing an existing game for up to `seconds` (or until `until` says stop). */
+export function runBot(s: GameState, style: BotStyle, seconds: number, until: (s: GameState) => boolean = () => false, seed = 12345) {
   const mind: BotMind = { busyUntil: 0, job: null, coin: seed % 997 };
   const actionEvery = 1 / style.actionsPerSecond;
-  let nextAction = 0;
-  const steps = Math.round(maxSeconds / TUNING.stepSeconds);
-  for (let i = 0; i < steps && s.stage < 3; i++) {
+  let nextAction = s.time;
+  const steps = Math.round(seconds / TUNING.stepSeconds);
+  for (let i = 0; i < steps && !until(s); i++) {
     step(s, TUNING.stepSeconds);
     s.events.length = 0;
     if (mind.job) {
@@ -80,7 +88,6 @@ export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345): G
       act(s, style, mind);
     }
   }
-  return s;
 }
 
 function rightThisTime(style: BotStyle, mind: BotMind) {
@@ -143,6 +150,15 @@ const needsMoney = (s: GameState) => s.salary < 15 && s.ownedWeapons.length < 2 
 function act(s: GameState, style: BotStyle, mind: BotMind) {
   // A delivered box gets opened right away (it's on the desk, even from your chair).
   if (s.supplies.box) openBox(s);
+  // Reviews get taken as soon as they're ready.
+  if (style.doesWork && reviewReady(s)) promote(s);
+  // After the first slice there's no one to flick: it's a desk job now.
+  if (s.stage > 2) {
+    shop(s);
+    setLookBusy(s, true);
+    doTask(s, style, mind);
+    return;
+  }
   const countdown = walkbyCountdown(s);
   // A ringing phone gets answered: that's work, and it puts you at your computer.
   if (s.work.ringing && doTask(s, style, mind)) return;
@@ -188,5 +204,19 @@ function shop(s: GameState): boolean {
   for (const u of UPGRADES) {
     if (!s.upgrades.includes(u.id) && buyUpgrade(s, u.id).ok) return true;
   }
-  return false;
+  return hireSomeone(s);
+}
+
+/** Grows the team: the cheapest seat or training it can afford with money to spare. */
+function hireSomeone(s: GameState): boolean {
+  let best: { cost: number; buy: () => boolean } | null = null;
+  for (const t of TEAMS) {
+    if (!teamUnlocked(s, t.id)) continue;
+    const seat = seatCost(s, t.id);
+    if (seats(s, t.id) < seatCap(s, t.id) && (!best || seat < best.cost)) best = { cost: seat, buy: () => hire(s, t.id).ok };
+    const tc = trainCost(s, t.id);
+    if (tc !== null && (!best || tc < best.cost)) best = { cost: tc, buy: () => train(s, t.id).ok };
+  }
+  // Keep a cushion for weapons, supplies and buy-backs.
+  return !!best && s.salary >= best.cost * 1.5 && best.buy();
 }

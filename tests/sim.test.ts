@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { COMBO, DALE, PAY_GRADES, PROMOTION, TARGETS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { CAREER, COMBO, DALE, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
+import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/sim/career';
+import { hire, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
 import { addSuspicion, applyOffline, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { mods, rolePower, weapon } from '../src/sim/mods';
@@ -691,9 +693,8 @@ describe('money', () => {
     return answerMail(s, i, right ? a : a.act === 'delete' ? { act: 'reply', choice: 0 } : { act: 'delete' })!;
   };
 
-  it('beating someone pays their bounty and promotes you: work pays more', () => {
+  it('beating someone pays their bounty (promotions come from your work, not the war)', () => {
     const s = newGame(1);
-    const email = basePay(s, 'mail');
     s.bands = 100;
     s.targetResolve = 0.5;
     flick(s);
@@ -701,15 +702,11 @@ describe('money', () => {
     expect(s.salary).toBe(gary1.bounty);
     expect(s.stats.bounties).toBe(gary1.bounty);
     expect(s.events.some((e) => e.type === 'pay' && e.source === 'bounty' && e.amount === gary1.bounty)).toBe(true);
-    expect(payGrade(s)).toBe(PAY_GRADES[1]);
-    expect(basePay(s, 'mail')).toBeCloseTo(email * PAY_GRADES[1].mult);
+    expect(payGrade(s)).toBe(PAY_GRADES[0]);
   });
 
-  it('bounties grow down the floor, and the last grade is for running it', () => {
+  it('bounties grow down the floor', () => {
     for (let i = 1; i < TARGETS.length; i++) expect(TARGETS[i].bounty).toBeGreaterThan(TARGETS[i - 1].bounty);
-    const s = newGame(1);
-    s.stage = 3;
-    expect(payGrade(s)).toBe(PAY_GRADES[PAY_GRADES.length - 1]);
   });
 
   it('work done in a row builds a combo that pays more; a slip or a long pause ends it', () => {
@@ -777,6 +774,126 @@ describe('one shop and the shopping list', () => {
   });
 });
 
+describe('your career', () => {
+  const fresh = () => {
+    const s = newGame(1);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    setLookBusy(s, true);
+    return s;
+  };
+
+  it('work done right fills Performance; a clean, quick round adds a bonus', () => {
+    const s = fresh();
+    s.work.mailWaiting = 5;
+    focusApp(s, 'mail');
+    const r = startRound(s, 'mail')!;
+    r.mail!.forEach((m, i) => answerMail(s, i, correctMail(m)));
+    expect(s.work.last?.grade).toBe('A');
+    expect(s.career.review).toBe(Math.min(reviewNeed(0), r.items * CAREER.itemPoints + CAREER.gradePoints.A));
+  });
+
+  it('the bar stops at full and waits for your review; the review promotes you', () => {
+    const s = fresh();
+    const pay = basePay(s, 'mail');
+    expect(promote(s)).toBe(false);
+    addReview(s, 1e6);
+    expect(s.career.review).toBe(reviewNeed(0)); // never more than one promotion banked
+    expect(reviewReady(s)).toBe(true);
+    expect(s.events.some((e) => e.type === 'reviewReady')).toBe(true);
+    expect(s.inbox[0].from).toBe('Mr. Feeney');
+    expect(promote(s)).toBe(true);
+    expect(s.career).toEqual({ rank: 1, review: 0 });
+    expect(payGrade(s)).toBe(PAY_GRADES[1]);
+    expect(basePay(s, 'mail')).toBeCloseTo(pay * PAY_GRADES[1].mult);
+    expect(reviewReady(s)).toBe(false);
+  });
+
+  it('each promotion asks more, and CEO is the top', () => {
+    for (let r = 1; r < TOP_RANK; r++) expect(reviewNeed(r)).toBeGreaterThan(reviewNeed(r - 1));
+    for (let i = 1; i < PAY_GRADES.length; i++) expect(PAY_GRADES[i].mult).toBeGreaterThan(PAY_GRADES[i - 1].mult);
+    const s = fresh();
+    s.career.rank = TOP_RANK;
+    addReview(s, 1e9);
+    expect(reviewReady(s)).toBe(false);
+    expect(promote(s)).toBe(false);
+    expect(PAY_GRADES[TOP_RANK].title).toBe('CEO');
+  });
+
+  it('work goes on after the first slice', () => {
+    const s = fresh();
+    s.stage = 3;
+    run(s, 60);
+    expect(s.work.mailWaiting).toBeGreaterThan(0);
+  });
+});
+
+describe('your team', () => {
+  const boss = (rank: number) => {
+    const s = newGame(1);
+    s.walkby.nextAt = 1e9;
+    s.work.nextCallAt = 1e9;
+    s.dale.nextDealAt = 1e9;
+    s.career.rank = rank;
+    s.salary = 1e7;
+    return s;
+  };
+
+  it('each team unlocks at its rank, and every seat costs more than the last', () => {
+    const s = boss(0);
+    expect(hire(s, 'temp').ok).toBe(false);
+    s.career.rank = TEAMS[0].unlockRank;
+    const first = seatCost(s, 'temp');
+    expect(first).toBe(TEAMS[0].cost);
+    expect(hire(s, 'temp').ok).toBe(true);
+    expect(s.salary).toBe(1e7 - first);
+    expect(seatCost(s, 'temp')).toBeGreaterThan(first);
+    expect(s.inbox[0].from).toBe(TEAMS[0].lead);
+    expect(hire(s, 'receptionist').ok).toBe(false);
+    for (let i = 1; i < TEAMS.length; i++) expect(TEAMS[i].unlockRank).toBeGreaterThan(TEAMS[i - 1].unlockRank);
+  });
+
+  it('a team earns half your pay for its work, all the time, and adds a little Performance', () => {
+    const s = boss(3);
+    hire(s, 'temp');
+    hire(s, 'receptionist');
+    const before = s.salary;
+    const perMin = staffPayPerMin(s);
+    const expected = TEAMS[0].perMin * basePay(s, 'mail') * STAFF.quality + TEAMS[1].perMin * basePay(s, 'call') * STAFF.quality;
+    expect(perMin).toBeCloseTo(expected);
+    run(s, 60);
+    expect(s.salary - before).toBeCloseTo(perMin, 0);
+    expect(s.career.review).toBeGreaterThan(0);
+    expect(s.events.some((e) => e.type === 'pay' && e.source === 'team')).toBe(true);
+  });
+
+  it('training makes a team more productive; the Assistant Manager speeds up everyone else', () => {
+    const s = boss(TEAMS[4].unlockRank);
+    expect(trainCost(s, 'temp')).toBeNull(); // nobody to train yet
+    hire(s, 'temp');
+    const base = teamPerMin(s, 'temp');
+    expect(train(s, 'temp').ok).toBe(true);
+    expect(teamPerMin(s, 'temp')).toBeCloseTo(base * STAFF.trainBoost);
+    hire(s, 'manager');
+    expect(teamPerMin(s, 'temp')).toBeCloseTo(base * STAFF.trainBoost * (1 + STAFF.managerBoost));
+    expect(teamPerMin(s, 'manager')).toBe(0);
+    s.salary = 1e12;
+    for (let i = 1; i < STAFF.training.length; i++) expect(train(s, 'temp').ok).toBe(true);
+    expect(trainCost(s, 'temp')).toBeNull(); // fully trained
+  });
+
+  it('your team keeps working while the game is closed', () => {
+    const s = boss(1);
+    hire(s, 'temp');
+    const before = s.salary;
+    const res = applyOffline(s, 3600)!;
+    expect(res.team).toBeCloseTo(staffPayPerMin(s) * 60, 0);
+    expect(s.salary - before).toBeCloseTo(res.salary, 0);
+    expect(s.inbox[0].body).toContain('Your team made');
+  });
+});
+
 describe('saves', () => {
   it('round-trips through serialize and export', () => {
     const s = newGame(7);
@@ -786,6 +903,22 @@ describe('saves', () => {
     expect(back?.state.bands).toBeCloseTo(s.bands);
     const imported = importSave(exportSave(s));
     expect(imported?.state.time).toBeCloseTo(s.time);
+  });
+
+  it('a save from before promotions keeps the pay grade the war gave you', () => {
+    const s = newGame(7);
+    s.stage = 2;
+    s.targetIndex = 5;
+    const file = JSON.parse(serialize(s));
+    file.version = 7;
+    delete file.state.career;
+    delete file.state.staff;
+    delete file.state.staffPay;
+    const back = deserialize(JSON.stringify(file))!;
+    expect(back.state.career).toEqual({ rank: 5, review: 0 });
+    expect(back.state.staff).toEqual({});
+    const done = { ...file, state: { ...file.state, stage: 3, targetIndex: 7 } };
+    expect(deserialize(JSON.stringify(done))!.state.career.rank).toBe(8);
   });
 
   it('rejects garbage without throwing', () => {

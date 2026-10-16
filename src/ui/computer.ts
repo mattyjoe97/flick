@@ -7,6 +7,7 @@
 //   Spreadsheet  spot the typos against Accounting's printout
 //   Expenses     stamp receipts by today's rule
 //   Messenger    your coworkers, one conversation each
+//   Staffing     your career (promotions) and the team you hire
 //   Supply Catalog, Org Chart, My Documents, the Recycle Bin
 //
 // Around the apps: a Start menu, a taskbar with your Salary and the work combo, pop-up
@@ -14,6 +15,7 @@
 // Mr. Feeney's reflection growing in the glass as he walks up behind you.
 
 import './computer.css';
+import { reviewReady } from '../sim/career';
 import { chatUnread } from '../sim/chat';
 import { COMBO, type CoworkerId } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
@@ -27,11 +29,12 @@ import { MailApp } from './apps/mail';
 import { MessengerApp } from './apps/messenger';
 import { PhoneApp } from './apps/phone';
 import { SheetApp } from './apps/sheet';
+import { StaffingApp } from './apps/staffing';
 import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
 import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'docs' | 'trash';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'docs' | 'trash';
 
 const TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -41,6 +44,7 @@ const TITLES: Record<AppId, string> = {
   chat: 'Messenger',
   catalog: 'Office Supply Catalog',
   org: 'Org Chart',
+  staffing: 'Staffing',
   docs: 'My Documents',
   trash: 'Recycle Bin',
 };
@@ -53,6 +57,7 @@ const ICON: Record<AppId, string> = {
   chat: 'ico-chat',
   catalog: 'ico-catalog',
   org: 'ico-org',
+  staffing: 'ico-staffing',
   docs: 'ico-folder',
   trash: 'ico-trash-full',
 };
@@ -66,14 +71,15 @@ const FEENEY_SAYS: Record<string, string[]> = {
   chat: ['…Is that Messenger?', 'Chatting, are we?'],
   catalog: ['Ordering supplies? We’re low on everything.'],
   org: ['Org chart. Very strategic.'],
+  staffing: ['Building a team? Love it.', 'Delegation. Very managerial.'],
   docs: ['Updating your résumé?', 'Organized. I like it.'],
   trash: ['Taking out the trash. Good.'],
   desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
   saver: ['…Flying staplers?'],
 };
 
-/** The wallpaper for each pay grade: the stock teal, a beach, a rowing crew, the city at night. */
-const WALLS: string[] = ['corporate', 'corporate', 'beach', 'beach', 'beach', 'teamwork', 'teamwork', 'skyline', 'skyline'];
+/** The wallpaper for each pay grade: the stock teal, a beach, a rowing crew, the city at night (Floor Manager and up). */
+const WALLS: string[] = ['corporate', 'corporate', 'beach', 'beach', 'beach', 'teamwork', 'teamwork', 'teamwork', 'skyline'];
 
 const IDLE_MS = 45_000; // the screensaver comes on after this long without touching anything
 
@@ -87,6 +93,7 @@ export interface ComputerHooks {
   /** A footstep behind you, `near` from 0 (far) to 1 (right behind you). */
   footstep(near: number): void;
   notify(): void;
+  promoted(rank: number): void;
 }
 
 export class ComputerView {
@@ -96,6 +103,7 @@ export class ComputerView {
   private phone: PhoneApp;
   private chat: MessengerApp;
   private docs: DocsApp;
+  private staffing: StaffingApp;
   private idleAt = performance.now();
   private saverOn = false;
   private lastRing = 0;
@@ -111,11 +119,12 @@ export class ComputerView {
   ) {
     const ctx: AppCtx = { get, sound, say: (t) => hooks.say(t) };
     const pane = (id: string) => document.querySelector<HTMLElement>(`.win-body .app[data-app="${id}"]`)!;
-    this.mail = new MailApp(pane('mail'), ctx, { recruited: (id) => hooks.recruited(id) });
+    this.mail = new MailApp(pane('mail'), ctx, { recruited: (id) => hooks.recruited(id), review: () => this.openReview() });
     this.phone = new PhoneApp(pane('phone'), ctx);
     this.chat = new MessengerApp(pane('chat'), ctx);
     this.docs = new DocsApp(pane('docs'), ctx);
     this.docs.onTitle = () => this.setTitle();
+    this.staffing = new StaffingApp(pane('staffing'), ctx, { promoted: (rank) => hooks.promoted(rank) });
     this.views = {
       mail: this.mail,
       phone: this.phone,
@@ -123,6 +132,7 @@ export class ComputerView {
       expenses: new ExpensesApp(pane('expenses'), ctx),
       chat: this.chat,
       catalog: new CatalogApp(pane('catalog'), ctx, () => hooks.ordered()),
+      staffing: this.staffing,
       docs: this.docs,
       trash: this.docs,
     };
@@ -144,6 +154,7 @@ export class ComputerView {
       const t = (e.target as HTMLElement).closest<HTMLElement>('[data-open]');
       if (!t) return;
       if (t.dataset.open === 'call') this.answerPhone();
+      else if (t.dataset.key === 'review') this.openReview();
       else {
         this.openApp(t.dataset.open as AppId);
         if (t.dataset.who) this.chat.show(t.dataset.who);
@@ -218,6 +229,12 @@ export class ComputerView {
     $('start-btn').classList.toggle('down', show);
   }
 
+  /** Straight into Mr. Feeney's office for your performance review. */
+  openReview() {
+    this.openApp('staffing');
+    this.staffing.showReview();
+  }
+
   /** Pick up the desk phone. */
   answerPhone() {
     this.openApp('phone');
@@ -254,6 +271,10 @@ export class ComputerView {
       this.toast(`chat:${e.from}`, 'chat', e.from, last?.text ?? '', e.from);
       this.hooks.notify();
     } else if (e.type === 'taskAuto') this.toast('auto', 'mail', 'Auto-Reply', 'Answered a waiting email for you.');
+    else if (e.type === 'reviewReady' && this.app !== 'staffing') {
+      this.toast('review', 'staffing', 'Performance review', 'Mr. Feeney wants to see you. Click to go in.');
+      this.hooks.notify();
+    }
     else if (e.type === 'hidden') this.feeneyPeer();
   }
 
@@ -360,6 +381,7 @@ export class ComputerView {
     badge('expenses', ready.expense ? 1 : 0);
     badge('sheet', r.sheet ? r.sheet.items - r.sheet.done : ready.sheet ? 1 : 0);
     badge('chat', chatUnread(s));
+    badge('staffing', reviewReady(s) ? '!' : 0);
 
     // New reports and spreadsheets: a notification when they land.
     for (const k of ['expense', 'sheet'] as const) {

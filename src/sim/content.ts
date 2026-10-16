@@ -221,7 +221,7 @@ export const TUNING = {
   garyFlickMin: 15,
   garyFlickMax: 25,
   garyFlickBands: 2,
-  offlineCapSeconds: 2 * 60 * 60,
+  offlineCapSeconds: 8 * 60 * 60,
 };
 
 /** Coworkers get promoted for time served on your team: each rank boosts their role. */
@@ -231,8 +231,11 @@ export const PROMOTION = {
   titles: ['', 'Senior', 'Lead'],
 };
 
-/** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */
-/** Your pay grade goes up every time someone surrenders: work pays this many times more. */
+/**
+ * Your career. You climb it with Performance: things done right at your computer (and,
+ * a little, your team's work). When the bar fills, Mr. Feeney calls you in for a review
+ * and you're promoted: work pays more, and some ranks let you hire a new team.
+ */
 export const PAY_GRADES = [
   { title: 'Junior Associate', mult: 1 },
   { title: 'Associate', mult: 1.15 },
@@ -243,7 +246,66 @@ export const PAY_GRADES = [
   { title: 'Coordinator', mult: 2.7 },
   { title: 'Lead Coordinator', mult: 3.3 },
   { title: 'Floor Manager', mult: 4 },
+  { title: 'Department Head', mult: 5 },
+  { title: 'Director', mult: 6.5 },
+  { title: 'Senior Director', mult: 8.5 },
+  { title: 'Vice President', mult: 11 },
+  { title: 'Senior Vice President', mult: 14 },
+  { title: 'Chief Operating Officer', mult: 18 },
+  { title: 'CEO', mult: 25 },
 ];
+
+export const CAREER = {
+  first: 10, // Performance for your first promotion
+  growth: 1.7, // each promotion after that needs this much more
+  itemPoints: 1, // per thing you do right (times your pay grade's multiplier: seniors' work counts more)
+  gradePoints: { A: 2, B: 1, C: 0, D: 0, F: 0 } as Record<'A' | 'B' | 'C' | 'D' | 'F', number>,
+  teamPoints: 0.012, // per thing your team does, times that thing's base pay
+};
+
+// ---------------------------------------------------------------- your team
+
+export type TeamId = 'temp' | 'receptionist' | 'bookkeeper' | 'analyst' | 'manager';
+
+/**
+ * People who work for you, once you're senior enough to hire them. Each team starts with
+ * its lead (a named hire) and grows a seat at a time; training multiplies the whole team.
+ * They do your kind of work at half your pay, all the time, even while the game is closed.
+ */
+export interface Team {
+  id: TeamId;
+  lead: string; // the first hire, who runs the team
+  title: string;
+  portrait: string; // PORTRAITS id
+  job: 'mail' | 'call' | 'expense' | 'sheet' | null; // null: the Assistant Manager boosts the others
+  does: string; // "emails" / "calls"...
+  perMin: number; // things one seat gets done per minute
+  unlockRank: number; // the PAY_GRADES index that lets you hire them
+  cost: number; // the first seat
+  growth: number; // each seat after that costs this much more
+  pitch: string; // a line from the lead when you look at them
+}
+
+export const TEAMS: Team[] = [
+  { id: 'temp', lead: 'Brooke', title: 'Temp', portrait: 'temp', job: 'mail', does: 'emails', perMin: 4, unlockRank: 1, cost: 150, growth: 1.3, pitch: 'The agency said it’s “mostly email.” Fine.' },
+  { id: 'receptionist', lead: 'Luis', title: 'Receptionist', portrait: 'receptionist', job: 'call', does: 'calls', perMin: 2, unlockRank: 3, cost: 600, growth: 1.3, pitch: 'Good morning, how may I direct your call?' },
+  { id: 'bookkeeper', lead: 'Harold', title: 'Bookkeeper', portrait: 'bookkeeper', job: 'expense', does: 'receipts', perMin: 20, unlockRank: 5, cost: 2400, growth: 1.3, pitch: 'Forty years of receipts. I have seen things.' },
+  { id: 'analyst', lead: 'Priya', title: 'Analyst', portrait: 'analyst', job: 'sheet', does: 'typos', perMin: 14, unlockRank: 7, cost: 9000, growth: 1.3, pitch: 'Your printout has a typo in row 3. Also, hi.' },
+  { id: 'manager', lead: 'Chad', title: 'Assistant Manager', portrait: 'manager', job: null, does: '', perMin: 0, unlockRank: 9, cost: 40000, growth: 1.5, pitch: 'Let’s circle back and 10x this team.' },
+];
+
+export const STAFF = {
+  quality: 0.35, // your team earns this share of what you'd earn for the same thing
+  /** Headcount budget: one seat when a team unlocks, and one more with every promotion after. */
+  seatsPerRank: 1,
+  managerBoost: 0.1, // each Assistant Manager seat: every other team works this much faster
+  /** Training: each level makes a team half again as productive. Costs grow fast. */
+  training: ['Lunch-and-learn', 'Certification course', 'Offsite retreat', 'Executive coaching', 'Six Sigma black belt'],
+  trainBoost: 1.5,
+  trainCost: 20, // the first level costs this many first seats
+  trainGrowth: 8,
+  payEvery: 15, // seconds between "your team made $X" coin drops
+};
 
 /** Work combo: things done right back to back pay more. */
 export const COMBO = {
@@ -265,6 +327,7 @@ export const DALE = {
   thickDamage: 1.25,
 };
 
+/** Hold Flick to stretch the band: more damage from the same band, a bit more noise. */
 export const CHARGE = {
   deadZone: 0.12, // a tap shorter than this is a normal flick
   fullAfter: 0.9, // seconds of holding (after the dead zone) to reach full stretch

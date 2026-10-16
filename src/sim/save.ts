@@ -1,4 +1,4 @@
-import { COWORKERS, TARGETS, UPGRADES, WEAPONS } from './content';
+import { COWORKERS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
 import { newGame, SAVE_VERSION, type GameState } from './state';
 
 export const SAVE_KEY = 'flick.save';
@@ -45,6 +45,11 @@ function migrate(file: SaveFile): GameState | null {
   s.dale = { ...base.dale, ...(file.state.dale ?? {}), deal: null };
   // Allies from version 1 saves have no promotion fields yet.
   s.allies = (file.state.allies ?? []).map((a) => ({ ...a, served: a.served ?? 0, rank: a.rank ?? 0 }));
+  // Before version 8 your pay grade came from the war (one per surrender): keep the rank you had.
+  if (file.version < 8) s.career = { rank: s.stage > 2 ? 8 : Math.min(8, s.targetIndex), review: 0 };
+  else s.career = { ...base.career, ...(file.state.career ?? {}) };
+  s.staff = { ...(file.state.staff ?? {}) };
+  s.staffPay = { owed: 0, at: s.time };
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
 }
@@ -91,6 +96,14 @@ function sanitize(s: GameState): boolean {
   w.rounds.call = null; // a caller doesn't wait while the game is closed
   w.mailWaiting = Math.min(10, Math.max(0, Math.floor(Number(w.mailWaiting) || 0)));
   if (!Array.isArray(w.fraudAt)) w.fraudAt = [];
+  const c = s.career;
+  c.rank = Math.min(PAY_GRADES.length - 1, Math.max(0, Math.floor(Number(c.rank) || 0)));
+  c.review = Math.max(0, Number(c.review) || 0);
+  for (const id of Object.keys(s.staff) as (keyof typeof s.staff)[]) {
+    const st = s.staff[id];
+    if (!TEAMS.some((t) => t.id === id) || !st) delete s.staff[id];
+    else s.staff[id] = { seats: Math.max(0, Math.floor(Number(st.seats) || 0)), level: Math.max(0, Math.floor(Number(st.level) || 0)), done: Math.max(0, Number(st.done) || 0) };
+  }
   if (!Array.isArray(s.chat.threads)) s.chat.threads = [];
   if (!Array.isArray(s.chat.queue)) s.chat.queue = [];
   const p = s.supplies;

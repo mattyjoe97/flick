@@ -1889,6 +1889,10 @@ kbd {
   background: #b07612;
 }
 
+.pcb.promo {
+  background: #1d6b33;
+}
+
 .computer-card.alert {
   outline: 3px solid var(--alarm);
 }
@@ -3836,6 +3840,29 @@ body.at-computer .desk-box.bulk {
   font-weight: 700;
   color: #3d6a24;
   line-height: 1.2;
+}
+
+/* Performance toward your next promotion, drawn in pen under your title. */
+.sticky-perf {
+  display: block;
+  height: 5px;
+  margin-top: 3px;
+  border: 1px solid rgba(61, 106, 36, 0.55);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sticky-perf i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #3d6a24;
+  transition: width 0.3s;
+}
+
+.sticky-perf.full i {
+  background: #c62f28;
+  animation: walkby-pulse 0.9s steps(2, jump-none) infinite;
 }
 
 .tray-pay {

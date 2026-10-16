@@ -5,6 +5,7 @@ import { currentTarget, newAlly, pushEmail, pushTicker, type DaleDeal, type Game
 import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
+import { staffOffline, stepStaff } from './staff';
 
 export { openBox } from './supplies';
 
@@ -350,6 +351,7 @@ export function step(s: GameState, dt: number) {
   stepHr(s);
   stepAllies(s, dt);
   stepWork(s, dt);
+  stepStaff(s, dt);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
@@ -646,9 +648,12 @@ export function applyOffline(s: GameState, seconds: number) {
   const m = mods(s);
   s.lookBusy = wasBusy;
   const bands = m.bandsPerSec * secs;
-  const salary = m.salaryPerSec * secs;
+  const passive = m.salaryPerSec * secs;
   s.bands += bands;
-  s.salary += salary;
+  s.salary += passive;
+  // Your team kept working (and their Performance counts toward your next review).
+  const team = staffOffline(s, secs);
+  const salary = passive + team;
   s.suspicion = Math.max(0, s.suspicion - (TUNING.baseCool + TUNING.idleCool) * secs);
   // Push the next walk-by out so nobody gets spotted the instant they return.
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
@@ -661,11 +666,11 @@ export function applyOffline(s: GameState, seconds: number) {
       s,
       'Out of Office',
       'While you were away',
-      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(salary).toLocaleString('en-US')}.`,
+      `You were gone ${formatDuration(secs)}. Your desk collected ${Math.floor(bands).toLocaleString('en-US')} bands and $${Math.floor(passive).toLocaleString('en-US')}.${team >= 1 ? ` Your team made $${Math.floor(team).toLocaleString('en-US')}.` : ''}`,
       'flavor',
     );
   }
-  return { secs, bands, salary };
+  return { secs, bands, salary, team };
 }
 
 export function formatDuration(secs: number) {

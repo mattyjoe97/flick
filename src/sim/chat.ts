@@ -6,6 +6,7 @@
 // show "Gary is typing…". Some lines can be answered with one of two quick replies,
 // and a few replies get an answer back (or do something, like Dale finding you a deal).
 
+import { TEAMS } from './content';
 import { rand, randRange } from './rng';
 import type { ChatThread, GameState } from './state';
 
@@ -63,6 +64,19 @@ const EVENT_LINES: Record<string, Line[]> = {
     },
   ],
   'find:ball': [{ id: 'fb', from: 'Gary', text: 'where did you get a rubber band BALL. that’s a war crime' }],
+  promoted: [
+    { id: 'up1', from: 'Gary', text: 'you got PROMOTED? for what', replies: [{ text: 'excellence', then: 'I have also been excellent. nobody noticed' }, { text: 'no idea', then: 'that tracks honestly' }] },
+    { id: 'up2', from: 'Marjorie', text: 'Congratulations, dear. I remember when Mr. Feeney was an Associate.' },
+    { id: 'up3', from: 'Kevin', text: 'congrats!!! does this mean you can hire me for real', replies: [{ text: 'maybe', then: 'MAYBE!!!' }, { text: 'you’re an intern', then: 'a promising intern' }] },
+    { id: 'up4', from: 'Dale (Facilities)', text: 'new title, huh. big offices have big closets. just saying' },
+    { id: 'up5', from: 'Brad', text: 'nice. let’s grab a coffee and talk about your pipeline' },
+    { id: 'up6', from: 'Gary', text: 'they gave you a bigger chair didn’t they. I can tell' },
+  ],
+  'hired:temp': [{ id: 'h1', from: 'Brooke', text: 'hey. it’s brooke, the temp. which stapler is the good one', replies: [{ text: 'the red one', then: 'cool. it’s mine now' }, { text: 'none of them', then: 'figures' }] }],
+  'hired:receptionist': [{ id: 'h2', from: 'Luis', text: 'Front desk is staffed! I’ll put the important calls through. And Brad’s.' }],
+  'hired:bookkeeper': [{ id: 'h3', from: 'Harold', text: 'I have reviewed your expense history. We should talk.', replies: [{ text: 'about what?', then: 'Rubber bands. 400,000 of them.' }, { text: 'no we shouldn’t', then: 'Understood. I have made a note.' }] }],
+  'hired:analyst': [{ id: 'h4', from: 'Priya', text: 'Ran the numbers. This team is 14% more efficient with me on it. You’re welcome.' }],
+  'hired:manager': [{ id: 'h5', from: 'Chad', text: 'yo!! assistant manager reporting for duty. let’s 10x this', replies: [{ text: 'let’s do it', then: 'LET’S GOOO' }, { text: 'please don’t', then: 'too late, I already made a deck' }] }],
   boxSpotted: [{ id: 'bx', from: 'Marjorie', text: 'Open your parcels promptly, dear. Mr. Feeney reads labels.' }],
   'promotion:gary': [{ id: 'pg', from: 'Gary', text: 'promoted!! drinks on me (water cooler)' }],
   'promotion:kevin': [{ id: 'pk', from: 'Kevin', text: 'I GOT A TITLE', replies: [{ text: 'congrats!', then: 'I’m going to put it on a mug' }, { text: 'don’t let it go to your head', then: 'too late' }] }],
@@ -211,6 +225,8 @@ export function buddies(s: GameState): Buddy[] {
     { who: 'Dale (Facilities)', status: s.dale.introduced ? 'away' : 'offline', note: s.dale.introduced ? 'restocking. you know where' : '' },
     { who: 'Mr. Feeney', status: 'away', note: 'Idle for 47 minutes' },
     { who: 'IT Helpdesk', status: 'online', note: 'have you tried turning it off and on' },
+    // The people you've hired.
+    ...TEAMS.filter((t) => (s.staff[t.id]?.seats ?? 0) > 0).map((t) => ({ who: t.lead, status: 'online' as const, note: `${t.title}, your team` })),
   ];
   for (const id of ['steve', 'linda', 'dave']) {
     const name = id[0].toUpperCase() + id.slice(1);

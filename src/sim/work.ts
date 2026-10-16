@@ -10,12 +10,14 @@
 //             that were typed wrong (no math, just spot the difference)
 //
 // Every item done right pays, cools Suspicion and builds the combo; a clean, quick round
-// earns a grade bonus on top. Each promotion multiplies everything work pays. Nothing
+// earns a grade bonus on top. Both add Performance toward your next promotion, and each
+// promotion multiplies everything work pays. Nothing
 // is overdue: a round's clock only runs while you're looking at it.
 //
 // Everything here is headless and deterministic so the pacing bots can play it.
 
-import { COMBO, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
+import { CAREER, COMBO, PAY_GRADES, SHEET_TABS, TARGETS, type SheetTabId, type TypoKind } from './content';
+import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
 import { rand, randRange } from './rng';
@@ -199,10 +201,10 @@ function receiptCount(s: GameState) {
 // ---------------------------------------------------------------- pay grade and combo
 
 export function payGradeIndex(s: GameState) {
-  return s.stage > 2 ? PAY_GRADES.length - 1 : Math.min(PAY_GRADES.length - 1, s.targetIndex);
+  return Math.min(PAY_GRADES.length - 1, Math.max(0, s.career?.rank ?? 0));
 }
 
-/** Your pay grade: up one every time someone surrenders. */
+/** Your pay grade: up one with every promotion. */
 export function payGrade(s: GameState) {
   return PAY_GRADES[payGradeIndex(s)];
 }
@@ -318,7 +320,6 @@ export function ringingCall(s: GameState) {
 /** Advances work: new emails, the phone, round clocks, Auto-Reply. */
 export function stepWork(s: GameState, dt: number) {
   const w = s.work;
-  if (s.stage > 2) return; // first slice complete: the office is quiet
 
   // Work email trickles in; sitting in Mail with nothing to do, a fresh burst lands fast.
   const waitingInMail = s.lookBusy && w.focus === 'mail' && !w.rounds.mail && w.mailWaiting < burstSize(s);
@@ -555,6 +556,7 @@ function itemDone(s: GameState, r: Round, ok: boolean, text: string, extra: { no
   s.stats.workEarned += pay;
   if (ok) {
     s.stats.tasksDone++;
+    addReview(s, CAREER.itemPoints * payGrade(s).mult);
     s.suspicion = Math.max(0, s.suspicion - (extra.relief ?? WORK.relief[r.kind]));
   } else {
     s.stats.tasksWrong++;
@@ -715,6 +717,7 @@ export function finishRound(s: GameState, kind: WorkKind) {
   s.salary += bonus;
   s.stats.workEarned += bonus;
   s.stats.rounds = (s.stats.rounds ?? 0) + 1;
+  addReview(s, CAREER.gradePoints[grade]);
   if (grade === 'A') {
     s.stats.gradeA = (s.stats.gradeA ?? 0) + 1;
     if (kind !== 'call') chatEvent(s, 'grade:A');
