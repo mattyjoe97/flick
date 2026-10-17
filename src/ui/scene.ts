@@ -156,6 +156,8 @@ export class Scene {
             <stop id="sky-top" offset="0" stop-color="#bfe0f7"/>
             <stop id="sky-bot" offset="1" stop-color="#e8f4fb"/>
           </linearGradient>
+          <clipPath id="win-a"><rect x="152" y="32" width="180" height="120"/></clipPath>
+          <clipPath id="win-b"><rect x="468" y="32" width="180" height="120"/></clipPath>
           <pattern id="fabric" width="5" height="5" patternUnits="userSpaceOnUse">
             <rect width="5" height="5" fill="#66768a"/>
             <circle cx="1" cy="1" r="0.7" fill="#76869a"/>
@@ -178,6 +180,7 @@ export class Scene {
         <g class="window">
           <rect x="146" y="26" width="192" height="132" rx="3" fill="#f2efe6" stroke="#b7ae9a" stroke-width="3"/>
           <rect x="152" y="32" width="180" height="120" fill="url(#sky)"/>
+          <image class="win-view" x="152" y="32" width="496" height="120" preserveAspectRatio="none" clip-path="url(#win-a)" hidden/>
           <rect x="152" y="32" width="180" height="46" fill="#ece6d6" opacity="0.92"/>
           <g stroke="#cfc6b2" stroke-width="1.5">${blinds(152, 6)}</g>
           <line x1="242" y1="32" x2="242" y2="152" stroke="#f2efe6" stroke-width="5"/>
@@ -186,6 +189,7 @@ export class Scene {
         <g class="window">
           <rect x="462" y="26" width="192" height="132" rx="3" fill="#f2efe6" stroke="#b7ae9a" stroke-width="3"/>
           <rect x="468" y="32" width="180" height="120" fill="url(#sky)"/>
+          <image class="win-view" x="152" y="32" width="496" height="120" preserveAspectRatio="none" clip-path="url(#win-b)" hidden/>
           <rect x="468" y="32" width="180" height="30" fill="#ece6d6" opacity="0.92"/>
           <g stroke="#cfc6b2" stroke-width="1.5">${blinds(468, 4)}</g>
           <line x1="558" y1="32" x2="558" y2="152" stroke="#f2efe6" stroke-width="5"/>
@@ -625,6 +629,22 @@ export class Scene {
     this.feeneyG.setAttribute('transform', `translate(${x.toFixed(1)} ${this.feeney.phase === 'walk' ? Math.abs(Math.sin(now / 140)) * -3 : 0})`);
     this.feeneyBubble.style.left = `${((x + 96) / W) * 100}%`;
   }
+
+  /**
+   * What you see out of the windows: one wide view behind both of them (the game's own sky
+   * shows through it). Each floor up the career ladder has its own; null for the plain sky.
+   */
+  setView(url: string | null) {
+    if (this.windowView === url) return;
+    this.windowView = url;
+    this.svg.querySelectorAll<SVGImageElement>('.win-view').forEach((img) => {
+      if (url) img.setAttribute('href', url);
+      img.toggleAttribute('hidden', !url);
+    });
+    // The drawn cloud would float in front of the painted buildings.
+    this.svg.querySelector<SVGElement>('.window .cloud')?.toggleAttribute('hidden', !!url);
+  }
+  private windowView: string | null = null;
 
   private stepAmbient(s: GameState, now: number) {
     // Clock, sky and late-afternoon light, once per office minute.
