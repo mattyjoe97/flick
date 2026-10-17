@@ -1,0 +1,30 @@
+FLICK — ART BATCH 12: Window views for the career ladder
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch: clean flat 2D vector cartoon, flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. No gradients, painterly texture, noise, photorealism or 3D rendering. ABSOLUTELY NO letters, numbers, words, logos, brand marks or printed graphics anywhere (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha) is authorized as before.
+
+The player now climbs a career ladder: the Regional Office on Floor 4, Head Office on Floor 12, and Global HQ on Floor 30. This batch is the view out of the office windows on each of those floors.
+
+The office scene has two windows side by side in the back wall. The game shows ONE wide view behind both of them, as if the wall were cut away, and paints its own sky (it changes from morning blue to late-afternoon orange), so the sky in these images MUST be fully transparent.
+
+Number the files exactly as below (they continue after batch 11's 221_icon_reno_panels.png). Deliver all 3 PNGs in a folder named batch12 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch12.json (size, alpha bounding box, the roofline/horizon y and the topmost alpha y per file) and prompts-batch12.json (the prompt used for each file), like earlier batches.
+
+==================================================
+WINDOW VIEWS (3 files)
+==================================================
+
+All three: 2048 x 496 transparent PNG (a wide panorama strip). Seen straight out of a window, looking level across the city. Everything must sit in the LOWER part of the image; the top 40% (above y=200) stays completely transparent except where something tall is explicitly asked for below. No sun, no sky colour, no sky gradient. Background scenery, so keep it calm and readable behind the office: muted, slightly desaturated fills, the farther things lighter and bluer (flat steps of colour, not gradients), outline in a softer brown #5A4B40 at about 6px for near things and none or very thin for far things. No people, no lit signs, no text or logos on any building, billboard or truck.
+
+222_view_floor4.png — Floor 4, the Regional Office: low and close. Across the bottom, the leafy tops of a few street trees right outside. Behind them a small parking lot with three or four parked cars in muted colours, a lamppost, and across the street a row of two- and three-storey brick and stucco office buildings with plain windows. The rooftops of those buildings reach to about y=230.
+
+223_view_floor12.png — Floor 12, Head Office: looking across rooftops. Near the bottom, the flat roofs of mid-rise buildings with rooftop air-conditioning units, a round wooden water tower on legs, and the back of a blank billboard frame. Behind them, taller office towers at different heights, the tallest reaching up to about y=90 near the right; a few in the far distance, pale and blue.
+
+224_view_floor30.png — Floor 30, Global HQ: way up high. The city spreads out FAR BELOW to a flat horizon at about y=330: tiny blocks of buildings, a river winding through, a bridge. Two or three skyscraper tops poke up nearby, reaching to about y=60. Two soft, flat-shaded white clouds drift at about eye level (around y=150 to 230), the only things allowed in the upper area besides the skyscraper tops, and one tiny distant airplane.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 3 PNGs, numbered 222 to 224, 2048 x 496 transparent.
+- Transparent sky (the game paints it); nothing in the top 40% except what's asked for.
+- Calm, muted colours; no text, logos or signs on any building, billboard or vehicle.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch12 folder.
