@@ -194,6 +194,13 @@ export function stepChat(s: GameState) {
   if (options.length) say(s, options[Math.floor(rand(s) * options.length) % options.length]);
 }
 
+/** Put a message straight into a conversation (already seen: your team leads' calls show on a card too). */
+export function chatPost(s: GameState, who: string, text: string, mine: boolean) {
+  const th = thread(s, who);
+  th.msgs.push({ id: s.seq++, t: s.time, mine, text });
+  if (th.msgs.length > 40) th.msgs.shift();
+}
+
 /** Who's typing to you right now (for "Gary is typing…"). */
 export function typing(s: GameState): string[] {
   return [...new Set(s.chat.queue.filter((q) => q.at - s.time <= TYPING).map((q) => q.who))];

@@ -237,8 +237,18 @@ function stepRaids(s: GameState) {
   }
   const left = deptsLeft(s);
   if (!left.length || s.time < c.nextAt || s.time < c.lostUntil) return;
-  if (s.lookBusy || s.walkby.arrivesAt !== null || s.dale.deal || !currentTarget(s)) return;
+  if (s.lookBusy || s.walkby.arrivesAt !== null || s.dale.deal || s.asks?.current || !currentTarget(s)) return;
   const who = left[Math.floor(rand(s) * left.length) % left.length].dept;
+  // Someone at the front desk is watching the closet: they're caught on the way in.
+  if (s.time < (s.asks?.watchUntil ?? -999)) {
+    const bands = raidDrop(s);
+    s.bands += bands;
+    c.nextAt = s.time + randRange(s, WAR.closet.gap[0], WAR.closet.gap[1]);
+    s.stats.raidsStopped = (s.stats.raidsStopped ?? 0) + 1;
+    pushTicker(s, `${dept(who).short} from ${dept(who).label} tries to sneak into the supply closet and gets caught at the front desk. ${bands.toLocaleString('en-US')} bands recovered.`);
+    s.events.push({ type: 'raidOver', dept: who, how: 'lookout', bands });
+    return;
+  }
   c.raid = { dept: who, until: s.time + WAR.closet.seconds };
   pushTicker(s, `${dept(who).label} is raiding the supply closet! Chase them off before they get away.`);
   s.events.push({ type: 'raid', dept: who });

@@ -21,6 +21,7 @@ import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
 import { currentTarget, deptTaken, deptsTaken, type GameEvent, type GameState } from '../sim/state';
 import { dept, fightingDept, firewallClock, firewallUp } from '../sim/war';
 import { MapView, RaidAlert } from './war';
+import { AskCard } from './asks';
 import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
 import { Sound } from './sound';
@@ -84,6 +85,7 @@ export class UI {
   private floor: FloorView;
   private map: MapView;
   private raid: RaidAlert;
+  private ask: AskCard;
   /** The Department War's welcome opens the map when you close it. */
   private mapAfterStage = false;
   /** Where you are while you're away from the war: at your computer, or out on your floor. */
@@ -185,6 +187,11 @@ export class UI {
     };
     this.map = new MapView(() => this.s, warHooks);
     this.raid = new RaidAlert(() => this.s, warHooks, () => this.map.isOpen);
+    this.ask = new AskCard(() => this.s, {
+      say: (t) => this.say(t),
+      bump: (w) => this.bump(w),
+      sound: { notify: () => this.sound.notify(), stamp: () => this.sound.stamp() },
+    });
     this.rolePop = document.createElement('div');
     this.rolePop.className = 'role-pop';
     this.rolePop.id = 'role-pop';
@@ -251,6 +258,8 @@ export class UI {
       root.setProperty('--hdr-h', `${hdr}px`);
       root.setProperty('--top-h', `${hdr + status.offsetHeight}px`);
       root.setProperty('--bar-h', `${$('bottom-bar').offsetHeight}px`);
+      // Where the numbers strip ends on screen (pop-ups on a phone drop in just below it).
+      root.setProperty('--strip-b', `${Math.round(status.getBoundingClientRect().bottom)}px`);
     };
     measure();
     if (typeof ResizeObserver === 'function') new ResizeObserver(measure).observe(document.body);
@@ -736,6 +745,7 @@ export class UI {
         if (e.how === 'lookout') this.bump('bands');
         if (e.how === 'lost') this.sound.miss();
       } else if (e.type === 'rebrand') this.say(this.s.ticker[0]?.text ?? '');
+      else if (e.type === 'askDone' && e.auto) this.say(e.text);
 
       else if (e.type === 'capture') this.sound.capture();
       else if (e.type === 'enemyShot') {
@@ -1061,6 +1071,7 @@ export class UI {
     }
     this.map.render();
     this.raid.render();
+    this.ask.render();
     // Old saves that were already past Rick get the Department War's welcome once.
     if (s.stage >= 3 && !s.war.announced && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(3);
     this.drawer.render();

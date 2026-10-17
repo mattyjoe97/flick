@@ -11,6 +11,7 @@ import { stepGoals } from './goals';
 import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, shotMult, startWar, stepWar } from './war';
+import { asksOffline, stepAsks } from './asks';
 
 export { openBox } from './supplies';
 
@@ -383,6 +384,7 @@ export function step(s: GameState, dt: number) {
   stepBall(s);
   stepRematch(s);
   stepWar(s, addSuspicion);
+  stepAsks(s);
   stepChat(s);
   stepSupplies(s);
   stepDale(s);
@@ -689,7 +691,7 @@ function stepDale(s: GameState) {
     else if (s.time >= d.deal.until) dealOver(s, 'expired');
     return;
   }
-  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.war?.closet.raid || !currentTarget(s)) return;
+  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.war?.closet.raid || s.asks?.current || !currentTarget(s)) return;
   const opts = dealOptions(s);
   if (opts.length === 0) {
     d.nextDealAt = s.time + 60;
@@ -753,6 +755,7 @@ export function applyOffline(s: GameState, seconds: number) {
   suppliesOffline(s);
   s.dale.deal = null;
   s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);
+  asksOffline(s);
   // Nobody raids the closet while you're away (and one in progress gives up).
   s.war.closet.raid = null;
   s.war.closet.nextAt = Math.max(s.war.closet.nextAt, s.time + 60);

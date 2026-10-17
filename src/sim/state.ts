@@ -2,7 +2,7 @@ import { DALE, DEPARTMENTS, MOMENTS, REMATCH, TARGETS, TUNING, WAR, targetById, 
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 13;
+export const SAVE_VERSION = 14;
 
 export interface Email {
   id: number;
@@ -147,6 +147,19 @@ export interface GameState {
   /** Stage 3, the Department War: how much fight each department has left, and the supply closet. */
   war: WarState;
 
+  /**
+   * Your team leads' calls: the one waiting for an answer, when the next comes, which have
+   * come up lately, the speed-ups (and slowdowns) still running, and whether someone is
+   * watching the supply closet.
+   */
+  asks: {
+    current: { id: string; until: number } | null;
+    nextAt: number;
+    used: string[];
+    boosts: { team: TeamId | 'all'; mult: number; from: number; until: number }[];
+    watchUntil: number;
+  };
+
   /** Messenger: coworkers (and rivals) messaging you, one conversation each. */
   chat: {
     threads: ChatThread[];
@@ -218,6 +231,7 @@ export interface GameState {
     raidsStopped: number;
     raidsLost: number;
     stage3At: number | null;
+    asks: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -298,6 +312,8 @@ export type GameEvent =
   | { type: 'raid'; dept: DeptId }
   | { type: 'raidOver'; dept: DeptId; how: 'chased' | 'lookout' | 'lost'; bands: number }
   | { type: 'deptTaken'; id: DeptId }
+  | { type: 'ask'; id: string }
+  | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
 export function newGame(seed = Date.now() % 2147483647): GameState {
@@ -337,6 +353,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     barrageAt: 0,
     rematch: null,
     war: newWar(),
+    asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
     nextGaryFlickAt: 20,
     nextReviewAt: 0,
     nextChatterAt: 120,
@@ -403,6 +420,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       raidsStopped: 0,
       raidsLost: 0,
       stage3At: null,
+      asks: 0,
     },
     events: [],
   };

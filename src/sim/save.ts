@@ -65,6 +65,7 @@ function migrate(file: SaveFile): GameState | null {
     s.war = newWar();
     if (s.stage >= 3) warForOldSave(s);
   } else s.war = mergeWar(file.state.war);
+  s.asks = { ...base.asks, ...(file.state.asks ?? {}) };
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
@@ -154,6 +155,16 @@ function sanitize(s: GameState): boolean {
   if (!Number.isFinite(cl.nextAt)) cl.nextAt = s.time + 120;
   if (!Number.isFinite(cl.lostUntil)) cl.lostUntil = -999;
   war.announced = !!war.announced;
+  const a = s.asks;
+  if (!Array.isArray(a.used)) a.used = [];
+  a.used = a.used.filter((id) => typeof id === 'string').slice(-40);
+  if (!Array.isArray(a.boosts)) a.boosts = [];
+  a.boosts = a.boosts.filter((b) => b && Number.isFinite(b.mult) && b.mult >= 0 && b.mult <= 3 && Number.isFinite(b.from) && Number.isFinite(b.until) && (b.team === 'all' || TEAMS.some((t) => t.id === b.team)));
+  if (!Number.isFinite(a.nextAt)) a.nextAt = 0;
+  if (!Number.isFinite(a.watchUntil)) a.watchUntil = -999;
+  // A call doesn't wait while the game is closed (the next one comes along in a minute).
+  if (a.current) a.nextAt = s.time + 60;
+  a.current = null;
   s.barrageAt = Math.min(s.barrageAt, s.time + 60);
   const c = s.career;
   c.rank = Math.min(PAY_GRADES.length - 1, Math.max(0, Math.floor(Number(c.rank) || 0)));

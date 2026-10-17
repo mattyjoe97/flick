@@ -36,6 +36,13 @@ export function leadMult(s: GameState) {
   return 1 + STAFF.leadPerCombo * Math.min(STAFF.leadCap, liveCombo(s));
 }
 
+/** Your team leads' calls can speed a team up (or slow it down) for a while. */
+export function askMult(s: GameState, id: TeamId) {
+  let m = 1;
+  for (const b of s.asks?.boosts ?? []) if ((b.team === id || b.team === 'all') && s.time >= b.from && s.time < b.until) m *= b.mult;
+  return m;
+}
+
 /** Pizza in the break room: everyone works faster for a minute. */
 export function pizzaMult(s: GameState) {
   return s.time < (s.office?.pizzaUntil ?? -1) ? MOMENTS.pizzaTeam : 1;
@@ -82,7 +89,7 @@ export function managerMult(s: GameState) {
 export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   const t = team(id);
   if (!t.job) return 0;
-  const boosts = steady ? 1 : leadMult(s) * pizzaMult(s);
+  const boosts = steady ? 1 : leadMult(s) * pizzaMult(s) * askMult(s, id);
   return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * boosts;
 }
 

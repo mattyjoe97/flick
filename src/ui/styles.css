@@ -6335,7 +6335,7 @@ button.dept:focus-visible {
   }
   /* On a phone the raid shows up over the top of the office, clear of Flick. */
   .raid-pop {
-    top: calc(var(--top-h, 110px) + 8px);
+    top: calc(var(--strip-b, 110px) + 8px);
     left: 8px;
     right: 8px;
     max-width: none;
@@ -6391,5 +6391,160 @@ body.in-map .money-floater {
   }
   100% {
     opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ a team lead's call */
+
+.ask-card {
+  position: fixed;
+  z-index: 53;
+  left: 16px;
+  bottom: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: min(430px, calc(100vw - 32px));
+  padding: 10px 12px 10px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow), 4px 4px 0 rgba(0, 0, 0, 0.35);
+  animation: ask-in 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.ask-card[hidden] {
+  display: none;
+}
+
+.ask-face {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #d7dde2;
+  overflow: hidden;
+}
+
+.ask-face svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ask-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.ask-who {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.ask-who small {
+  color: var(--ink-2);
+}
+
+.ask-text {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.ask-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ask-choice {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ask-choice:hover,
+.ask-choice:focus-visible {
+  background: var(--sticky);
+}
+
+.ask-choice:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.ask-choice b {
+  font-size: 14px;
+}
+
+.ask-choice small {
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.ask-clock {
+  margin-top: 0;
+}
+
+@keyframes ask-in {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+/* On a phone the call drops in over the top of the office, clear of your keys (at your
+   computer it sits at the bottom instead, clear of the desktop icons). */
+@media (max-width: 760px) {
+  .ask-card {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    top: calc(var(--strip-b, 110px) + 8px);
+    bottom: auto;
+    padding: 8px 10px 8px 8px;
+    gap: 8px;
+    animation-name: raid-drop;
+  }
+  body.at-computer .ask-card {
+    top: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    animation-name: ask-in;
+  }
+  .ask-face {
+    width: 48px;
+    height: 48px;
+  }
+  .ask-text {
+    font-size: 15px;
+  }
+  .ask-choice b {
+    font-size: 13px;
+  }
+  .ask-choice small {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-card {
+    animation: none;
   }
 }

@@ -519,6 +519,14 @@ export const REMATCH = {
   firstWar: 5,
 };
 
+/** Your team leads' calls: a little problem and two choices, every few minutes. */
+export const ASKS = {
+  first: 120, // seconds after your first hire
+  gap: [240, 420] as [number, number],
+  seconds: 40, // to answer before they go with the safe choice
+  suspCap: 90, // a call never pushes Suspicion past this
+};
+
 /** Mr. Feeney's sticky note on your monitor: three small goals every work day. */
 export const GOALS = {
   perDay: 3,
