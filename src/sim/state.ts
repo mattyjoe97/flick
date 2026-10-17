@@ -246,6 +246,7 @@ export interface GameState {
     interviewsLost: number;
     seized: number;
     reclaimed: number;
+    caseGoodwill: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -384,6 +385,7 @@ export type GameEvent =
   | { type: 'seized'; dept: DeptId }
   | { type: 'reclaimed'; dept: DeptId }
   | { type: 'caseClosed'; how: 'fight' | 'goodwill' }
+  | { type: 'trophy'; id: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
@@ -401,11 +403,13 @@ export interface JobState {
   unlocked: boolean;
   welcomed: boolean;
   perks: Partial<Record<PerkId, number>>;
+  /** Trophies you've won (by id: the job number you won it on). */
+  trophies: Record<string, number>;
   history: { company: CompanyId; minutes: number; stage: number; rep: number }[];
 }
 
 export function newJob(): JobState {
-  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, history: [] };
+  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, trophies: {}, history: [] };
 }
 
 /** Levels of a résumé perk you own. */
@@ -536,6 +540,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       interviewsLost: 0,
       seized: 0,
       reclaimed: 0,
+      caseGoodwill: 0,
     },
     events: [],
   };

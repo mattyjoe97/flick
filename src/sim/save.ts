@@ -1,6 +1,7 @@
 import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, MOMENTS, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
 import { deptMax, isDept, isRoom, newGame, newJob, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
 import { politicsForOldSave } from './politics';
+import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
 export const SAVE_KEY = 'flick.save';
@@ -73,7 +74,7 @@ function migrate(file: SaveFile): GameState | null {
   s.asks = { ...base.asks, ...(file.state.asks ?? {}) };
   // The New Job restart: saves from before it open it if they'd already closed HR's case.
   const job = file.state.job;
-  s.job = { ...newJob(), ...(job ?? {}), perks: { ...(job?.perks ?? {}) }, history: Array.isArray(job?.history) ? job!.history : [] };
+  s.job = { ...newJob(), ...(job ?? {}), perks: { ...(job?.perks ?? {}) }, trophies: { ...(job?.trophies ?? {}) }, history: Array.isArray(job?.history) ? job!.history : [] };
   if (file.version < 17) s.job.unlocked = s.stage >= 6;
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
@@ -262,6 +263,7 @@ function sanitize(s: GameState): boolean {
     if (!def) delete j.perks[id];
     else j.perks[id] = Math.min(def.max, Math.max(0, Math.floor(Number(j.perks[id]) || 0)));
   }
+  for (const id of Object.keys(j.trophies)) if (!TROPHIES.some((t) => t.id === id) || !Number.isFinite(j.trophies[id])) delete j.trophies[id];
   j.history = j.history.filter((h) => h && COMPANIES.some((c) => c.id === h.company) && Number.isFinite(h.minutes)).slice(-12);
   return true;
 }

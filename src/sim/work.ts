@@ -179,7 +179,7 @@ export const WORK = {
   wrongNoise: 3,
   replyAllNoise: 8,
   // A round with no mistakes, done with this share of the clock or less, is an A.
-  fastShare: 0.6,
+  fastShare: 0.75, // (was 0.6: playtesters wanted a little more time for the A)
   gradeBonus: { A: 0.3, B: 0.1, C: 0, D: 0, F: 0 } as Record<Grade, number>,
   autoReplyEvery: 20, // Email Auto-Reply answers one waiting email this often (half pay)
   autoReplyShare: 0.5,

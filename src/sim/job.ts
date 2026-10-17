@@ -10,6 +10,7 @@
 // alike). Later jobs go faster as the perks pile up, so there's always another one.
 
 import { COMPANIES, JOB, PERKS, type CompanyId, type PerkId } from './content';
+import { trophyDamageMult, trophyPayMult } from './trophies';
 import { company, newAlly, newGame, perk, pushEmail, pushTicker, type GameState } from './state';
 
 const perkDef = (id: PerkId) => PERKS.find((p) => p.id === id)!;
@@ -78,6 +79,7 @@ export function startNewJob(s: GameState, to: CompanyId, seed = (s.rng ^ 0x5bd1e
     earned: s.job.earned + rep,
     welcomed: false,
     perks: { ...s.job.perks },
+    trophies: { ...s.job.trophies },
     history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep }].slice(-12),
   };
   const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches };
@@ -110,7 +112,7 @@ function startPerks(s: GameState) {
 
 /** Work pay: the company's rate and your Hustle. */
 export function jobPayMult(s: GameState) {
-  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle'));
+  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle')) * trophyPayMult(s);
 }
 
 /** Hiring and training: the company's rate and your Headhunter. */
@@ -125,7 +127,7 @@ export function jobPriceMult(s: GameState) {
 
 /** Your reputation precedes you: every point you've ever earned makes every band hit harder. */
 export function repDamage(s: GameState) {
-  return 1 + JOB.damagePerRep * (s.job?.earned ?? 0);
+  return (1 + JOB.damagePerRep * (s.job?.earned ?? 0)) * trophyDamageMult(s);
 }
 
 /** How long time away can count for, in seconds. */

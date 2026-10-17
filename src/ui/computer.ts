@@ -34,13 +34,15 @@ import { SheetApp } from './apps/sheet';
 import { StaffingApp } from './apps/staffing';
 import { MemosApp } from './apps/memos';
 import { JobsApp } from './apps/jobs';
+import { TrophiesApp } from './apps/trophies';
 import { canSendMemo } from '../sim/politics';
 import { MEMOS } from '../sim/content';
+import { TROPHIES } from '../sim/trophies';
 import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
 import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'jobs' | 'docs' | 'trash';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'jobs' | 'trophies' | 'docs' | 'trash';
 
 const TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -53,6 +55,7 @@ const TITLES: Record<AppId, string> = {
   staffing: 'Staffing',
   memos: 'Memos',
   jobs: 'Job Search',
+  trophies: 'Trophies',
   docs: 'My Documents',
   trash: 'Recycle Bin',
 };
@@ -68,6 +71,7 @@ const ICON: Record<AppId, string> = {
   staffing: 'ico-staffing',
   memos: 'ico-memos',
   jobs: 'ico-doc',
+  trophies: 'ico-trophies',
   docs: 'ico-folder',
   trash: 'ico-trash-full',
 };
@@ -84,6 +88,7 @@ const FEENEY_SAYS: Record<string, string[]> = {
   staffing: ['Building a team? Love it.', 'Delegation. Very managerial.'],
   memos: ['A memo? Very proactive.', 'Love a well-formatted memo.'],
   jobs: ['…Is that a job site?', 'Updating your résumé? Ha. Ha.'],
+  trophies: ['Employee of the Month material.', 'Love a winner.'],
   docs: ['Updating your résumé?', 'Organized. I like it.'],
   trash: ['Taking out the trash. Good.'],
   desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
@@ -148,6 +153,7 @@ export class ComputerView {
       catalog: new CatalogApp(pane('catalog'), ctx, () => hooks.ordered()),
       staffing: this.staffing,
       memos: new MemosApp(pane('memos'), ctx, { sent: () => undefined }),
+      trophies: new TrophiesApp(pane('trophies'), ctx),
       jobs: new JobsApp(pane('jobs'), ctx, { quit: (to) => hooks.quitJob(to) }),
       docs: this.docs,
       trash: this.docs,
@@ -292,6 +298,10 @@ export class ComputerView {
       this.hooks.notify();
     }
     else if (e.type === 'hidden') this.feeneyPeer();
+    else if (e.type === 'trophy') {
+      const t = TROPHIES.find((x) => x.id === e.id);
+      if (t) this.toast(`trophy:${t.id}`, 'trophies', `Trophy: ${t.name}`, t.does);
+    }
   }
 
   /** A notification sliding up over the taskbar. The same key replaces the old one. */

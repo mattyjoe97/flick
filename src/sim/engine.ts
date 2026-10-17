@@ -16,6 +16,7 @@ import { POLITICS, ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
 import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from './politics';
 import { offlineCap, repDamage } from './job';
+import { stepTrophies } from './trophies';
 
 export { openBox } from './supplies';
 
@@ -410,6 +411,7 @@ export function step(s: GameState, dt: number) {
   stepWar(s, addSuspicion);
   stepSiege(s, dt);
   stepPolitics(s, dt);
+  stepTrophies(s);
   stepAsks(s);
   stepChat(s);
   stepSupplies(s);

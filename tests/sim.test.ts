@@ -1,3 +1,5 @@
+import type { GameState } from '../src/sim/state';
+import { TROPHIES } from '../src/sim/trophies';
 import { describe, expect, it } from 'vitest';
 import { CAREER, COMBO, DALE, DEPARTMENTS, PAY_GRADES, PROMOTION, STAFF, TARGETS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { fight } from '../src/sim/war';
@@ -45,6 +47,12 @@ import { playBot, STYLES } from './bot';
 
 function run(s: ReturnType<typeof newGame>, seconds: number) {
   for (let i = 0; i < seconds / TUNING.stepSeconds; i++) step(s, TUNING.stepSeconds);
+}
+
+
+/** Win every trophy up front, so their bonuses stay constant while a test measures something. */
+function allTrophies(s: GameState) {
+  s.job.trophies = Object.fromEntries(TROPHIES.map((x) => [x.id, 0]));
 }
 
 describe('core actions', () => {
@@ -863,6 +871,7 @@ describe('your team', () => {
 
   it('a team earns half your pay for its work, all the time, and adds a little Performance', () => {
     const s = boss(3);
+    allTrophies(s);
     hire(s, 'temp');
     hire(s, 'receptionist');
     const before = s.salary;
@@ -1041,6 +1050,7 @@ describe('the rubber band ball and the Barrage', () => {
 
   it('grows through four sizes, each a permanent perk', () => {
     const s = stage2();
+    allTrophies(s);
     s.career.rank = 1;
     s.salary = 1e6;
     hire(s, 'temp');
@@ -1349,6 +1359,7 @@ describe('anti-spam', () => {
 describe('hold to charge', () => {
   it('a full stretch hits much harder from one band, and a Perfect harder still', async () => {
     const s = newGame(5);
+    allTrophies(s);
     s.bands = 10;
     s.targetIndex = 3; // Gary behind the fan: lots of Resolve
     s.targetResolve = 1600;

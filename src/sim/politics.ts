@@ -204,6 +204,7 @@ export function closeCase(s: GameState, how: 'fight' | 'goodwill') {
   s.events.push({ type: 'pay', amount: bounty, source: 'bounty', note: HR_DIRECTOR.bountyNote });
   s.events.push({ type: 'capture', targetId: 'hr' });
   s.events.push({ type: 'caseClosed', how });
+  if (how === 'goodwill') s.stats.caseGoodwill = (s.stats.caseGoodwill ?? 0) + 1;
   pushEmail(
     s,
     HR_DIRECTOR.defeat.from,

@@ -764,6 +764,9 @@ export class UI {
         this.sound.grade('A');
         const r = ROOMS.find((x) => x.room === e.id)!;
         this.say(`The ${r.label} is yours! You get ${r.perk}.`);
+      } else if (e.type === 'trophy') {
+        this.sound.grade('A');
+        if (!this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();

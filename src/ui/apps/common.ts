@@ -4,7 +4,7 @@ import daleHead from '../../assets/art/dale-head.webp';
 import { co } from '../co';
 import { TEAMS } from '../../sim/content';
 import type { GameState } from '../../sim/state';
-import type { Grade, Round, RoundResult, WorkKind } from '../../sim/work';
+import { WORK, type Grade, type Round, type RoundResult, type WorkKind } from '../../sim/work';
 import { faceSvg } from '../portraits';
 import { PORTRAITS } from '../portrait-art';
 
@@ -46,7 +46,7 @@ export function updateClock(root: HTMLElement, r: Round | null) {
   const share = left / r.limit;
   (el.querySelector('.round-clock-fill') as HTMLElement).style.width = `${share * 100}%`;
   el.classList.toggle('low', share < 0.25);
-  el.classList.toggle('fast', r.used <= r.limit * 0.6);
+  el.classList.toggle('fast', r.used <= r.limit * WORK.fastShare);
   const t = `${Math.ceil(left)} s`;
   const b = el.querySelector('.round-clock-left')!;
   if (b.textContent !== t) b.textContent = t;

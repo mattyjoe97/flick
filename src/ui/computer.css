@@ -2418,6 +2418,12 @@
 .ico-folder {
   background-image: url("../assets/art/app-folder.webp");
 }
+.ico-trophies {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 56'><path d='M12 6h24v10c0 9-5 15-12 15S12 25 12 16z' fill='%23e0b13c' stroke='%235b4512' stroke-width='2.5'/><path d='M12 10H5c0 8 4 12 8 12M36 10h7c0 8-4 12-8 12' fill='none' stroke='%235b4512' stroke-width='2.5'/><rect x='21' y='31' width='6' height='9' fill='%23e0b13c' stroke='%235b4512' stroke-width='2.5'/><rect x='13' y='40' width='22' height='8' rx='1.5' fill='%238a5a2b' stroke='%235b4512' stroke-width='2.5'/><path d='M17 11v6' stroke='%23fff6d6' stroke-width='3' stroke-linecap='round'/></svg>");
+  background-size: 80% !important;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .ico-memos {
   background-image: url("../assets/art/app-memos.webp");
 }
@@ -2439,6 +2445,69 @@
 
 .app-staffing {
   padding: 0;
+}
+
+/* ------------------------------------------------------------ Trophies */
+
+.app-trophies {
+  padding: 0;
+}
+
+.trophies {
+  padding: 14px;
+}
+
+.trophy-sum {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* The shelf: rows of cups on wooden planks. */
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 0 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trophy {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  height: 140px;
+  padding: 6px 4px 0;
+  border-bottom: 10px solid #8a5a2b;
+  box-shadow: 0 2px 0 #6b4226;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.trophy svg {
+  width: 40px;
+  height: 46px;
+}
+
+.trophy b {
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.trophy small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: #6b675e;
+}
+
+.trophy:not(.won) b {
+  color: #8f8a80;
 }
 
 /* ------------------------------------------------------------ Job Search (the New Job restart) */
