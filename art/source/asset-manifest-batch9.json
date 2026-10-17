@@ -1,0 +1,1205 @@
+{
+  "game": "FLICK",
+  "batch": 9,
+  "title": "Floor Domination (Stage 4)",
+  "asset_count": 14,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "checks": {
+    "exact_filenames_dimensions_rgba": true,
+    "transparent_backgrounds": true,
+    "transparent_pixels_zero_rgb": true,
+    "portrait_safe_box": true,
+    "six_expression_variants_match_outside_face": true,
+    "two_wall_pairs_have_pixel_identical_end_towers": true,
+    "wall_desk_line_y780": true,
+    "standing_middle_top_300_to_340": true,
+    "broken_middle_clear_above_y520": true,
+    "icons_centered_at_80_percent_extent": true,
+    "blank_labels_and_no_text_visual_review": true
+  },
+  "expression_pixel_proofs": [
+    {
+      "file": "198_gail_hit.png",
+      "base": "197_gail_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 73539
+    },
+    {
+      "file": "199_gail_angry.png",
+      "base": "197_gail_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 73563
+    },
+    {
+      "file": "200_gail_worried.png",
+      "base": "197_gail_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 73430
+    },
+    {
+      "file": "202_victoria_hit.png",
+      "base": "201_victoria_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 78604
+    },
+    {
+      "file": "203_victoria_angry.png",
+      "base": "201_victoria_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 78722
+    },
+    {
+      "file": "204_victoria_worried.png",
+      "base": "201_victoria_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 78672
+    }
+  ],
+  "wall_pixel_proofs": [
+    {
+      "file": "206_wall_breakroom_broken.png",
+      "base": "205_wall_breakroom_standing.png",
+      "protected_regions": [
+        [
+          0,
+          0,
+          400,
+          800
+        ],
+        [
+          1000,
+          0,
+          1400,
+          800
+        ]
+      ],
+      "end_tower_changed_pixels": 0,
+      "middle_changed_pixels": 275998
+    },
+    {
+      "file": "208_wall_conference_broken.png",
+      "base": "207_wall_conference_standing.png",
+      "protected_regions": [
+        [
+          0,
+          0,
+          400,
+          800
+        ],
+        [
+          1000,
+          0,
+          1400,
+          800
+        ],
+        [
+          400,
+          0,
+          440,
+          490
+        ],
+        [
+          976,
+          0,
+          1000,
+          490
+        ]
+      ],
+      "end_tower_changed_pixels": 0,
+      "middle_changed_pixels": 247801
+    }
+  ],
+  "assets": [
+    {
+      "file": "197_gail_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        75,
+        271,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "42748cfc86be2dd26250c5f37a31bc6f47d9be1c62cbd402c97c764846366a09",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "gail",
+        "expression_base": "197_gail_idle.png",
+        "face_edit_polygon": [
+          [
+            396,
+            502
+          ],
+          [
+            438,
+            480
+          ],
+          [
+            496,
+            468
+          ],
+          [
+            574,
+            423
+          ],
+          [
+            606,
+            430
+          ],
+          [
+            642,
+            485
+          ],
+          [
+            656,
+            542
+          ],
+          [
+            652,
+            648
+          ],
+          [
+            620,
+            709
+          ],
+          [
+            566,
+            757
+          ],
+          [
+            458,
+            757
+          ],
+          [
+            409,
+            713
+          ],
+          [
+            374,
+            649
+          ],
+          [
+            369,
+            551
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "198_gail_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        75,
+        271,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "15fc5ac85657a2258f825f886593a322c976cbea1eb24d7f30eaabf679911bff",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "gail",
+        "expression_base": "197_gail_idle.png",
+        "face_edit_polygon": [
+          [
+            396,
+            502
+          ],
+          [
+            438,
+            480
+          ],
+          [
+            496,
+            468
+          ],
+          [
+            574,
+            423
+          ],
+          [
+            606,
+            430
+          ],
+          [
+            642,
+            485
+          ],
+          [
+            656,
+            542
+          ],
+          [
+            652,
+            648
+          ],
+          [
+            620,
+            709
+          ],
+          [
+            566,
+            757
+          ],
+          [
+            458,
+            757
+          ],
+          [
+            409,
+            713
+          ],
+          [
+            374,
+            649
+          ],
+          [
+            369,
+            551
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "199_gail_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        75,
+        271,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "dcb5fb95c82a5262ea0063dffe73cf3a2d1f0fe13e136cf9cfd2efafc4184433",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "gail",
+        "expression_base": "197_gail_idle.png",
+        "face_edit_polygon": [
+          [
+            396,
+            502
+          ],
+          [
+            438,
+            480
+          ],
+          [
+            496,
+            468
+          ],
+          [
+            574,
+            423
+          ],
+          [
+            606,
+            430
+          ],
+          [
+            642,
+            485
+          ],
+          [
+            656,
+            542
+          ],
+          [
+            652,
+            648
+          ],
+          [
+            620,
+            709
+          ],
+          [
+            566,
+            757
+          ],
+          [
+            458,
+            757
+          ],
+          [
+            409,
+            713
+          ],
+          [
+            374,
+            649
+          ],
+          [
+            369,
+            551
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "200_gail_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        75,
+        271,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "d28da8b239967397bed507bc7d78656b82102beace7816483c377cc72a5c91da",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "gail",
+        "expression_base": "197_gail_idle.png",
+        "face_edit_polygon": [
+          [
+            396,
+            502
+          ],
+          [
+            438,
+            480
+          ],
+          [
+            496,
+            468
+          ],
+          [
+            574,
+            423
+          ],
+          [
+            606,
+            430
+          ],
+          [
+            642,
+            485
+          ],
+          [
+            656,
+            542
+          ],
+          [
+            652,
+            648
+          ],
+          [
+            620,
+            709
+          ],
+          [
+            566,
+            757
+          ],
+          [
+            458,
+            757
+          ],
+          [
+            409,
+            713
+          ],
+          [
+            374,
+            649
+          ],
+          [
+            369,
+            551
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "201_victoria_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        65,
+        292,
+        958,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "0c6048ffb73d7f8680e4bd76a26a4534e6bc2e66c1c58c5064f5ba20c44ecb5a",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "victoria",
+        "expression_base": "201_victoria_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            516
+          ],
+          [
+            424,
+            472
+          ],
+          [
+            485,
+            414
+          ],
+          [
+            559,
+            414
+          ],
+          [
+            615,
+            451
+          ],
+          [
+            650,
+            509
+          ],
+          [
+            658,
+            572
+          ],
+          [
+            650,
+            656
+          ],
+          [
+            616,
+            713
+          ],
+          [
+            568,
+            756
+          ],
+          [
+            456,
+            756
+          ],
+          [
+            405,
+            713
+          ],
+          [
+            371,
+            642
+          ],
+          [
+            369,
+            550
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "202_victoria_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        65,
+        292,
+        958,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "1cdfb90d43d33e54509c784d13f622187310d788aac56a6909bf10330d8dc57c",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "victoria",
+        "expression_base": "201_victoria_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            516
+          ],
+          [
+            424,
+            472
+          ],
+          [
+            485,
+            414
+          ],
+          [
+            559,
+            414
+          ],
+          [
+            615,
+            451
+          ],
+          [
+            650,
+            509
+          ],
+          [
+            658,
+            572
+          ],
+          [
+            650,
+            656
+          ],
+          [
+            616,
+            713
+          ],
+          [
+            568,
+            756
+          ],
+          [
+            456,
+            756
+          ],
+          [
+            405,
+            713
+          ],
+          [
+            371,
+            642
+          ],
+          [
+            369,
+            550
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "203_victoria_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        65,
+        292,
+        958,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "aee217ce496d4adcb889920273cc6eb24873ff924abb40ef55d8cd6669dd1eb2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "victoria",
+        "expression_base": "201_victoria_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            516
+          ],
+          [
+            424,
+            472
+          ],
+          [
+            485,
+            414
+          ],
+          [
+            559,
+            414
+          ],
+          [
+            615,
+            451
+          ],
+          [
+            650,
+            509
+          ],
+          [
+            658,
+            572
+          ],
+          [
+            650,
+            656
+          ],
+          [
+            616,
+            713
+          ],
+          [
+            568,
+            756
+          ],
+          [
+            456,
+            756
+          ],
+          [
+            405,
+            713
+          ],
+          [
+            371,
+            642
+          ],
+          [
+            369,
+            550
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "204_victoria_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        65,
+        292,
+        958,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "1ab0dc87666b23a8dd402dadc5a42fb66a4c723347ee0f72fb839c4f65b3c5b8",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "victoria",
+        "expression_base": "201_victoria_idle.png",
+        "face_edit_polygon": [
+          [
+            390,
+            516
+          ],
+          [
+            424,
+            472
+          ],
+          [
+            485,
+            414
+          ],
+          [
+            559,
+            414
+          ],
+          [
+            615,
+            451
+          ],
+          [
+            650,
+            509
+          ],
+          [
+            658,
+            572
+          ],
+          [
+            650,
+            656
+          ],
+          [
+            616,
+            713
+          ],
+          [
+            568,
+            756
+          ],
+          [
+            456,
+            756
+          ],
+          [
+            405,
+            713
+          ],
+          [
+            371,
+            642
+          ],
+          [
+            369,
+            550
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "205_wall_breakroom_standing.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "260f84d3a10860ec4658dfcbafd55b5fba98b73a0594576b310d884f45b7d7e6",
+      "registration": {
+        "state": "standing",
+        "desk_line_y": 780,
+        "center_x": 700,
+        "wall_width_px": 1240,
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "cabinet_column_width_px_approx": 300
+        },
+        "middle_band_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 320,
+        "standing_base": "205_wall_breakroom_standing.png",
+        "pixel_matched_end_regions": [
+          [
+            0,
+            0,
+            400,
+            800
+          ],
+          [
+            1000,
+            0,
+            1400,
+            800
+          ]
+        ],
+        "region_convention": "[left, top, right-exclusive, bottom-exclusive]"
+      }
+    },
+    {
+      "file": "206_wall_breakroom_broken.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "29cb1902b17b514156d000b9eb14afd58854886b13f5b7b582957991af295ff0",
+      "registration": {
+        "state": "broken",
+        "desk_line_y": 780,
+        "center_x": 700,
+        "wall_width_px": 1240,
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "cabinet_column_width_px_approx": 300
+        },
+        "middle_band_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 540,
+        "standing_base": "205_wall_breakroom_standing.png",
+        "pixel_matched_end_regions": [
+          [
+            0,
+            0,
+            400,
+            800
+          ],
+          [
+            1000,
+            0,
+            1400,
+            800
+          ]
+        ],
+        "region_convention": "[left, top, right-exclusive, bottom-exclusive]",
+        "end_tower_changed_pixels": 0
+      }
+    },
+    {
+      "file": "207_wall_conference_standing.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "3097d4c7a9de3948d2d64ac4cf42617db40d5cb14d5589734ca59907efaf761d",
+      "registration": {
+        "state": "standing",
+        "desk_line_y": 780,
+        "center_x": 700,
+        "wall_width_px": 1240,
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "cabinet_column_width_px_approx": 300
+        },
+        "middle_band_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 310,
+        "standing_base": "207_wall_conference_standing.png",
+        "pixel_matched_end_regions": [
+          [
+            0,
+            0,
+            400,
+            800
+          ],
+          [
+            1000,
+            0,
+            1400,
+            800
+          ],
+          [
+            400,
+            0,
+            440,
+            490
+          ],
+          [
+            976,
+            0,
+            1000,
+            490
+          ]
+        ],
+        "region_convention": "[left, top, right-exclusive, bottom-exclusive]"
+      }
+    },
+    {
+      "file": "208_wall_conference_broken.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9370ef07f414fbc49bebab2a0881f943faa64cd769af76215c94c8db33b929d6",
+      "registration": {
+        "state": "broken",
+        "desk_line_y": 780,
+        "center_x": 700,
+        "wall_width_px": 1240,
+        "scale": {
+          "portrait_ear_to_ear_px": 360,
+          "cabinet_column_width_px_approx": 300
+        },
+        "middle_band_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 541,
+        "standing_base": "207_wall_conference_standing.png",
+        "pixel_matched_end_regions": [
+          [
+            0,
+            0,
+            400,
+            800
+          ],
+          [
+            1000,
+            0,
+            1400,
+            800
+          ],
+          [
+            400,
+            0,
+            440,
+            490
+          ],
+          [
+            976,
+            0,
+            1000,
+            490
+          ]
+        ],
+        "region_convention": "[left, top, right-exclusive, bottom-exclusive]",
+        "end_tower_changed_pixels": 0
+      }
+    },
+    {
+      "file": "209_icon_unplug.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        30,
+        25,
+        226,
+        230
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "a83ebe1f85a7743cb60ef83a4aa4d3dc39b06d744f19fa3fd58354452fc056a7",
+      "registration": {
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125,
+        "outline_px_approx": 5
+      }
+    },
+    {
+      "file": "210_icon_replyall.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        25,
+        26,
+        230,
+        229
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "fbed2475ffa32c5853563ea712acbef415e2acebb7e09a961c7538b6686b73bc",
+      "registration": {
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125,
+        "outline_px_approx": 5
+      }
+    }
+  ]
+}

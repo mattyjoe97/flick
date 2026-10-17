@@ -6339,8 +6339,22 @@ button.dept:focus-visible {
 }
 
 .room-acts .dept-act.sab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: #8a4fb0;
   font-variant-numeric: tabular-nums;
+}
+
+.room-acts .dept-act.sab img {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin: -4px 0;
+  padding: 2px;
+  border-radius: 6px;
+  background: #fbf8ef;
 }
 
 .room-acts .dept-act.sab.cant {
@@ -6440,7 +6454,7 @@ button.dept:focus-visible {
   transition: opacity 0.3s;
 }
 
-.counter-pop .raid-bubble {
+.retake-pop .raid-bubble {
   border-color: #c4661f;
 }
 

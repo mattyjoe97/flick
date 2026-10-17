@@ -9,6 +9,8 @@
 // Resolve and what taking them gets you.
 
 import daleHead from '../assets/art/dale-head.webp';
+import iconUnplug from '../assets/art/icon-unplug.webp';
+import iconReplyAll from '../assets/art/icon-replyall.webp';
 import { DEPARTMENTS, REMATCH, ROOMS, SIEGE, WAR, type Department, type DeptId, type Room, type RoomId } from '../sim/content';
 import { closetIsYours, rolePower } from '../sim/mods';
 import { currentTarget, deptMax, deptPerk, deptTaken, deptsTaken, rematchOrder, type GameState } from '../sim/state';
@@ -34,6 +36,17 @@ function deptPicture(id: string, mood: Mood, broken = false) {
     <rect x="224" y="50" width="352" height="212" fill="#d7dde2"/><rect x="224" y="50" width="352" height="18" fill="#c9d0d6"/>
     ${person}${coverSvg(id, broken)}
     <rect x="224" y="250" width="352" height="12" fill="#c9ced4"/></svg>`;
+}
+
+/** A Stage 4 room's Attack button. */
+function attackButton(r: Room, on: boolean) {
+  return `<button type="button" class="dept-act" data-fight="${r.room}">${on ? 'Fighting now' : 'Attack'}</button>`;
+}
+
+/** A Stage 4 room's sabotage button (its label and price are filled in every frame). */
+function trickButton(r: Room) {
+  const icon = r.room === 'breakroom' ? iconUnplug : iconReplyAll;
+  return `<button type="button" class="dept-act sab" data-sabotage="${r.room}" title="${esc(r.sabotage.label)}: ${esc(r.sabotage.does)}"><img src="${icon}" alt="" draggable="false"><span class="sab-label">&nbsp;</span></button>`;
 }
 
 export interface WarHooks {
@@ -128,7 +141,7 @@ export class MapView {
       this.key = '';
       return;
     }
-    if (b.dataset.hold !== undefined) {
+    if (b.dataset.defend !== undefined) {
       if (holdLine(s).ok) {
         this.hooks.sound.capture();
         this.hooks.bump('bands');
@@ -238,7 +251,8 @@ export class MapView {
       if (btn) {
         const on = sabotaged(s, r.room);
         const label = on ? `${r.room === 'breakroom' ? 'Unplugged' : 'Reply-all storm'}: ${clock(w.sabotageUntil - s.time)}` : `${r.sabotage.label} · ${money(cost)}`;
-        if (btn.textContent !== label) btn.textContent = label;
+        const span = btn.querySelector(".sab-label");
+        if (span && span.textContent !== label) span.textContent = label;
         const off = on || s.salary < cost;
         if (btn.classList.contains('cant') !== off) btn.classList.toggle('cant', off);
       }
@@ -271,8 +285,7 @@ export class MapView {
         <span class="dept-bar" aria-hidden="true"><i data-bar="${r.room}" style="width:${(share * 100).toFixed(1)}%"></i></span><span class="dept-left" data-left="${r.room}"></span>`;
     const actions = taken
       ? `<span class="dept-act">Yours</span>`
-      : `<span class="room-acts"><button type="button" class="dept-act" data-fight="${r.room}">${on ? 'Fighting now' : 'Attack'}</button>
-          <button type="button" class="dept-act sab" data-sabotage="${r.room}" title="${esc(r.sabotage.label)}: ${esc(r.sabotage.does)}"></button></span>
+      : `<span class="room-acts">${attackButton(r, on)}${trickButton(r)}</span>
         <span class="dept-sab-note">Sabotage: ${esc(r.sabotage.does)}.</span>`;
     return `<div class="dept room-card${on ? ' fighting' : ''}${taken ? ' taken' : ''}" role="group" aria-label="${esc(r.label)}: ${esc(r.name)}. ${taken ? `Yours. ${esc(r.prize)}.` : `${wallUp ? 'Behind a wall. ' : ''}${Math.round(share * 100)}% Resolve left. Take it for: ${esc(r.prize)}.`}">
       <span class="dept-label">${esc(r.label)}</span>
@@ -295,7 +308,7 @@ export class MapView {
       const state = now ? `<b class="raid-now">Under attack!</b>` : lost ? `Took its desks back: prize off for <span data-clock="dept-${d.dept}">${clock(s.war.depts[d.dept].lostUntil - s.time)}</span>` : 'Holding';
       return `<li class="${now ? 'attack' : lost ? 'lost' : 'ok'}"><span class="hold-face">${faceSvg(TARGET_PEOPLE[d.id][0], now ? 'smug' : lost ? 'happy' : 'worried')}</span><span><b>${esc(d.label)}</b><small>${state}</small></span></li>`;
     }).join('');
-    const hold = a ? `<button type="button" class="dept-act raid" data-hold>Hold the line · <span data-clock="counter">${Math.ceil(Math.max(0, a.until - s.time))} s</span></button>` : '';
+    const hold = a ? `<button type="button" class="dept-act raid" data-defend>Hold the line · <span data-clock="counter">${Math.ceil(Math.max(0, a.until - s.time))} s</span></button>` : '';
     return `<div class="dept holding-card${a ? ' raided' : ''}">
       <span class="dept-label">Your departments</span>
       <ul class="holding">${rows}</ul>
@@ -436,16 +449,16 @@ export class CounterAlert {
     private blocked: () => boolean,
   ) {
     this.root = document.createElement('div');
-    this.root.className = 'raid-pop counter-pop';
-    this.root.id = 'counter-pop';
+    this.root.className = 'raid-pop retake-pop';
+    this.root.id = 'retake-pop';
     this.root.hidden = true;
     this.root.setAttribute('role', 'alert');
     this.root.innerHTML = `<div class="raid-bubble"><p class="raid-text"></p>
-        <div class="psst-actions"><button type="button" class="paper-btn paper-btn-strong" data-hold>Hold the line</button></div>
+        <div class="psst-actions"><button type="button" class="paper-btn paper-btn-strong" data-defend>Hold the line</button></div>
         <div class="psst-clock"><span></span></div></div><span class="raid-face"></span>`;
     document.getElementById('app')!.append(this.root);
     this.root.addEventListener('click', (e) => {
-      if (!(e.target as HTMLElement).closest('button[data-hold]')) return;
+      if (!(e.target as HTMLElement).closest('button[data-defend]')) return;
       const s = this.get();
       if (!holdLine(s).ok) return;
       this.hooks.sound.capture();

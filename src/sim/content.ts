@@ -225,7 +225,7 @@ export interface Room extends Target {
 
 export const ROOMS: Room[] = [
   {
-    id: 'breakroom', room: 'breakroom', label: 'Break Room', short: 'Gail', stage: 4, name: 'Gail Petroski', title: 'Payroll Supervisor', position: 'Behind the filing cabinets, by the coffee maker',
+    id: 'breakroom', room: 'breakroom', label: 'Break Room', short: 'Gail', stage: 4, name: 'Gail Petroski', title: 'Payroll Supervisor', position: 'By the coffee maker, out in the open',
     resolve: 330000, wall: 180000, regenPct: 0.004, desks: 3, bounty: 9000, bountyNote: 'the Coffee Club’s dues jar',
     twist: 'Coffee: every 30 s they top up 1.5% of their Resolve.',
     perk: 'coffee for your side: your Shooters fire 25% faster and your own shots hit 25% harder',
@@ -235,7 +235,7 @@ export const ROOMS: Room[] = [
     defeat: { from: 'Gail Petroski', subject: 'Fine', body: 'The Coffee Club surrenders the break room. The good mugs are on the left. Rinse them.' },
   },
   {
-    id: 'conference', room: 'conference', label: 'Conference Room', short: 'Victoria', stage: 4, name: 'Victoria Lang', title: 'VP of Operations', position: 'Behind the filing cabinets, in the corner office',
+    id: 'conference', room: 'conference', label: 'Conference Room', short: 'Victoria', stage: 4, name: 'Victoria Lang', title: 'VP of Operations', position: 'At the head of the table, out in the open',
     resolve: 400000, wall: 230000, regenPct: 0.004, desks: 4, bounty: 12000, bountyNote: 'the executive offsite budget',
     twist: 'Meetings: every 45 s she pulls your Shooters away for 10 s.',
     perk: 'the corner conference room: your team works 25% faster',

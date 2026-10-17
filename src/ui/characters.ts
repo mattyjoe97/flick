@@ -97,16 +97,16 @@ export const PEOPLE: Record<string, Person> = {
       idle: ['Love that energy!', 'Let’s circle back.', 'This is so on-brand for you.'],
     },
   },
-  // The Stage 4 room bosses (stand-ins until their painted portraits arrive).
+  // The Stage 4 room bosses (their painted portraits are used; the drawing is only a fallback).
   gail: {
-    skin: '#f4cdb0', hair: '#cdbf98', style: 'messy', shirt: '#2f8f8a', cardigan: true, glasses: 'round', earrings: true, lanyard: '#8a5a2b', rest: 'happy',
+    skin: '#f4cdb0', hair: '#cdbf98', style: 'messy', shirt: '#2f8f8a', cardigan: true, glasses: 'round', earrings: true, lanyard: '#8a5a2b',
     lines: {
       hit: ['My mug!', 'Not before my coffee!', 'I run payroll, you know.'],
       idle: ['Fresh pot’s on.', 'Coffee Club members only.', 'Same mug since 1998.'],
     },
   },
   victoria: {
-    skin: '#c99a72', hair: '#26211e', style: 'bun', shirt: '#1f2126', earrings: true, rest: 'smug',
+    skin: '#c99a72', hair: '#26211e', style: 'bun', shirt: '#1f2126', earrings: true,
     lines: {
       hit: ['Let’s take this offline!', 'I’ll be speaking to Mr. Feeney.', 'That is not on the agenda!'],
       idle: ['Let’s circle up.', 'Do you have a minute? Or sixty?', 'I’ve sent a calendar invite.'],

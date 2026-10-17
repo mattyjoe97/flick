@@ -464,6 +464,29 @@ fb = b8["196_white_flag.png"]["registration"]["ruler_bottom_end_point"]
 closet_art["flag"] = {"w": fsize[0], "h": fsize[1], "foot": [round((fb[0] - fbox[0]) / (fbox[2] - fbox[0]), 4), round((fb[1] - fbox[1]) / (fbox[3] - fbox[1]), 4)]}
 print("batch 8 done", closet_art["covers"], closet_art["flag"])
 
+# ---------------------------------------------------------------- batch 9: Floor Domination
+#
+# The two rooms' filing-cabinet walls share the barricades' format (1400 x 800, portrait
+# scale, desk line at y=780), standing and broken on one canvas with identical end towers,
+# so all four share one crop and swap in place. `top` is how high each standing wall's
+# middle comes up (the game lines that up with the boss's nose).
+b9 = {a["file"]: a for a in json.loads((SRC / "asset-manifest-batch9.json").read_text())["assets"]}
+wall_stems = {
+    "breakroom-standing": "205_wall_breakroom_standing", "breakroom-broken": "206_wall_breakroom_broken",
+    "conference-standing": "207_wall_conference_standing", "conference-broken": "208_wall_conference_broken",
+}
+wims = {k: Image.open(SRC / f"{st}.png").convert("RGBA") for k, st in wall_stems.items()}
+wbxs = [solid_box(im, 4) for im in wims.values()]
+wbox = (min(b[0] for b in wbxs), min(b[1] for b in wbxs), max(b[2] for b in wbxs), max(b[3] for b in wbxs))
+for k, im in wims.items():
+    wsize, _ = save_fit(im, wbox, 760, f"roomwall-{k}")
+wtop = {r: b9[f"{wall_stems[r + '-standing']}.png"]["registration"]["middle_topmost_alpha_y"] for r in ("breakroom", "conference")}
+closet_art["roomWalls"] = {"w": wsize[0], "h": wsize[1], "box": list(wbox), "desk": 780, "centerX": 700, "top": wtop}
+for name, stem in (("unplug", "209_icon_unplug"), ("replyall", "210_icon_replyall")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    im.resize((96, 96), Image.LANCZOS).save(OUT / f"icon-{name}.webp", quality=88, method=6)
+print("batch 9 done", closet_art["roomWalls"])
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
@@ -471,7 +494,7 @@ print("batch 8 done", closet_art["covers"], closet_art["flag"])
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
 faces = sorted(
-    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191)),
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191 or 197 <= int(f.stem.split("_")[0]) <= 204)),
     key=lambda f: int(f.stem.split("_")[0]),
 )
 # The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would
