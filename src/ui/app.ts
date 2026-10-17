@@ -2,6 +2,9 @@ import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, LADDER, MEMOS, POLITICS, 
 import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
 import { tierFloor, tierName, toughness } from '../sim/ladder';
+import viewFloor4 from '../assets/art/view-floor4.webp';
+import viewFloor12 from '../assets/art/view-floor12.webp';
+import viewFloor30 from '../assets/art/view-floor30.webp';
 import {
   assign,
   buyBack,
@@ -1099,6 +1102,7 @@ export class UI {
     setCompany(s.job?.company ?? 'pemberton', floor);
     // Up the career ladder the office is on another floor: the labels that name it follow.
     this.rebuild('floor-labels', String(floor), () => {
+      this.scene.setView(floor >= 30 ? viewFloor30 : floor >= 12 ? viewFloor12 : viewFloor4);
       $('map-btn').firstChild!.textContent = co('The 4th floor ');
       $('warmap-h').textContent = co('The 4th floor');
     });

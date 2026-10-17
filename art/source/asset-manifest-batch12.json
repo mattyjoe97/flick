@@ -1,0 +1,256 @@
+{
+  "game": "FLICK",
+  "batch": 12,
+  "title": "Window views for the career ladder",
+  "asset_count": 3,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with authorized scripted finishing.",
+  "preview_note": "Morning blue and afternoon orange are preview backgrounds only; the delivered PNG sky pixels are transparent.",
+  "checks": {
+    "exact_filenames_and_2048x496_rgba": true,
+    "transparent_sky": true,
+    "transparent_pixels_zero_rgb": true,
+    "height_registration_checked": true,
+    "upper_sky_exclusion_zones_checked": true,
+    "no_text_logos_or_people_visual_review": true,
+    "morning_and_afternoon_preview_reviewed": true
+  },
+  "sky_alpha_audit": [
+    {
+      "file": "222_view_floor4.png",
+      "above_y200_nontransparent_pixels": 0
+    },
+    {
+      "file": "223_view_floor12.png",
+      "upper_area_allowed_rectangles": [
+        [
+          330,
+          90,
+          480,
+          200
+        ],
+        [
+          1660,
+          90,
+          1880,
+          200
+        ],
+        [
+          1550,
+          198,
+          1660,
+          200
+        ]
+      ],
+      "upper_area_unexpected_alpha_pixels": 0
+    },
+    {
+      "file": "224_view_floor30.png",
+      "horizon_y": 330,
+      "upper_area_unexpected_alpha_pixels": 0,
+      "cloud_count": 2,
+      "cloud_y_ranges": [
+        [
+          150,
+          220
+        ],
+        [
+          165,
+          230
+        ]
+      ],
+      "near_skyscraper_count": 3,
+      "tiny_airplane_count": 1
+    }
+  ],
+  "assets": [
+    {
+      "file": "222_view_floor4.png",
+      "size": [
+        2048,
+        496
+      ],
+      "width": 2048,
+      "height": 496,
+      "mode": "RGBA",
+      "background": "transparent sky",
+      "alpha_bbox": [
+        0,
+        220,
+        2048,
+        496
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "topmost_alpha_y": 220,
+      "roofline_or_horizon_y": 230,
+      "roofline_y": 230,
+      "horizon_y": null,
+      "registration": {
+        "file": "222_view_floor4.png",
+        "source_file": "222_view_floor4_clean.png",
+        "source_crop": [
+          0,
+          281,
+          2171,
+          625
+        ],
+        "destination_rect": [
+          0,
+          220,
+          2048,
+          496
+        ],
+        "roofline_y": 230,
+        "roofline_definition": "Upper main parapet line, excluding small rooftop units.",
+        "topmost_alpha_y": 220,
+        "upper_area_rule": "All pixels above y200 transparent."
+      },
+      "transparent_pixel_count": 500506,
+      "sha256": "b3e43412e347a501a7b8a02f62ea6cbb6905526401f56eee026ac9c5957db6de"
+    },
+    {
+      "file": "223_view_floor12.png",
+      "size": [
+        2048,
+        496
+      ],
+      "width": 2048,
+      "height": 496,
+      "mode": "RGBA",
+      "background": "transparent sky",
+      "alpha_bbox": [
+        0,
+        90,
+        2048,
+        496
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "topmost_alpha_y": 90,
+      "roofline_or_horizon_y": 90,
+      "roofline_y": 90,
+      "horizon_y": null,
+      "registration": {
+        "file": "223_view_floor12.png",
+        "source_file": "223_view_floor12_clean.png",
+        "source_crop": [
+          0,
+          170,
+          2172,
+          637
+        ],
+        "destination_rect": [
+          0,
+          90,
+          2048,
+          496
+        ],
+        "roofline_y": 90,
+        "roofline_definition": "Top of the tallest office tower near the right.",
+        "topmost_alpha_y": 90,
+        "upper_area_rule": "Only office tower tops may occur above y200."
+      },
+      "transparent_pixel_count": 541286,
+      "sha256": "abcf3618cd384e5a8adde744b34ef2b89bf0ddd2365cbe99ec8ca19fdb76c178"
+    },
+    {
+      "file": "224_view_floor30.png",
+      "size": [
+        2048,
+        496
+      ],
+      "width": 2048,
+      "height": 496,
+      "mode": "RGBA",
+      "background": "transparent sky",
+      "alpha_bbox": [
+        0,
+        60,
+        2048,
+        496
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "topmost_alpha_y": 60,
+      "roofline_or_horizon_y": 330,
+      "roofline_y": null,
+      "horizon_y": 330,
+      "registration": {
+        "file": "224_view_floor30.png",
+        "source_file": "224_view_floor30_clean.png",
+        "source_crop": [
+          0,
+          158,
+          2172,
+          630
+        ],
+        "source_horizon_y": 449,
+        "horizon_y": 330,
+        "horizon_definition": "Flat boundary of the far-city band; near skyscrapers rise in front.",
+        "topmost_alpha_y": 60,
+        "registered_parts": [
+          {
+            "name": "left_cloud",
+            "source_alpha_bbox": [
+              514,
+              251,
+              847,
+              338
+            ],
+            "destination_rect": [
+              490,
+              150,
+              800,
+              220
+            ]
+          },
+          {
+            "name": "right_cloud",
+            "source_alpha_bbox": [
+              1178,
+              268,
+              1444,
+              348
+            ],
+            "destination_rect": [
+              1110,
+              165,
+              1360,
+              230
+            ]
+          },
+          {
+            "name": "tiny_airplane",
+            "source_alpha_bbox": [
+              1007,
+              365,
+              1052,
+              389
+            ],
+            "destination_rect": [
+              950,
+              254,
+              986,
+              270
+            ]
+          }
+        ],
+        "near_skyscraper_x_intervals": [
+          [
+            97,
+            440
+          ],
+          [
+            1380,
+            1738
+          ],
+          [
+            1760,
+            2030
+          ]
+        ],
+        "upper_area_rule": "Only three nearby skyscrapers, two clouds and one tiny airplane above the city horizon."
+      },
+      "transparent_pixel_count": 505250,
+      "sha256": "c37444972d9921d3a6039eadd11e91ac721e86bfdf04aadc71f07a10d8642e6b"
+    }
+  ]
+}

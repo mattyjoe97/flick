@@ -506,6 +506,15 @@ for uid, stem in (("window", "218_icon_reno_window"), ("espresso", "219_icon_ren
     save_fit(im, solid_box(im, 6), 240, f"icon-reno-{uid}")
 print("batch 11 done")
 
+# ---------------------------------------------------------------- batch 12: window views
+#
+# What you see out of the office windows on each floor of the career ladder: one wide strip
+# behind both windows (the sky is the game's own, so it stays transparent).
+for floor, stem in ((4, "222_view_floor4"), (12, "223_view_floor12"), (30, "224_view_floor30")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    im.resize((1024, 248), Image.LANCZOS).save(OUT / f"view-floor{floor}.webp", quality=86, method=6)
+print("batch 12 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
