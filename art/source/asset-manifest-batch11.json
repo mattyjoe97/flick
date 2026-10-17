@@ -1,0 +1,137 @@
+{
+  "game": "FLICK",
+  "batch": 11,
+  "title": "Renovations (the career ladder)",
+  "asset_count": 4,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "style_reference_assets": [
+    "101_icon_chair.png",
+    "102_icon_riser.png",
+    "104_icon_carpet.png",
+    "106_icon_walls.png"
+  ],
+  "checks": {
+    "exact_filenames_and_256px_rgba": true,
+    "genuine_alpha_transparency": true,
+    "transparent_pixels_zero_rgb": true,
+    "centered_at_80_percent_extent": true,
+    "flat_material_palette_matches_batch5": true,
+    "no_text_or_logos_visual_review": true,
+    "reviewed_at_256_and_38_pixels": true
+  },
+  "assets": [
+    {
+      "file": "218_icon_reno_window.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        33,
+        25,
+        222,
+        230
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "registration": {
+        "alpha_bbox_center": [
+          127.5,
+          127.5
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125
+      },
+      "transparent_pixel_count": 32521,
+      "sha256": "1aaf2fd27c5637161bdcff6b311fb1bdbd60c88df8d5a03925e699c791bd72f9"
+    },
+    {
+      "file": "219_icon_reno_espresso.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        33,
+        25,
+        223,
+        230
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "registration": {
+        "alpha_bbox_center": [
+          128.0,
+          127.5
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125
+      },
+      "transparent_pixel_count": 32125,
+      "sha256": "e92f2d590e7adf3a8d7b294b5a769a9dffe230d353c66b2fc1972d1bb9bc4bfd"
+    },
+    {
+      "file": "220_icon_reno_desks.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        40,
+        25,
+        216,
+        230
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "registration": {
+        "alpha_bbox_center": [
+          128.0,
+          127.5
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125
+      },
+      "transparent_pixel_count": 49207,
+      "sha256": "da943a1bda24f1b9bf799dc74534a42a79ff29977acec99539f8358ad611f8d3"
+    },
+    {
+      "file": "221_icon_reno_panels.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        25,
+        35,
+        230,
+        220
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "registration": {
+        "alpha_bbox_center": [
+          127.5,
+          127.5
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125
+      },
+      "transparent_pixel_count": 39443,
+      "sha256": "394ebfb1c779ac658449c64de5983c8650b5698d7f0f6275cb572d032df524a3"
+    }
+  ]
+}

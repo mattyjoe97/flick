@@ -498,6 +498,14 @@ im = Image.open(SRC / "217_icon_case_file.png").convert("RGBA")
 im.resize((96, 96), Image.LANCZOS).save(OUT / "icon-casefile.webp", quality=88, method=6)
 print("batch 10 done")
 
+# ---------------------------------------------------------------- batch 11: renovation icons
+#
+# The four renovations on Dale's Procurement clipboard, cut like the other office upgrades.
+for uid, stem in (("window", "218_icon_reno_window"), ("espresso", "219_icon_reno_espresso"), ("desks", "220_icon_reno_desks"), ("panels", "221_icon_reno_panels")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    save_fit(im, solid_box(im, 6), 240, f"icon-reno-{uid}")
+print("batch 11 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
