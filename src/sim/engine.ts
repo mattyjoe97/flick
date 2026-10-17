@@ -15,7 +15,7 @@ import { fightingRoom, hitWall, inMeeting, siegeOffline, stepSiege, wallMult, wa
 import { POLITICS, ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
 import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from './politics';
-import { offlineCap, repDamage } from './job';
+import { execMult, offlineCap, repDamage } from './job';
 import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
 
@@ -528,8 +528,8 @@ function barrageShooters(s: GameState) {
 
 /** How many bands a Barrage would throw right now: a pocketful each for you and every Shooter. */
 export function barrageSize(s: GameState) {
-  const cap = BARRAGE.perPerson * (1 + barrageShooters(s).length) * ballBarrageMult(s);
-  return Math.min(Math.floor(s.bands), cap);
+  const cap = BARRAGE.perPerson * (1 + barrageShooters(s).length) * ballBarrageMult(s) * execMult(s, 'warchest');
+  return Math.min(Math.floor(s.bands), Math.floor(cap));
 }
 
 /** Seconds until your team has reloaded for another Barrage (0 when ready). */

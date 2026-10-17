@@ -5,8 +5,8 @@
 // with its rules, and a two-step "hand in your notice". Then your résumé perks, bought with
 // Reputation and kept forever, and the jobs you've left.
 
-import { COMPANIES, LADDER, PERKS, STOCK, type CompanyId } from '../../sim/content';
-import { buyPerk, canQuit, offers, perkCost, repDamage, repForRun, stockRep } from '../../sim/job';
+import { COMPANIES, EXEC_PERKS, LADDER, PERKS, STOCK, type CompanyId, type ExecId } from '../../sim/content';
+import { buyExec, buyPerk, canQuit, execCost, execLevel, execOpen, offers, perkCost, repDamage, repForRun, stockRep } from '../../sim/job';
 import { buyStock, closedAt, stockOpen, stockPrice, tierFloor, tierName } from '../../sim/ladder';
 import { company, perk, type GameState } from '../../sim/state';
 import { money } from '../format';
@@ -34,6 +34,11 @@ export class JobsApp implements AppView {
       if (d.perk) {
         const r = buyPerk(s, d.perk as (typeof PERKS)[number]['id']);
         this.note = r.ok ? { text: `Added to your résumé: ${PERKS.find((p) => p.id === d.perk)!.name}.`, ok: true } : { text: r.reason, ok: false };
+        if (r.ok) this.ctx.sound.stamp();
+        else this.ctx.sound.miss();
+      } else if (d.exec) {
+        const r = buyExec(s, d.exec as ExecId);
+        this.note = r.ok ? { text: `Executive perk: ${EXEC_PERKS.find((p) => p.id === d.exec)!.name}, level ${execLevel(s, d.exec as ExecId)}.`, ok: true } : { text: r.reason, ok: false };
         if (r.ok) this.ctx.sound.stamp();
         else this.ctx.sound.miss();
       } else if (d.offer) {
@@ -72,7 +77,7 @@ export class JobsApp implements AppView {
 
   render(s: GameState) {
     const afford = stockOpen(s) && s.salary >= stockPrice(s);
-    const key = [s.job.reputation, repForRun(s), s.stage, JSON.stringify(s.job.perks), this.confirm ?? '', this.note?.text ?? '', this.pickedTier(s), s.job.top, s.stock, afford].join('|');
+    const key = [s.job.reputation, repForRun(s), s.stage, JSON.stringify(s.job.perks), JSON.stringify(s.job.exec), this.confirm ?? '', this.note?.text ?? '', this.pickedTier(s), s.job.top, s.stock, afford].join('|');
     keyed(this.el, key, () => this.html(s));
   }
 
@@ -107,6 +112,20 @@ export class JobsApp implements AppView {
         ${cost === null ? '<span class="perk-max">Maxed out</span>' : `<button type="button" class="win-action${afford ? ' strong' : ''}" data-perk="${p.id}" ${afford ? '' : 'disabled'}>${cost} Reputation</button>`}
       </article>`;
     }).join('');
+    // Executive perks: no top level, so Reputation always has somewhere to go.
+    const execCards = execOpen(s)
+      ? EXEC_PERKS.map((p) => {
+          const level = execLevel(s, p.id);
+          const cost = execCost(s, p.id);
+          const afford = cost !== null && s.job.reputation >= cost;
+          const now = level ? (p.id === 'lunch' ? ` Now: +${p.each * level} hours.` : ` Now: +${Math.round(p.each * level * 100)}%.`) : '';
+          return `<article class="perk exec${level ? ' owned' : ''}">
+            <header><b>${esc(p.name)}</b>${level ? `<span class="perk-lv">Level ${level}</span>` : ''}</header>
+            <p>${esc(p.does)}${now}</p>
+            ${cost === null ? '<span class="perk-max">Maxed out</span>' : `<button type="button" class="win-action${afford ? ' strong' : ''}" data-exec="${p.id}" ${afford ? '' : 'disabled'}>${cost.toLocaleString('en-US')} Reputation</button>`}
+          </article>`;
+        }).join('')
+      : '';
     const past = s.job.history
       .slice()
       .reverse()
@@ -151,6 +170,7 @@ export class JobsApp implements AppView {
       <div class="offer-list">${offerCards}</div>
       <h3 class="jobs-h">Your résumé</h3>
       <div class="perk-list">${perkCards}</div>
+      ${execCards ? `<h3 class="jobs-h">Executive perks</h3><p class="case-note">No top level: buy them again and again, every level costs more. Kept forever.</p><div class="perk-list">${execCards}</div>` : ''}
       ${past ? `<h3 class="jobs-h">Past jobs</h3><ul class="past-jobs">${past}</ul>` : ''}
     </div>`;
   }

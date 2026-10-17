@@ -37,9 +37,9 @@ import { mods, weapon } from '../src/sim/mods';
 import { chaseRaid, fightingDept } from '../src/sim/war';
 import { fightingRoom, holdLine, sabotage, sabotageCost, sabotaged } from '../src/sim/siege';
 import { canSendMemo, coach, sendMemo } from '../src/sim/politics';
-import { buyPerk, offers, perkCost, startNewJob } from '../src/sim/job';
+import { buyExec, buyPerk, execCost, offers, perkCost, startNewJob } from '../src/sim/job';
 import { buyRenovation, buyStock, renoCost, renovationsOpen } from '../src/sim/ladder';
-import { RENOVATIONS } from '../src/sim/content';
+import { EXEC_PERKS, RENOVATIONS } from '../src/sim/content';
 import { memoOn } from '../src/sim/state';
 import { fight } from '../src/sim/war';
 import { DEPARTMENTS, PERKS, type MemoId } from '../src/sim/content';
@@ -207,6 +207,11 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
       const next = PERKS.map((p) => ({ id: p.id, cost: perkCost(s, p.id) })).filter((p) => p.cost !== null && p.cost <= s.job.reputation).sort((a, b) => a.cost! - b.cost!)[0];
       if (!next || !buyPerk(s, next.id).ok) break;
     }
+    // Then the executive perks, cheapest first, with whatever's left.
+    for (;;) {
+      const next = EXEC_PERKS.map((p) => ({ id: p.id, cost: execCost(s, p.id) })).filter((p) => p.cost !== null && p.cost <= s.job.reputation).sort((a, b) => a.cost! - b.cost!)[0];
+      if (!next || BOT_FLAGS.noExec || !buyExec(s, next.id).ok) break;
+    }
     return;
   }
   if (s.stage === 5) {
@@ -312,7 +317,7 @@ function renovate(s: GameState): boolean {
 }
 
 /** Switches for experiments (pacing tests turn the new spending off to compare). */
-export const BOT_FLAGS = { noRenovate: false, noStock: false, lastStock: 0, lastBounties: 0 };
+export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0 };
 
 /** Grows the team: the cheapest seat or training it can afford with money to spare. */
 function hireSomeone(s: GameState): boolean {

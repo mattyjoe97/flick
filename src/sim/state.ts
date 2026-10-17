@@ -1,4 +1,4 @@
-import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, type RenovationId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, type ExecId, type RenovationId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
@@ -421,10 +421,12 @@ export interface JobState {
   tier: number;
   top: number;
   closed: number[];
+  /** Executive perks (no top level), kept forever. */
+  exec: Partial<Record<ExecId, number>>;
 }
 
 export function newJob(): JobState {
-  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, trophies: {}, history: [], tier: 0, top: 0, closed: [] };
+  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, trophies: {}, history: [], tier: 0, top: 0, closed: [], exec: {} };
 }
 
 /** Levels of a résumé perk you own. */

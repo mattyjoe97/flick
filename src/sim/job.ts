@@ -9,7 +9,7 @@
 // Every company has its own rules and its own names for the same faces (offices all look
 // alike). Later jobs go faster as the perks pile up, so there's always another one.
 
-import { COMPANIES, JOB, PERKS, type CompanyId, type PerkId } from './content';
+import { COMPANIES, EXEC_PERKS, JOB, PERKS, type CompanyId, type ExecId, type PerkId } from './content';
 import { trophyDamageMult, trophyPayMult } from './trophies';
 import { renoPay, stockBonus, tierFloor, tierName, tierPay, tierRep } from './ladder';
 import { company, newAlly, newGame, perk, pushEmail, pushTicker, type GameState } from './state';
@@ -66,6 +66,44 @@ export function buyPerk(s: GameState, id: PerkId): JobResult {
   }
   if (id === 'friends') for (const [who, role] of [['kevin', 'gatherer'], ['marjorie', 'lookout']] as const) if (!s.allies.some((a) => a.id === who)) s.allies.push(newAlly(who, role));
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- executive perks (no top level)
+
+const execDef = (id: ExecId) => EXEC_PERKS.find((p) => p.id === id)!;
+
+/** Levels of an executive perk you own. */
+export function execLevel(s: GameState, id: ExecId) {
+  return s.job?.exec?.[id] ?? 0;
+}
+
+/** Executive perks open once Head Office is recruiting you. */
+export function execOpen(s: GameState) {
+  return (s.job?.top ?? 0) >= 1;
+}
+
+/** What the next level costs (null when it can't go higher). */
+export function execCost(s: GameState, id: ExecId): number | null {
+  const p = execDef(id);
+  const lv = execLevel(s, id);
+  if (lv >= p.max) return null;
+  return Math.round(p.cost * Math.pow(p.growth, lv));
+}
+
+/** Buy a level of an executive perk with Reputation. */
+export function buyExec(s: GameState, id: ExecId): JobResult {
+  if (!execOpen(s)) return { ok: false, reason: 'The executive suite is for people Head Office is courting.' };
+  const cost = execCost(s, id);
+  if (cost === null) return { ok: false, reason: 'You can’t take any longer lunches.' };
+  if (s.job.reputation < cost) return { ok: false, reason: `That needs ${cost.toLocaleString('en-US')} Reputation.` };
+  s.job.reputation -= cost;
+  s.job.exec[id] = execLevel(s, id) + 1;
+  return { ok: true };
+}
+
+/** What an executive perk adds: 1 + its share per level (hours for Long Lunches). */
+export function execMult(s: GameState, id: ExecId) {
+  return 1 + execDef(id).each * execLevel(s, id);
 }
 
 /** The offers on the table at a tier (your highest by default): every company but this exact office. */
@@ -129,7 +167,7 @@ function startPerks(s: GameState) {
 
 /** Work pay: the company's rate, the tier, your Hustle, your trophies and the Standing Desks. */
 export function jobPayMult(s: GameState) {
-  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle')) * trophyPayMult(s) * tierPay(s) * renoPay(s);
+  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle')) * trophyPayMult(s) * tierPay(s) * renoPay(s) * execMult(s, 'expense');
 }
 
 /** Hiring and training: the company's rate and your Headhunter. */
@@ -144,12 +182,12 @@ export function jobPriceMult(s: GameState) {
 
 /** Your reputation precedes you: every point you've ever earned makes every band hit harder. */
 export function repDamage(s: GameState) {
-  return (1 + JOB.damagePerRep * (s.job?.earned ?? 0)) * trophyDamageMult(s);
+  return (1 + JOB.damagePerRep * (s.job?.earned ?? 0)) * trophyDamageMult(s) * execMult(s, 'clout');
 }
 
 /** How long time away can count for, in seconds. */
 export function offlineCap(s: GameState, base: number) {
-  return base + JOB.seniorityHours * 3600 * perk(s, 'seniority');
+  return base + JOB.seniorityHours * 3600 * perk(s, 'seniority') + execDef('lunch').each * 3600 * execLevel(s, 'lunch');
 }
 
 // ---------------------------------------------------------------- the company's names for everyone

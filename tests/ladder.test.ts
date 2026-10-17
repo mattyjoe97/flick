@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { JOB, LADDER, RENOVATIONS, STOCK, TUNING } from '../src/sim/content';
-import { flick, step } from '../src/sim/engine';
-import { companyText, offers, repForRun, repForWork, startNewJob } from '../src/sim/job';
+import { EXEC_PERKS, JOB, LADDER, RENOVATIONS, STOCK, TUNING } from '../src/sim/content';
+import { barrageSize, flick, step } from '../src/sim/engine';
+import { buyExec, companyText, execCost, offers, repForRun, repForWork, startNewJob } from '../src/sim/job';
 import { buyRenovation, buyStock, recordClose, renoCost, stockPrice, tierFloor, tierName, toughness } from '../src/sim/ladder';
 import { mods } from '../src/sim/mods';
 import { closeCase } from '../src/sim/politics';
@@ -217,6 +217,47 @@ describe('Company stock', () => {
     s.salary = STOCK.price * 2.5;
     expect(buyStock(s, 9999)).toBe(2);
     void JOB;
+  });
+});
+
+describe('Executive perks', () => {
+  it('open once Head Office is recruiting, have no top level, and cost more every time', () => {
+    const s = done();
+    s.job.reputation = 1e9;
+    expect(buyExec(s, 'clout').ok).toBe(false);
+    s.job.top = 1;
+    const c0 = execCost(s, 'clout')!;
+    for (let i = 0; i < 30; i++) expect(buyExec(s, 'clout').ok).toBe(true);
+    expect(s.job.exec.clout).toBe(30);
+    expect(execCost(s, 'clout')).toBe(Math.round(c0 * EXEC_PERKS[0].growth ** 30));
+    // Kept when you change jobs.
+    startNewJob(s, 'bank');
+    expect(s.job.exec.clout).toBe(30);
+  });
+
+  it('Clout hits harder, Expense Account pays more, War Chest throws more, Long Lunches stop at 12', () => {
+    const a = atWar();
+    const b = atWar();
+    b.job.top = 1;
+    b.job.reputation = 1e9;
+    buyExec(b, 'clout');
+    buyExec(b, 'clout');
+    expect(hit(b)).toBeCloseTo(hit(a) * 1.1, 6);
+    const pay = basePay(b, 'mail');
+    buyExec(b, 'expense');
+    expect(basePay(b, 'mail')).toBeCloseTo(pay * 1.08, 6);
+    const before = barrageSize(b);
+    buyExec(b, 'warchest');
+    expect(barrageSize(b)).toBe(Math.floor(before * 1.05));
+    for (let i = 0; i < 14; i++) buyExec(b, 'lunch');
+    expect(b.job.exec.lunch).toBe(12);
+  });
+
+  it('saves keep them', () => {
+    const s = done();
+    s.job.top = 1;
+    s.job.exec = { clout: 7, lunch: 2 };
+    expect(deserialize(serialize(s))!.state.job.exec).toEqual({ clout: 7, lunch: 2 });
   });
 });
 

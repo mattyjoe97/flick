@@ -2629,6 +2629,10 @@
   font-weight: 700;
 }
 
+.perk.exec {
+  border-color: #c9a227;
+}
+
 .perk.owned {
   background: #f2f8ef;
 }

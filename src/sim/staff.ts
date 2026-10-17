@@ -11,7 +11,7 @@
 import { CAREER, MOMENTS, POLITICS, SIEGE, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
 import { addReview } from './career';
 import { ballTeamMult } from './ball';
-import { jobHireMult } from './job';
+import { execMult, jobHireMult } from './job';
 import { renoTeam } from './ladder';
 import { chatEvent } from './chat';
 import { company, deptPerk, memoOn, pushEmail, pushTicker, roomTaken, type GameState } from './state';
@@ -96,7 +96,7 @@ export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   if (!t.job) return 0;
   const boosts = steady ? 1 : leadMult(s) * pizzaMult(s) * askMult(s, id);
   const room = roomTaken(s, 'conference') ? SIEGE.conferenceTeam : 1;
-  const synergy = (memoOn(s, 'synergy') ? POLITICS.synergyTeam : 1) * company(s).rules.team * renoTeam(s);
+  const synergy = (memoOn(s, 'synergy') ? POLITICS.synergyTeam : 1) * company(s).rules.team * renoTeam(s) * execMult(s, 'morale');
   return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * room * synergy * boosts;
 }
 

@@ -1,4 +1,4 @@
-import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, MOMENTS, RENOVATIONS, type RenovationId, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, EXEC_PERKS, type ExecId, MOMENTS, RENOVATIONS, type RenovationId, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
 import { deptMax, isDept, isRoom, newGame, newJob, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
 import { politicsForOldSave } from './politics';
 import { ladderForOldSave } from './ladder';
@@ -78,6 +78,7 @@ function migrate(file: SaveFile): GameState | null {
   s.job = { ...newJob(), ...(job ?? {}), perks: { ...(job?.perks ?? {}) }, trophies: { ...(job?.trophies ?? {}) }, history: Array.isArray(job?.history) ? job!.history : [] };
   if (file.version < 17) s.job.unlocked = s.stage >= 6;
   s.job.closed = Array.isArray(job?.closed) ? [...job!.closed] : [];
+  s.job.exec = { ...(job?.exec ?? {}) };
   // The career ladder: saves from before it count the cases they'd already closed.
   if (file.version < 18) ladderForOldSave(s);
   s.renovations = { ...(file.state.renovations ?? {}) };
@@ -270,6 +271,11 @@ function sanitize(s: GameState): boolean {
   }
   for (const id of Object.keys(j.trophies)) if (!TROPHIES.some((t) => t.id === id) || !Number.isFinite(j.trophies[id])) delete j.trophies[id];
   j.closed = j.closed.map((n) => Math.max(0, Math.floor(Number(n) || 0)));
+  for (const id of Object.keys(j.exec) as ExecId[]) {
+    const def = EXEC_PERKS.find((p) => p.id === id);
+    if (!def) delete j.exec[id];
+    else j.exec[id] = Math.min(def.max, Math.max(0, Math.floor(Number(j.exec[id]) || 0)));
+  }
   j.top = Math.max(0, Math.floor(Number(j.top) || 0));
   j.tier = Math.min(j.top, Math.max(0, Math.floor(Number(j.tier) || 0)));
   for (const id of Object.keys(s.renovations) as RenovationId[]) {
