@@ -23,7 +23,7 @@ import { DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, ROOMS, type DeptId, type Mem
 import { rolePower } from './mods';
 import { rand, randRange } from './rng';
 import { startRematch } from './rematch';
-import { currentTarget, newPolitics, pushEmail, pushTicker, type GameState } from './state';
+import { currentTarget, newPolitics, perk, pushEmail, pushTicker, type GameState } from './state';
 import { staffPayPerMin } from './staff';
 import { payGrade } from './work';
 
@@ -160,6 +160,11 @@ function stepInterview(s: GameState) {
   const iv = p.interview;
   if (iv) {
     if (s.time < iv.until) return;
+    // Delegation (a résumé perk): someone has a quiet word with them for you.
+    if (perk(s, 'delegate')) {
+      coach(s);
+      return;
+    }
     p.interview = null;
     p.nextInterviewAt = s.time + randRange(s, POLITICS.interview.gap[0], POLITICS.interview.gap[1]);
     s.stats.interviewsLost = (s.stats.interviewsLost ?? 0) + 1;
@@ -218,6 +223,11 @@ export function closeCase(s: GameState, how: 'fight' | 'goodwill') {
   s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;
   s.sinceLastHit = 0;
   s.events.push({ type: 'stage', stage: 6 });
+  // A recruiter has been watching: the New Job restart opens up.
+  if (!s.job.unlocked) {
+    s.job.unlocked = true;
+    pushEmail(s, 'Recruiter (LinkedUp)', 'Exciting opportunity!', 'I came across your profile and was very impressed by your work on Floor 4. Several companies would love to talk. Open Job Search on your desktop whenever you’re ready. You’d keep everything that’s yours. No pressure. (Some pressure.)', 'story');
+  }
 }
 
 /** Fisk's Resolve hit zero. */
@@ -235,6 +245,11 @@ export function stepPolitics(s: GameState, dt: number) {
   // Keep the HR Director's share current, so the map can show it (and switching keeps it).
   if (s.war.fighting === 'hr') p.hrShare = Math.max(0, Math.min(1, s.targetResolve / HR_DIRECTOR.resolve));
   stepInterview(s);
+  // Memo Templates (a résumé perk): the routine memos go out on their own.
+  if (perk(s, 'templates')) {
+    if (canSendMemo(s, 'synergy').ok) sendMemo(s, 'synergy');
+    else if (p.evidence >= 50 && canSendMemo(s, 'retention').ok) sendMemo(s, 'retention');
+  }
 }
 
 /** Time away: Deniability keeps coming in from your team; nobody's called in while you're gone. */

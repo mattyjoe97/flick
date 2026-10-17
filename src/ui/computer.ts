@@ -9,6 +9,7 @@
 //   Messenger    your coworkers, one conversation each
 //   Staffing     your career (promotions) and the team you hire
 //   Memos        (Stage 5) office policy, paid for with Plausible Deniability
+//   Job Search   (once HR's case is closed) quit for a new company; résumé perks
 //   Supply Catalog, Org Chart, My Documents, the Recycle Bin
 //
 // Around the apps: a Start menu, a taskbar with your Salary and the work combo, pop-up
@@ -18,7 +19,7 @@
 import './computer.css';
 import { reviewReady } from '../sim/career';
 import { chatName, chatUnread } from '../sim/chat';
-import { COMBO, type CoworkerId } from '../sim/content';
+import { COMBO, type CompanyId, type CoworkerId } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import type { GameEvent, GameState } from '../sim/state';
@@ -32,13 +33,14 @@ import { PhoneApp } from './apps/phone';
 import { SheetApp } from './apps/sheet';
 import { StaffingApp } from './apps/staffing';
 import { MemosApp } from './apps/memos';
+import { JobsApp } from './apps/jobs';
 import { canSendMemo } from '../sim/politics';
 import { MEMOS } from '../sim/content';
 import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
 import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'docs' | 'trash';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'jobs' | 'docs' | 'trash';
 
 const TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -50,6 +52,7 @@ const TITLES: Record<AppId, string> = {
   org: 'Org Chart',
   staffing: 'Staffing',
   memos: 'Memos',
+  jobs: 'Job Search',
   docs: 'My Documents',
   trash: 'Recycle Bin',
 };
@@ -64,6 +67,7 @@ const ICON: Record<AppId, string> = {
   org: 'ico-org',
   staffing: 'ico-staffing',
   memos: 'ico-memos',
+  jobs: 'ico-doc',
   docs: 'ico-folder',
   trash: 'ico-trash-full',
 };
@@ -79,6 +83,7 @@ const FEENEY_SAYS: Record<string, string[]> = {
   org: ['Org chart. Very strategic.'],
   staffing: ['Building a team? Love it.', 'Delegation. Very managerial.'],
   memos: ['A memo? Very proactive.', 'Love a well-formatted memo.'],
+  jobs: ['…Is that a job site?', 'Updating your résumé? Ha. Ha.'],
   docs: ['Updating your résumé?', 'Organized. I like it.'],
   trash: ['Taking out the trash. Good.'],
   desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
@@ -101,6 +106,8 @@ export interface ComputerHooks {
   footstep(near: number): void;
   notify(): void;
   promoted(rank: number): void;
+  /** Hand in your notice: start over at `to`. */
+  quitJob(to: CompanyId): void;
 }
 
 export class ComputerView {
@@ -141,6 +148,7 @@ export class ComputerView {
       catalog: new CatalogApp(pane('catalog'), ctx, () => hooks.ordered()),
       staffing: this.staffing,
       memos: new MemosApp(pane('memos'), ctx, { sent: () => undefined }),
+      jobs: new JobsApp(pane('jobs'), ctx, { quit: (to) => hooks.quitJob(to) }),
       docs: this.docs,
       trash: this.docs,
     };
@@ -402,6 +410,9 @@ export class ComputerView {
     this.rebuildFlag('memos-on', politics, () => document.querySelectorAll<HTMLElement>('[data-app="memos"]:not(.app)').forEach((b) => (b.hidden = !politics)));
     badge('memos', politics ? MEMOS.filter((m) => canSendMemo(s, m.id).ok).length : 0);
     if (!politics && this.app === 'memos') this.openApp(null);
+    // Job Search, once a recruiter has been in touch.
+    const hiring = !!s.job?.unlocked;
+    this.rebuildFlag('jobs-on', hiring, () => document.querySelectorAll<HTMLElement>('[data-app="jobs"]:not(.app)').forEach((b) => (b.hidden = !hiring)));
 
     // New reports and spreadsheets: a notification when they land.
     for (const k of ['expense', 'sheet'] as const) {

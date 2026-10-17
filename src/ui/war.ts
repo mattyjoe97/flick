@@ -9,6 +9,7 @@
 // Resolve and what taking them gets you.
 
 import daleHead from '../assets/art/dale-head.webp';
+import { co } from './co';
 import iconUnplug from '../assets/art/icon-unplug.webp';
 import iconReplyAll from '../assets/art/icon-replyall.webp';
 import { DEPARTMENTS, HR_DIRECTOR, POLITICS, REMATCH, ROOMS, SIEGE, WAR, type Department, type DeptId, type Room, type RoomId } from '../sim/content';
@@ -22,7 +23,7 @@ import { coverSvg, WHITE_FLAG } from './scene';
 import { faceSvg, portrait } from './portraits';
 
 const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  co(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`;
 

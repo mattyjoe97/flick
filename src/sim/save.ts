@@ -1,5 +1,5 @@
-import { COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, MOMENTS, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
-import { deptMax, isDept, isRoom, newGame, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
+import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, MOMENTS, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { deptMax, isDept, isRoom, newGame, newJob, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
 import { politicsForOldSave } from './politics';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -71,6 +71,10 @@ function migrate(file: SaveFile): GameState | null {
   // Stage 5: saves from before it that had already taken the whole floor get HR's investigation.
   if (file.version < 16 && s.stage >= 5) politicsForOldSave(s);
   s.asks = { ...base.asks, ...(file.state.asks ?? {}) };
+  // The New Job restart: saves from before it open it if they'd already closed HR's case.
+  const job = file.state.job;
+  s.job = { ...newJob(), ...(job ?? {}), perks: { ...(job?.perks ?? {}) }, history: Array.isArray(job?.history) ? job!.history : [] };
+  if (file.version < 17) s.job.unlocked = s.stage >= 6;
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
@@ -248,6 +252,17 @@ function sanitize(s: GameState): boolean {
   if (p.order && !(Number(p.order.amount) > 0 && Number.isFinite(p.order.arriveAt))) p.order = null;
   if (p.box && !(Number(p.box.amount) > 0)) p.box = null;
   if (s.hr.confiscated && !s.ownedWeapons.includes(s.hr.confiscated.weapon)) s.hr.confiscated = null;
+  const j = s.job;
+  if (!COMPANIES.some((c) => c.id === j.company)) j.company = 'pemberton';
+  for (const k of ['runs', 'reputation', 'earned'] as const) j[k] = Math.max(0, Math.floor(Number(j[k]) || 0));
+  j.unlocked = !!j.unlocked;
+  j.welcomed = j.welcomed !== false;
+  for (const id of Object.keys(j.perks) as (keyof typeof j.perks)[]) {
+    const def = PERKS.find((p) => p.id === id);
+    if (!def) delete j.perks[id];
+    else j.perks[id] = Math.min(def.max, Math.max(0, Math.floor(Number(j.perks[id]) || 0)));
+  }
+  j.history = j.history.filter((h) => h && COMPANIES.some((c) => c.id === h.company) && Number.isFinite(h.minutes)).slice(-12);
   return true;
 }
 

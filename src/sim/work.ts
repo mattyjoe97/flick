@@ -18,6 +18,7 @@
 
 import { CAREER, COMBO, MOMENTS, PAY_GRADES, POLITICS, SHEET_TABS, TARGETS, WAR, type SheetTabId, type TypoKind } from './content';
 import { ballPayMult } from './ball';
+import { jobPayMult } from './job';
 import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
@@ -213,7 +214,7 @@ export function payGrade(s: GameState) {
 /** What one item of this kind pays right now, before the combo. */
 export function basePay(s: GameState, kind: WorkKind) {
   const tab = kind === 'sheet' ? SHEET_TABS.find((t) => t.id === activeTab(s))!.payMult : 1;
-  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab * ballPayMult(s) * (deptPerk(s, 'accounting') ? WAR.accountingPay : 1);
+  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab * ballPayMult(s) * (deptPerk(s, 'accounting') ? WAR.accountingPay : 1) * jobPayMult(s);
 }
 
 /** The combo still running (it lapses if you go too long without finishing something). */

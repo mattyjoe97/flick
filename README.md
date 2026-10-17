@@ -94,6 +94,10 @@ Meanwhile the departments you took try to take their desks back, every 3 to 5 mi
 - **HR interviews** replace counterattacks: every 3 to 5 minutes someone you beat is called in, with a 20-second clock. Tap **Coach them** and they remember nothing.
 - **Close the case either way:** flick Fisk's Resolve to nothing, or win HR over (every memo you send counts toward goodwill; at 300 the case closes). Then the whole floor is yours for good and the rematches carry on. A careful player takes about 47 minutes either way; one who never sends a memo, a couple of hours.
 
+**The New Job restart.** Once HR's case is closed, a recruiter gets in touch and **Job Search** appears on your computer. Quit and you start over at a new company, keeping **Reputation**: 30 for closing the case (less if you leave earlier, from the Department War on), 2 per pay grade, and the square root of your bounties in thousands. Every point you've ever earned makes your bands hit 0.4% harder, and you spend it on résumé perks that last forever: *Strong References* (start up to five pay grades higher), *Signing Bonus*, *Hustle* (work pays more), *Headhunter* (cheaper hiring), *Black Market Contacts* (cheaper Dale), *Old Friends* (Kevin and Marjorie join on day one), *Standing Order* (bands reorder themselves), *Seniority* (away time counts for longer), *Delegation* (raids, counterattacks and interviews you miss get handled) and *Memo Templates* (routine memos send themselves). Bailey and her tricks, your rubber band ball and your names come with you.
+
+Each company has its own rules and its own names for the same faces: **First Allied Bank** (work pays 40% more; Suspicion builds 25% faster), **The Daily Ledger** (bands 50% faster; walk-bys 25% more often), **Dialtone Solutions** (team 50% faster; hiring 30% dearer), or back to **Pemberton**. A careful bot takes about 3 hours to close the case on its first job, then about 2 h 20, 1 h 40, 1 h 30, 1 h 15 on the next four.
+
 **Rematches.** Nobody in this office can let things go. Your old rivals wait on the map: Gary first, then Brad, the Printer Corner, the Task Force and Rick, at half their old Resolve in round 1 and about a third tougher every round after that. Once the four departments are yours their bosses join the rotation too. Each win pays a bounty (the old one, growing every round and with your pay grade, or a few minutes of your team's pay if that's more) and some Performance toward your next promotion, so the war keeps feeding your career. The Barrage and the ball's perks work in rematches too.
 
 Getting caught (Suspicion reaches 100) puts a write-up in your HR file, sends your equipped weapon to Mr. Feeney's drawer for 3 minutes (Dale can get it back for half its price), and lets your target regroup. A write-up fades after 10 minutes without getting caught. Three write-ups is Final Warning; get caught again and you're fired: you lose your bands and this stage's progress (in the Department War, just the department you were fighting), keep your weapons, upgrades and team, and HR rehires you on Monday with a clean file.
@@ -127,12 +131,15 @@ Coworkers are promoted to Senior and then Lead the longer they're on your team, 
 | `src/sim/asks.ts` | Your team leads' calls: the calls, what each choice does, timing and the safe choice on a timeout |
 | `src/sim/war.ts` | Stages 3 and 4: picking who to fight, the bosses' tricks, their perks, raids on the supply closet, taking the rooms |
 | `src/sim/siege.ts` | Stage 4, Floor Domination: the filing-cabinet walls, coffee and meetings, sabotage, counterattacks and Guards |
+| `src/sim/job.ts` | The New Job restart: Reputation, résumé perks, quitting for a new company, company rules and names |
 | `src/sim/politics.ts` | Stage 5, Corporate Politics: Plausible Deniability, memos, HR's case file, interviews, winning departments back, closing the case |
 | `src/sim/ball.ts` | Your rubber band ball: winding bands on, its four sizes and their perks (the Barrage is in the engine) |
 | `src/ui/ball.ts` | The ball on your desk (in the view) and the Barrage key beside the Flick key |
 | `src/ui/floor.ts` | Your floor: your team at their desks, their work popping up, and the card to hire, train or rename them |
 | `src/ui/asks.ts` | The card for a team lead's call |
 | `src/ui/war.ts` | The map of the 4th floor (department cards, the closet, the Stage 4 rooms and sabotage, your departments, HR and anything HR took, rematches), and the raid, counterattack and interview alerts |
+| `src/ui/apps/jobs.ts` | Job Search: Reputation, the offers (with a two-step notice), résumé perks and past jobs |
+| `src/ui/co.ts` | Swaps the names you'd know from Pemberton for your current company's, on everything shown |
 | `src/ui/apps/memos.ts` | The Memos app (Stage 5): your Deniability, HR's goodwill and case file, and the memos you can send |
 | `src/ui/office.ts` | Bailey on screen, the moment card and the goals note |
 | `src/sim/workdata.ts` | The words for your job: emails, callers, receipts, expense rules, the phone directory |

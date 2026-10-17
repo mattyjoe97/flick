@@ -20,7 +20,7 @@ import { DEPARTMENTS, ROOMS, SIEGE, type DeptId, type RoomId } from './content';
 import { mods, rolePower, weapon } from './mods';
 import { rand, randRange } from './rng';
 import { chatEvent } from './chat';
-import { currentTarget, deptPerk, isRoom, pushTicker, type GameState } from './state';
+import { currentTarget, deptPerk, isRoom, perk, pushTicker, type GameState } from './state';
 import { staffPayPerMin } from './staff';
 import { payGrade } from './work';
 
@@ -137,6 +137,11 @@ function stepCounter(s: GameState) {
   const c = s.war.counter;
   if (c.attack) {
     if (s.time < c.attack.until) return;
+    // Delegation (a résumé perk): your people hold the line for you.
+    if (perk(s, 'delegate')) {
+      holdLine(s);
+      return;
+    }
     const a = c.attack;
     c.attack = null;
     c.nextAt = s.time + randRange(s, SIEGE.counter.gap[0], SIEGE.counter.gap[1]);

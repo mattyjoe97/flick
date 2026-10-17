@@ -1,4 +1,6 @@
 import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
+import { co, setCompany } from './co';
+import { repDamage, startNewJob } from '../sim/job';
 import {
   assign,
   buyBack,
@@ -18,7 +20,7 @@ import {
   type ActionResult,
 } from '../sim/engine';
 import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
-import { currentTarget, deptPerk, deptTaken, deptsTaken, fightingHr, memoOn, reclaimingDept, roomTaken, type GameEvent, type GameState } from '../sim/state';
+import { company, currentTarget, deptPerk, deptTaken, deptsTaken, fightingHr, memoOn, reclaimingDept, roomTaken, type GameEvent, type GameState } from '../sim/state';
 import { canSendMemo, nameOf } from '../sim/politics';
 import { fightingRoom, inMeeting, sabotaged, wallUp } from '../sim/siege';
 import { dept, fightingDept, firewallClock, firewallUp } from '../sim/war';
@@ -59,7 +61,7 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string) => {
 };
 
 const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  co(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
@@ -91,6 +93,7 @@ export class UI {
   private raid: RaidAlert;
   private counter: CounterAlert;
   private interview: InterviewAlert;
+  private welcoming = false;
   private ask: AskCard;
   /** The Department War's welcome opens the map when you close it. */
   private mapAfterStage = false;
@@ -153,6 +156,11 @@ export class UI {
       ordered: () => {
         this.sound.coins();
         this.say(`Ordered. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
+      },
+      quitJob: (to) => {
+        if (!startNewJob(this.s, to).ok) return;
+        this.host.save();
+        location.reload();
       },
       recruited: (id) => {
         this.sound.capture();
@@ -339,7 +347,7 @@ export class UI {
   }
 
   private say(text: string) {
-    this.flash = { text, until: performance.now() + 3500 };
+    this.flash = { text: co(text), until: performance.now() + 3500 };
   }
 
   private bind() {
@@ -404,6 +412,10 @@ export class UI {
     });
     $('back-btn').addEventListener('click', () => this.toggleHide(false));
     $<HTMLDialogElement>('stage-dlg').addEventListener('close', () => {
+      if (this.welcoming) {
+        this.welcoming = false;
+        this.s.job.welcomed = true;
+      }
       if (!this.mapAfterStage) return;
       this.mapAfterStage = false;
       this.openMap();
@@ -1006,10 +1018,35 @@ export class UI {
           <dt>Witnesses coached</dt><dd>${s.stats.coached ?? 0} of ${(s.stats.coached ?? 0) + (s.stats.interviewsLost ?? 0)}</dd>
           <dt>Desks</dt><dd>${s.desks}</dd>
         </dl>
-        <p>Every prize is yours for good. The rematches keep coming, department bosses and ${esc(HR_DIRECTOR.name.split(' ')[0])} included. Keep climbing: the top of the ladder is CEO.</p>`;
+        <p>Every prize is yours for good. The rematches keep coming, department bosses and ${esc(HR_DIRECTOR.name.split(' ')[0])} included. Keep climbing: the top of the ladder is CEO.</p>
+        ${s.job.unlocked && s.job.runs === 0 ? '<p><strong>New: Job Search</strong> on your computer. A recruiter wants to talk: quit for a new company and keep your Reputation, which buys perks that last forever.</p>' : ''}`;
     }
     $('stage-dlg-ok').textContent = stage === 3 || stage === 4 ? 'Open the map' : stage === 5 ? 'Face HR' : stage === 6 ? 'Keep playing' : 'Back to it';
     this.mapAfterStage = stage === 3 || stage === 4;
+    $('stage-dlg-h').textContent = co($('stage-dlg-h').textContent ?? '');
+    $('stage-dlg-body').innerHTML = co($('stage-dlg-body').innerHTML);
+    if (!dlg.open) dlg.showModal();
+  }
+
+  /** Day one at a new company: its rules, and the Reputation you brought with you. */
+  private onNewJob() {
+    const s = this.s;
+    const c = company(s);
+    this.welcoming = true; // marked as seen when you close it (the page may reload under it first)
+    const last = s.job.history[s.job.history.length - 1];
+    $('stage-dlg-h').textContent = `Day one at ${c.name}`;
+    $('stage-dlg-body').innerHTML = `
+      <p>${esc(c.pitch)} Same floor plan, same kind of people, different names. Gary is here. (He goes by ${esc(co('Gary'))} now.)</p>
+      <ul class="stage-list">${c.rulesText.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+      <dl>
+        ${last ? `<dt>Reputation from your last job</dt><dd>+${last.rep}</dd>` : ''}
+        <dt>Reputation to spend</dt><dd>${s.job.reputation}</dd>
+        <dt>Your bands hit harder</dt><dd>+${Math.round((repDamage(s) - 1) * 100)}%</dd>
+      </dl>
+      <p>Bailey, your rubber band ball and your names came with you. Spend your Reputation on résumé perks in <strong>Job Search</strong>, on your computer.</p>`;
+    $('stage-dlg-ok').textContent = 'Get to work';
+    this.mapAfterStage = false;
+    const dlg = $<HTMLDialogElement>('stage-dlg');
     if (!dlg.open) dlg.showModal();
   }
 
@@ -1018,7 +1055,7 @@ export class UI {
   private set(id: string, value: string) {
     if (this.text.get(id) === value) return;
     this.text.set(id, value);
-    $(id).textContent = value;
+    $(id).textContent = co(value);
   }
 
   /**
@@ -1040,6 +1077,7 @@ export class UI {
 
   render() {
     const s = this.s;
+    setCompany(s.job?.company ?? 'pemberton');
     const m = mods(s);
     const now = performance.now();
     const dt = Math.min(0.05, (now - this.lastFrame) / 1000);
@@ -1135,6 +1173,7 @@ export class UI {
     // ...and saves that had already taken the four departments get Stage 4's.
     else if (s.stage === 4 && !s.war.announced4 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(4);
     else if (s.stage === 5 && !s.war.politics.announced5 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(5);
+    else if (!s.job.welcomed && !document.querySelector('dialog[open]')) this.onNewJob();
     this.drawer.render();
     this.office.render();
     this.ball.render();

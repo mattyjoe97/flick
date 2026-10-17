@@ -8,6 +8,7 @@
 // with a deal for 30 seconds. The closet closes the moment Mr. Feeney's footsteps start.
 
 import roomArt from '../assets/art/closet.webp';
+import { co } from './co';
 import daleIdle from '../assets/art/dale-idle.webp';
 import daleTalk from '../assets/art/dale-talk.webp';
 import daleOpen from '../assets/art/dale-open.webp';
@@ -65,7 +66,7 @@ const LINES = {
 const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  co(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`;
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`;
 

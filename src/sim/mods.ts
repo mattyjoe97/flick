@@ -1,5 +1,6 @@
 import { BAILEY, CHARGE, COWORKERS, DALE, DEPARTMENTS, PROMOTION, SIEGE, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
-import { deptPerk, roomTaken, type GameState } from './state';
+import { company, deptPerk, roomTaken, type GameState } from './state';
+import { jobPriceMult } from './job';
 
 export function has(s: GameState, id: UpgradeId) {
   return s.upgrades.includes(id);
@@ -86,7 +87,7 @@ export function mods(s: GameState) {
     // Bailey hears Mr. Feeney's shoes first: her extra second comes on top of everything.
     // Guard: another second on top of that.
     warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach) + BAILEY.warn + (knowsTrick(s, 'guard') ? 1 : 0),
-    priceMult: 1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach),
+    priceMult: (1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach)) * jobPriceMult(s),
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
     allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1) / (roomTaken(s, 'breakroom') ? SIEGE.coffeeShooters : 1),
     yourNoiseMult: has(s, 'silent') ? 0.75 : 1,
@@ -95,8 +96,8 @@ export function mods(s: GameState) {
     workPay: has(s, 'chair') ? 2 : 1,
     order: bulk ? { price: 12, amount: 200 } : { price: 5, amount: 50 },
     lookBusyMult,
-    walkbyIntervalMult: (has(s, 'calendar') ? 1.3 : 1) * (onFinalWarning(s) ? TUNING.finalWarningWalkbyMult : 1),
-    bandsPerSec,
+    walkbyIntervalMult: (has(s, 'calendar') ? 1.3 : 1) * (onFinalWarning(s) ? TUNING.finalWarningWalkbyMult : 1) * company(s).rules.walkby,
+    bandsPerSec: bandsPerSec * company(s).rules.bands,
     salaryPerSec: basePay * (s.lookBusy ? lookBusyMult : 1),
     coverCool: covers * TUNING.coverCool,
     bandDamage: has(s, 'thick') ? DALE.thickDamage : 1,

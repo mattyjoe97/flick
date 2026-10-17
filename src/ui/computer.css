@@ -2441,6 +2441,111 @@
   padding: 0;
 }
 
+/* ------------------------------------------------------------ Job Search (the New Job restart) */
+
+.app-jobs {
+  padding: 0;
+}
+
+.jobs {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.jobs-h {
+  margin: 6px 0 0;
+  font-size: 15px;
+}
+
+.offer-list,
+.perk-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.offer,
+.perk {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #d6d2c8;
+  background: #fbfaf6;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+.offer h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.offer-pitch,
+.perk p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.offer ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+.offer.asking {
+  outline: 3px solid #e0b13c;
+  outline-offset: -3px;
+}
+
+.offer-sure {
+  margin: 4px 0 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.offer-acts {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.offer > .win-action,
+.perk > .win-action {
+  justify-self: end;
+}
+
+.perk header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.perk-lv {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #2f6b3c;
+  font-weight: 700;
+}
+
+.perk.owned {
+  background: #f2f8ef;
+}
+
+.perk-max {
+  justify-self: end;
+  font-size: 12px;
+  color: #6b675e;
+}
+
+.past-jobs {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 /* ------------------------------------------------------------ Memos (Stage 5) */
 
 .app-memos {

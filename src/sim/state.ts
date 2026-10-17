@@ -1,8 +1,8 @@
-import { DALE, DEPARTMENTS, HR_DIRECTOR, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 16;
+export const SAVE_VERSION = 17;
 
 export interface Email {
   id: number;
@@ -136,6 +136,8 @@ export interface GameState {
 
   /** Your rubber band ball (bands wound on so far), and when your next Barrage is ready. */
   ball: { wound: number; found: boolean };
+  /** Your career across companies: kept when you quit for a new job. */
+  job: JobState;
   barrageAt: number;
 
   /**
@@ -386,6 +388,36 @@ export type GameEvent =
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
 
+/**
+ * The New Job restart: which company you're at, how many times you've quit, the Reputation
+ * you have to spend (and have ever earned), the résumé perks you've bought, and a few lines
+ * about every job you've left.
+ */
+export interface JobState {
+  company: CompanyId;
+  runs: number;
+  reputation: number;
+  earned: number;
+  unlocked: boolean;
+  welcomed: boolean;
+  perks: Partial<Record<PerkId, number>>;
+  history: { company: CompanyId; minutes: number; stage: number; rep: number }[];
+}
+
+export function newJob(): JobState {
+  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, history: [] };
+}
+
+/** Levels of a résumé perk you own. */
+export function perk(s: GameState, id: PerkId) {
+  return s.job?.perks?.[id] ?? 0;
+}
+
+/** The company you work for now, and its rules. */
+export function company(s: GameState) {
+  return COMPANIES.find((c) => c.id === s.job?.company) ?? COMPANIES[0];
+}
+
 export function newGame(seed = Date.now() % 2147483647): GameState {
   const first = TARGETS[0];
   const s: GameState = {
@@ -420,6 +452,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     office: { moment: null, nextAt: MOMENTS.first, pizzaUntil: -999, pettedAt: -999, scratches: 0, scratchedAt: -999, howledAt: -999 },
     goals: { day: -1, list: [], combo: 0 },
     ball: { wound: 0, found: false },
+    job: newJob(),
     barrageAt: 0,
     rematch: null,
     war: newWar(),

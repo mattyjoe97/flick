@@ -4,6 +4,7 @@
 // the edges. Rubber bands fly as little spinning loops.
 
 import { COWORKERS } from '../sim/content';
+import { co } from './co';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { firewallUp } from '../sim/war';
@@ -295,7 +296,7 @@ export class Scene {
 
   private say(text: string, ms = 2200) {
     const b = this.bubble;
-    b.textContent = text;
+    b.textContent = co(text);
     b.hidden = false;
     b.classList.remove('pop');
     void b.offsetWidth;

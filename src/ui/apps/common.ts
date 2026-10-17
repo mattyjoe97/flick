@@ -1,6 +1,7 @@
 // Pieces the computer's apps share: the round clock, the grade card, avatars.
 
 import daleHead from '../../assets/art/dale-head.webp';
+import { co } from '../co';
 import { TEAMS } from '../../sim/content';
 import type { GameState } from '../../sim/state';
 import type { Grade, Round, RoundResult, WorkKind } from '../../sim/work';
@@ -8,7 +9,7 @@ import { faceSvg } from '../portraits';
 import { PORTRAITS } from '../portrait-art';
 
 export const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  co(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 export const money = (n: number) => `$${n < 100 ? n.toFixed(2).replace(/\.00$/, '') : Math.round(n).toLocaleString('en-US')}`;
 

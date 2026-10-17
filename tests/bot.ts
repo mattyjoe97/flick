@@ -37,9 +37,10 @@ import { mods, weapon } from '../src/sim/mods';
 import { chaseRaid, fightingDept } from '../src/sim/war';
 import { fightingRoom, holdLine, sabotage, sabotageCost, sabotaged } from '../src/sim/siege';
 import { canSendMemo, coach, sendMemo } from '../src/sim/politics';
+import { buyPerk, offers, perkCost, startNewJob } from '../src/sim/job';
 import { memoOn } from '../src/sim/state';
 import { fight } from '../src/sim/war';
-import { DEPARTMENTS, type MemoId } from '../src/sim/content';
+import { DEPARTMENTS, PERKS, type MemoId } from '../src/sim/content';
 import { assign } from '../src/sim/engine';
 import { newGame, type GameState } from '../src/sim/state';
 
@@ -57,6 +58,8 @@ export interface BotStyle {
   /** Stage 5: sends memos when it can (on by default), and whether it fights HR or only plays politics. */
   memos?: boolean;
   politicsOnly?: boolean;
+  /** Once the floor is yours: quit for the next job (buying résumé perks). */
+  quit?: boolean;
   actionsPerSecond: number;
   hideAbove: number; // Suspicion level that makes the bot hide
   resumeBelow: number;
@@ -186,6 +189,15 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   }
   // A raid on the supply closet gets chased off (it pops up right in front of you).
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
+  // The floor is yours: spend Reputation and take the next offer.
+  if (style.quit && s.stage >= 6 && s.job.unlocked) {
+    startNewJob(s, offers(s)[0].id);
+    for (;;) {
+      const next = PERKS.map((p) => ({ id: p.id, cost: perkCost(s, p.id) })).filter((p) => p.cost !== null && p.cost <= s.job.reputation).sort((a, b) => a.cost! - b.cost!)[0];
+      if (!next || !buyPerk(s, next.id).ok) break;
+    }
+    return;
+  }
   if (s.stage === 5) {
     const p = s.war.politics;
     // An HR interview pops up in front of you: coach the witness.

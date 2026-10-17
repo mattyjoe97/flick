@@ -1,7 +1,7 @@
 import { BAILEY, BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { allyPower, coworker, has, isConfiscated, knowsTrick, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
-import { currentTarget, deptMax, deptTaken, fightingHr, newAlly, politicsDamage, politicsNoise, pushEmail, pushTicker, reclaimingDept, type DaleDeal, type GameState } from './state';
+import { company, currentTarget, deptMax, deptTaken, fightingHr, newAlly, politicsDamage, politicsNoise, pushEmail, pushTicker, reclaimingDept, type DaleDeal, type GameState } from './state';
 import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
@@ -15,6 +15,7 @@ import { fightingRoom, hitWall, inMeeting, siegeOffline, stepSiege, wallMult, wa
 import { POLITICS, ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
 import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from './politics';
+import { offlineCap, repDamage } from './job';
 
 export { openBox } from './supplies';
 
@@ -23,7 +24,7 @@ export { openBox } from './supplies';
 /** Adds Suspicion through Lookouts, and triggers getting caught at 100. */
 export function addSuspicion(s: GameState, amount: number) {
   const m = mods(s);
-  s.suspicion += amount * (1 - m.lookoutCut);
+  s.suspicion += amount * (1 - m.lookoutCut) * company(s).rules.suspicion;
   checkThresholds(s);
 }
 
@@ -224,7 +225,7 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s);
+  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s);
   // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'shot'));
@@ -289,8 +290,9 @@ function capture(s: GameState) {
     s.stage = 2;
     s.allies.push(newAlly('gary', 'shooter'));
     pushEmail(s, 'Gary', 'Re: Truce', COWORKERS[0].joinEmail, 'story');
-    pushEmail(s, 'Kevin', 'hi', 'I am the intern. I saw everything. I want in. ($35, or two donuts)', 'story', 'kevin');
-    pushEmail(s, 'Marjorie', 'A word', 'I have been here 31 years and I see everything. I could see things for you. ($95)', 'story', 'marjorie');
+    // (With Old Friends, Kevin and Marjorie are already on your side.)
+    if (!s.allies.some((a) => a.id === 'kevin')) pushEmail(s, 'Kevin', 'hi', 'I am the intern. I saw everything. I want in. ($35, or two donuts)', 'story', 'kevin');
+    if (!s.allies.some((a) => a.id === 'marjorie')) pushEmail(s, 'Marjorie', 'A word', 'I have been here 31 years and I see everything. I could see things for you. ($95)', 'story', 'marjorie');
     s.events.push({ type: 'stage', stage: 2 });
     startTarget(s, s.targetIndex + 1);
     addSuspicion(s, TUNING.captureNoise);
@@ -549,7 +551,7 @@ export function barrage(s: GameState): ActionResult {
   const shooters = barrageShooters(s);
   const n = barrageSize(s);
   s.bands -= n;
-  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s);
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s);
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
   else s.targetResolve -= dmg;
@@ -764,7 +766,7 @@ export function passDeal(s: GameState) {
 
 /** Applies passive income for time spent away (no fights, no walk-bys). */
 export function applyOffline(s: GameState, seconds: number) {
-  const secs = Math.min(seconds, TUNING.offlineCapSeconds);
+  const secs = Math.min(seconds, offlineCap(s, TUNING.offlineCapSeconds));
   if (secs < 10) return null;
   const wasBusy = s.lookBusy;
   s.lookBusy = false;

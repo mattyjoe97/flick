@@ -11,8 +11,9 @@
 import { CAREER, MOMENTS, POLITICS, SIEGE, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
 import { addReview } from './career';
 import { ballTeamMult } from './ball';
+import { jobHireMult } from './job';
 import { chatEvent } from './chat';
-import { deptPerk, memoOn, pushEmail, pushTicker, roomTaken, type GameState } from './state';
+import { company, deptPerk, memoOn, pushEmail, pushTicker, roomTaken, type GameState } from './state';
 import { basePay, liveCombo, WORK } from './work';
 
 export function team(id: TeamId): Team {
@@ -67,7 +68,7 @@ export function seatCap(s: GameState, id: TeamId) {
 }
 
 /** Casual Friday (a Stage 5 memo): hiring and training at half price. */
-const casualMult = (s: GameState) => (memoOn(s, 'casual') ? POLITICS.casualPrice : 1);
+const casualMult = (s: GameState) => (memoOn(s, 'casual') ? POLITICS.casualPrice : 1) * jobHireMult(s);
 
 /** What the next seat on this team costs. */
 export function seatCost(s: GameState, id: TeamId) {
@@ -94,7 +95,7 @@ export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   if (!t.job) return 0;
   const boosts = steady ? 1 : leadMult(s) * pizzaMult(s) * askMult(s, id);
   const room = roomTaken(s, 'conference') ? SIEGE.conferenceTeam : 1;
-  const synergy = memoOn(s, 'synergy') ? POLITICS.synergyTeam : 1;
+  const synergy = (memoOn(s, 'synergy') ? POLITICS.synergyTeam : 1) * company(s).rules.team;
   return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * room * synergy * boosts;
 }
 

@@ -23,7 +23,7 @@ import { COWORKERS, DEPARTMENTS, HR_DIRECTOR, ROOMS, SIEGE, WAR, type DeptId, ty
 import { mods, rolePower } from './mods';
 import { rand, randRange } from './rng';
 import { fightingRematch, startRematch } from './rematch';
-import { currentTarget, deptMax, deptTaken, fightingHr, isDept, isRoom, newWar, pushEmail, pushTicker, reclaimingDept, reclaimTarget, roomTaken, type GameState } from './state';
+import { currentTarget, perk, deptMax, deptTaken, fightingHr, isDept, isRoom, newWar, pushEmail, pushTicker, reclaimingDept, reclaimTarget, roomTaken, type GameState } from './state';
 import { startPolitics } from './politics';
 import { fightingRoom, startSiege } from './siege';
 import { staffPayPerMin } from './staff';
@@ -305,7 +305,8 @@ function stepRaids(s: GameState) {
     c.raid = null;
     c.nextAt = s.time + randRange(s, WAR.closet.gap[0], WAR.closet.gap[1]);
     const chance = Math.min(WAR.closet.lookoutMax, rolePower(s, 'lookout') * WAR.closet.lookoutEach);
-    if (rand(s) < chance) {
+    // Delegation (a résumé perk): someone deals with it even if you didn't.
+    if (perk(s, 'delegate') || rand(s) < chance) {
       const bands = raidDrop(s);
       s.bands += bands;
       s.stats.raidsStopped = (s.stats.raidsStopped ?? 0) + 1;

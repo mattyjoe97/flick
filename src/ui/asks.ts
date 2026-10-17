@@ -3,12 +3,13 @@
 // floor), since they're messaging you.
 
 import { ASKS, TEAMS } from '../sim/content';
+import { co } from './co';
 import { answerAsk, askById, askerName, describe } from '../sim/asks';
 import type { GameState } from '../sim/state';
 import { portraitSvg } from './portraits';
 
 const esc = (text: string) =>
-  text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  co(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 export interface AskHooks {
   say(text: string): void;

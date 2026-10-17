@@ -311,6 +311,94 @@ export const POLITICS = {
   review: 0.25,
 };
 
+// ---------------------------------------------------------------- the New Job restart
+
+export type CompanyId = 'pemberton' | 'bank' | 'ledger' | 'dialtone';
+
+/**
+ * Where you work. Your first job is at Pemberton; after that you pick your next offer. Each
+ * company has its own rules, and its own names for the same faces (offices are all the same).
+ */
+export interface Company {
+  id: CompanyId;
+  name: string;
+  short: string;
+  pitch: string; // one line on what it's like
+  rules: { suspicion: number; pay: number; bands: number; walkby: number; team: number; hire: number };
+  rulesText: string[];
+  names: Record<string, string>; // first names and surnames, swapped wherever they're shown
+}
+
+const NO_RULES = { suspicion: 1, pay: 1, bands: 1, walkby: 1, team: 1, hire: 1 };
+
+export const COMPANIES: Company[] = [
+  {
+    id: 'pemberton', name: 'Pemberton Solutions Group', short: 'Pemberton', pitch: 'Where it all started. Floor 4, the stapler, Gary.',
+    rules: NO_RULES, rulesText: ['No surprises. You know this place.'], names: {},
+  },
+  {
+    id: 'bank', name: 'First Allied Bank', short: 'First Allied', pitch: 'Marble floors, quiet carpets and very serious people.',
+    rules: { ...NO_RULES, suspicion: 1.25, pay: 1.4 }, rulesText: ['Work pays 40% more', 'It’s so quiet: Suspicion builds 25% faster'],
+    names: {
+      Gary: 'Gordon', Lindqvist: 'Pratt', Brad: 'Trent', Okafor: 'Mensah', Janet: 'Carol', Ron: 'Walt', Rick: 'Rex', Dunham: 'Holloway',
+      Derek: 'Morgan', Voss: 'Reyes', Doris: 'Edith', Kemper: 'Hale', Tony: 'Sal', Skyler: 'Madison', Brandt: 'Price', Gail: 'Barb',
+      Petroski: 'Novak', Victoria: 'Eleanor', Lang: 'Ashford', Leonard: 'Gerald', Fisk: 'Pike', Kevin: 'Tyler', Marjorie: 'Agnes',
+      Steve: 'Phil', Linda: 'Denise', Dave: 'Stu', Feeney: 'Whitcombe',
+    },
+  },
+  {
+    id: 'ledger', name: 'The Daily Ledger', short: 'the Ledger', pitch: 'A newspaper: loud, messy, rubber bands on every bundle.',
+    rules: { ...NO_RULES, bands: 1.5, walkby: 0.8 }, rulesText: ['Bands come in 50% faster', 'The editor walks the floor 25% more often'],
+    names: {
+      Gary: 'Gus', Lindqvist: 'Ferraro', Brad: 'Duncan', Okafor: 'Adeyemi', Janet: 'Peggy', Ron: 'Hal', Rick: 'Vince', Dunham: 'Calloway',
+      Derek: 'Quinn', Voss: 'Marsh', Doris: 'Mildred', Kemper: 'Thornbury', Tony: 'Frankie', Skyler: 'Jordan', Brandt: 'Vale', Gail: 'Rhonda',
+      Petroski: 'Kowalski', Victoria: 'Beatrice', Lang: 'Sterling', Leonard: 'Howard', Fisk: 'Grubb', Kevin: 'Jake', Marjorie: 'Dolores',
+      Steve: 'Ray', Linda: 'Bev', Dave: 'Ozzie', Feeney: 'Brennan',
+    },
+  },
+  {
+    id: 'dialtone', name: 'Dialtone Solutions', short: 'Dialtone', pitch: 'A call center. Headsets, headcount, and a lot of hold music.',
+    rules: { ...NO_RULES, team: 1.5, hire: 1.3 }, rulesText: ['Your team works 50% faster', 'Hiring and training cost 30% more'],
+    names: {
+      Gary: 'Kyle', Lindqvist: 'Novotny', Brad: 'Logan', Okafor: 'Eze', Janet: 'Tina', Ron: 'Earl', Rick: 'Brock', Dunham: 'Kessler',
+      Derek: 'Ravi', Voss: 'Patel', Doris: 'Lorraine', Kemper: 'Fitch', Tony: 'Vinnie', Skyler: 'Brooklyn', Brandt: 'Hayes', Gail: 'Darlene',
+      Petroski: 'Kubiak', Victoria: 'Monica', Lang: 'Delacroix', Leonard: 'Warren', Fisk: 'Bell', Kevin: 'Josh', Marjorie: 'Bernice',
+      Steve: 'Greg', Linda: 'Tanya', Dave: 'Rudy', Feeney: 'Bixby',
+    },
+  },
+];
+
+export type PerkId = 'refs' | 'friends' | 'hustle' | 'headhunter' | 'contacts' | 'bonus' | 'seniority' | 'standing' | 'delegate' | 'templates';
+
+/** Résumé perks: bought with Reputation, kept forever. */
+export const PERKS: { id: PerkId; name: string; does: string; max: number; cost: number; growth: number }[] = [
+  { id: 'refs', name: 'Strong References', does: 'Start every job one pay grade higher.', max: 5, cost: 10, growth: 2 },
+  { id: 'bonus', name: 'Signing Bonus', does: 'Start every job with $1,000 and 300 bands more.', max: 5, cost: 5, growth: 1.6 },
+  { id: 'hustle', name: 'Hustle', does: 'All your work pays 20% more.', max: 10, cost: 8, growth: 1.6 },
+  { id: 'headhunter', name: 'Headhunter', does: 'Hiring and training cost 10% less.', max: 5, cost: 10, growth: 1.7 },
+  { id: 'contacts', name: 'Black Market Contacts', does: 'Dale’s weapons and requisitions cost 10% less.', max: 5, cost: 8, growth: 1.7 },
+  { id: 'friends', name: 'Old Friends', does: 'Kevin and Marjorie follow you to every new job, from day one.', max: 1, cost: 15, growth: 1 },
+  { id: 'standing', name: 'Standing Order', does: 'Dale reorders your bands and opens the box for you, from day one.', max: 1, cost: 20, growth: 1 },
+  { id: 'seniority', name: 'Seniority', does: 'Time away counts for 4 more hours.', max: 4, cost: 12, growth: 2 },
+  { id: 'delegate', name: 'Delegation', does: 'Raids, counterattacks and HR interviews you miss get handled anyway.', max: 1, cost: 40, growth: 1 },
+  { id: 'templates', name: 'Memo Templates', does: 'Synergy Offsite and Document Retention memos send themselves when they’re ready.', max: 1, cost: 35, growth: 1 },
+];
+
+/** Reputation for a job: how far you got, how high you climbed, and what you collected. */
+export const JOB = {
+  stageRep: { 1: 0, 2: 0, 3: 5, 4: 10, 5: 18, 6: 30 } as Record<number, number>,
+  perRank: 2,
+  bountyRoot: 1000, // + the square root of (bounties ÷ this)
+  minStage: 3, // you can quit once you've reached the Department War
+  hustle: 0.2,
+  headhunter: 0.1,
+  contacts: 0.1,
+  bonus: { salary: 1000, bands: 300 },
+  seniorityHours: 4,
+  /** Every point of Reputation you've ever earned makes your bands hit this much harder (a reputation precedes you). */
+  damagePerRep: 0.004,
+};
+
 /** Anyone you've ever fought, by id (rematches look them up here). */
 export function targetById(id: string): Target | undefined {
   return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id) ?? ROOMS.find((r) => r.id === id) ?? (id === 'hr' ? HR_DIRECTOR : undefined);
