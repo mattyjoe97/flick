@@ -223,16 +223,16 @@ describe('Company stock', () => {
 describe('Executive perks', () => {
   it('open once Head Office is recruiting, have no top level, and cost more every time', () => {
     const s = done();
-    s.job.reputation = 1e9;
+    s.job.reputation = 1e12;
     expect(buyExec(s, 'clout').ok).toBe(false);
     s.job.top = 1;
     const c0 = execCost(s, 'clout')!;
-    for (let i = 0; i < 30; i++) expect(buyExec(s, 'clout').ok).toBe(true);
-    expect(s.job.exec.clout).toBe(30);
-    expect(execCost(s, 'clout')).toBe(Math.round(c0 * EXEC_PERKS[0].growth ** 30));
+    for (let i = 0; i < 15; i++) expect(buyExec(s, 'clout').ok).toBe(true);
+    expect(s.job.exec.clout).toBe(15);
+    expect(execCost(s, 'clout')).toBe(Math.round(c0 * EXEC_PERKS[0].growth ** 15));
     // Kept when you change jobs.
     startNewJob(s, 'bank');
-    expect(s.job.exec.clout).toBe(30);
+    expect(s.job.exec.clout).toBe(15);
   });
 
   it('Clout hits harder, Expense Account pays more, War Chest throws more, Long Lunches stop at 12', () => {

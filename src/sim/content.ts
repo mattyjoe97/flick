@@ -391,10 +391,10 @@ export type ExecId = 'clout' | 'morale' | 'expense' | 'warchest' | 'lunch';
  * so Reputation always has somewhere to go. Each level costs more than the last. Kept forever.
  */
 export const EXEC_PERKS: { id: ExecId; name: string; does: string; each: number; cost: number; growth: number; max: number }[] = [
-  { id: 'clout', name: 'Corner-Office Clout', does: 'Your bands hit 5% harder.', each: 0.05, cost: 300, growth: 1.9, max: 999 },
-  { id: 'morale', name: 'Team Morale', does: 'Your team works 5% faster.', each: 0.05, cost: 200, growth: 1.9, max: 999 },
-  { id: 'expense', name: 'Expense Account', does: 'All work pays 8% more.', each: 0.08, cost: 200, growth: 1.9, max: 999 },
-  { id: 'warchest', name: 'War Chest', does: 'Barrages throw 5% more bands.', each: 0.05, cost: 250, growth: 1.9, max: 999 },
+  { id: 'clout', name: 'Corner-Office Clout', does: 'Your bands hit 5% harder.', each: 0.05, cost: 300, growth: 2.5, max: 999 },
+  { id: 'morale', name: 'Team Morale', does: 'Your team works 5% faster.', each: 0.05, cost: 200, growth: 2.5, max: 999 },
+  { id: 'expense', name: 'Expense Account', does: 'All work pays 8% more.', each: 0.08, cost: 200, growth: 2.5, max: 999 },
+  { id: 'warchest', name: 'War Chest', does: 'Barrages throw 5% more bands.', each: 0.05, cost: 250, growth: 2.5, max: 999 },
   { id: 'lunch', name: 'Long Lunches', does: 'Time away counts for 2 more hours.', each: 2, cost: 400, growth: 2.2, max: 12 },
 ];
 
