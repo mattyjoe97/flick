@@ -734,7 +734,11 @@ export class UI {
   // ---------------------------------------------------------------- events from the sim
 
   handleEvents(events: GameEvent[]) {
+    // Idle (nobody's touched it for a minute): your team's shots land without the flying
+    // bands and numbers, which nobody is watching.
+    const idle = document.documentElement.classList.contains('idle');
     for (const e of events) {
+      if (idle && e.type === 'shot' && e.by !== 'you') continue;
       this.scene.handle(e);
       if (e.type === 'shot') {
         this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false);
@@ -1095,6 +1099,19 @@ export class UI {
     if (this.keys.get(key) === value) return;
     this.keys.set(key, value);
     build();
+  }
+
+  /** Is something urgent on screen (so the game shouldn't go idle)? Asks, deals and moments wait fine at idle speed. */
+  alerting() {
+    const s = this.s;
+    return (
+      s.walkby.arrivesAt !== null ||
+      !!ringingCall(s) ||
+      !!s.war?.closet.raid ||
+      !!s.war?.counter.attack ||
+      !!s.war?.politics?.interview ||
+      !!document.querySelector('dialog[open]')
+    );
   }
 
   /**

@@ -66,6 +66,14 @@
   display: none !important;
 }
 
+/* Idle (nobody has touched the game for a minute): the looping animations rest. */
+html.idle *,
+html.idle *::before,
+html.idle *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -611,12 +619,13 @@ kbd {
 
 .mug-liquid {
   fill: var(--coffee);
-  transition: y 0.25s linear, height 0.25s linear, fill 0.3s;
+  /* No easing on the level: it changes ten times a second anyway, and an eased level kept the
+     page re-laying itself out every frame. */
+  transition: fill 0.3s;
 }
 
 .mug-foam {
   fill: #c89a6a;
-  transition: y 0.25s linear;
 }
 
 [data-level="caution"] .mug-liquid {

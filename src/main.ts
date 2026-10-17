@@ -70,8 +70,14 @@ function boot(hotData: { save?: string }) {
   let drawnAt = 0;
   let inputAt = 0;
   const poke = () => (inputAt = performance.now());
-  for (const type of ['pointerdown', 'pointerup', 'keydown', 'keyup', 'click', 'input', 'wheel', 'scroll'])
+  for (const type of ['pointerdown', 'pointerup', 'pointermove', 'keydown', 'keyup', 'click', 'input', 'wheel', 'scroll'])
     window.addEventListener(type, poke, { capture: true, passive: true });
+  document.addEventListener('visibilitychange', poke);
+  // Idle: nobody has touched it for a minute and nothing needs you (the game left open on the
+  // desk). The numbers still tick twice a second and the looping animations pause; anything
+  // you do, or anything that needs you (Mr. Feeney, the phone, a raid...), wakes it at once.
+  const IDLE_AFTER = 60_000;
+  let idle = false;
   const frame = (now: number) => {
     const real = Math.min(1, (now - last) / 1000);
     last = now;
@@ -87,11 +93,16 @@ function boot(hotData: { save?: string }) {
     // A bug in drawing should never stop the game: log it and keep the loop going.
     try {
       const input = now - inputAt < 300;
-      const full = stepped || state.events.length > 0 || input || now - fullAt > 100;
+      const nowIdle = now - inputAt > IDLE_AFTER && !ui.alerting();
+      if (nowIdle !== idle) {
+        idle = nowIdle;
+        document.documentElement.classList.toggle('idle', idle);
+      }
+      const full = idle ? now - fullAt > 500 : stepped || state.events.length > 0 || input || now - fullAt > 100;
       if (state.events.length) ui.handleEvents(state.events);
       if (full) fullAt = now;
       // The moving parts are drawn at up to 30 frames a second (60 while you're touching it).
-      if (full || input || now - drawnAt > 30) {
+      if (full || (!idle && (input || now - drawnAt > 30))) {
         drawnAt = now;
         ui.render(full);
       }
