@@ -18,6 +18,7 @@ import { closetIsYours, rolePower } from '../sim/mods';
 import { currentTarget, deptMax, deptPerk, deptTaken, deptsTaken, reclaimTarget, rematchOrder, type GameState } from '../sim/state';
 import { holdLine, sabotage, sabotageCost, sabotaged } from '../sim/siege';
 import { chaseRaid, dept, fight } from '../sim/war';
+import { rematchBounty } from '../sim/rematch';
 import { TARGET_PEOPLE, PEOPLE, type Mood } from './characters';
 import { coverSvg, WHITE_FLAG } from './scene';
 import { faceSvg, portrait } from './portraits';
@@ -211,7 +212,7 @@ export class MapView {
       DEPARTMENTS.map((d) => (deptTaken(s, d.dept) ? 'T' : '')).join(','),
       raid ? `${raid.dept}:${raid.until}` : '',
       closetIsYours(s),
-      rm ? `${rm.round}:${rm.index}:${rm.bounty}` : '',
+      rm ? `${rm.round}:${rm.index}` : '',
     ].join('|');
     if (key !== this.key) {
       this.key = key;
@@ -225,10 +226,10 @@ export class MapView {
             ? `Two rooms left, behind walls of filing cabinets: knock the wall down, then them. The Drill Gatling, Barrages and Engineers hit walls hardest. Take both and the floor is yours.`
             : `${taken} of 4 taken. Switch any time: they keep the damage you’ve done. Each one you take makes the rest ${Math.round((WAR.reinforce - 1) * 100)}% tougher.`;
       this.grid.innerHTML = politics
-        ? [this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s)].join('')
+        ? [this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s), this.atStakeCard(s)].join('')
         : siege
           ? [...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
-          : [...DEPARTMENTS.map((d) => this.deptCard(s, d)), this.closetCard(s), this.rematchCard(s)].join('');
+          : [...DEPARTMENTS.map((d) => this.deptCard(s, d)), ...(s.stage >= 6 ? ROOMS.map((r) => this.roomCard(s, r)) : []), this.closetCard(s), this.rematchCard(s)].join('');
     }
     if (politics) this.updatePolitics(s);
     else if (siege) this.updateSiege(s);
@@ -238,6 +239,7 @@ export class MapView {
       const left = (on ? Math.max(0, s.targetResolve) : rm.left ?? rm.resolve) / rm.resolve;
       const bar = this.grid.querySelector<HTMLElement>('[data-bar="rematch"]');
       if (bar) bar.style.width = `${(Math.min(1, left) * 100).toFixed(1)}%`;
+      this.text('[data-rematch-prize]', money(rm.bounty));
     }
   }
 
@@ -388,6 +390,19 @@ export class MapView {
     </div>`;
   }
 
+  /** Stage 5: your four departments, and which (if any) HR has taken. */
+  private atStakeCard(s: GameState) {
+    const rows = DEPARTMENTS.map((d) => {
+      const seized = s.war.depts[d.dept].seized;
+      return `<li class="${seized ? 'lost' : 'ok'}"><span class="hold-face">${faceSvg(TARGET_PEOPLE[d.id][0], seized ? 'smug' : 'worried')}</span><span><b>${esc(d.label)}</b><small>${seized ? 'Taken by HR: win it back' : 'Holding'}</small></span></li>`;
+    }).join('');
+    return `<div class="dept holding-card">
+      <span class="dept-label">Your departments</span>
+      <ul class="holding">${rows}</ul>
+      <span class="dept-prize">If HR’s case file fills, HR takes one of these (and its prize) until you win it back. A Document Retention Policy memo shreds some of it.</span>
+    </div>`;
+  }
+
   private text(sel: string, value: string) {
     const el = this.grid.querySelector(sel);
     if (el && el.textContent !== value) el.textContent = value;
@@ -430,7 +445,7 @@ export class MapView {
     else status = `Yours: +${WAR.closet.bonus} bands a second.${s.stage === 3 ? ' Departments you haven’t taken will try to raid it.' : ''}`;
     const inner = `<span class="dept-label">Supply closet</span>
       <span class="dept-scene closet-scene"><img src="${daleHead}" alt="" draggable="false">${raid ? `<span class="raider">${faceSvg(TARGET_PEOPLE[raid.dept][0], 'smug')}</span>` : ''}</span>
-      <span class="dept-who"><b>Dale’s closet</b> <small>Contested ground</small></span>
+      <span class="dept-who"><b>Dale’s closet</b> <small>${s.stage >= 4 ? 'Nobody raids it now' : 'Contested ground'}</small></span>
       <span class="dept-prize">${status}</span>${btn}`;
     return raid
       ? `<button type="button" class="dept closet-card raided" data-chase>${inner}</button>`
@@ -450,7 +465,7 @@ export class MapView {
       <span class="dept-scene rematch-scene">${faceSvg(who, on ? 'angry' : 'smug')}</span>
       <span class="dept-who"><b>Rematch: ${esc(name)}</b> <small>Round ${r?.round ?? 1}</small></span>
       <span class="dept-bar" aria-hidden="true"><i data-bar="rematch" style="width:${(Math.min(1, left) * 100).toFixed(1)}%"></i></span>
-      <span class="dept-prize">Worth ${money(r?.bounty ?? 0)} and some Performance each</span>
+      <span class="dept-prize">Worth <span data-rematch-prize>${money(rematchBounty(s))}</span> and some Performance each</span>
       <span class="dept-act">${on ? 'Fighting now' : 'Rematch'}</span>
     </button>`;
   }

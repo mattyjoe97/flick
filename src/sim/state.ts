@@ -296,11 +296,13 @@ export interface PoliticsState {
   hrShare: number;
   met: boolean;
   announced5: boolean;
+  /** Told you the case file is nearly full (again once it's back under half). */
+  warned: boolean;
 }
 
 export function newPolitics(): PoliticsState {
   const memos = Object.fromEntries(MEMOS.map((m) => [m.id, { until: -999, readyAt: -999 }])) as PoliticsState['memos'];
-  return { pd: 0, goodwill: 0, evidence: 0, memos, interview: null, nextInterviewAt: 0, hrShare: 1, met: false, announced5: false };
+  return { pd: 0, goodwill: 0, evidence: 0, memos, interview: null, nextInterviewAt: 0, hrShare: 1, met: false, announced5: false, warned: false };
 }
 
 export function newWar(): WarState {
@@ -385,6 +387,7 @@ export type GameEvent =
   | { type: 'seized'; dept: DeptId }
   | { type: 'reclaimed'; dept: DeptId }
   | { type: 'caseClosed'; how: 'fight' | 'goodwill' }
+  | { type: 'caseWarning' }
   | { type: 'trophy'; id: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }

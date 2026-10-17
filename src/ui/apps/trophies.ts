@@ -30,7 +30,7 @@ export class TrophiesApp implements AppView {
     const n = trophyCount(s);
     const items = TROPHIES.map((t) => {
       const won = s.job.trophies[t.id] !== undefined;
-      return `<li class="trophy${won ? ' won' : ''}" title="${esc(t.does)}">${cupSvg(won)}<b>${esc(t.name)}</b><small>${esc(t.does)}</small></li>`;
+      return `<li class="trophy${won ? ' won' : ''}" title="${esc(t.does)}"><span class="trophy-spot">${cupSvg(won)}</span><b>${esc(t.name)}</b><small>${esc(t.does)}</small></li>`;
     }).join('');
     void this.ctx;
     return `<div class="trophies">

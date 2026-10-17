@@ -35,5 +35,5 @@ export function money(n: number) {
 
 export function rate(n: number) {
   if (n <= 0) return '';
-  return n < 10 ? n.toFixed(2) : n.toFixed(1);
+  return n < 10 ? n.toFixed(2) : n < 100 ? n.toFixed(1) : fmt(Math.round(n));
 }

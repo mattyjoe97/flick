@@ -862,6 +862,15 @@ kbd {
   aspect-ratio: 800 / 420;
 }
 
+/* Laptop screens (768–860 tall): the office shrinks a little so the weapon rack fits too. */
+@media (min-width: 761px) and (max-height: 860px) {
+  .scene-wrap {
+    width: 100%;
+    max-width: max(560px, calc((100dvh - 395px) * 1.905));
+    margin-inline: auto;
+  }
+}
+
 .scene-svg {
   position: absolute;
   inset: 0;
@@ -1840,6 +1849,45 @@ kbd {
 }
 
 /* ------------------------------------------------------------ HR file (on the status strip) */
+
+/* Stage 5: HR's case file, a thin bar under the slips (full means HR takes a department). */
+.hr-case {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-self: stretch;
+  width: 100%;
+  max-width: 150px;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink-3, #6b675e);
+}
+
+.hr-case[hidden] {
+  display: none;
+}
+
+.hr-case-bar {
+  flex: 1;
+  min-width: 34px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.hr-case i {
+  display: block;
+  height: 100%;
+  background: #d07a2a;
+  transition: width 0.3s;
+}
+
+.hr-case.high i {
+  background: var(--marker-red);
+}
 
 .hr-slips {
   display: flex;
@@ -5855,6 +5903,11 @@ body.at-computer .desk-box.bulk {
   .desk-notes .coach {
     -webkit-line-clamp: 1;
   }
+  /* No room under the countdown on a short phone: the reload bar goes along the top. */
+  .barrage-fill {
+    top: 9px;
+    bottom: auto;
+  }
 }
 
 /* ------------------------------------------------------------------ Stage 3: the Department War */
@@ -6176,6 +6229,13 @@ button.dept:focus-visible {
   font-weight: 700;
   font-size: 14px;
   text-align: center;
+}
+
+@media (pointer: coarse) {
+  .dept-act {
+    min-height: 36px;
+    padding: 8px;
+  }
 }
 
 .dept.fighting .dept-act {

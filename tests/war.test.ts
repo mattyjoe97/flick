@@ -245,6 +245,23 @@ describe('the supply closet', () => {
   });
 });
 
+describe('Rematches', () => {
+  it('one that has waited a while pays what your team makes now', () => {
+    const s = atWar();
+    const before = s.rematch!.bounty;
+    // Build a big team while the rematch waits.
+    s.staff.temp = { seats: 8, level: 2, done: 0 };
+    s.staff.receptionist = { seats: 6, level: 2, done: 0 };
+    step(s, TUNING.stepSeconds);
+    expect(s.rematch!.bounty).toBeGreaterThan(before);
+    expect(fight(s, 'rematch').ok).toBe(true);
+    const salary = s.salary;
+    const worth = s.rematch!.bounty;
+    finish(s);
+    expect(s.salary - salary).toBeGreaterThanOrEqual(worth);
+  });
+});
+
 describe('Department War saves', () => {
   it('round-trips mid-war', () => {
     const s = atWar();

@@ -40,7 +40,7 @@ import { ClosetView } from './closet';
 import { OfficeView } from './office';
 import { BallView } from './ball';
 import { FloorView } from './floor';
-import { leadName, seatCap, seatCost, seats, teamUnlocked } from '../sim/staff';
+import { leadName, seatCap, seatCost, seats, staffPayPerMin, teamUnlocked } from '../sim/staff';
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
@@ -255,7 +255,7 @@ export class UI {
   private maybeInstallTip() {
     if (!this.installTipAt || this.s.time < 300 || this.s.lookBusy || walkbyCountdown(this.s) !== null) return;
     this.installTipAt = 0;
-    this.flash = { text: 'Tip: add FLICK to your home screen to play full screen, with no browser bars. Settings (the gear) shows how.', until: performance.now() + 9000 };
+    this.flash = { text: 'Tip: add FLICK to your home screen for full screen. The gear shows how.', until: performance.now() + 9000 };
     try {
       localStorage.setItem('flick.installTip', '1');
     } catch {
@@ -770,6 +770,9 @@ export class UI {
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
+      } else if (e.type === 'caseWarning') {
+        this.say(this.s.ticker[0]?.text ?? '');
+        this.sound.miss();
       } else if (e.type === 'seized') {
         this.say(`HR's case file is full: ${dept(e.dept).label} now reports to HR. Win it back on the map.`);
         this.sound.miss();
@@ -872,11 +875,12 @@ export class UI {
     if (box.childElementCount > 12) box.firstElementChild?.remove();
     const f = document.createElement('span');
     f.className = by === 'ally' ? 'floater ally' : perfect ? 'floater perfect' : 'floater';
-    const n = damage % 1 === 0 ? String(damage) : damage.toFixed(1);
+    // Decimals only while the numbers are small; big ones round (and get commas).
+    const n = damage < 100 && damage % 1 !== 0 ? damage.toFixed(1) : fmt(Math.round(damage));
     f.textContent = perfect ? `Perfect! −${n}` : `−${n}`;
     const o = this.scene.floaterOrigin();
-    f.style.left = `${o.left + (Math.random() - 0.5) * 14}%`;
-    f.style.top = `${o.top}%`;
+    f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
+    f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
     // Numbers appear when the band lands, not when it leaves your hand.
     f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
     box.appendChild(f);
@@ -973,6 +977,10 @@ export class UI {
   private onStage(stage: number) {
     const dlg = $<HTMLDialogElement>('stage-dlg');
     const s = this.s;
+    // Seeing a stage's welcome counts for every one before it (no stale welcomes later).
+    if (stage >= 3) s.war.announced = true;
+    if (stage >= 4) s.war.announced4 = true;
+    if (stage >= 5) s.war.politics.announced5 = true;
     if (stage === 2) {
       $('stage-dlg-h').textContent = 'Stage 2: Cubicle Alliance';
       $('stage-dlg-body').innerHTML = `
@@ -982,7 +990,6 @@ export class UI {
         <p><strong>New: Barrage (V).</strong> You and every Shooter empty your pockets at once: a pile of bands in one huge volley. Loud, and once every ${BARRAGE.cooldown / 60 === 1 ? 'minute' : `${BARRAGE.cooldown} seconds`}. Stockpile bands for it.</p>`;
     } else if (stage === 3) {
       const mins = s.stats.stage2At ? Math.round(s.stats.stage2At / 60) : 0;
-      s.war.announced = true;
       $('stage-dlg-h').textContent = 'Stage 3: Department War';
       $('stage-dlg-body').innerHTML = `
         <p>Rick is out, and the east side of Floor 4 answers to you${mins ? ` (that took ${mins} min)` : ''}. The rest of the floor does not recognize this.</p>
@@ -991,7 +998,6 @@ export class UI {
         <p>Each one you take makes the rest tougher. They’ll also raid Dale’s <strong>supply closet</strong>, which pays you bands while it’s yours: chase them off. And your old rivals still want rematches.</p>`;
     } else if (stage === 4) {
       const mins = Math.round(((s.stats.stage3At ?? s.time) - (s.stats.stage2At ?? 0)) / 60);
-      s.war.announced4 = true;
       $('stage-dlg-h').textContent = 'Stage 4: Floor Domination';
       $('stage-dlg-body').innerHTML = `
         <p>IT, Accounting, the Mailroom and Marketing all answer to you now${mins > 0 ? ` (the Department War took ${mins} min)` : ''}. Their people have fallen back to the floor’s last two shared spaces, behind walls of filing cabinets:</p>
@@ -1000,7 +1006,6 @@ export class UI {
         <p>Each room has a trick (coffee refills, meetings that pull your Shooters away). <strong>Sabotage</strong> it from the map. And the departments you took will try to take their desks back: hold the line, or make someone a <strong>Guard</strong>. One that gets through switches its prize off for ${SIEGE.counter.lost / 60} minutes.</p>`;
     } else if (stage === 5) {
       const mins = Math.round(((s.stats.stage4At ?? s.time) - (s.stats.stage3At ?? s.time)) / 60);
-      s.war.politics.announced5 = true;
       $('stage-dlg-h').textContent = 'Stage 5: Corporate Politics';
       $('stage-dlg-body').innerHTML = `
         <p>The Break Room and the Conference Room surrender${mins > 0 ? ` (Floor Domination took ${mins} min)` : ''}. Every desk on Floor 4 answers to you, so <strong>HR has opened an investigation</strong>. Leonard Fisk, Director of Human Resources, fights from behind a fortress of binders.</p>
@@ -1099,7 +1104,9 @@ export class UI {
     this.setNum('bands', fmt(s.bands));
     this.set('bands-rate', m.bandsPerSec > 0 ? `+${rate(m.bandsPerSec)}/s` : '');
     this.setNum('salary', money(s.salary));
-    this.set('salary-rate', m.salaryPerSec > 0 ? `+$${rate(m.salaryPerSec)}/s` : '');
+    // Your own steady pay plus what your team brings in.
+    const perSec = m.salaryPerSec + staffPayPerMin(s) / 60;
+    this.set('salary-rate', perSec > 0 ? `+$${rate(perSec)}/s` : '');
     const grade = payGrade(s);
     const ready = reviewReady(s);
     this.set('pay-grade', ready ? 'Promotion ready! (Staffing)' : `${grade.title}${grade.mult > 1 ? ` · work ×${grade.mult}` : ''}`);
@@ -1144,14 +1151,22 @@ export class UI {
     $('hr-file').dataset.level = final ? 'final' : ups > 0 ? 'warned' : 'clean';
     $('hr-stamp').hidden = !final;
     const fadeIn = Math.max(0, TUNING.writeUpFade - (s.time - s.hr.lastWriteUpAt));
-    const caseFile = s.stage === 5 ? `Case file ${Math.round(s.war.politics.evidence)}%` : '';
+    const hrCase = $('hr-case');
+    hrCase.hidden = s.stage !== 5;
+    if (s.stage === 5) {
+      const ev = Math.min(100, s.war.politics.evidence);
+      $('hr-case-fill').style.width = `${ev.toFixed(1)}%`;
+      hrCase.classList.toggle('high', ev >= 75);
+      hrCase.title = `HR’s case file: ${Math.round(ev)}% full`;
+      this.set('hr-case-num', `Case ${Math.round(ev)}%`);
+    }
     this.set(
       'hr-note',
       ups === 0
-        ? caseFile || 'Clean record.'
+        ? 'Clean record.'
         : final
           ? `One more and you're fired. Next write-up fades in ${clock(fadeIn)}.`
-          : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.${caseFile ? ` ${caseFile}.` : ''}`,
+          : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.`,
     );
 
 
@@ -1172,7 +1187,7 @@ export class UI {
     this.interview.render();
     this.ask.render();
     // Old saves that were already past Rick get the Department War's welcome once.
-    if (s.stage >= 3 && !s.war.announced && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(3);
+    if (s.stage === 3 && !s.war.announced && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(3);
     // ...and saves that had already taken the four departments get Stage 4's.
     else if (s.stage === 4 && !s.war.announced4 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(4);
     else if (s.stage === 5 && !s.war.politics.announced5 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(5);

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, ROOMS, TARGETS, TUNING, WEAPONS } from '../src/sim/content';
 import { addSuspicion, applyOffline, barrage, flick, step } from '../src/sim/engine';
 import { mods } from '../src/sim/mods';
-import { coach, memoCooldown, sendMemo } from '../src/sim/politics';
+import { addEvidence, coach, memoCooldown, sendMemo } from '../src/sim/politics';
 import { deserialize, serialize } from '../src/sim/save';
 import { seatCost, teamPerMin } from '../src/sim/staff';
 import { currentTarget, deptPerk, newAlly, newGame, type GameState } from '../src/sim/state';
@@ -163,6 +163,20 @@ describe('Stage 5: Plausible Deniability and memos', () => {
 });
 
 describe('Stage 5: the case file and interviews', () => {
+  it('warns you once when the case file is nearly full, and again after it comes back down', () => {
+    const s = atHr();
+    s.war.politics.evidence = 70;
+    addEvidence(s, 8);
+    expect(s.events.filter((e) => e.type === 'caseWarning')).toHaveLength(1);
+    addEvidence(s, 5);
+    expect(s.events.filter((e) => e.type === 'caseWarning')).toHaveLength(1);
+    s.war.politics.evidence = 40;
+    step(s, TUNING.stepSeconds);
+    s.events.length = 0;
+    addEvidence(s, 40);
+    expect(s.events.filter((e) => e.type === 'caseWarning')).toHaveLength(1);
+  });
+
   it('a full case file costs you a department until you win it back', () => {
     const s = atHr();
     s.war.politics.evidence = 99;

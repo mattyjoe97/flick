@@ -310,7 +310,10 @@ export class ComputerView {
     const old = box.querySelector(`[data-key="${CSS.escape(key)}"]`);
     if (key === 'call' && old) return;
     old?.remove();
-    while (box.childElementCount >= 3) box.firstElementChild?.remove();
+    // On a phone one at a time (they'd cover the app); a ringing phone stays on top of it.
+    const most = matchMedia('(max-width: 760px)').matches ? 1 : 3;
+    const others = () => [...box.children].filter((c) => (c as HTMLElement).dataset.key !== 'call');
+    while (others().length >= most) others()[0]?.remove();
     const t = document.createElement('button');
     t.type = 'button';
     t.className = `toast toast-${app}`;

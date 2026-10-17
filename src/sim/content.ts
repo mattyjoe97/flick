@@ -299,7 +299,7 @@ export const POLITICS = {
   /** Memos sent (in Deniability spent) that win HR over: the other way to close the case. */
   goodwill: 300,
   /** HR's case file, 0 to 100: when it's full, HR takes one of your departments and it drops back to half. */
-  evidence: { caught: 25, noiseShare: 0.03, interview: 15, decayPerMin: 0.5, full: 100, after: 50, retention: 25 },
+  evidence: { caught: 25, noiseShare: 0.03, interview: 15, decayPerMin: 0.5, full: 100, after: 50, retention: 25, warn: 75 },
   /** HR interviews: every few minutes someone you beat is called in. Coach them before the clock runs out. */
   interview: { firstAt: 120, gap: [180, 300] as [number, number], seconds: 20 },
   hrNoise: 2, // shots at the HR Director make this much noise

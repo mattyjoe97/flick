@@ -95,6 +95,11 @@ export function addEvidence(s: GameState, amount: number) {
   const p = s.war.politics;
   p.evidence = Math.min(POLITICS.evidence.full, p.evidence + amount);
   if (p.evidence >= POLITICS.evidence.full) seize(s);
+  else if (p.evidence >= POLITICS.evidence.warn && !p.warned) {
+    p.warned = true;
+    pushTicker(s, `HR’s case file is ${Math.round(p.evidence)}% full. Fill it and HR takes a department: keep it down, or send a Document Retention Policy memo.`);
+    s.events.push({ type: 'caseWarning' });
+  }
 }
 
 /** HR "reassigns" one of your departments to itself: its prize and desks are gone until you win it back. */
@@ -243,6 +248,7 @@ export function stepPolitics(s: GameState, dt: number) {
   const p = s.war.politics;
   p.pd += (pdPerMin(s) / 60) * dt;
   p.evidence = Math.max(0, p.evidence - (POLITICS.evidence.decayPerMin / 60) * dt);
+  if (p.warned && p.evidence < POLITICS.evidence.after) p.warned = false;
   // Keep the HR Director's share current, so the map can show it (and switching keeps it).
   if (s.war.fighting === 'hr') p.hrShare = Math.max(0, Math.min(1, s.targetResolve / HR_DIRECTOR.resolve));
   stepInterview(s);
