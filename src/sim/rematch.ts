@@ -1,7 +1,7 @@
 // Rematches: once the department is yours, the people you beat keep coming back.
 //
 // They come one after another (Gary, Brad, the Printer Corner, the Task Force, Rick, and
-// once the whole floor is yours, the department bosses too), starting at half their old
+// once the four departments are yours, the department bosses too), starting at half their old
 // Resolve and a third tougher every round after that. Each one is worth a bounty (the old
 // one, growing each round and with your pay grade, or a few minutes of your team's pay if
 // that's more) and a little Performance toward your next promotion. So the war never just
@@ -19,7 +19,7 @@ import { payGrade } from './work';
 
 /** Are you fighting the rematches right now (rather than a department)? */
 export function fightingRematch(s: GameState) {
-  return s.stage >= 5 || ((s.stage === 3 || s.stage === 4) && s.war.fighting === 'rematch');
+  return s.stage >= 6 || (s.stage >= 3 && s.war.fighting === 'rematch');
 }
 
 /** What the `index`th rematch of `round` is like: how tough, and what it pays. */

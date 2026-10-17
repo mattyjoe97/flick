@@ -112,6 +112,14 @@ export const PEOPLE: Record<string, Person> = {
       idle: ['Let’s circle up.', 'Do you have a minute? Or sixty?', 'I’ve sent a calendar invite.'],
     },
   },
+  // The HR Director (his painted portraits are used; the drawing is only a fallback).
+  fisk: {
+    skin: '#a8714a', hair: '#9a948c', style: 'side', shirt: '#25304d', tie: '#6d2433', glasses: 'round', cardigan: true, lanyard: '#25304d',
+    lines: {
+      hit: ['Let’s use our words.', 'I’m noting that.', 'That is a reportable incident.', 'Ow. Let’s unpack that.'],
+      idle: ['My door is always open.', 'This is a safe space.', 'I have a file on that.', 'Let’s circle back on your conduct.'],
+    },
+  },
   // Stand-in until his painted art arrives.
   dale: { skin: '#d8b08a', hair: '#5c554c', style: 'slick', shirt: '#6e7b43', lanyard: '#3a3f45', glasses: 'square', rest: 'smug' },
 };
@@ -132,6 +140,7 @@ export const TARGET_PEOPLE: Record<string, string[]> = {
   marketing: ['skyler'],
   breakroom: ['gail'],
   conference: ['victoria'],
+  hr: ['fisk'],
 };
 
 function hair(p: Person): string {

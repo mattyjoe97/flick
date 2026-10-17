@@ -36,6 +36,10 @@ import {
 import { mods, weapon } from '../src/sim/mods';
 import { chaseRaid, fightingDept } from '../src/sim/war';
 import { fightingRoom, holdLine, sabotage, sabotageCost, sabotaged } from '../src/sim/siege';
+import { canSendMemo, coach, sendMemo } from '../src/sim/politics';
+import { memoOn } from '../src/sim/state';
+import { fight } from '../src/sim/war';
+import { DEPARTMENTS, type MemoId } from '../src/sim/content';
 import { assign } from '../src/sim/engine';
 import { newGame, type GameState } from '../src/sim/state';
 
@@ -50,6 +54,9 @@ export interface BotStyle {
   /** Stage 4: puts someone on guard duty, and sabotages the rooms when it can afford to. */
   guards?: boolean;
   sabotage?: boolean;
+  /** Stage 5: sends memos when it can (on by default), and whether it fights HR or only plays politics. */
+  memos?: boolean;
+  politicsOnly?: boolean;
   actionsPerSecond: number;
   hideAbove: number; // Suspicion level that makes the bot hide
   resumeBelow: number;
@@ -179,6 +186,25 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   }
   // A raid on the supply closet gets chased off (it pops up right in front of you).
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
+  if (s.stage === 5) {
+    const p = s.war.politics;
+    // An HR interview pops up in front of you: coach the witness.
+    if (p.interview && !s.lookBusy && coach(s).ok) return;
+    // Memos, from your computer (no need to be at it for the sim).
+    if (style.memos !== false) {
+      const want: MemoId[] = [];
+      if (p.evidence >= 40) want.push('retention');
+      if (!style.politicsOnly && s.war.fighting === 'hr') want.push('teambuilding');
+      if (!style.politicsOnly && memoOn(s, 'teambuilding')) want.push('openplan');
+      want.push('synergy');
+      if (style.politicsOnly) want.push('casual', 'teambuilding', 'openplan', 'retention');
+      for (const id of want) if (canSendMemo(s, id).ok && sendMemo(s, id).ok) return;
+    }
+    // Win back anything HR took; a politics-only player fights the rematches instead of HR.
+    const seized = DEPARTMENTS.find((d) => s.war.depts[d.dept].seized);
+    if (seized && s.war.fighting !== seized.dept) fight(s, seized.dept);
+    else if (!seized && style.politicsOnly && s.war.fighting !== 'rematch') fight(s, 'rematch');
+  }
   if (s.stage === 4) {
     // So does a counterattack on the desks you took.
     if (s.war.counter.attack && !s.lookBusy && holdLine(s).ok) return;

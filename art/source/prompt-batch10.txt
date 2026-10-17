@@ -1,0 +1,53 @@
+FLICK — ART BATCH 10: Corporate Politics (Stage 5)
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch, and batches 8 and 9 (the department bosses, the room bosses and their barricades) are the closest match. Match them exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+The whole 4th floor answers to the player now, so HR has opened an investigation. This batch is the Director of Human Resources (four faces), the barricade he fights from, and two small icons for the player's computer.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on clothing, badges, binder spines, folder tabs, paper, the suggestion box and the icons (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching faces) is authorized as before.
+
+Number the files exactly as below (they continue after 210_icon_replyall.png). Deliver all 7 PNGs in a folder named batch10 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch10.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch10.json (the prompt used for each file), like earlier batches.
+
+==================================================
+A. THE HR DIRECTOR (4 files)
+==================================================
+
+EXACTLY the batch 4 / batch 8 / batch 9 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. Keep ALL hair, glasses and clothing between x=60 and x=960 and BELOW y=265, with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+The _idle file comes first; the other three are the SAME image with ONLY the face changed (everything outside the face pixel-identical), using the same expression set as the other bosses:
+  _hit     = eyes SQUEEZED SHUT, mouth an open oval (a silent "OW"), a small red welt on the forehead.
+  _angry   = strongly furrowed brows, glaring eyes, gritted teeth.
+  _worried = raised brows pinched together, wide worried eyes, a nervous wobbly closed mouth, one bead of pale blue sweat on the RIGHT temple.
+
+LEONARD FISK, Director of Human Resources. Has never once raised his voice. Has a file on everyone.
+A soft-spoken South Asian man in his late 50s with warm medium-brown skin; clean-shaven; neatly combed grey hair with a tidy side part; thin rimless oval glasses; a navy blue cardigan buttoned over a pale blue collared shirt and a plain burgundy tie; a navy lanyard with a blank white badge; a small red enamel heart pin on the cardigan (no text).
+Idle: serene and patient, eyebrows lifted slightly in concern, a gentle closed-mouth smile ("let's keep this a safe space").
+  211_fisk_idle.png / 212_fisk_hit.png / 213_fisk_angry.png / 214_fisk_worried.png
+
+==================================================
+B. THE HR BARRICADE (1 file)
+==================================================
+
+215_cover_hr.png — EXACTLY the batch 8 barricade format: 1400 x 800 transparent PNG, seen STRAIGHT ON at eye level from across the office (NOT from above), drawn at the SAME SCALE as the portraits (a head is 360px wide ear to ear), resting on an invisible desk-top line at y=780, horizontally centred on x=700, between about 1000 and 1250px wide.
+IMPORTANT: keep the MIDDLE band (x=500 to 900) LOW, no higher than y=340, so his face shows above it. The two ends may rise higher, up to y=60, like towers on either side of him.
+The HR fortress: at the LEFT end, a tall tower of thick three-ring binders in muted blues and greys (blank spines, NO labels) topped by a box of tissues with one tissue poking up; at the RIGHT end, a plain wooden suggestion box (a slot on top, NO lettering) sitting on a stack of bulging manila case folders with red tabs (blank); across the low middle, a neat row of thick manila case files lying flat, a tidy cup of pens and a small potted succulent.
+Record the desk line (780), the scale, the alpha bounding box and the topmost alpha y inside x=500..900 in the manifest.
+
+==================================================
+C. TWO SMALL ICONS (2 files)
+==================================================
+
+Both 256 x 256 transparent, the object filling about 80% of the canvas and centred, outline scaled to about 5px, EXACTLY the style of the batch 6 desktop app icons (118 to 130). No text.
+
+216_icon_app_memos.png — the Memos app: a small fanned stack of pale yellow interoffice memo sheets with faint blank ruled lines, a silver paperclip on the top sheet, and a little red-handled rubber stamp leaning against the stack.
+217_icon_case_file.png — HR's case file: a thick manila folder bulging with papers, a red tab, and one tan rubber band stretched around it.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 7 PNGs, numbered 211 to 217, exactly the sizes above.
+- No text, numbers, letters, logos or prints anywhere: not on the badge, the pin, binder spines, folder tabs, the suggestion box, the memo sheets or the icons.
+- Portraits (211 to 214) use the batch 4 registration exactly, stay inside x=60..960 and below y=265, and are pixel-matched outside the face.
+- The barricade (215) uses the 1400 x 800 canvas, the desk line at y=780, the portrait scale, and keeps the middle band x=500..900 below y=340.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch10 folder.

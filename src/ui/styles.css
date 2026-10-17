@@ -5931,6 +5931,15 @@ body.at-computer .desk-box.bulk {
   font-weight: 700;
 }
 
+/* Stage 5: a team-building exercise is on, so your shots are silent. */
+.position.calm {
+  padding: 0 8px;
+  border-radius: 4px;
+  background: #3f8f4f;
+  font-style: normal;
+  font-weight: 700;
+}
+
 #cover .led.blink {
   animation: led-blink 0.9s steps(2, jump-none) infinite;
 }
@@ -6452,6 +6461,18 @@ button.dept:focus-visible {
 .ally.away {
   opacity: 0.22;
   transition: opacity 0.3s;
+}
+
+.dept-bar.goodwill i {
+  background: #5b8fd0;
+}
+
+.dept-bar.evidence i {
+  background: #c4661f;
+}
+
+.interview-pop .raid-bubble {
+  border-color: #5b8fd0;
 }
 
 .retake-pop .raid-bubble {

@@ -2418,6 +2418,9 @@
 .ico-folder {
   background-image: url("../assets/art/app-folder.webp");
 }
+.ico-memos {
+  background-image: url("../assets/art/app-memos.webp");
+}
 .ico-doc {
   background-image: url("../assets/art/app-doc.webp");
 }
@@ -2436,6 +2439,147 @@
 
 .app-staffing {
   padding: 0;
+}
+
+/* ------------------------------------------------------------ Memos (Stage 5) */
+
+.app-memos {
+  padding: 0;
+}
+
+.memos {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.memo-empty {
+  margin: 30px 0;
+  text-align: center;
+  color: var(--os-lo);
+}
+
+.case-card {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid #d6d2c8;
+  background: #fbfaf6;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+.case-row {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.case-label {
+  font-weight: 700;
+}
+
+.case-pd {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.case-note {
+  margin: 0 0 6px;
+  color: #6b675e;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.case-bar.good .perf-fill {
+  background: #7aa9d8;
+}
+
+.case-bar.evidence .perf-fill {
+  background: #d9614c;
+}
+
+.memo-note {
+  margin: 0;
+  padding: 6px 10px;
+  border-left: 4px solid #d9614c;
+  background: #fbefe9;
+  font-size: 13px;
+}
+
+.memo-note.ok {
+  border-color: #6cc173;
+  background: #eef7ee;
+}
+
+.memo-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* Each memo is a sheet of pale yellow memo paper. */
+.memo {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 4px;
+  padding: 10px 12px 10px;
+  border: 1px solid #e0d6a8;
+  background: repeating-linear-gradient(#fff9d8 0 21px, #efe6b8 21px 22px);
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.memo.on {
+  outline: 3px solid #6cc173;
+  outline-offset: -3px;
+}
+
+.memo header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7a6f45;
+}
+
+.memo-cost {
+  font-weight: 700;
+  color: #5b4a12;
+}
+
+.memo h4 {
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+
+.memo p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.memo footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.memo footer .win-action {
+  margin-left: auto;
+}
+
+.memo-on {
+  color: #2f6b3c;
+}
+
+.memo-cd {
+  color: #7a6f45;
 }
 
 .staffing {
@@ -2944,6 +3088,16 @@ input.rename {
   .monitor {
     --bez: 42px;
     --bez-in: 30px;
+  }
+}
+
+@media (max-width: 760px) {
+  .case-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .memo-list {
+    grid-template-columns: 1fr;
   }
 }
 

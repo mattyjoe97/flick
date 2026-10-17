@@ -267,9 +267,53 @@ export const SIEGE = {
   counter: { firstAt: 150, gap: [180, 300] as [number, number], seconds: 20, lost: 180, guardEach: 0.3, guardMax: 0.9, dropSeconds: 20, dropMin: 60 },
 };
 
+// ---------------------------------------------------------------- Stage 5: Corporate Politics
+
+/**
+ * HR has opened an investigation into Floor 4. The Director of Human Resources fights from
+ * behind a fortress of binders; shots at him are extra loud and add to his case file.
+ */
+export const HR_DIRECTOR: Target = {
+  id: 'hr', stage: 5, name: 'Leonard Fisk', title: 'Director of Human Resources', position: 'Behind a fortress of binders',
+  resolve: 1100000, regenPct: 0.004, desks: 2, bounty: 15000, bountyNote: 'HR’s “team-building” budget',
+  twist: 'Shots at HR are twice as loud, and feed his case file.',
+  intro: { from: 'Leonard Fisk (HR)', subject: 'A safe space', body: 'Hi. I’m Leonard, from HR. I’ve opened a file on the 4th floor. It’s a very thick file. My door is always open, and so is the investigation.' },
+  defeat: { from: 'Leonard Fisk (HR)', subject: 'Case closed', body: 'After a thorough review, HR finds no evidence of any rubber band activity on Floor 4. The file has been misplaced. Permanently. Please stop flicking me.' },
+};
+
+export type MemoId = 'teambuilding' | 'casual' | 'synergy' | 'openplan' | 'retention';
+
+/** Memos: office policy, bought with Plausible Deniability from the Memos app on your computer. */
+export const MEMOS: { id: MemoId; name: string; does: string; cost: number; seconds: number; cooldown: number }[] = [
+  { id: 'teambuilding', name: 'Mandatory Team-Building Exercise', does: 'Your shots and Barrages make no noise for 2 minutes.', cost: 8, seconds: 120, cooldown: 360 },
+  { id: 'openplan', name: 'Open-Plan Office Initiative', does: 'Nobody can hide for 3 minutes: your shots hit 50% harder, and they’re 50% louder.', cost: 6, seconds: 180, cooldown: 300 },
+  { id: 'synergy', name: 'Synergy Offsite', does: 'Your team works twice as fast for 3 minutes.', cost: 10, seconds: 180, cooldown: 480 },
+  { id: 'casual', name: 'Casual Friday', does: 'Hiring and training cost half for 5 minutes.', cost: 6, seconds: 300, cooldown: 480 },
+  { id: 'retention', name: 'Document Retention Policy', does: 'Shreds a quarter of HR’s case file.', cost: 12, seconds: 0, cooldown: 360 },
+];
+
+/** Stage 5's rules: Plausible Deniability, HR's case file, interviews and goodwill. */
+export const POLITICS = {
+  /** Plausible Deniability: earned by real work. Your rounds by grade, your Cover teammates, your teams. */
+  pd: { grade: { A: 2, B: 1, C: 0, D: 0, F: 0 } as Record<'A' | 'B' | 'C' | 'D' | 'F', number>, coverPerMin: 0.5, teamPerMin: 0.5 },
+  /** Memos sent (in Deniability spent) that win HR over: the other way to close the case. */
+  goodwill: 300,
+  /** HR's case file, 0 to 100: when it's full, HR takes one of your departments and it drops back to half. */
+  evidence: { caught: 25, noiseShare: 0.03, interview: 15, decayPerMin: 0.5, full: 100, after: 50, retention: 25 },
+  /** HR interviews: every few minutes someone you beat is called in. Coach them before the clock runs out. */
+  interview: { firstAt: 120, gap: [180, 300] as [number, number], seconds: 20 },
+  hrNoise: 2, // shots at the HR Director make this much noise
+  openPlan: { damage: 1.5, noise: 1.5 },
+  synergyTeam: 2,
+  casualPrice: 0.5,
+  reclaim: 1, // a department HR took comes back at this share of its old Resolve
+  bountyMinutes: 20,
+  review: 0.25,
+};
+
 /** Anyone you've ever fought, by id (rematches look them up here). */
 export function targetById(id: string): Target | undefined {
-  return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id) ?? ROOMS.find((r) => r.id === id);
+  return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id) ?? ROOMS.find((r) => r.id === id) ?? (id === 'hr' ? HR_DIRECTOR : undefined);
 }
 
 // ---------------------------------------------------------------- coworkers

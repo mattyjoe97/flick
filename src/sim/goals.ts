@@ -38,10 +38,12 @@ export const GOAL_DEFS: GoalDef[] = [
   { id: 'scrounge', text: 'Find 15 bands in your drawer', target: 15, count: (s) => s.stats.bandsScrounged ?? 0, when: war },
   { id: 'wind', text: 'Wind 100 bands onto your ball', target: 100, count: (s) => s.stats.winds ?? 0, when: ballUnlocked },
   { id: 'barrage', text: 'Call a Barrage', target: 1, count: (s) => s.stats.barrages ?? 0, when: (s) => s.stage >= 2 && war(s) },
-  { id: 'rematch', text: 'Win a rematch', target: 1, count: (s) => s.stats.rematches ?? 0, when: (s) => s.stage >= 5 },
+  { id: 'rematch', text: 'Win a rematch', target: 1, count: (s) => s.stats.rematches ?? 0, when: (s) => s.stage >= 6 },
   { id: 'raid', text: 'Stop a raid on the supply closet', target: 1, count: (s) => s.stats.raidsStopped ?? 0, when: (s) => s.stage === 3 },
   { id: 'dent', text: 'Do 30,000 damage to your rivals', target: 30000, count: (s) => s.stats.damage ?? 0, when: (s) => s.stage === 3 || s.stage === 4 },
   { id: 'counter', text: 'Hold off a counterattack', target: 1, count: (s) => s.stats.countersHeld ?? 0, when: (s) => s.stage === 4 },
+  { id: 'memo', text: 'Send 2 memos', target: 2, count: (s) => s.stats.memos ?? 0, when: (s) => s.stage === 5 },
+  { id: 'coach', text: 'Coach a witness before an HR interview', target: 1, count: (s) => s.stats.coached ?? 0, when: (s) => s.stage === 5 },
 ];
 
 export function goalDef(id: string) {

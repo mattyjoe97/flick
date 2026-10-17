@@ -1,4 +1,4 @@
-import { BARRAGE, COWORKERS, DEPARTMENTS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
+import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
 import {
   assign,
   buyBack,
@@ -18,10 +18,11 @@ import {
   type ActionResult,
 } from '../sim/engine';
 import { isConfiscated, mods, onFinalWarning, weapon } from '../sim/mods';
-import { currentTarget, deptPerk, deptTaken, deptsTaken, roomTaken, type GameEvent, type GameState } from '../sim/state';
+import { currentTarget, deptPerk, deptTaken, deptsTaken, fightingHr, memoOn, reclaimingDept, roomTaken, type GameEvent, type GameState } from '../sim/state';
+import { canSendMemo, nameOf } from '../sim/politics';
 import { fightingRoom, inMeeting, sabotaged, wallUp } from '../sim/siege';
 import { dept, fightingDept, firewallClock, firewallUp } from '../sim/war';
-import { CounterAlert, MapView, RaidAlert } from './war';
+import { CounterAlert, InterviewAlert, MapView, RaidAlert } from './war';
 import { AskCard } from './asks';
 import { fmt, money, officeClock, rate } from './format';
 import { Scene } from './scene';
@@ -67,7 +68,8 @@ const STAGE_NAMES: Record<number, string> = {
   2: 'Stage 2: Cubicle Alliance',
   3: 'Stage 3: Department War',
   4: 'Stage 4: Floor Domination',
-  5: 'The 4th floor is yours',
+  5: 'Stage 5: Corporate Politics',
+  6: 'The 4th floor is yours',
 };
 
 export class UI {
@@ -88,6 +90,7 @@ export class UI {
   private map: MapView;
   private raid: RaidAlert;
   private counter: CounterAlert;
+  private interview: InterviewAlert;
   private ask: AskCard;
   /** The Department War's welcome opens the map when you close it. */
   private mapAfterStage = false;
@@ -191,6 +194,7 @@ export class UI {
     this.map = new MapView(() => this.s, warHooks);
     this.raid = new RaidAlert(() => this.s, warHooks, () => this.map.isOpen);
     this.counter = new CounterAlert(() => this.s, warHooks, () => this.map.isOpen);
+    this.interview = new InterviewAlert(() => this.s, warHooks, () => this.map.isOpen);
     this.ask = new AskCard(() => this.s, {
       say: (t) => this.say(t),
       bump: (w) => this.bump(w),
@@ -748,6 +752,17 @@ export class UI {
         this.sound.grade('A');
         const r = ROOMS.find((x) => x.room === e.id)!;
         this.say(`The ${r.label} is yours! You get ${r.perk}.`);
+      } else if (e.type === 'interviewOver' && e.how === 'lost') {
+        this.say(this.s.ticker[0]?.text ?? '');
+        this.sound.miss();
+      } else if (e.type === 'seized') {
+        this.say(`HR's case file is full: ${dept(e.dept).label} now reports to HR. Win it back on the map.`);
+        this.sound.miss();
+      } else if (e.type === 'reclaimed') {
+        this.sound.grade('B');
+        this.say(`${dept(e.dept).label} is yours again.`);
+      } else if (e.type === 'memo' && !this.s.lookBusy) {
+        this.say(`Memo sent: ${MEMOS.find((m) => m.id === e.id)!.name}.`);
       } else if (e.type === 'counterOver') {
         if (e.how === 'guards') {
           this.say(this.s.ticker[0]?.text ?? '');
@@ -970,17 +985,30 @@ export class UI {
         <p>Each room has a trick (coffee refills, meetings that pull your Shooters away). <strong>Sabotage</strong> it from the map. And the departments you took will try to take their desks back: hold the line, or make someone a <strong>Guard</strong>. One that gets through switches its prize off for ${SIEGE.counter.lost / 60} minutes.</p>`;
     } else if (stage === 5) {
       const mins = Math.round(((s.stats.stage4At ?? s.time) - (s.stats.stage3At ?? s.time)) / 60);
+      s.war.politics.announced5 = true;
+      $('stage-dlg-h').textContent = 'Stage 5: Corporate Politics';
+      $('stage-dlg-body').innerHTML = `
+        <p>The Break Room and the Conference Room surrender${mins > 0 ? ` (Floor Domination took ${mins} min)` : ''}. Every desk on Floor 4 answers to you, so <strong>HR has opened an investigation</strong>. Leonard Fisk, Director of Human Resources, fights from behind a fortress of binders.</p>
+        <ul class="stage-list">
+          <li><b>Plausible Deniability:</b> earned by real work (your rounds, Cover teammates, your teams). Spend it on <b>Memos</b>, a new app on your computer: quiet shots, harder shots, a faster team, cheaper hiring, shredded evidence.</li>
+          <li><b>HR’s case file:</b> fills when you get caught, when you’re loud around HR, and when you miss an interview. If it fills, HR takes one of your departments until you win it back.</li>
+          <li><b>Interviews:</b> every few minutes someone you beat is called in to HR. Coach them before they talk.</li>
+        </ul>
+        <p>Close the case either way: flick Fisk’s Resolve to nothing, or win HR over with ${POLITICS.goodwill} Deniability’s worth of memos.</p>`;
+    } else if (stage === 6) {
+      const mins = Math.round(((s.stats.stage5At ?? s.time) - (s.stats.stage4At ?? s.time)) / 60);
       $('stage-dlg-h').textContent = 'The 4th floor is yours';
       $('stage-dlg-body').innerHTML = `
-        <p>The Break Room and the corner Conference Room surrender. Every desk on Floor 4 answers to you. HR would like everyone to know that they are neutral, and that they are watching.</p>
+        <p>HR has closed its investigation. Every desk on Floor 4 answers to you, and HR would like everyone to know that it is on your side now.</p>
         <dl>
-          ${mins > 0 ? `<dt>Floor Domination</dt><dd>${mins} min</dd>` : ''}
-          <dt>Counterattacks held</dt><dd>${s.stats.countersHeld ?? 0} of ${(s.stats.countersHeld ?? 0) + (s.stats.countersLost ?? 0)}</dd>
+          ${mins > 0 ? `<dt>Corporate Politics</dt><dd>${mins} min</dd>` : ''}
+          <dt>Memos sent</dt><dd>${s.stats.memos ?? 0}</dd>
+          <dt>Witnesses coached</dt><dd>${s.stats.coached ?? 0} of ${(s.stats.coached ?? 0) + (s.stats.interviewsLost ?? 0)}</dd>
           <dt>Desks</dt><dd>${s.desks}</dd>
         </dl>
-        <p>Every prize is yours for good, and your Guards go back to their old jobs. The rematches keep coming, department bosses included. Keep climbing: the top of the ladder is CEO.</p>`;
+        <p>Every prize is yours for good. The rematches keep coming, department bosses and ${esc(HR_DIRECTOR.name.split(' ')[0])} included. Keep climbing: the top of the ladder is CEO.</p>`;
     }
-    $('stage-dlg-ok').textContent = stage === 3 || stage === 4 ? 'Open the map' : stage === 5 ? 'Keep playing' : 'Back to it';
+    $('stage-dlg-ok').textContent = stage === 3 || stage === 4 ? 'Open the map' : stage === 5 ? 'Face HR' : stage === 6 ? 'Keep playing' : 'Back to it';
     this.mapAfterStage = stage === 3 || stage === 4;
     if (!dlg.open) dlg.showModal();
   }
@@ -1075,13 +1103,14 @@ export class UI {
     $('hr-file').dataset.level = final ? 'final' : ups > 0 ? 'warned' : 'clean';
     $('hr-stamp').hidden = !final;
     const fadeIn = Math.max(0, TUNING.writeUpFade - (s.time - s.hr.lastWriteUpAt));
+    const caseFile = s.stage === 5 ? `Case file ${Math.round(s.war.politics.evidence)}%` : '';
     this.set(
       'hr-note',
       ups === 0
-        ? 'Clean record.'
+        ? caseFile || 'Clean record.'
         : final
           ? `One more and you're fired. Next write-up fades in ${clock(fadeIn)}.`
-          : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.`,
+          : `${ups} write-up${ups > 1 ? 's' : ''}. One fades in ${clock(fadeIn)}.${caseFile ? ` ${caseFile}.` : ''}`,
     );
 
 
@@ -1099,11 +1128,13 @@ export class UI {
     this.map.render();
     this.raid.render();
     this.counter.render();
+    this.interview.render();
     this.ask.render();
     // Old saves that were already past Rick get the Department War's welcome once.
     if (s.stage >= 3 && !s.war.announced && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(3);
     // ...and saves that had already taken the four departments get Stage 4's.
     else if (s.stage === 4 && !s.war.announced4 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(4);
+    else if (s.stage === 5 && !s.war.politics.announced5 && !s.lookBusy && !document.querySelector('dialog[open]')) this.onStage(5);
     this.drawer.render();
     this.office.render();
     this.ball.render();
@@ -1119,15 +1150,20 @@ export class UI {
     const t = currentTarget(s);
     const fd = fightingDept(s);
     const fr = fightingRoom(s);
+    const back = reclaimingDept(s);
     this.set(
       'stage-line',
       fd
         ? `${STAGE_NAMES[3]} · ${deptsTaken(s)} of 4 taken`
         : fr
           ? `${STAGE_NAMES[4]} · ${ROOMS.filter((r) => roomTaken(s, r.room)).length} of 2 taken`
-          : s.stage >= 3 && s.rematch
-            ? `${s.stage < 5 ? `Stage ${s.stage} · ` : ''}Rematches · round ${s.rematch.round}`
-            : STAGE_NAMES[s.stage],
+          : fightingHr(s)
+            ? `${STAGE_NAMES[5]} · case file ${Math.round(s.war.politics.evidence)}%`
+            : back
+              ? `Stage 5 · Winning back ${dept(back).label}`
+              : s.stage >= 3 && s.rematch
+                ? `${s.stage < 6 ? `Stage ${s.stage} · ` : ''}Rematches · round ${s.rematch.round}`
+                : STAGE_NAMES[s.stage],
     );
     // From Stage 3 the nameplate is a button: it opens the map.
     this.rebuild('np-map', String(s.stage >= 3), () => {
@@ -1156,9 +1192,11 @@ export class UI {
         const c = Math.ceil(firewallClock(s));
         this.set('position', firewallUp(s) ? `Firewall up! Down in ${c} s` : `${t.position}. Firewall in ${c} s`);
       } else if (meeting) this.set('position', `Your Shooters are in Victoria’s meeting: back in ${Math.ceil(s.war.meetingUntil - s.time)} s`);
+      else if (fightingHr(s) && memoOn(s, 'teambuilding')) this.set('position', `Team-building exercise: your shots are silent for ${clock(s.war.politics.memos.teambuilding.until - s.time)}`);
       else if (fr && wallUp(s)) this.set('position', 'Behind a wall of filing cabinets');
       else this.set('position', t.position);
       $('position').classList.toggle('alarm', firewallUp(s) || meeting);
+      $('position').classList.toggle('calm', fightingHr(s) && memoOn(s, 'teambuilding'));
       // A Stage 4 room: the wall's bar comes first, then their Resolve.
       const walled = wallUp(s);
       const room = fr ? ROOMS.find((x) => x.room === fr)! : null;
@@ -1172,6 +1210,8 @@ export class UI {
       // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
       const twist = fd
         ? `${t.twist} Prize: ${dept(fd).prize.charAt(0).toLowerCase()}${dept(fd).prize.slice(1)}.`
+        : fightingHr(s)
+          ? `${t.twist} ${memoOn(s, 'teambuilding') ? 'Team-Building is on: shoot freely.' : 'Send a Team-Building memo for cover.'}`
         : room
           ? walled
             ? 'Wall first: the Drill Gatling, Barrages and Engineers hit it hardest.'
@@ -1302,7 +1342,7 @@ export class UI {
   }
 
   private renderFloor(s: GameState) {
-    const lost = s.stage === 4 ? DEPARTMENTS.filter((d) => !deptPerk(s, d.dept)).map((d) => d.dept).join(',') : '';
+    const lost = s.stage === 4 || s.stage === 5 ? DEPARTMENTS.filter((d) => !deptPerk(s, d.dept)).map((d) => d.dept).join(',') : '';
     const rooms = s.stage >= 4 ? ROOMS.filter((r) => roomTaken(s, r.room)).length : 0;
     this.rebuild('floor', `${s.stage}:${s.targetIndex}:${deptsTaken(s)}:${rooms}:${lost}`, () => {
       const groups: { label: string; desks: number; state: 'mine' | 'taken' | 'enemy' }[] = [
@@ -1317,9 +1357,10 @@ export class UI {
         groups.push({ label, desks: t.desks, state: targetDefeated(s, t.id) ? 'taken' : 'enemy' });
       }
       // From Stage 3, the rest of the floor.
-      if (s.stage >= 3) for (const d of DEPARTMENTS) groups.push({ label: d.label, desks: d.desks, state: deptTaken(s, d.dept) && (s.stage !== 4 || deptPerk(s, d.dept)) ? 'taken' : 'enemy' });
+      if (s.stage >= 3) for (const d of DEPARTMENTS) groups.push({ label: d.label, desks: d.desks, state: deptTaken(s, d.dept) && (s.stage < 4 || deptPerk(s, d.dept)) ? 'taken' : 'enemy' });
       // From Stage 4, the two rooms.
       if (s.stage >= 4) for (const r of ROOMS) groups.push({ label: r.label, desks: r.desks, state: roomTaken(s, r.room) ? 'taken' : 'enemy' });
+      if (s.stage >= 5) groups.push({ label: 'HR', desks: HR_DIRECTOR.desks, state: s.stage >= 6 ? 'taken' : 'enemy' });
       $('floorplan').innerHTML = groups
         .map(
           (g) => `<div class="desk-group" title="${esc(g.label)}: ${g.state === 'enemy' ? 'holding out' : 'yours'}">
@@ -1330,7 +1371,8 @@ export class UI {
       const total =
         TARGETS.reduce((n, t) => n + t.desks, 0) +
         (s.stage >= 3 ? DEPARTMENTS.reduce((n, d) => n + d.desks, 0) : 0) +
-        (s.stage >= 4 ? ROOMS.reduce((n, r) => n + r.desks, 0) : 0);
+        (s.stage >= 4 ? ROOMS.reduce((n, r) => n + r.desks, 0) : 0) +
+        (s.stage >= 5 ? HR_DIRECTOR.desks : 0);
       $('floor-note').textContent = `${s.desks} of ${total} desks captured, each +0.25 bands/s`;
       $('floor-h').textContent = s.stage >= 3 ? 'Floor 4' : 'Floor 4, east side';
     });
@@ -1530,6 +1572,20 @@ function coachHint(s: GameState): string {
     return 'Assign Dave as Engineer to unlock the Binder-Clip Repeater.';
   if (s.stage === 2 && TARGETS[s.targetIndex]?.id === 'rick' && s.ownedWeapons.includes('repeater'))
     return 'Beat Rick and the rest of the 4th floor opens up: four departments to take, and the Drill Gatling.';
+  // Corporate Politics.
+  if (s.stage === 5) {
+    const p = s.war.politics;
+    if (p.interview) return `HR has called ${nameOf(p.interview.who)} in for an interview! Coach them before they talk.`;
+    const seized = DEPARTMENTS.find((d) => s.war.depts[d.dept].seized);
+    if (seized && !reclaimingDept(s)) return touch() ? `HR took ${seized.label}. Tap Map and win it back.` : `HR took ${seized.label}. Open the map (M) and win it back.`;
+    const ready = MEMOS.filter((x) => canSendMemo(s, x.id).ok);
+    if (fightingHr(s) && !memoOn(s, 'teambuilding') && ready.some((x) => x.id === 'teambuilding'))
+      return 'Shots at HR are twice as loud. Send a Team-Building memo first (Memos, on your computer): two minutes of silent shots.';
+    if (p.evidence >= 60 && ready.some((x) => x.id === 'retention')) return `HR’s case file is at ${Math.round(p.evidence)}%. A Document Retention memo shreds a quarter of it.`;
+    if ((s.stats.memos ?? 0) === 0 && s.time - (s.stats.stage4At ?? 0) > 60)
+      return 'Real work earns Plausible Deniability. Spend it in Memos, the new app on your computer (Esc).';
+    if (ready.length >= 2 && s.lookBusy) return `${ready.length} memos are ready to send. Every one you send wins HR over a little.`;
+  }
   // Floor Domination.
   if (s.stage === 4) {
     const a = s.war.counter.attack;

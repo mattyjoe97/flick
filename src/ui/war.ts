@@ -11,9 +11,10 @@
 import daleHead from '../assets/art/dale-head.webp';
 import iconUnplug from '../assets/art/icon-unplug.webp';
 import iconReplyAll from '../assets/art/icon-replyall.webp';
-import { DEPARTMENTS, REMATCH, ROOMS, SIEGE, WAR, type Department, type DeptId, type Room, type RoomId } from '../sim/content';
+import { DEPARTMENTS, HR_DIRECTOR, POLITICS, REMATCH, ROOMS, SIEGE, WAR, type Department, type DeptId, type Room, type RoomId } from '../sim/content';
+import { coach, nameOf } from '../sim/politics';
 import { closetIsYours, rolePower } from '../sim/mods';
-import { currentTarget, deptMax, deptPerk, deptTaken, deptsTaken, rematchOrder, type GameState } from '../sim/state';
+import { currentTarget, deptMax, deptPerk, deptTaken, deptsTaken, reclaimTarget, rematchOrder, type GameState } from '../sim/state';
 import { holdLine, sabotage, sabotageCost, sabotaged } from '../sim/siege';
 import { chaseRaid, dept, fight } from '../sim/war';
 import { TARGET_PEOPLE, PEOPLE, type Mood } from './characters';
@@ -160,7 +161,7 @@ export class MapView {
       this.key = '';
       return;
     }
-    const to = b.dataset.fight as DeptId | RoomId | 'rematch' | undefined;
+    const to = b.dataset.fight as DeptId | RoomId | 'hr' | 'rematch' | undefined;
     if (!to) return;
     if (s.war.fighting === to) return this.close();
     const r = fight(s, to);
@@ -170,7 +171,17 @@ export class MapView {
     }
     this.hooks.sound.grab();
     const room = ROOMS.find((x) => x.room === to);
-    this.hooks.say(to === 'rematch' ? 'Back to the rematches.' : room ? `You turn your desk toward the ${room.label}.` : `You turn your desk toward ${dept(to as DeptId).label}.`);
+    this.hooks.say(
+      to === 'rematch'
+        ? 'Back to the rematches.'
+        : to === 'hr'
+          ? 'You turn your desk toward HR.'
+          : room
+            ? `You turn your desk toward the ${room.label}.`
+            : s.stage === 5
+              ? `You go to win back ${dept(to as DeptId).label}.`
+              : `You turn your desk toward ${dept(to as DeptId).label}.`,
+    );
     this.close();
   }
 
@@ -188,8 +199,10 @@ export class MapView {
     const raid = s.war.closet.raid;
     const rm = s.rematch;
     const siege = s.stage === 4;
+    const politics = s.stage === 5;
     const atk = s.war.counter.attack;
     const key = [
+      politics ? DEPARTMENTS.map((d) => (s.war.depts[d.dept].seized ? 'S' : '')).join('') : '',
       siege ? ROOMS.map((r) => { const w = s.war.rooms[r.room]; return `${w.taken ? 'T' : ''}${w.wall > 0 ? 'W' : ''}${sabotaged(s, r.room) ? 'S' : ''}`; }).join(',') : '',
       siege ? DEPARTMENTS.map((d) => (deptPerk(s, d.dept) ? '' : 'L')).join('') + (atk ? `${atk.dept}:${atk.until}` : '') + `g${rolePower(s, 'guard').toFixed(2)}` : '',
       s.stage,
@@ -203,19 +216,24 @@ export class MapView {
       this.key = key;
       const taken = deptsTaken(s);
       this.sum.textContent =
-        s.stage >= 5
+        s.stage >= 6
           ? 'The whole floor is yours. The rematches never stop.'
+          : politics
+            ? `HR has opened an investigation. Close it either way: flick ${HR_DIRECTOR.name} down, or win HR over by sending memos from your computer. If HR’s case file fills, HR takes one of your departments.`
           : siege
             ? `Two rooms left, behind walls of filing cabinets: knock the wall down, then them. The Drill Gatling, Barrages and Engineers hit walls hardest. Take both and the floor is yours.`
             : `${taken} of 4 taken. Switch any time: they keep the damage you’ve done. Each one you take makes the rest ${Math.round((WAR.reinforce - 1) * 100)}% tougher.`;
-      this.grid.innerHTML = siege
-        ? [...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
-        : [...DEPARTMENTS.map((d) => this.deptCard(s, d)), this.closetCard(s), this.rematchCard(s)].join('');
+      this.grid.innerHTML = politics
+        ? [this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s)].join('')
+        : siege
+          ? [...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
+          : [...DEPARTMENTS.map((d) => this.deptCard(s, d)), this.closetCard(s), this.rematchCard(s)].join('');
     }
-    if (siege) this.updateSiege(s);
+    if (politics) this.updatePolitics(s);
+    else if (siege) this.updateSiege(s);
     else this.updateDepts(s, raid);
     if (rm) {
-      const on = s.stage >= 5 || s.war.fighting === 'rematch';
+      const on = s.stage >= 6 || s.war.fighting === 'rematch';
       const left = (on ? Math.max(0, s.targetResolve) : rm.left ?? rm.resolve) / rm.resolve;
       const bar = this.grid.querySelector<HTMLElement>('[data-bar="rematch"]');
       if (bar) bar.style.width = `${(Math.min(1, left) * 100).toFixed(1)}%`;
@@ -263,6 +281,58 @@ export class MapView {
     }
     const a = s.war.counter.attack;
     if (a) this.text('[data-clock="counter"]', `${Math.ceil(Math.max(0, a.until - s.time))} s`);
+  }
+
+  /** Stage 5, every frame: HR's Resolve, goodwill and case file, and anything you're winning back. */
+  private updatePolitics(s: GameState) {
+    const p = s.war.politics;
+    const hr = s.war.fighting === 'hr' ? Math.max(0, s.targetResolve) / HR_DIRECTOR.resolve : p.hrShare;
+    const bar = (key: string, share: number) => {
+      const el = this.grid.querySelector<HTMLElement>(`[data-bar="${key}"]`);
+      if (el) el.style.width = `${(Math.min(1, Math.max(0, share)) * 100).toFixed(1)}%`;
+    };
+    bar('hr', hr);
+    bar('goodwill', p.goodwill / POLITICS.goodwill);
+    bar('evidence', p.evidence / POLITICS.evidence.full);
+    this.text('[data-left="hr"]', `Resolve: ${Math.round(hr * HR_DIRECTOR.resolve).toLocaleString('en-US')} left`);
+    this.text('[data-left="goodwill"]', `HR goodwill: ${Math.floor(p.goodwill)} of ${POLITICS.goodwill} (send memos)`);
+    this.text('[data-left="evidence"]', `HR’s case file: ${Math.round(p.evidence)}% full`);
+    for (const d of DEPARTMENTS) {
+      if (!s.war.depts[d.dept].seized) continue;
+      const max = reclaimTarget(d.dept).resolve;
+      const share = s.war.fighting === d.dept ? Math.max(0, s.targetResolve) / max : s.war.depts[d.dept].share;
+      bar(d.dept, share);
+      this.text(`[data-left="${d.dept}"]`, `${Math.round(share * max).toLocaleString('en-US')} Resolve left`);
+    }
+  }
+
+  /** The HR Director: his Resolve, HR's goodwill (the other way to win) and the case file. */
+  private hrCard(s: GameState) {
+    const on = s.war.fighting === 'hr';
+    const mood: Mood = on ? 'angry' : 'idle';
+    return `<button type="button" class="dept hr-card${on ? ' fighting' : ''}" data-fight="hr" aria-label="HR: ${esc(HR_DIRECTOR.name)}. ${on ? 'Fighting now' : 'Attack'}.">
+      <span class="dept-label">HR</span>
+      <span class="dept-scene">${deptPicture('hr', mood)}</span>
+      <span class="dept-who"><b>${esc(HR_DIRECTOR.name)}</b> <small>${esc(HR_DIRECTOR.title)}</small></span>
+      <span class="dept-bar" aria-hidden="true"><i data-bar="hr"></i></span><span class="dept-left" data-left="hr"></span>
+      <span class="dept-bar goodwill" aria-hidden="true"><i data-bar="goodwill"></i></span><span class="dept-left" data-left="goodwill"></span>
+      <span class="dept-bar evidence" aria-hidden="true"><i data-bar="evidence"></i></span><span class="dept-left" data-left="evidence"></span>
+      <span class="dept-prize">Close the case: the whole floor is yours for good.</span>
+      <span class="dept-act">${on ? 'Fighting now' : 'Attack'}</span>
+    </button>`;
+  }
+
+  /** A department HR took: win it back. */
+  private reclaimCard(s: GameState, d: Department) {
+    const on = s.war.fighting === d.dept;
+    return `<button type="button" class="dept reclaim-card${on ? ' fighting' : ''}" data-fight="${d.dept}" aria-label="${esc(d.label)} reports to HR now. Win it back: ${esc(d.prize)}.">
+      <span class="dept-label">${esc(d.label)}</span>
+      <span class="dept-scene">${deptPicture(d.id, on ? 'angry' : 'smug')}</span>
+      <span class="dept-who"><b>${esc(d.name)}</b> <small>Reports to HR now</small></span>
+      <span class="dept-bar" aria-hidden="true"><i data-bar="${d.dept}"></i></span><span class="dept-left" data-left="${d.dept}"></span>
+      <span class="dept-prize">Win it back: ${esc(d.prize)}</span>
+      <span class="dept-act raid">${on ? 'Fighting now' : 'Win it back'}</span>
+    </button>`;
   }
 
   private roomShare(s: GameState, r: Room) {
@@ -368,7 +438,7 @@ export class MapView {
 
   private rematchCard(s: GameState) {
     const r = s.rematch;
-    const on = s.stage >= 5 || s.war.fighting === 'rematch';
+    const on = s.stage >= 6 || s.war.fighting === 'rematch';
     const id = r ? rematchOrder(s)[r.index] : REMATCH.order[0];
     const who = TARGET_PEOPLE[id]?.[0] ?? 'gary';
     const t = on ? currentTarget(s) : undefined;
@@ -487,5 +557,55 @@ export class CounterAlert {
     }
     const fill = this.root.querySelector<HTMLElement>('.psst-clock span')!;
     fill.style.width = `${Math.max(0, Math.min(1, (a.until - s.time) / SIEGE.counter.seconds)) * 100}%`;
+  }
+}
+
+/** Stage 5: HR has called someone you beat in for an interview. Coach them before the clock runs out. */
+export class InterviewAlert {
+  private root: HTMLElement;
+  private shownFor = '';
+
+  constructor(
+    private get: () => GameState,
+    private hooks: WarHooks,
+    private blocked: () => boolean,
+  ) {
+    this.root = document.createElement('div');
+    this.root.className = 'raid-pop interview-pop';
+    this.root.id = 'interview-pop';
+    this.root.hidden = true;
+    this.root.setAttribute('role', 'alert');
+    this.root.innerHTML = `<div class="raid-bubble"><p class="raid-text"></p>
+        <div class="psst-actions"><button type="button" class="paper-btn paper-btn-strong" data-coach>Coach them</button></div>
+        <div class="psst-clock"><span></span></div></div><span class="raid-face"></span>`;
+    document.getElementById('app')!.append(this.root);
+    this.root.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('button[data-coach]')) return;
+      const s = this.get();
+      if (!coach(s).ok) return;
+      this.hooks.sound.capture();
+      this.hooks.say(s.ticker[0]?.text ?? '');
+    });
+  }
+
+  render() {
+    const s = this.get();
+    const iv = s.stage === 5 ? s.war?.politics?.interview : null;
+    const show = !!iv && !s.lookBusy && !this.blocked();
+    if (!show || !iv) {
+      if (!this.root.hidden) this.root.hidden = true;
+      this.shownFor = '';
+      return;
+    }
+    const id = `${iv.who}:${iv.until}`;
+    if (this.shownFor !== id) {
+      this.shownFor = id;
+      this.root.hidden = false;
+      this.root.querySelector('.raid-text')!.textContent = `HR has called ${nameOf(iv.who)} in for an interview!`;
+      this.root.querySelector('.raid-face')!.innerHTML = faceSvg(TARGET_PEOPLE[iv.who]?.[0] ?? 'gary', 'worried');
+      this.hooks.sound.notify();
+    }
+    const fill = this.root.querySelector<HTMLElement>('.psst-clock span')!;
+    fill.style.width = `${Math.max(0, Math.min(1, (iv.until - s.time) / POLITICS.interview.seconds)) * 100}%`;
   }
 }

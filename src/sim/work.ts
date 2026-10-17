@@ -16,13 +16,13 @@
 //
 // Everything here is headless and deterministic so the pacing bots can play it.
 
-import { CAREER, COMBO, MOMENTS, PAY_GRADES, SHEET_TABS, TARGETS, WAR, type SheetTabId, type TypoKind } from './content';
+import { CAREER, COMBO, MOMENTS, PAY_GRADES, POLITICS, SHEET_TABS, TARGETS, WAR, type SheetTabId, type TypoKind } from './content';
 import { ballPayMult } from './ball';
 import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
 import { rand, randRange } from './rng';
-import { deptPerk, type GameState } from './state';
+import { deptPerk, earnPd, type GameState } from './state';
 import {
   CALLERS,
   DEPARTMENTS,
@@ -720,6 +720,8 @@ export function finishRound(s: GameState, kind: WorkKind) {
   s.stats.workEarned += bonus;
   s.stats.rounds = (s.stats.rounds ?? 0) + 1;
   addReview(s, CAREER.gradePoints[grade]);
+  // Stage 5: real work earns Plausible Deniability (more for a good grade).
+  earnPd(s, POLITICS.pd.grade[grade]);
   const st = s.stats as unknown as Record<string, number>;
   st[`${kind}Rounds`] = (st[`${kind}Rounds`] ?? 0) + 1;
   if (kind === 'sheet' && grade === 'A') s.stats.sheetA = (s.stats.sheetA ?? 0) + 1;

@@ -205,7 +205,7 @@ describe('Stage 4: counterattacks and Guards', () => {
 });
 
 describe('Stage 4: taking the rooms', () => {
-  it('the Break Room gives you coffee, the Conference Room speeds your team, and both open Stage 5', () => {
+  it('the Break Room gives you coffee, the Conference Room speeds your team, and both open Stage 5 (HR)', () => {
     const s = atSiege();
     s.allies.push(newAlly('gary', 'shooter'));
     s.staff.temp = { seats: 2, level: 0, done: 0 };
@@ -220,8 +220,8 @@ describe('Stage 4: taking the rooms', () => {
     expect(s.stage).toBe(5);
     expect(s.stats.rooms).toBe(2);
     expect(teamPerMin(s, 'temp', true)).toBeCloseTo(team * SIEGE.conferenceTeam);
-    expect(s.war.fighting).toBe('rematch');
-    expect(currentTarget(s)).toBeDefined();
+    expect(s.war.fighting).toBe('hr');
+    expect(currentTarget(s)?.id).toBe('hr');
   });
 
   it('getting fired gives the room its Resolve back but not its wall', () => {

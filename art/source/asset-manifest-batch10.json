@@ -1,0 +1,550 @@
+{
+  "game": "FLICK",
+  "batch": 10,
+  "title": "Corporate Politics (Stage 5)",
+  "asset_count": 7,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with user-authorized scripted finishing.",
+  "checks": {
+    "exact_filenames_dimensions_rgba": true,
+    "transparent_backgrounds": true,
+    "transparent_pixels_zero_rgb": true,
+    "portrait_safe_box": true,
+    "three_expression_variants_match_outside_face": true,
+    "barricade_desk_line_y780": true,
+    "barricade_middle_clear_above_y340": true,
+    "icons_centered_at_80_percent_extent": true,
+    "blank_badge_labels_tabs_and_no_text_visual_review": true
+  },
+  "expression_pixel_proofs": [
+    {
+      "file": "212_fisk_hit.png",
+      "base": "211_fisk_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 80436
+    },
+    {
+      "file": "213_fisk_angry.png",
+      "base": "211_fisk_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 80425
+    },
+    {
+      "file": "214_fisk_worried.png",
+      "base": "211_fisk_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 80414
+    }
+  ],
+  "assets": [
+    {
+      "file": "211_fisk_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        315,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "bd6aa806f8085be3de3445a5876ca6560b4ef56da48562aa2f49f5dea6c0bdd5",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "idle",
+        "shared_identity": "Leonard Fisk",
+        "expression_base": "211_fisk_idle.png",
+        "face_edit_polygon": [
+          [
+            405,
+            474
+          ],
+          [
+            446,
+            435
+          ],
+          [
+            491,
+            414
+          ],
+          [
+            584,
+            414
+          ],
+          [
+            620,
+            445
+          ],
+          [
+            647,
+            504
+          ],
+          [
+            655,
+            566
+          ],
+          [
+            652,
+            650
+          ],
+          [
+            620,
+            710
+          ],
+          [
+            571,
+            756
+          ],
+          [
+            458,
+            756
+          ],
+          [
+            407,
+            714
+          ],
+          [
+            374,
+            651
+          ],
+          [
+            369,
+            560
+          ],
+          [
+            384,
+            500
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "212_fisk_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        315,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "18e3e3de78c30fc508193e95016539a104ff27ac29c2eed7394393688edbb351",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "hit",
+        "shared_identity": "Leonard Fisk",
+        "expression_base": "211_fisk_idle.png",
+        "face_edit_polygon": [
+          [
+            405,
+            474
+          ],
+          [
+            446,
+            435
+          ],
+          [
+            491,
+            414
+          ],
+          [
+            584,
+            414
+          ],
+          [
+            620,
+            445
+          ],
+          [
+            647,
+            504
+          ],
+          [
+            655,
+            566
+          ],
+          [
+            652,
+            650
+          ],
+          [
+            620,
+            710
+          ],
+          [
+            571,
+            756
+          ],
+          [
+            458,
+            756
+          ],
+          [
+            407,
+            714
+          ],
+          [
+            374,
+            651
+          ],
+          [
+            369,
+            560
+          ],
+          [
+            384,
+            500
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "213_fisk_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        315,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "353cb98be09b86df3b0a7e6a81214f03de5b5b1359482dd15fe4a8ac043465e0",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "angry",
+        "shared_identity": "Leonard Fisk",
+        "expression_base": "211_fisk_idle.png",
+        "face_edit_polygon": [
+          [
+            405,
+            474
+          ],
+          [
+            446,
+            435
+          ],
+          [
+            491,
+            414
+          ],
+          [
+            584,
+            414
+          ],
+          [
+            620,
+            445
+          ],
+          [
+            647,
+            504
+          ],
+          [
+            655,
+            566
+          ],
+          [
+            652,
+            650
+          ],
+          [
+            620,
+            710
+          ],
+          [
+            571,
+            756
+          ],
+          [
+            458,
+            756
+          ],
+          [
+            407,
+            714
+          ],
+          [
+            374,
+            651
+          ],
+          [
+            369,
+            560
+          ],
+          [
+            384,
+            500
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "214_fisk_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        315,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "2d130f857ae1695ee353a2d68688a36464068ed8ebf06b3c5cab4717a905a8c2",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_pupils_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "expression": "worried",
+        "shared_identity": "Leonard Fisk",
+        "expression_base": "211_fisk_idle.png",
+        "face_edit_polygon": [
+          [
+            405,
+            474
+          ],
+          [
+            446,
+            435
+          ],
+          [
+            491,
+            414
+          ],
+          [
+            584,
+            414
+          ],
+          [
+            620,
+            445
+          ],
+          [
+            647,
+            504
+          ],
+          [
+            655,
+            566
+          ],
+          [
+            652,
+            650
+          ],
+          [
+            620,
+            710
+          ],
+          [
+            571,
+            756
+          ],
+          [
+            458,
+            756
+          ],
+          [
+            407,
+            714
+          ],
+          [
+            374,
+            651
+          ],
+          [
+            369,
+            560
+          ],
+          [
+            384,
+            500
+          ]
+        ],
+        "outside_face_changed_pixels": 0
+      }
+    },
+    {
+      "file": "215_cover_hr.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9629eff853d61ea69730819bb343ed7f85042d28e05b0ed9dc853f35bdfbaf8c",
+      "registration": {
+        "desk_line_y": 780,
+        "center_x": 700,
+        "barricade_width_px": 1240,
+        "scale": {
+          "portrait_ear_to_ear_px": 360
+        },
+        "middle_band_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 421,
+        "middle_clear_above_y": 340
+      }
+    },
+    {
+      "file": "216_icon_app_memos.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        25,
+        40,
+        230,
+        215
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "65d514f15be7c3dd66ddb7f2b7e9fd1f169154110cf9a35dbbe70587ed18047b",
+      "registration": {
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125,
+        "outline_px_approx": 5
+      }
+    },
+    {
+      "file": "217_icon_case_file.png",
+      "size": [
+        256,
+        256
+      ],
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        25,
+        45,
+        230,
+        211
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "bba77782856d2a4ca192d8d59a238ff7408a402cd366e54a40a6a1824bdd9034",
+      "registration": {
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent_px": 205,
+        "canvas_fill_fraction": 0.80078125,
+        "outline_px_approx": 5
+      }
+    }
+  ]
+}

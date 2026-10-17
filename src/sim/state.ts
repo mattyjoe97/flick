@@ -1,8 +1,8 @@
-import { DALE, DEPARTMENTS, MOMENTS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { DALE, DEPARTMENTS, HR_DIRECTOR, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 
 export interface Email {
   id: number;
@@ -70,7 +70,7 @@ export interface GameState {
   salary: number;
   suspicion: number;
 
-  stage: 1 | 2 | 3 | 4 | 5; // 3 = the Department War, 4 = Floor Domination, 5 = the floor is yours
+  stage: 1 | 2 | 3 | 4 | 5 | 6; // 3 = the Department War, 4 = Floor Domination, 5 = Corporate Politics, 6 = the floor is yours
   targetIndex: number;
   targetResolve: number;
   sinceLastHit: number;
@@ -238,6 +238,12 @@ export interface GameState {
     countersHeld: number;
     countersLost: number;
     sabotages: number;
+    stage5At: number | null;
+    memos: number;
+    coached: number;
+    interviewsLost: number;
+    seized: number;
+    reclaimed: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -249,11 +255,11 @@ export interface WarState {
    * Share of its Resolve each department has left (it keeps it while you fight someone else),
    * and in Stage 4, until when a counterattack has its desks back.
    */
-  depts: Record<DeptId, { share: number; taken: boolean; met: boolean; rebranded: boolean; lostUntil: number }>;
+  depts: Record<DeptId, { share: number; taken: boolean; met: boolean; rebranded: boolean; lostUntil: number; seized: boolean }>;
   /** Stage 4's rooms: what's left of each wall, their Resolve, and any sabotage running. */
   rooms: Record<RoomId, { wall: number; share: number; taken: boolean; met: boolean; sabotageUntil: number }>;
-  /** Who you're fighting: a department, a room, or your old rivals' rematches. */
-  fighting: DeptId | RoomId | 'rematch';
+  /** Who you're fighting: a department, a room, HR, or your old rivals' rematches. */
+  fighting: DeptId | RoomId | 'hr' | 'rematch';
   /** The rooms' tricks: the next coffee refill and meeting, and the meeting your Shooters are stuck in. */
   coffeeAt: number;
   meetingAt: number;
@@ -262,6 +268,8 @@ export interface WarState {
   counter: { attack: { dept: DeptId; until: number } | null; nextAt: number };
   /** The UI has shown Stage 4's welcome. */
   announced4: boolean;
+  /** Stage 5: HR's investigation. */
+  politics: PoliticsState;
   /** When Big Tony next fires back. */
   tonyAt: number;
   /** The supply closet: a raid in progress, when the next one comes, and how long it's theirs. */
@@ -270,8 +278,30 @@ export interface WarState {
   announced: boolean;
 }
 
+/**
+ * Stage 5, Corporate Politics: your Plausible Deniability, HR's goodwill (one way to close
+ * the case) and case file (fill it and HR takes a department), the memos you've sent, the
+ * interview in progress, and what's left of the HR Director's Resolve.
+ */
+export interface PoliticsState {
+  pd: number;
+  goodwill: number;
+  evidence: number;
+  memos: Record<MemoId, { until: number; readyAt: number }>;
+  interview: { who: string; until: number } | null;
+  nextInterviewAt: number;
+  hrShare: number;
+  met: boolean;
+  announced5: boolean;
+}
+
+export function newPolitics(): PoliticsState {
+  const memos = Object.fromEntries(MEMOS.map((m) => [m.id, { until: -999, readyAt: -999 }])) as PoliticsState['memos'];
+  return { pd: 0, goodwill: 0, evidence: 0, memos, interview: null, nextInterviewAt: 0, hrShare: 1, met: false, announced5: false };
+}
+
 export function newWar(): WarState {
-  const d = () => ({ share: 1, taken: false, met: false, rebranded: false, lostUntil: -999 });
+  const d = () => ({ share: 1, taken: false, met: false, rebranded: false, lostUntil: -999, seized: false });
   const r = (id: RoomId) => ({ wall: ROOMS.find((x) => x.room === id)!.wall, share: 1, taken: false, met: false, sabotageUntil: -999 });
   return {
     depts: { it: d(), accounting: d(), mailroom: d(), marketing: d() },
@@ -282,6 +312,7 @@ export function newWar(): WarState {
     meetingUntil: -999,
     counter: { attack: null, nextAt: 0 },
     announced4: false,
+    politics: newPolitics(),
     tonyAt: 0,
     closet: { raid: null, nextAt: 0, lostUntil: -999 },
     announced: false,
@@ -333,7 +364,7 @@ export type GameEvent =
   | { type: 'ballReady' }
   | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
   | { type: 'rematch'; round: number; index: number }
-  | { type: 'fight'; id: DeptId | RoomId | 'rematch' }
+  | { type: 'fight'; id: DeptId | RoomId | 'hr' | 'rematch' }
   | { type: 'rebrand' }
   | { type: 'raid'; dept: DeptId }
   | { type: 'raidOver'; dept: DeptId; how: 'chased' | 'lookout' | 'lost'; bands: number }
@@ -345,6 +376,12 @@ export type GameEvent =
   | { type: 'sabotage'; id: RoomId }
   | { type: 'counter'; dept: DeptId }
   | { type: 'counterOver'; dept: DeptId; how: 'held' | 'guards' | 'lost'; bands: number }
+  | { type: 'memo'; id: MemoId }
+  | { type: 'interview'; who: string }
+  | { type: 'interviewOver'; who: string; how: 'coached' | 'lost' }
+  | { type: 'seized'; dept: DeptId }
+  | { type: 'reclaimed'; dept: DeptId }
+  | { type: 'caseClosed'; how: 'fight' | 'goodwill' }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
@@ -460,6 +497,12 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       countersHeld: 0,
       countersLost: 0,
       sabotages: 0,
+      stage5At: null,
+      memos: 0,
+      coached: 0,
+      interviewsLost: 0,
+      seized: 0,
+      reclaimed: 0,
     },
     events: [],
   };
@@ -502,10 +545,51 @@ export function deptTarget(s: GameState, id: DeptId): Department {
   return { ...d, resolve: deptMax(s, id) };
 }
 
-/** Is this department's prize working right now (taken, and its desks not retaken)? */
+/** Is this department's prize working right now (taken, its desks not retaken, and HR hasn't taken it)? */
 export function deptPerk(s: GameState, id: DeptId) {
   const d = s.war?.depts[id];
-  return !!d?.taken && s.time >= (d.lostUntil ?? -999);
+  return !!d?.taken && !d.seized && s.time >= (d.lostUntil ?? -999);
+}
+
+// ---------------------------------------------------------------- Stage 5 helpers
+
+/** Is this memo's policy in force right now? */
+export function memoOn(s: GameState, id: MemoId) {
+  return s.stage === 5 && s.time < (s.war?.politics?.memos[id]?.until ?? -999);
+}
+
+/** Are you fighting the HR Director right now? */
+export function fightingHr(s: GameState) {
+  return s.stage === 5 && s.war?.fighting === 'hr';
+}
+
+/** The department you're winning back from HR, if any. */
+export function reclaimingDept(s: GameState): DeptId | null {
+  const f = s.war?.fighting;
+  return s.stage === 5 && f && isDept(f) && s.war.depts[f].seized ? f : null;
+}
+
+/** A department HR took, as a target: its old Resolve, no twist. */
+export function reclaimTarget(id: DeptId): Department {
+  const d = DEPARTMENTS.find((x) => x.dept === id)!;
+  return { ...d, resolve: Math.round(d.resolve * POLITICS.reclaim), twist: `HR reassigned ${d.label} to itself. Win it back.`, bounty: 0 };
+}
+
+/** Deniability for real work (Stage 5 only). */
+export function earnPd(s: GameState, n: number) {
+  if (s.stage === 5 && n > 0) s.war.politics.pd += n;
+}
+
+/** Your shots' noise in Stage 5: HR hears everything, unless there's a team-building exercise on. */
+export function politicsNoise(s: GameState) {
+  if (s.stage !== 5) return 1;
+  if (memoOn(s, 'teambuilding')) return 0;
+  return (fightingHr(s) ? POLITICS.hrNoise : 1) * (memoOn(s, 'openplan') ? POLITICS.openPlan.noise : 1);
+}
+
+/** Your shots' damage in Stage 5 (an open-plan office leaves nowhere to hide). */
+export function politicsDamage(s: GameState) {
+  return memoOn(s, 'openplan') ? POLITICS.openPlan.damage : 1;
 }
 
 /** Has this room been taken? */
@@ -521,7 +605,7 @@ export function roomTarget(id: RoomId): Room {
 export const isRoom = (id: string): id is RoomId => id === 'breakroom' || id === 'conference';
 export const isDept = (id: string): id is DeptId => DEPARTMENTS.some((d) => d.dept === id);
 
-/** Who's in the rematch rotation: your old rivals, and the department bosses once the floor is yours. */
+/** Who's in the rematch rotation: your old rivals, and the department bosses once they're yours. */
 export function rematchOrder(s: GameState): string[] {
   return s.stage >= 4 ? REMATCH.order : REMATCH.order.slice(0, REMATCH.firstWar);
 }
@@ -532,6 +616,8 @@ export function currentTarget(s: GameState): Target | undefined {
   const f = s.war?.fighting;
   if (s.stage === 3 && f && isDept(f)) return deptTarget(s, f);
   if (s.stage === 4 && f && isRoom(f)) return roomTarget(f);
+  if (s.stage === 5 && f === 'hr') return HR_DIRECTOR;
+  if (s.stage === 5 && f && isDept(f) && s.war.depts[f].seized) return reclaimTarget(f);
   const r = s.rematch;
   if (!r) return undefined;
   const base = targetById(rematchOrder(s)[r.index]);

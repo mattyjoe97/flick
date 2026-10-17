@@ -1,7 +1,7 @@
 import { BAILEY, BARRAGE, CHARGE, CHATTER, COWORKERS, DALE, PROMOTION, ROLES, TARGETS, TUNING, UPGRADES, WEAPONS, chargeMult, type CoworkerId, type Role, type UpgradeId, type WeaponId } from './content';
 import { allyPower, coworker, has, isConfiscated, knowsTrick, mods, onFinalWarning, weapon } from './mods';
 import { rand, randRange } from './rng';
-import { currentTarget, deptMax, deptTaken, newAlly, pushEmail, pushTicker, type DaleDeal, type GameState } from './state';
+import { currentTarget, deptMax, deptTaken, fightingHr, newAlly, politicsDamage, politicsNoise, pushEmail, pushTicker, reclaimingDept, type DaleDeal, type GameState } from './state';
 import { focusApp, setSuspicionHook, stepWork, WORK } from './work';
 import { chatEvent, stepChat } from './chat';
 import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } from './supplies';
@@ -12,8 +12,9 @@ import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
 import { fightingRoom, hitWall, inMeeting, siegeOffline, stepSiege, wallMult, wallUp } from './siege';
-import { ROOMS } from './content';
+import { POLITICS, ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
+import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from './politics';
 
 export { openBox } from './supplies';
 
@@ -89,6 +90,8 @@ function getCaught(s: GameState) {
   pushTicker(s, `Caught. Write-up ${s.hr.writeUps} of ${TUNING.writeUpsToFinal}.${takenName ? ` Mr. Feeney keeps your ${takenName}.` : ''}${t && regrouped >= 1 ? ` ${t.name.split(' ')[0]} regroups while you're gone.` : ''}`);
   s.events.push({ type: 'caught', writeUps: s.hr.writeUps, confiscated: taken, lostBands: lost, regrouped });
   chatEvent(s, 'caught');
+  // In Stage 5, every write-up goes straight into HR's case file too.
+  addEvidence(s, POLITICS.evidence.caught);
 }
 
 /**
@@ -116,6 +119,10 @@ function getFired(s: GameState) {
   } else if (fightingRoom(s)) {
     // The room gets its Resolve back (what you knocked off its wall stays knocked off).
     s.targetResolve = ROOMS.find((r) => r.room === fightingRoom(s))!.resolve;
+    s.sinceLastHit = 999;
+  } else if (fightingHr(s) || reclaimingDept(s)) {
+    // HR (or the department you were winning back) gets all its Resolve back.
+    s.targetResolve = currentTarget(s)!.resolve;
     s.sinceLastHit = 999;
   } else if (s.rematch) {
     s.targetResolve = s.rematch.resolve;
@@ -217,7 +224,7 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge);
+  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s);
   // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'shot'));
@@ -229,8 +236,10 @@ function fire(
   s.stats.damage += dmg;
   s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
   const stretch = 1 + CHARGE.noisePerCharge * shot.charge;
-  const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1);
+  const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1) * politicsNoise(s);
   addSuspicion(s, noise);
+  // HR hears every shot fired at HR: some of it goes in the case file.
+  if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
   if (!walled && s.targetResolve <= 0) capture(s);
   return true;
 }
@@ -239,8 +248,11 @@ function capture(s: GameState) {
   const t = currentTarget(s);
   if (!t) return;
   if (s.stage >= 3) {
+    const back = reclaimingDept(s);
     if (fightingDept(s)) deptWon(s);
     else if (fightingRoom(s)) roomWon(s);
+    else if (fightingHr(s)) hrWon(s);
+    else if (back) reclaimWon(s, back);
     else rematchWon(s);
     addSuspicion(s, TUNING.captureNoise);
     return;
@@ -395,6 +407,7 @@ export function step(s: GameState, dt: number) {
   stepRematch(s);
   stepWar(s, addSuspicion);
   stepSiege(s, dt);
+  stepPolitics(s, dt);
   stepAsks(s);
   stepChat(s);
   stepSupplies(s);
@@ -536,7 +549,7 @@ export function barrage(s: GameState): ActionResult {
   const shooters = barrageShooters(s);
   const n = barrageSize(s);
   s.bands -= n;
-  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage;
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s);
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
   else s.targetResolve -= dmg;
@@ -550,7 +563,9 @@ export function barrage(s: GameState): ActionResult {
   s.events.push({ type: 'barrage', damage: dmg, bands: n, shooters });
   chatEvent(s, 'barrage');
   pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg).toLocaleString('en-US')} Resolve.`);
-  addSuspicion(s, (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult);
+  const noise = (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult * politicsNoise(s);
+  addSuspicion(s, noise);
+  if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
   if (!walled && s.targetResolve <= 0) capture(s);
   return ok;
 }
@@ -771,6 +786,7 @@ export function applyOffline(s: GameState, seconds: number) {
   s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);
   asksOffline(s);
   siegeOffline(s);
+  politicsOffline(s, secs);
   // Nobody raids the closet while you're away (and one in progress gives up).
   s.war.closet.raid = null;
   s.war.closet.nextAt = Math.max(s.war.closet.nextAt, s.time + 60);

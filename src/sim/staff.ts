@@ -8,11 +8,11 @@
 // of his own; he makes every other team faster. And they work faster while you do:
 // keep a work combo going and your team follows your lead (pizza helps too).
 
-import { CAREER, MOMENTS, SIEGE, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
+import { CAREER, MOMENTS, POLITICS, SIEGE, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
 import { addReview } from './career';
 import { ballTeamMult } from './ball';
 import { chatEvent } from './chat';
-import { deptPerk, pushEmail, pushTicker, roomTaken, type GameState } from './state';
+import { deptPerk, memoOn, pushEmail, pushTicker, roomTaken, type GameState } from './state';
 import { basePay, liveCombo, WORK } from './work';
 
 export function team(id: TeamId): Team {
@@ -66,10 +66,13 @@ export function seatCap(s: GameState, id: TeamId) {
   return s.career.rank < t.unlockRank ? 0 : 1 + STAFF.seatsPerRank * (s.career.rank - t.unlockRank);
 }
 
+/** Casual Friday (a Stage 5 memo): hiring and training at half price. */
+const casualMult = (s: GameState) => (memoOn(s, 'casual') ? POLITICS.casualPrice : 1);
+
 /** What the next seat on this team costs. */
 export function seatCost(s: GameState, id: TeamId) {
   const t = team(id);
-  return Math.round(t.cost * Math.pow(t.growth, seats(s, id)) * (deptPerk(s, 'marketing') ? WAR.marketingHire : 1));
+  return Math.round(t.cost * Math.pow(t.growth, seats(s, id)) * (deptPerk(s, 'marketing') ? WAR.marketingHire : 1) * casualMult(s));
 }
 
 /** What the next round of training costs (null once there's none left, or nobody to train). */
@@ -77,7 +80,7 @@ export function trainCost(s: GameState, id: TeamId): number | null {
   const t = team(id);
   const level = trainLevel(s, id);
   if (!t.job || seats(s, id) === 0 || level >= STAFF.training.length) return null;
-  return Math.round(t.cost * STAFF.trainCost * Math.pow(STAFF.trainGrowth, level));
+  return Math.round(t.cost * STAFF.trainCost * Math.pow(STAFF.trainGrowth, level) * casualMult(s));
 }
 
 /** Every other team works this much faster thanks to the Assistant Managers. */
@@ -91,7 +94,8 @@ export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   if (!t.job) return 0;
   const boosts = steady ? 1 : leadMult(s) * pizzaMult(s) * askMult(s, id);
   const room = roomTaken(s, 'conference') ? SIEGE.conferenceTeam : 1;
-  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * room * boosts;
+  const synergy = memoOn(s, 'synergy') ? POLITICS.synergyTeam : 1;
+  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * room * synergy * boosts;
 }
 
 /** What one thing this team does pays you. */

@@ -8,6 +8,7 @@
 //   Expenses     stamp receipts by today's rule
 //   Messenger    your coworkers, one conversation each
 //   Staffing     your career (promotions) and the team you hire
+//   Memos        (Stage 5) office policy, paid for with Plausible Deniability
 //   Supply Catalog, Org Chart, My Documents, the Recycle Bin
 //
 // Around the apps: a Start menu, a taskbar with your Salary and the work combo, pop-up
@@ -30,11 +31,14 @@ import { MessengerApp } from './apps/messenger';
 import { PhoneApp } from './apps/phone';
 import { SheetApp } from './apps/sheet';
 import { StaffingApp } from './apps/staffing';
+import { MemosApp } from './apps/memos';
+import { canSendMemo } from '../sim/politics';
+import { MEMOS } from '../sim/content';
 import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
 import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'docs' | 'trash';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'docs' | 'trash';
 
 const TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -45,6 +49,7 @@ const TITLES: Record<AppId, string> = {
   catalog: 'Office Supply Catalog',
   org: 'Org Chart',
   staffing: 'Staffing',
+  memos: 'Memos',
   docs: 'My Documents',
   trash: 'Recycle Bin',
 };
@@ -58,6 +63,7 @@ const ICON: Record<AppId, string> = {
   catalog: 'ico-catalog',
   org: 'ico-org',
   staffing: 'ico-staffing',
+  memos: 'ico-memos',
   docs: 'ico-folder',
   trash: 'ico-trash-full',
 };
@@ -72,6 +78,7 @@ const FEENEY_SAYS: Record<string, string[]> = {
   catalog: ['Ordering supplies? We’re low on everything.'],
   org: ['Org chart. Very strategic.'],
   staffing: ['Building a team? Love it.', 'Delegation. Very managerial.'],
+  memos: ['A memo? Very proactive.', 'Love a well-formatted memo.'],
   docs: ['Updating your résumé?', 'Organized. I like it.'],
   trash: ['Taking out the trash. Good.'],
   desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
@@ -133,6 +140,7 @@ export class ComputerView {
       chat: this.chat,
       catalog: new CatalogApp(pane('catalog'), ctx, () => hooks.ordered()),
       staffing: this.staffing,
+      memos: new MemosApp(pane('memos'), ctx, { sent: () => undefined }),
       docs: this.docs,
       trash: this.docs,
     };
@@ -355,6 +363,13 @@ export class ComputerView {
 
   // ---------------------------------------------------------------- every frame
 
+  private flags = new Map<string, boolean>();
+  private rebuildFlag(key: string, v: boolean, f: () => void) {
+    if (this.flags.get(key) === v) return;
+    this.flags.set(key, v);
+    f();
+  }
+
   private setText(id: string, t: string) {
     if (this.text.get(id) === t) return;
     this.text.set(id, t);
@@ -382,6 +397,11 @@ export class ComputerView {
     badge('sheet', r.sheet ? r.sheet.items - r.sheet.done : ready.sheet ? 1 : 0);
     badge('chat', chatUnread(s));
     badge('staffing', reviewReady(s) ? '!' : 0);
+    // Stage 5: the Memos app (a badge for every memo you could send right now).
+    const politics = s.stage === 5;
+    this.rebuildFlag('memos-on', politics, () => document.querySelectorAll<HTMLElement>('[data-app="memos"]:not(.app)').forEach((b) => (b.hidden = !politics)));
+    badge('memos', politics ? MEMOS.filter((m) => canSendMemo(s, m.id).ok).length : 0);
+    if (!politics && this.app === 'memos') this.openApp(null);
 
     // New reports and spreadsheets: a notification when they land.
     for (const k of ['expense', 'sheet'] as const) {

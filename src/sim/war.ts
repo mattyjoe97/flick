@@ -19,11 +19,12 @@
 
 import { addReview, reviewNeed, TOP_RANK } from './career';
 import { chatEvent } from './chat';
-import { COWORKERS, DEPARTMENTS, ROOMS, SIEGE, WAR, type DeptId, type RoomId } from './content';
+import { COWORKERS, DEPARTMENTS, HR_DIRECTOR, ROOMS, SIEGE, WAR, type DeptId, type RoomId } from './content';
 import { mods, rolePower } from './mods';
 import { rand, randRange } from './rng';
 import { fightingRematch, startRematch } from './rematch';
-import { currentTarget, deptMax, deptTaken, isDept, isRoom, newWar, pushEmail, pushTicker, roomTaken, type GameState } from './state';
+import { currentTarget, deptMax, deptTaken, fightingHr, isDept, isRoom, newWar, pushEmail, pushTicker, reclaimingDept, reclaimTarget, roomTaken, type GameState } from './state';
+import { startPolitics } from './politics';
 import { fightingRoom, startSiege } from './siege';
 import { staffPayPerMin } from './staff';
 import { payGrade } from './work';
@@ -61,18 +62,29 @@ export function startWar(s: GameState) {
 function shelve(s: GameState) {
   const id = fightingDept(s);
   const r = fightingRoom(s);
+  const back = reclaimingDept(s);
   if (id) s.war.depts[id].share = Math.max(0, Math.min(1, s.targetResolve / deptMax(s, id)));
   else if (r) s.war.rooms[r].share = Math.max(0, Math.min(1, s.targetResolve / room(r).resolve));
+  else if (back) s.war.depts[back].share = Math.max(0, Math.min(1, s.targetResolve / reclaimTarget(back).resolve));
+  else if (fightingHr(s)) s.war.politics.hrShare = Math.max(0, Math.min(1, s.targetResolve / HR_DIRECTOR.resolve));
   else if (s.rematch) s.rematch.left = Math.max(0, s.targetResolve);
 }
 
 /** Turns your desk toward someone: their Resolve comes back where you left it. */
-function load(s: GameState, to: DeptId | RoomId | 'rematch') {
+function load(s: GameState, to: DeptId | RoomId | 'hr' | 'rematch') {
   s.war.fighting = to;
   s.sinceLastHit = 0;
   if (to === 'rematch') {
     if (!s.rematch) startRematch(s, 1, 0);
     s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;
+    return;
+  }
+  if (to === 'hr') {
+    s.targetResolve = s.war.politics.hrShare * HR_DIRECTOR.resolve;
+    return;
+  }
+  if (s.stage === 5 && isDept(to)) {
+    s.targetResolve = s.war.depts[to].share * reclaimTarget(to).resolve;
     return;
   }
   if (isRoom(to)) {
@@ -99,11 +111,14 @@ function load(s: GameState, to: DeptId | RoomId | 'rematch') {
 
 export type WarResult = { ok: true } | { ok: false; reason: string };
 
-/** Pick who to fight from the map (a department in Stage 3, a room in Stage 4, or the rematches). */
-export function fight(s: GameState, to: DeptId | RoomId | 'rematch'): WarResult {
+/** Pick who to fight from the map (a department in Stage 3, a room in Stage 4, HR in Stage 5, or the rematches). */
+export function fight(s: GameState, to: DeptId | RoomId | 'hr' | 'rematch'): WarResult {
   if (s.stage < 3) return { ok: false, reason: 'The Department War starts after Rick.' };
-  if (s.stage >= 5) return { ok: false, reason: 'The whole floor is yours already.' };
-  if (to !== 'rematch') {
+  if (s.stage >= 6) return { ok: false, reason: 'The whole floor is yours already.' };
+  if (to === 'hr' && s.stage !== 5) return { ok: false, reason: 'HR is neutral. For now.' };
+  if (s.stage === 5 && to !== 'hr' && to !== 'rematch') {
+    if (!isDept(to) || !s.war.depts[to].seized) return { ok: false, reason: 'That one is yours already.' };
+  } else if (to !== 'rematch' && to !== 'hr') {
     if (isDept(to) && s.stage !== 3) return { ok: false, reason: `${dept(to).label} is already yours.` };
     if (isRoom(to) && s.stage !== 4) return { ok: false, reason: 'Take the four departments first.' };
     if (isDept(to) && deptTaken(s, to)) return { ok: false, reason: `${dept(to).label} is already yours.` };
@@ -112,8 +127,12 @@ export function fight(s: GameState, to: DeptId | RoomId | 'rematch'): WarResult 
   if (s.war.fighting === to) return { ok: true };
   shelve(s);
   load(s, to);
-  const label = to === 'rematch' ? '' : isDept(to) ? dept(to).label : `the ${room(to).label}`;
-  pushTicker(s, to === 'rematch' ? 'You turn back to your old rivals for a rematch.' : `You turn your desk toward ${label}. ${(isDept(to) ? dept(to) : room(to as RoomId)).name} sees you coming.`);
+  if (to === 'hr') pushTicker(s, 'You turn your desk toward HR. Leonard Fisk smiles patiently.');
+  else if (s.stage === 5 && isDept(to)) pushTicker(s, `You go to win back ${dept(to).label} from HR.`);
+  else {
+    const label = to === 'rematch' ? '' : isDept(to) ? dept(to).label : `the ${room(to).label}`;
+    pushTicker(s, to === 'rematch' ? 'You turn back to your old rivals for a rematch.' : `You turn your desk toward ${label}. ${(isDept(to) ? dept(to) : room(to as RoomId)).name} sees you coming.`);
+  }
   s.events.push({ type: 'fight', id: to });
   return { ok: true };
 }
@@ -197,19 +216,17 @@ export function roomWon(s: GameState) {
     s.events.push({ type: 'fight', id: other.room });
     return;
   }
-  // The floor is yours. Stage 5 is next.
+  // The whole floor is yours, so HR opens an investigation: Stage 5, Corporate Politics.
   s.stats.stage4At = s.time;
   s.stage = 5;
   s.war.counter = { attack: null, nextAt: 0 };
   s.war.meetingUntil = -999;
-  s.war.fighting = 'rematch';
   // Nothing left to guard: Guards go back to what they're best at.
   for (const a of s.allies) if (a.role === 'guard') a.role = COWORKERS.find((c) => c.id === a.id)!.traitRole;
-  if (!s.rematch) startRematch(s, 1, 0);
-  s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;
-  s.sinceLastHit = 0;
+  if (s.rematch && s.war.fighting === 'rematch') s.rematch.left = Math.max(0, s.targetResolve);
+  startPolitics(s);
   pushEmail(s, 'HR', 'Re: Floor 4', 'The break room and the corner conference room now report to you as well. HR has opened a file. It is a very thick file.', 'win');
-  pushTicker(s, 'The whole 4th floor is yours: every desk, the break room and the corner office. HR has opened a file.');
+  pushTicker(s, 'The whole 4th floor is yours: every desk, the break room and the corner office. So HR has opened an investigation.');
   s.events.push({ type: 'stage', stage: 5 });
 }
 
