@@ -19,6 +19,10 @@ import { currentTarget, deptMax, deptPerk, deptTaken, deptsTaken, reclaimTarget,
 import { holdLine, sabotage, sabotageCost, sabotaged } from '../sim/siege';
 import { chaseRaid, dept, fight } from '../sim/war';
 import { rematchBounty } from '../sim/rematch';
+import { toughness } from '../sim/ladder';
+
+/** Resolve (or a wall) as you see it: up the career ladder everyone's numbers are bigger. */
+const big = (s: GameState, n: number) => Math.round(n * toughness(s)).toLocaleString('en-US');
 import { TARGET_PEOPLE, PEOPLE, type Mood } from './characters';
 import { coverSvg, WHITE_FLAG } from './scene';
 import { faceSvg, portrait } from './portraits';
@@ -249,7 +253,7 @@ export class MapView {
       const share = this.share(s, d);
       const bar = this.grid.querySelector<HTMLElement>(`[data-bar="${d.dept}"]`);
       if (bar) bar.style.width = `${(share * 100).toFixed(1)}%`;
-      this.text(`[data-left="${d.dept}"]`, `${Math.round(share * deptMax(s, d.dept)).toLocaleString('en-US')} Resolve left`);
+      this.text(`[data-left="${d.dept}"]`, `${big(s, share * deptMax(s, d.dept))} Resolve left`);
     }
     if (raid) this.text('[data-clock="raid"]', `${Math.ceil(Math.max(0, raid.until - s.time))} s`);
     else if (!closetIsYours(s)) this.text('[data-clock="lost"]', clock(Math.max(0, s.war.closet.lostUntil - s.time)));
@@ -263,11 +267,11 @@ export class MapView {
       if (w.taken) continue;
       const wallBar = this.grid.querySelector<HTMLElement>(`[data-bar="wall-${r.room}"]`);
       if (wallBar) wallBar.style.width = `${((w.wall / r.wall) * 100).toFixed(1)}%`;
-      this.text(`[data-left="wall-${r.room}"]`, `Wall: ${Math.ceil(w.wall).toLocaleString('en-US')} left`);
+      this.text(`[data-left="wall-${r.room}"]`, `Wall: ${big(s, w.wall)} left`);
       const share = this.roomShare(s, r);
       const bar = this.grid.querySelector<HTMLElement>(`[data-bar="${r.room}"]`);
       if (bar) bar.style.width = `${(share * 100).toFixed(1)}%`;
-      this.text(`[data-left="${r.room}"]`, `Resolve: ${Math.round(share * r.resolve).toLocaleString('en-US')} left`);
+      this.text(`[data-left="${r.room}"]`, `Resolve: ${big(s, share * r.resolve)} left`);
       const btn = this.grid.querySelector<HTMLButtonElement>(`[data-sabotage="${r.room}"]`);
       if (btn) {
         const on = sabotaged(s, r.room);
@@ -297,7 +301,7 @@ export class MapView {
     bar('hr', hr);
     bar('goodwill', p.goodwill / POLITICS.goodwill);
     bar('evidence', p.evidence / POLITICS.evidence.full);
-    this.text('[data-left="hr"]', `Resolve: ${Math.round(hr * HR_DIRECTOR.resolve).toLocaleString('en-US')} left`);
+    this.text('[data-left="hr"]', `Resolve: ${big(s, hr * HR_DIRECTOR.resolve)} left`);
     this.text('[data-left="goodwill"]', `HR goodwill: ${Math.floor(p.goodwill)} of ${POLITICS.goodwill} (send memos)`);
     this.text('[data-left="evidence"]', `HR’s case file: ${Math.round(p.evidence)}% full`);
     for (const d of DEPARTMENTS) {
@@ -305,7 +309,7 @@ export class MapView {
       const max = reclaimTarget(d.dept).resolve;
       const share = s.war.fighting === d.dept ? Math.max(0, s.targetResolve) / max : s.war.depts[d.dept].share;
       bar(d.dept, share);
-      this.text(`[data-left="${d.dept}"]`, `${Math.round(share * max).toLocaleString('en-US')} Resolve left`);
+      this.text(`[data-left="${d.dept}"]`, `${big(s, share * max)} Resolve left`);
     }
   }
 
@@ -420,14 +424,14 @@ export class MapView {
     const on = s.stage === 3 && s.war.fighting === d.dept;
     const share = this.share(s, d);
     const mood: Mood = taken ? 'worried' : on ? 'angry' : PEOPLE[TARGET_PEOPLE[d.id][0]]?.rest ?? 'idle';
-    const left = Math.round(share * deptMax(s, d.dept));
+    const left = big(s, share * deptMax(s, d.dept));
     const act = taken ? 'Yours' : on ? 'Fighting now' : 'Attack';
     return `<button type="button" class="dept${on ? ' fighting' : ''}${taken ? ' taken' : ''}" data-fight="${d.dept}" ${taken ? 'aria-disabled="true"' : ''}
       aria-label="${esc(d.label)}: ${esc(d.name)}. ${taken ? `Yours. ${esc(d.prize)}.` : `${Math.round(share * 100)}% Resolve left. Take it for: ${esc(d.prize)}.`} ${act}.">
       <span class="dept-label">${esc(d.label)}</span>
       <span class="dept-scene">${deptPicture(d.id, mood)}${taken ? FLAG : ''}</span>
       <span class="dept-who"><b>${esc(d.name)}</b> <small>${esc(d.title)}</small></span>
-      ${taken ? '' : `<span class="dept-bar" aria-hidden="true"><i data-bar="${d.dept}" style="width:${(share * 100).toFixed(1)}%"></i></span><span class="dept-left" data-left="${d.dept}">${left.toLocaleString('en-US')} Resolve left</span>`}
+      ${taken ? '' : `<span class="dept-bar" aria-hidden="true"><i data-bar="${d.dept}" style="width:${(share * 100).toFixed(1)}%"></i></span><span class="dept-left" data-left="${d.dept}">${left} Resolve left</span>`}
       <span class="dept-prize${taken ? ' got' : ''}">${taken ? 'You have: ' : 'Take it: '}${esc(d.prize)}</span>
       <span class="dept-act">${act}</span>
     </button>`;

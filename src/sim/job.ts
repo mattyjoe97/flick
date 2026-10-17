@@ -11,14 +11,27 @@
 
 import { COMPANIES, JOB, PERKS, type CompanyId, type PerkId } from './content';
 import { trophyDamageMult, trophyPayMult } from './trophies';
+import { renoPay, stockBonus, tierFloor, tierName, tierPay, tierRep } from './ladder';
 import { company, newAlly, newGame, perk, pushEmail, pushTicker, type GameState } from './state';
 
 const perkDef = (id: PerkId) => PERKS.find((p) => p.id === id)!;
 
-/** What leaving now would earn you in Reputation (nothing before the Department War). */
+/** What this job itself is worth in Reputation: how far you got, how high you climbed, what you collected, times the tier. */
+export function repForWork(s: GameState) {
+  if (s.stage < JOB.minStage) return 0;
+  const base = (JOB.stageRep[s.stage] ?? 0) + JOB.perRank * s.career.rank + Math.sqrt(Math.max(0, s.stats.bounties) / JOB.bountyRoot);
+  return Math.floor(base * tierRep(s.job?.tier ?? 0));
+}
+
+/** What your shares add to that when you leave. */
+export function stockRep(s: GameState) {
+  return Math.floor(repForWork(s) * stockBonus(s));
+}
+
+/** What leaving now would earn you in Reputation (nothing before the Department War): the job, plus your shares. */
 export function repForRun(s: GameState) {
   if (s.stage < JOB.minStage) return 0;
-  return Math.floor((JOB.stageRep[s.stage] ?? 0) + JOB.perRank * s.career.rank + Math.sqrt(Math.max(0, s.stats.bounties) / JOB.bountyRoot));
+  return repForWork(s) + stockRep(s);
 }
 
 export type JobResult = { ok: true } | { ok: false; reason: string };
@@ -55,9 +68,9 @@ export function buyPerk(s: GameState, id: PerkId): JobResult {
   return { ok: true };
 }
 
-/** The offers on the table: every company but the one you're at. */
-export function offers(s: GameState) {
-  return COMPANIES.filter((c) => c.id !== s.job.company);
+/** The offers on the table at a tier (your highest by default): every company but this exact office. */
+export function offers(s: GameState, tier = s.job.top) {
+  return COMPANIES.filter((c) => c.id !== s.job.company || tier !== s.job.tier);
 }
 
 /**
@@ -65,22 +78,25 @@ export function offers(s: GameState) {
  * your perks and Reputation, Bailey's tricks, your ball and your names. `seed` picks the new
  * company's luck. Changes `s` in place.
  */
-export function startNewJob(s: GameState, to: CompanyId, seed = (s.rng ^ 0x5bd1e995) & 0x7fffffff): JobResult {
+export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed = (s.rng ^ 0x5bd1e995) & 0x7fffffff): JobResult {
   const can = canQuit(s);
   if (!can.ok) return can;
-  if (to === s.job.company || !COMPANIES.some((c) => c.id === to)) return { ok: false, reason: 'Pick a new company.' };
+  if (!Number.isInteger(tier) || tier < 0 || tier > s.job.top) return { ok: false, reason: 'Nobody there is hiring you. Yet.' };
+  if ((to === s.job.company && tier === s.job.tier) || !COMPANIES.some((c) => c.id === to)) return { ok: false, reason: 'Pick a new company.' };
   const rep = repForRun(s);
   const from = company(s);
   const job = {
     ...s.job,
     company: to,
+    tier,
+    closed: [...s.job.closed],
     runs: s.job.runs + 1,
     reputation: s.job.reputation + rep,
     earned: s.job.earned + rep,
     welcomed: false,
     perks: { ...s.job.perks },
     trophies: { ...s.job.trophies },
-    history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep }].slice(-12),
+    history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep, tier: s.job.tier }].slice(-12),
   };
   const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches };
   const fresh = newGame(seed || 1);
@@ -94,7 +110,8 @@ export function startNewJob(s: GameState, to: CompanyId, seed = (s.rng ^ 0x5bd1e
   startPerks(s);
   const c = company(s);
   s.inbox = [];
-  pushEmail(s, 'HR', `Welcome to ${c.name}!`, `We’re so glad you’re here. ${c.pitch} Your desk is on Floor 4. The person next to you is Gary. He seems nice.`, 'story');
+  const office = tier > 0 ? ` (${tierName(tier)})` : '';
+  pushEmail(s, 'HR', `Welcome to ${c.name}${office}!`, `We’re so glad you’re here. ${c.pitch} Your desk is on Floor ${tierFloor(tier)}. The person next to you is Gary. He seems nice.`, 'story');
   if (s.job.runs === 1) pushEmail(s, 'Dale (Facilities)', 'small world', 'turns out I work here too. don’t ask. same closet, end of the hall. D for Dale.', 'story');
   pushTicker(s, `Day one at ${c.name}. You brought your rubber band ball, your dog, and ${rep} Reputation’s worth of stories.`);
   return { ok: true };
@@ -110,9 +127,9 @@ function startPerks(s: GameState) {
 
 // ---------------------------------------------------------------- what perks and companies change
 
-/** Work pay: the company's rate and your Hustle. */
+/** Work pay: the company's rate, the tier, your Hustle, your trophies and the Standing Desks. */
 export function jobPayMult(s: GameState) {
-  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle')) * trophyPayMult(s);
+  return company(s).rules.pay * (1 + JOB.hustle * perk(s, 'hustle')) * trophyPayMult(s) * tierPay(s) * renoPay(s);
 }
 
 /** Hiring and training: the company's rate and your Headhunter. */
@@ -141,8 +158,11 @@ let swapRe: RegExp | null = null;
 let swapFor = '';
 let swapMap: Record<string, string> = {};
 
-/** Swap the names you'd know from Pemberton for this company's names (for anything shown on screen). */
-export function companyText(id: CompanyId | undefined, text: string) {
+const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
+
+/** Swap the names you'd know from Pemberton for this company's names, and Floor 4 for this office's floor (for anything shown on screen). */
+export function companyText(id: CompanyId | undefined, text: string, floor = 4) {
+  if (floor !== 4 && text) text = text.replace(/\bFloor 4\b/g, `Floor ${floor}`).replace(/\b4th floor\b/g, `${ordinal(floor)} floor`);
   if (!id || id === 'pemberton' || !text) return text;
   if (swapFor !== id) {
     swapFor = id;

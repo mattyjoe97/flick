@@ -38,6 +38,8 @@ import { chaseRaid, fightingDept } from '../src/sim/war';
 import { fightingRoom, holdLine, sabotage, sabotageCost, sabotaged } from '../src/sim/siege';
 import { canSendMemo, coach, sendMemo } from '../src/sim/politics';
 import { buyPerk, offers, perkCost, startNewJob } from '../src/sim/job';
+import { buyRenovation, buyStock, renoCost, renovationsOpen } from '../src/sim/ladder';
+import { RENOVATIONS } from '../src/sim/content';
 import { memoOn } from '../src/sim/state';
 import { fight } from '../src/sim/war';
 import { DEPARTMENTS, PERKS, type MemoId } from '../src/sim/content';
@@ -99,6 +101,11 @@ export function runBot(s: GameState, style: BotStyle, seconds: number, until: (s
   let nextAction = s.time;
   const steps = Math.round(seconds / TUNING.stepSeconds);
   for (let i = 0; i < steps && !until(s); i++) {
+    // A new job starts the clock over: forget what it was in the middle of.
+    if (s.time + 1 < nextAction - actionEvery || (mind.job && s.time + 1 < mind.busyUntil - 60)) {
+      mind.job = null;
+      nextAction = s.time;
+    }
     step(s, TUNING.stepSeconds);
     s.events.length = 0;
     if (mind.job) {
@@ -191,7 +198,11 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
   // The floor is yours: spend Reputation and take the next offer.
   if (style.quit && s.stage >= 6 && s.job.unlocked) {
-    startNewJob(s, offers(s)[0].id);
+    // Whatever money's left goes into company stock on the way out.
+    if (!BOT_FLAGS.noStock) buyStock(s, 9999);
+    BOT_FLAGS.lastStock = s.stock;
+    BOT_FLAGS.lastBounties = s.stats.bounties;
+    startNewJob(s, offers(s)[0].id, s.job.top);
     for (;;) {
       const next = PERKS.map((p) => ({ id: p.id, cost: perkCost(s, p.id) })).filter((p) => p.cost !== null && p.cost <= s.job.reputation).sort((a, b) => a.cost! - b.cost!)[0];
       if (!next || !buyPerk(s, next.id).ok) break;
@@ -290,8 +301,18 @@ function shop(s: GameState): boolean {
   for (const u of UPGRADES) {
     if (!s.upgrades.includes(u.id) && buyUpgrade(s, u.id).ok) return true;
   }
-  return hireSomeone(s);
+  return hireSomeone(s) || renovate(s);
 }
+
+/** From the Department War on: the cheapest renovation, with a cushion left over (bots with renovate: false skip them). */
+function renovate(s: GameState): boolean {
+  if (!renovationsOpen(s) || BOT_FLAGS.noRenovate) return false;
+  const next = RENOVATIONS.map((r) => ({ id: r.id, cost: renoCost(s, r.id) })).filter((r) => r.cost !== null).sort((a, b) => a.cost! - b.cost!)[0];
+  return !!next && s.salary >= next.cost! * 2 && buyRenovation(s, next.id).ok;
+}
+
+/** Switches for experiments (pacing tests turn the new spending off to compare). */
+export const BOT_FLAGS = { noRenovate: false, noStock: false, lastStock: 0, lastBounties: 0 };
 
 /** Grows the team: the cheapest seat or training it can afford with money to spare. */
 function hireSomeone(s: GameState): boolean {

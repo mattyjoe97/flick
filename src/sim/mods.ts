@@ -1,6 +1,7 @@
 import { BAILEY, CHARGE, COWORKERS, DALE, DEPARTMENTS, PROMOTION, SIEGE, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { company, deptPerk, roomTaken, type GameState } from './state';
 import { jobPriceMult } from './job';
+import { renoQuiet } from './ladder';
 
 export function has(s: GameState, id: UpgradeId) {
   return s.upgrades.includes(id);
@@ -91,7 +92,7 @@ export function mods(s: GameState) {
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
     allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1) / (roomTaken(s, 'breakroom') ? SIEGE.coffeeShooters : 1),
     yourNoiseMult: has(s, 'silent') ? 0.75 : 1,
-    allNoiseMult: (has(s, 'carpet') ? 0.85 : 1) * (has(s, 'walls') ? 0.8 : 1),
+    allNoiseMult: (has(s, 'carpet') ? 0.85 : 1) * (has(s, 'walls') ? 0.8 : 1) * renoQuiet(s),
     scrounge: has(s, 'rummage') ? 2 : 1,
     workPay: has(s, 'chair') ? 2 : 1,
     order: bulk ? { price: 12, amount: 200 } : { price: 5, amount: 50 },

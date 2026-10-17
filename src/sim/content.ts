@@ -275,7 +275,7 @@ export const SIEGE = {
  */
 export const HR_DIRECTOR: Target = {
   id: 'hr', stage: 5, name: 'Leonard Fisk', title: 'Director of Human Resources', position: 'Behind a fortress of binders',
-  resolve: 1100000, regenPct: 0.004, desks: 2, bounty: 15000, bountyNote: 'HR’s “team-building” budget',
+  resolve: 1700000, regenPct: 0.004, desks: 2, bounty: 15000, bountyNote: 'HR’s “team-building” budget',
   twist: 'Shots at HR are twice as loud, and feed his case file.',
   intro: { from: 'Leonard Fisk (HR)', subject: 'A safe space', body: 'Hi. I’m Leonard, from HR. I’ve opened a file on the 4th floor. It’s a very thick file. My door is always open, and so is the investigation.' },
   defeat: { from: 'Leonard Fisk (HR)', subject: 'Case closed', body: 'After a thorough review, HR finds no evidence of any rubber band activity on Floor 4. The file has been misplaced. Permanently. Please stop flicking me.' },
@@ -333,7 +333,7 @@ const NO_RULES = { suspicion: 1, pay: 1, bands: 1, walkby: 1, team: 1, hire: 1 }
 
 export const COMPANIES: Company[] = [
   {
-    id: 'pemberton', name: 'Pemberton Solutions Group', short: 'Pemberton', pitch: 'Where it all started. Floor 4, the stapler, Gary.',
+    id: 'pemberton', name: 'Pemberton Solutions Group', short: 'Pemberton', pitch: 'Where it all started: the stapler, the coffee, Gary.',
     rules: NO_RULES, rulesText: ['No surprises. You know this place.'], names: {},
   },
   {
@@ -397,6 +397,47 @@ export const JOB = {
   seniorityHours: 4,
   /** Every point of Reputation you've ever earned makes your bands hit this much harder (a reputation precedes you). */
   damagePerRep: 0.004,
+};
+
+/**
+ * The career ladder: companies have offices at every level. Close HR's case at enough jobs in
+ * one tier and the next tier starts recruiting you: everyone there is tougher, the pay is
+ * better, and a job there is worth more Reputation. After Global HQ it keeps going (Global
+ * HQ II, III...), so there's always another rung.
+ */
+export const LADDER = {
+  tiers: [
+    { name: 'Regional Office', floor: 4 },
+    { name: 'Head Office', floor: 12 },
+    { name: 'Global HQ', floor: 30 },
+  ],
+  /** Past the named tiers: Global HQ II, III... a few floors higher each time. */
+  floorsAfter: 8,
+  closes: 3, // cases closed at a tier to be recruited one up
+  toughness: 4, // everyone's Resolve (and walls), times this per tier
+  pay: 1.5, // all work pays this much more per tier
+  rep: 2, // Reputation from a job, times this per tier
+};
+
+export type RenovationId = 'window' | 'espresso' | 'desks' | 'panels';
+
+/**
+ * Renovations: repeatable office upgrades on Dale's Procurement clipboard, from the Department
+ * War on. Each level costs more than the last, and they stay with the office when you leave.
+ */
+export const RENOVATIONS: { id: RenovationId; name: string; does: string; each: number; cost: number; growth: number; max: number }[] = [
+  { id: 'window', name: 'Window Office', does: 'Your bands hit 10% harder.', each: 0.1, cost: 60000, growth: 1.6, max: 99 },
+  { id: 'espresso', name: 'Espresso Machine', does: 'Your team works 10% faster.', each: 0.1, cost: 40000, growth: 1.55, max: 99 },
+  { id: 'desks', name: 'Standing Desks', does: 'All work pays 10% more.', each: 0.1, cost: 30000, growth: 1.55, max: 99 },
+  { id: 'panels', name: 'Acoustic Panels', does: 'Everything you do is 4% quieter.', each: 0.04, cost: 50000, growth: 1.7, max: 10 },
+];
+
+/** Company stock: buy shares with money, cash them in as Reputation when you leave. */
+export const STOCK = {
+  price: 40000, // the first share
+  growth: 1.12, // each share after costs this much more (the price resets at every new job)
+  rep: 0.01, // each share adds this share of the job's Reputation when you leave (+1%)
+  minStage: 3,
 };
 
 /** Anyone you've ever fought, by id (rematches look them up here). */

@@ -19,6 +19,7 @@
 
 import { addReview, reviewNeed, TOP_RANK } from './career';
 import { chatEvent } from './chat';
+import { recordClose } from './ladder';
 import { DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, ROOMS, type DeptId, type MemoId } from './content';
 import { rolePower } from './mods';
 import { rand, randRange } from './rng';
@@ -224,6 +225,7 @@ export function closeCase(s: GameState, how: 'fight' | 'goodwill') {
   // The floor is yours: only the rematches are left.
   s.stats.stage5At = s.time;
   s.stage = 6;
+  recordClose(s);
   s.war.fighting = 'rematch';
   if (!s.rematch) startRematch(s, 1, 0);
   s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;

@@ -112,7 +112,7 @@ export interface ComputerHooks {
   notify(): void;
   promoted(rank: number): void;
   /** Hand in your notice: start over at `to`. */
-  quitJob(to: CompanyId): void;
+  quitJob(to: CompanyId, tier: number): void;
 }
 
 export class ComputerView {
@@ -154,7 +154,7 @@ export class ComputerView {
       staffing: this.staffing,
       memos: new MemosApp(pane('memos'), ctx, { sent: () => undefined }),
       trophies: new TrophiesApp(pane('trophies'), ctx),
-      jobs: new JobsApp(pane('jobs'), ctx, { quit: (to) => hooks.quitJob(to) }),
+      jobs: new JobsApp(pane('jobs'), ctx, { quit: (to, tier) => hooks.quitJob(to, tier) }),
       docs: this.docs,
       trash: this.docs,
     };

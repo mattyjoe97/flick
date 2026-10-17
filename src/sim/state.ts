@@ -1,8 +1,8 @@
-import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, type RenovationId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 17;
+export const SAVE_VERSION = 18;
 
 export interface Email {
   id: number;
@@ -139,6 +139,10 @@ export interface GameState {
   /** Your career across companies: kept when you quit for a new job. */
   job: JobState;
   barrageAt: number;
+  /** Renovation levels bought for this office (they stay behind when you leave). */
+  renovations: Partial<Record<RenovationId, number>>;
+  /** Shares of company stock you hold: each one is Reputation when you leave. */
+  stock: number;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -247,6 +251,9 @@ export interface GameState {
     seized: number;
     reclaimed: number;
     caseGoodwill: number;
+    /** Renovation levels bought, and the most shares held at once. */
+    renovations: number;
+    shares: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -388,6 +395,7 @@ export type GameEvent =
   | { type: 'reclaimed'; dept: DeptId }
   | { type: 'caseClosed'; how: 'fight' | 'goodwill' }
   | { type: 'caseWarning' }
+  | { type: 'climb'; tier: number }
   | { type: 'trophy'; id: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
@@ -408,11 +416,15 @@ export interface JobState {
   perks: Partial<Record<PerkId, number>>;
   /** Trophies you've won (by id: the job number you won it on). */
   trophies: Record<string, number>;
-  history: { company: CompanyId; minutes: number; stage: number; rep: number }[];
+  history: { company: CompanyId; minutes: number; stage: number; rep: number; tier?: number }[];
+  /** The career ladder: the tier this job is at, the highest tier recruiting you, and cases closed at each tier. */
+  tier: number;
+  top: number;
+  closed: number[];
 }
 
 export function newJob(): JobState {
-  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, trophies: {}, history: [] };
+  return { company: 'pemberton', runs: 0, reputation: 0, earned: 0, unlocked: false, welcomed: true, perks: {}, trophies: {}, history: [], tier: 0, top: 0, closed: [] };
 }
 
 /** Levels of a résumé perk you own. */
@@ -461,6 +473,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     ball: { wound: 0, found: false },
     job: newJob(),
     barrageAt: 0,
+    renovations: {},
+    stock: 0,
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -544,6 +558,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       seized: 0,
       reclaimed: 0,
       caseGoodwill: 0,
+      renovations: 0,
+      shares: 0,
     },
     events: [],
   };

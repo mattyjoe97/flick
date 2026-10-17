@@ -1,0 +1,29 @@
+FLICK — ART BATCH 11: Renovations (the career ladder)
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch. The closest match is the small office-upgrade icons on Dale's Procurement clipboard (the ergonomic chair, the monitor riser, the carpet tiles and the cubicle wall extensions). Match them exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24, flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left.
+
+The player can now renovate their office, level after level. This batch is one icon for each of the four renovations.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks or printed graphics anywhere (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, centring) is authorized as before.
+
+Number the files exactly as below (they continue after 217_icon_case_file.png). Deliver all 4 PNGs in a folder named batch11 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch11.json (size and alpha bounding box per file) and prompts-batch11.json (the prompt used for each file), like earlier batches.
+
+==================================================
+RENOVATION ICONS (4 files)
+==================================================
+
+All four: 256 x 256 transparent, the object filling about 80% of the canvas and centred, outline scaled to about 5px, EXACTLY the style and scale of the existing office-upgrade icons. Each reads clearly at 38 x 38 pixels.
+
+218_icon_reno_window.png — Window Office: a tall office window with a pale wooden frame and a cross-shaped mullion, light blue sky and one small white cloud through the glass, a half-raised venetian blind at the top, and a little potted plant on the wide sill.
+219_icon_reno_espresso.png — Espresso Machine: a chunky brushed-steel espresso machine with two round dials (blank faces), a portafilter, and a small white cup on the drip tray with two thin wisps of steam rising from it.
+220_icon_reno_desks.png — Standing Desks: a modern sit-stand desk raised to standing height, a light wood top on two grey telescoping legs with flat feet, a small beige monitor on top and a coffee mug beside it.
+221_icon_reno_panels.png — Acoustic Panels: a square slate-blue acoustic foam panel with an egg-crate/wedge pattern, slightly tilted, with a second panel peeking out behind it.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 4 PNGs, numbered 218 to 221, 256 x 256 transparent.
+- No text, numbers, letters, logos or prints anywhere, including the espresso dials.
+- Same outline weight, palette and scale as the existing office-upgrade icons.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch11 folder.

@@ -2553,6 +2553,29 @@
   box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.08);
 }
 
+/* The career ladder: which offices' offers you're looking at. */
+.tier-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tier-pick [aria-pressed='true'] {
+  background: #2f6b3c;
+  color: #fff;
+}
+
+.offer-tier {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2f6b3c;
+  white-space: nowrap;
+}
+
+.stock-card .offer-acts {
+  margin-top: 6px;
+}
+
 .offer h4 {
   margin: 0;
   font-size: 16px;

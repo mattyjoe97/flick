@@ -16,6 +16,7 @@ import { POLITICS, ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
 import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from './politics';
 import { offlineCap, repDamage } from './job';
+import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
 
 export { openBox } from './supplies';
@@ -23,6 +24,16 @@ export { openBox } from './supplies';
 // ------------------------------------------------------------------ helpers
 
 /** Adds Suspicion through Lookouts, and triggers getting caught at 100. */
+
+/**
+ * The career ladder and the Window Office: up the ladder everyone is tougher. Inside, that
+ * means your hits count for less; on screen, Resolve and damage are shown that many times
+ * bigger (see `toughness`), so the numbers grow instead.
+ */
+function ladderDamage(s: GameState) {
+  return renoDamage(s) / toughness(s);
+}
+
 export function addSuspicion(s: GameState, amount: number) {
   const m = mods(s);
   s.suspicion += amount * (1 - m.lookoutCut) * company(s).rules.suspicion;
@@ -226,7 +237,7 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s);
+  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s) * ladderDamage(s);
   // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'shot'));
@@ -553,7 +564,7 @@ export function barrage(s: GameState): ActionResult {
   const shooters = barrageShooters(s);
   const n = barrageSize(s);
   s.bands -= n;
-  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s);
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ladderDamage(s);
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
   else s.targetResolve -= dmg;
@@ -566,7 +577,7 @@ export function barrage(s: GameState): ActionResult {
   s.stats.damage += dmg;
   s.events.push({ type: 'barrage', damage: dmg, bands: n, shooters });
   chatEvent(s, 'barrage');
-  pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg).toLocaleString('en-US')} Resolve.`);
+  pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg * toughness(s)).toLocaleString('en-US')} Resolve.`);
   const noise = (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult * politicsNoise(s);
   addSuspicion(s, noise);
   if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);

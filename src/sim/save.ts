@@ -1,6 +1,7 @@
-import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, MOMENTS, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, MOMENTS, RENOVATIONS, type RenovationId, PAY_GRADES, POLITICS, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
 import { deptMax, isDept, isRoom, newGame, newJob, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
 import { politicsForOldSave } from './politics';
+import { ladderForOldSave } from './ladder';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -76,6 +77,10 @@ function migrate(file: SaveFile): GameState | null {
   const job = file.state.job;
   s.job = { ...newJob(), ...(job ?? {}), perks: { ...(job?.perks ?? {}) }, trophies: { ...(job?.trophies ?? {}) }, history: Array.isArray(job?.history) ? job!.history : [] };
   if (file.version < 17) s.job.unlocked = s.stage >= 6;
+  s.job.closed = Array.isArray(job?.closed) ? [...job!.closed] : [];
+  // The career ladder: saves from before it count the cases they'd already closed.
+  if (file.version < 18) ladderForOldSave(s);
+  s.renovations = { ...(file.state.renovations ?? {}) };
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;
@@ -264,6 +269,15 @@ function sanitize(s: GameState): boolean {
     else j.perks[id] = Math.min(def.max, Math.max(0, Math.floor(Number(j.perks[id]) || 0)));
   }
   for (const id of Object.keys(j.trophies)) if (!TROPHIES.some((t) => t.id === id) || !Number.isFinite(j.trophies[id])) delete j.trophies[id];
+  j.closed = j.closed.map((n) => Math.max(0, Math.floor(Number(n) || 0)));
+  j.top = Math.max(0, Math.floor(Number(j.top) || 0));
+  j.tier = Math.min(j.top, Math.max(0, Math.floor(Number(j.tier) || 0)));
+  for (const id of Object.keys(s.renovations) as RenovationId[]) {
+    const def = RENOVATIONS.find((r) => r.id === id);
+    if (!def) delete s.renovations[id];
+    else s.renovations[id] = Math.min(def.max, Math.max(0, Math.floor(Number(s.renovations[id]) || 0)));
+  }
+  s.stock = Math.max(0, Math.floor(Number(s.stock) || 0));
   j.history = j.history.filter((h) => h && COMPANIES.some((c) => c.id === h.company) && Number.isFinite(h.minutes)).slice(-12);
   return true;
 }

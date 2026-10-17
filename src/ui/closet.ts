@@ -17,7 +17,8 @@ import dalePsst from '../assets/art/dale-psst.webp';
 import clipboardArt from '../assets/art/clipboard.webp';
 
 import { CLOSET_ART } from './portrait-art';
-import { DALE, TARGETS, UPGRADES, WEAPONS, type UpgradeId, type WeaponId } from '../sim/content';
+import { DALE, RENOVATIONS, TARGETS, UPGRADES, WEAPONS, type RenovationId, type UpgradeId, type WeaponId } from '../sim/content';
+import { buyRenovation, renoCost, renoLevel, renovationsOpen } from '../sim/ladder';
 import {
   buyBack,
   buyBackPrice,
@@ -35,7 +36,15 @@ import {
 import { has, isConfiscated, mods } from '../sim/mods';
 import type { GameState } from '../sim/state';
 import type { Sound } from './sound';
-import { GUN_ART, ICON_ART } from './goods-art';
+import { GUN_ART, ICON_ART, RENO_ART } from './goods-art';
+
+/** What a renovation adds up to at a level ("bands hit 30% harder"). */
+function renoNow(id: RenovationId, lv: number) {
+  const r = RENOVATIONS.find((x) => x.id === id)!;
+  if (id === 'panels') return `${Math.round((1 - Math.pow(1 - r.each, lv)) * 100)}% quieter`;
+  const pct = Math.round(r.each * lv * 100);
+  return id === 'window' ? `bands hit ${pct}% harder` : id === 'espresso' ? `your team works ${pct}% faster` : `work pays ${pct}% more`;
+}
 
 /** What Dale says when you pick something up. */
 const PITCH: Record<string, string> = {
@@ -131,7 +140,7 @@ export class ClosetView {
   private key = '';
   private selected: ItemKey | null = null;
   /** The office upgrade to point at on the clipboard (from the shopping list). */
-  private formsFocus: UpgradeId | null = null;
+  private formsFocus: string | null = null; // an office upgrade or a renovation id
   private talkUntil = 0;
   private openUntil = 0;
   private psstShown = false;
@@ -212,9 +221,9 @@ export class ClosetView {
     this.root.hidden = false;
     this.key = '';
     this.formsFocus = null;
-    if (focus?.startsWith('u:') && isOffice(focus.slice(2))) {
+    if ((focus?.startsWith('u:') && isOffice(focus.slice(2))) || focus?.startsWith('n:')) {
       this.selected = 'forms';
-      this.formsFocus = focus.slice(2) as UpgradeId;
+      this.formsFocus = focus.slice(2);
     } else if (focus?.startsWith('w:') || focus?.startsWith('u:')) this.selected = focus as ItemKey;
     else this.selected = this.defaultPick(s);
     if (focus && this.selected) {
@@ -307,6 +316,14 @@ export class ClosetView {
       this.talk(pick(LINES.buy));
       this.sound.coins();
       this.hooks.bump('salary');
+    } else if (d.reno) {
+      const r = buyRenovation(s, d.reno as RenovationId);
+      if (!r.ok) return this.talk(r.reason.startsWith('That costs') ? pick(LINES.poor) : r.reason);
+      this.talk(pick(LINES.buy));
+      this.sound.coins();
+      this.hooks.bump('salary');
+      this.formsFocus = d.reno;
+      this.key = '';
     } else if (d.buyback) {
       const r = buyBack(s);
       if (!r.ok) return this.talk(pick(LINES.poor));
@@ -349,7 +366,9 @@ export class ClosetView {
       const open = this.forms(s).filter((u) => !has(s, u.id) && upgradeAvailable(s, u.id));
       const can = open.filter((u) => s.salary >= priceOf(s, u.price)).length;
       if (can) return { text: `${can} you can afford`, cls: 'afford' };
-      return open.length ? { text: `${open.length} form${open.length > 1 ? 's' : ''}`, cls: '' } : { text: 'Office upgrades', cls: 'locked' };
+      if (open.length) return { text: `${open.length} form${open.length > 1 ? 's' : ''}`, cls: '' };
+      if (renovationsOpen(s)) return { text: 'Renovations', cls: RENOVATIONS.some((r) => (renoCost(s, r.id) ?? Infinity) <= s.salary) ? 'afford' : '' };
+      return { text: 'Office upgrades', cls: 'locked' };
     }
     if (key.startsWith('w:')) {
       const w = WEAPONS.find((x) => x.id === key.slice(2))!;
@@ -482,8 +501,19 @@ export class ClosetView {
       rows.push(`<li class="form-row${avail ? '' : ' locked'}${this.formsFocus === u.id ? ' focus' : ''}" data-form="${u.id}">
         <img src="${ICON_ART[u.id]}" alt="" draggable="false"><div><b>${esc(u.name)}</b><span>${esc(u.effect)}</span></div>${act}</li>`);
     }
+    // Renovations: from the Department War on, every level a new form (and a bigger bill).
+    const renos = renovationsOpen(s)
+      ? RENOVATIONS.map((r) => {
+          const lv = renoLevel(s, r.id);
+          const price = renoCost(s, r.id);
+          const act = price === null ? '<span class="tag-note">Done</span>' : `<button type="button" class="buy" data-reno="${r.id}" data-price="${price}">${money(price)}</button>`;
+          return `<li class="form-row reno${this.formsFocus === r.id ? ' focus' : ''}" data-form="${r.id}">
+            <img src="${RENO_ART[r.id]}" alt="" draggable="false"><div><b>${esc(r.name)}${lv ? ` <small class="reno-lv">level ${lv}</small>` : ''}</b><span>${esc(r.does)}${lv ? ` Now: ${esc(renoNow(r.id, lv))}.` : ''}</span></div>${act}</li>`;
+        })
+      : [];
     this.detail.innerHTML = `<h3>Procurement forms</h3><p>Office upgrades. Dale’s cousin pre-stamps them, so nobody asks what they’re for.</p>
-      ${rows.length ? `<ul class="forms-list">${rows.join('')}</ul>` : '<p class="hint">Every form is filed. Procurement is starting to wonder.</p>'}
+      ${rows.length ? `<ul class="forms-list">${rows.join('')}</ul>` : renos.length ? '' : '<p class="hint">Every form is filed. Procurement is starting to wonder.</p>'}
+      ${renos.length ? `<h4 class="forms-h">Renovations</h4><p class="hint">As many times as you like; every level costs more. They stay with the office if you leave.</p><ul class="forms-list">${renos.join('')}</ul>` : ''}
       ${done.length ? `<p class="forms-done"><b>Approved:</b> ${done.join(', ')}</p>` : ''}`;
     const focus = this.formsFocus && this.detail.querySelector('.form-row.focus');
     if (focus) requestAnimationFrame(() => focus.scrollIntoView({ block: 'nearest' }));
@@ -505,6 +535,7 @@ export class ClosetView {
       s.weapon,
       s.ownedWeapons.join(),
       s.upgrades.join(),
+      JSON.stringify(s.renovations),
       s.hr.confiscated?.weapon ?? '',
       mods(s).hasEngineer,
       mods(s).priceMult,

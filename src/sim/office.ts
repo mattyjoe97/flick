@@ -9,6 +9,7 @@
 import { BAILEY, MOMENTS, TEAMS, type MomentKind } from './content';
 import { chatEvent } from './chat';
 import { knowsTrick, mods } from './mods';
+import { toughness } from './ladder';
 import { randRange, rand } from './rng';
 import { currentTarget, pushTicker, type GameState } from './state';
 import { leadName, seats, staffPayPerMin } from './staff';
@@ -102,7 +103,7 @@ export function claimMoment(s: GameState): string | null {
       if (t) {
         const hit = Math.round(s.targetResolve * MOMENTS.muffinsShare);
         s.targetResolve = Math.max(1, s.targetResolve - hit);
-        text = `Muffins knocks ${t.name.split(' ')[0]}’s stapler off the desk. They lose ${hit.toLocaleString('en-US')} Resolve, and their dignity.`;
+        text = `Muffins knocks ${t.name.split(' ')[0]}’s stapler off the desk. They lose ${Math.round(hit * toughness(s)).toLocaleString('en-US')} Resolve, and their dignity.`;
       } else text = 'Muffins knocks a stapler off an empty desk. Morale improves.';
       break;
     }

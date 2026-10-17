@@ -1,6 +1,7 @@
-import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
+import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, LADDER, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
 import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
+import { tierFloor, tierName, toughness } from '../sim/ladder';
 import {
   assign,
   buyBack,
@@ -44,7 +45,7 @@ import { leadName, seatCap, seatCost, seats, staffPayPerMin, teamUnlocked } from
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
 import { affordable, itemKey, shoppingList } from '../sim/shop';
-import { GUN_ART, ICON_ART } from './goods-art';
+import { GUN_ART, ICON_ART, RENO_ART } from './goods-art';
 
 export interface GameHost {
   state: GameState;
@@ -157,8 +158,8 @@ export class UI {
         this.sound.coins();
         this.say(`Ordered. The box will be at your desk in ${SUPPLIES.deliverySeconds} seconds.`);
       },
-      quitJob: (to) => {
-        if (!startNewJob(this.s, to).ok) return;
+      quitJob: (to, tier) => {
+        if (!startNewJob(this.s, to, tier).ok) return;
         this.host.save();
         location.reload();
       },
@@ -732,7 +733,7 @@ export class UI {
     for (const e of events) {
       this.scene.handle(e);
       if (e.type === 'shot') {
-        this.onShot(e.damage, e.by, e.perfect ?? false);
+        this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false);
         if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
         else this.sound.ally();
       } else if (e.type === 'barrage') {
@@ -770,6 +771,9 @@ export class UI {
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
+      } else if (e.type === 'climb') {
+        this.sound.grade('A');
+        this.say(this.s.ticker[0]?.text ?? '');
       } else if (e.type === 'caseWarning') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
@@ -893,7 +897,7 @@ export class UI {
     const box = $('floaters');
     const f = document.createElement('span');
     f.className = 'floater barrage';
-    f.innerHTML = `Barrage! <b>−${fmt(Math.round(e.damage))}</b>`;
+    f.innerHTML = `Barrage! <b>−${fmt(Math.round(e.damage * toughness(this.s)))}</b>`;
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left}%`;
     f.style.top = `${o.top}%`;
@@ -1042,14 +1046,20 @@ export class UI {
     const c = company(s);
     this.welcoming = true; // marked as seen when you close it (the page may reload under it first)
     const last = s.job.history[s.job.history.length - 1];
+    const tier = s.job.tier ?? 0;
     $('stage-dlg-h').textContent = `Day one at ${c.name}`;
+    const times = (n: number) => `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}×`;
+    const office = tier > 0
+      ? `<li><b>${esc(tierName(tier))}, Floor ${tierFloor(tier)}:</b> everyone is ${times(Math.pow(LADDER.toughness, tier))} as tough, work pays ${times(Math.pow(LADDER.pay, tier))} as much, and this job is worth ${times(Math.pow(LADDER.rep, tier))} the Reputation</li>`
+      : '';
+    const gary = c.id === 'pemberton' ? 'Same company, bigger office. Gary is here too. Nobody knows how.' : `Same floor plan, same kind of people, different names. Gary is here. (He goes by ${esc(co('Gary'))} now.)`;
     $('stage-dlg-body').innerHTML = `
-      <p>${esc(c.pitch)} Same floor plan, same kind of people, different names. Gary is here. (He goes by ${esc(co('Gary'))} now.)</p>
-      <ul class="stage-list">${c.rulesText.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+      <p>${esc(c.pitch)} ${gary}</p>
+      <ul class="stage-list">${office}${c.rulesText.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
       <dl>
         ${last ? `<dt>Reputation from your last job</dt><dd>+${last.rep}</dd>` : ''}
         <dt>Reputation to spend</dt><dd>${s.job.reputation}</dd>
-        <dt>Your bands hit harder</dt><dd>+${Math.round((repDamage(s) - 1) * 100)}%</dd>
+        <dt>Your bands hit harder</dt><dd>${repDamage(s) >= 10 ? `×${fmt(Math.round(repDamage(s)))}` : `+${Math.round((repDamage(s) - 1) * 100)}%`}</dd>
       </dl>
       <p>Bailey, your rubber band ball and your names came with you. Spend your Reputation on résumé perks in <strong>Job Search</strong>, on your computer.</p>`;
     $('stage-dlg-ok').textContent = 'Get to work';
@@ -1085,7 +1095,13 @@ export class UI {
 
   render() {
     const s = this.s;
-    setCompany(s.job?.company ?? 'pemberton');
+    const floor = tierFloor(s.job?.tier ?? 0);
+    setCompany(s.job?.company ?? 'pemberton', floor);
+    // Up the career ladder the office is on another floor: the labels that name it follow.
+    this.rebuild('floor-labels', String(floor), () => {
+      $('map-btn').firstChild!.textContent = co('The 4th floor ');
+      $('warmap-h').textContent = co('The 4th floor');
+    });
     const m = mods(s);
     const now = performance.now();
     const dt = Math.min(0.05, (now - this.lastFrame) / 1000);
@@ -1261,7 +1277,9 @@ export class UI {
       const max = walled && room ? room.wall : t.resolve;
       this.set('resolve-label', walled ? 'Wall' : 'Resolve');
       this.rebuild('resolve-wall', String(walled), () => $('resolve-box').classList.toggle('wall', walled));
-      this.set('resolve-num', `${fmt(Math.ceil(r))} / ${fmt(max)}`);
+      // Up the career ladder everyone's Resolve is shown that many times bigger.
+      const k = toughness(s);
+      this.set('resolve-num', `${fmt(Math.ceil(r * k))} / ${fmt(Math.round(max * k))}`);
       $('resolve-fill').style.width = `${(r / max) * 100}%`;
       const tw = $('twist');
       // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
@@ -1357,7 +1375,7 @@ export class UI {
               const pic =
                 i.kind === 'recruit'
                   ? `<span class="shop-pic face">${faceSvg(i.id, 'idle')}</span>`
-                  : `<span class="shop-pic"><img src="${i.kind === 'weapon' ? GUN_ART[i.id] : ICON_ART[i.id]}" alt="" draggable="false"></span>`;
+                  : `<span class="shop-pic"><img src="${i.kind === 'weapon' ? GUN_ART[i.id] : i.kind === 'renovation' ? RENO_ART[i.id] : ICON_ART[i.id]}" alt="" draggable="false"></span>`;
               const where = i.kind === 'recruit' ? 'the Org Chart' : 'Dale';
               return `<li><button type="button" class="shop-row ${i.kind}" data-go="${itemKey(i)}" data-price="${i.price}" aria-label="${esc(i.name)}, ${money(i.price)}, from ${where}">
                 ${pic}<span class="shop-name">${esc(i.name)}</span><span class="shop-price">${money(i.price)}</span><i class="shop-bar" aria-hidden="true"><span></span></i></button></li>`;
@@ -1431,7 +1449,7 @@ export class UI {
         (s.stage >= 4 ? ROOMS.reduce((n, r) => n + r.desks, 0) : 0) +
         (s.stage >= 5 ? HR_DIRECTOR.desks : 0);
       $('floor-note').textContent = `${s.desks} of ${total} desks captured, each +0.25 bands/s`;
-      $('floor-h').textContent = s.stage >= 3 ? 'Floor 4' : 'Floor 4, east side';
+      $('floor-h').textContent = co(s.stage >= 3 ? 'Floor 4' : 'Floor 4, east side');
     });
   }
 

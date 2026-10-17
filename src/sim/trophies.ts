@@ -56,6 +56,11 @@ export const TROPHIES: Trophy[] = [
   { id: 'notice', name: 'Two Weeks’ Notice', does: 'Quit for a new job.', check: (s) => s.job.runs >= 1 },
   { id: 'hopper', name: 'Job Hopper', does: `Work at all ${COMPANIES.length} companies.`, check: (s) => companiesWorked(s) >= COMPANIES.length },
   { id: 'veteran', name: 'Industry Veteran', does: 'Earn 500 Reputation in all.', check: (s) => s.job.earned >= 500 },
+  // The career ladder
+  { id: 'headoffice', name: 'Moving On Up', does: 'Work at a Head Office.', check: (s) => (s.job.tier ?? 0) >= 1 },
+  { id: 'globalhq', name: 'Top Floor', does: 'Work at Global HQ.', check: (s) => (s.job.tier ?? 0) >= 2 },
+  { id: 'renovator', name: 'Extreme Makeover', does: 'Buy 15 renovations at one job.', check: (s) => (s.stats.renovations ?? 0) >= 15 },
+  { id: 'shares', name: 'Shareholder Value', does: 'Hold 25 shares of company stock.', check: (s) => (s.stats.shares ?? 0) >= 25 },
 ];
 
 export const TROPHY_BONUS = { pay: 0.02, damage: 0.01 };
