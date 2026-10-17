@@ -10,7 +10,9 @@ import { stepOffice } from './office';
 import { stepGoals } from './goals';
 import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
-import { afterHit, deptWon, fightingDept, shotMult, startWar, stepWar } from './war';
+import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
+import { fightingRoom, hitWall, inMeeting, siegeOffline, stepSiege, wallMult, wallUp } from './siege';
+import { ROOMS } from './content';
 import { asksOffline, stepAsks } from './asks';
 
 export { openBox } from './supplies';
@@ -110,6 +112,10 @@ function getFired(s: GameState) {
   } else if (fightingDept(s)) {
     // The department you were fighting gets all its Resolve back (the ones you took stay yours).
     s.targetResolve = deptMax(s, fightingDept(s)!);
+    s.sinceLastHit = 999;
+  } else if (fightingRoom(s)) {
+    // The room gets its Resolve back (what you knocked off its wall stays knocked off).
+    s.targetResolve = ROOMS.find((r) => r.room === fightingRoom(s))!.resolve;
     s.sinceLastHit = 999;
   } else if (s.rematch) {
     s.targetResolve = s.rematch.resolve;
@@ -211,8 +217,11 @@ function fire(
   if (s.bands < w.burst) return false;
   const m = mods(s);
   s.bands -= w.burst;
-  const dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge);
-  s.targetResolve -= dmg;
+  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge);
+  // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
+  const walled = wallUp(s);
+  if (walled) dmg = hitWall(s, dmg * wallMult(s, 'shot'));
+  else s.targetResolve -= dmg;
   afterHit(s);
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
@@ -222,7 +231,7 @@ function fire(
   const stretch = 1 + CHARGE.noisePerCharge * shot.charge;
   const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1);
   addSuspicion(s, noise);
-  if (s.targetResolve <= 0) capture(s);
+  if (!walled && s.targetResolve <= 0) capture(s);
   return true;
 }
 
@@ -231,6 +240,7 @@ function capture(s: GameState) {
   if (!t) return;
   if (s.stage >= 3) {
     if (fightingDept(s)) deptWon(s);
+    else if (fightingRoom(s)) roomWon(s);
     else rematchWon(s);
     addSuspicion(s, TUNING.captureNoise);
     return;
@@ -315,7 +325,7 @@ export function step(s: GameState, dt: number) {
   checkThresholds(s);
 
   // Allies fire (at half speed while you're at your computer: they're covering for you)
-  const shootersActive = t && s.time >= s.shooterLockUntil;
+  const shootersActive = t && s.time >= s.shooterLockUntil && !inMeeting(s);
   const interval = m.allyInterval * (s.lookBusy ? TUNING.computerAllySlow : 1);
   let outOfAmmo = false;
   for (const a of s.allies) {
@@ -384,6 +394,7 @@ export function step(s: GameState, dt: number) {
   stepBall(s);
   stepRematch(s);
   stepWar(s, addSuspicion);
+  stepSiege(s, dt);
   stepAsks(s);
   stepChat(s);
   stepSupplies(s);
@@ -484,7 +495,7 @@ export function snapBand(s: GameState): ActionResult {
 
 /** The Shooters who join in a Barrage (everyone's on lockdown after you're caught). */
 function barrageShooters(s: GameState) {
-  return s.time < s.shooterLockUntil ? [] : s.allies.filter((a) => a.role === 'shooter').map((a) => a.id);
+  return s.time < s.shooterLockUntil || inMeeting(s) ? [] : s.allies.filter((a) => a.role === 'shooter').map((a) => a.id);
 }
 
 /** How many bands a Barrage would throw right now: a pocketful each for you and every Shooter. */
@@ -525,8 +536,10 @@ export function barrage(s: GameState): ActionResult {
   const shooters = barrageShooters(s);
   const n = barrageSize(s);
   s.bands -= n;
-  const dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage;
-  s.targetResolve -= dmg;
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage;
+  const walled = wallUp(s);
+  if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
+  else s.targetResolve -= dmg;
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
   afterHit(s);
@@ -538,7 +551,7 @@ export function barrage(s: GameState): ActionResult {
   chatEvent(s, 'barrage');
   pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg).toLocaleString('en-US')} Resolve.`);
   addSuspicion(s, (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult);
-  if (s.targetResolve <= 0) capture(s);
+  if (!walled && s.targetResolve <= 0) capture(s);
   return ok;
 }
 
@@ -640,13 +653,14 @@ export function recruit(s: GameState, id: CoworkerId): ActionResult {
 export function assign(s: GameState, id: CoworkerId, role: Role): ActionResult {
   const a = s.allies.find((a) => a.id === id);
   if (!a) return no('Not on your team.');
+  if (role === 'guard' && s.stage !== 4) return no('Guards are for holding the floor (Stage 4).');
   a.role = role;
   a.timer = 0;
   return ok;
 }
 
 function roleName(r: Role) {
-  return { shooter: 'a Shooter', gatherer: 'a Gatherer', lookout: 'a Lookout', cover: 'Cover', engineer: 'an Engineer' }[r];
+  return { shooter: 'a Shooter', gatherer: 'a Gatherer', lookout: 'a Lookout', cover: 'Cover', engineer: 'an Engineer', guard: 'a Guard' }[r];
 }
 
 // ------------------------------------------------------------------ Dale's black market
@@ -691,7 +705,7 @@ function stepDale(s: GameState) {
     else if (s.time >= d.deal.until) dealOver(s, 'expired');
     return;
   }
-  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.war?.closet.raid || s.asks?.current || !currentTarget(s)) return;
+  if (s.time < d.nextDealAt || s.lookBusy || s.walkby.arrivesAt !== null || s.war?.closet.raid || s.war?.counter?.attack || s.asks?.current || !currentTarget(s)) return;
   const opts = dealOptions(s);
   if (opts.length === 0) {
     d.nextDealAt = s.time + 60;
@@ -756,6 +770,7 @@ export function applyOffline(s: GameState, seconds: number) {
   s.dale.deal = null;
   s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);
   asksOffline(s);
+  siegeOffline(s);
   // Nobody raids the closet while you're away (and one in progress gives up).
   s.war.closet.raid = null;
   s.war.closet.nextAt = Math.max(s.war.closet.nextAt, s.time + 60);

@@ -349,7 +349,7 @@ export function stepAsks(s: GameState) {
   }
   if (s.time < a.nextAt) return;
   // Not on top of Dale's deal or a raid on the closet, and not while Mr. Feeney is on his way.
-  if (s.dale.deal || s.war?.closet.raid || s.walkby.arrivesAt !== null) return;
+  if (s.dale.deal || s.war?.closet.raid || s.war?.counter?.attack || s.walkby.arrivesAt !== null) return;
   startAsk(s);
 }
 

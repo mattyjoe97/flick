@@ -1,6 +1,6 @@
-import { COWORKERS, DEPARTMENTS, MOMENTS, PAY_GRADES, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
-import { deptMax, newGame, newWar, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
-import { warForOldSave } from './war';
+import { COWORKERS, DEPARTMENTS, MOMENTS, PAY_GRADES, ROLES, ROOMS, TARGETS, TEAMS, UPGRADES, WEAPONS } from './content';
+import { deptMax, isDept, isRoom, newGame, newWar, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
+import { siegeForOldSave, warForOldSave } from './war';
 
 export const SAVE_KEY = 'flick.save';
 
@@ -65,6 +65,8 @@ function migrate(file: SaveFile): GameState | null {
     s.war = newWar();
     if (s.stage >= 3) warForOldSave(s);
   } else s.war = mergeWar(file.state.war);
+  // Stage 4: saves from before it that had already taken all four departments open it from their rematch.
+  if (file.version < 15 && s.stage >= 4) siegeForOldSave(s);
   s.asks = { ...base.asks, ...(file.state.asks ?? {}) };
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
@@ -75,8 +77,17 @@ function mergeWar(saved: Partial<WarState>): WarState {
   const base = newWar();
   const depts = { ...base.depts };
   for (const d of DEPARTMENTS) depts[d.dept] = { ...base.depts[d.dept], ...(saved.depts?.[d.dept] ?? {}) };
-  // A raid doesn't wait while the game is closed.
-  return { ...base, ...saved, depts, closet: { ...base.closet, ...(saved.closet ?? {}), raid: null } };
+  const rooms = { ...base.rooms };
+  for (const r of ROOMS) rooms[r.room] = { ...base.rooms[r.room], ...(saved.rooms?.[r.room] ?? {}) };
+  // A raid or a counterattack doesn't wait while the game is closed.
+  return {
+    ...base,
+    ...saved,
+    depts,
+    rooms,
+    closet: { ...base.closet, ...(saved.closet ?? {}), raid: null },
+    counter: { ...base.counter, ...(saved.counter ?? {}), attack: null },
+  };
 }
 
 /** Before version 7, Messenger was one log; now it's a conversation per person. */
@@ -96,7 +107,7 @@ function sanitize(s: GameState): boolean {
   const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n);
   if (![s.time, s.bands, s.salary, s.suspicion, s.targetResolve, s.desks].every(finite)) return false;
   if (s.targetIndex < 0 || s.targetIndex >= TARGETS.length) return false;
-  if (![1, 2, 3, 4].includes(s.stage)) return false;
+  if (![1, 2, 3, 4, 5].includes(s.stage)) return false;
   s.bands = Math.max(0, s.bands);
   s.salary = Math.max(0, s.salary);
   s.suspicion = Math.min(99, Math.max(0, s.suspicion));
@@ -107,6 +118,8 @@ function sanitize(s: GameState): boolean {
   for (const a of s.allies) {
     if (!Number.isFinite(a.served)) a.served = 0;
     a.rank = Math.min(2, Math.max(0, Math.floor(Number(a.rank) || 0)));
+    const c = COWORKERS.find((c) => c.id === a.id)!;
+    if (!ROLES.some((r) => r.id === a.role) || (a.role === 'guard' && s.stage !== 4)) a.role = c.traitRole;
   }
   s.hr.writeUps = Math.min(3, Math.max(0, Math.floor(Number(s.hr.writeUps) || 0)));
   const w = s.work;
@@ -141,15 +154,40 @@ function sanitize(s: GameState): boolean {
     w.taken = !!w.taken;
     w.met = !!w.met;
     w.rebranded = !!w.rebranded;
+    if (!Number.isFinite(w.lostUntil)) w.lostUntil = -999;
   }
-  if (war.fighting !== 'rematch' && !DEPARTMENTS.some((d) => d.dept === war.fighting)) war.fighting = 'rematch';
-  if (war.fighting !== 'rematch' && war.depts[war.fighting].taken) war.fighting = DEPARTMENTS.find((d) => !war.depts[d.dept].taken)?.dept ?? 'rematch';
-  if (s.stage >= 4) war.fighting = 'rematch';
+  for (const r of ROOMS) {
+    const w = war.rooms[r.room];
+    w.share = Math.min(1, Math.max(0, Number(w.share)));
+    if (!Number.isFinite(w.share)) w.share = 1;
+    w.wall = Math.min(r.wall, Math.max(0, Number(w.wall)));
+    if (!Number.isFinite(w.wall)) w.wall = r.wall;
+    w.taken = !!w.taken;
+    w.met = !!w.met;
+    if (!Number.isFinite(w.sabotageUntil)) w.sabotageUntil = -999;
+  }
+  const f = war.fighting as string;
+  if (f !== 'rematch' && !isDept(f) && !isRoom(f)) war.fighting = 'rematch';
+  // Who you can be fighting depends on the stage: a department in 3, a room in 4.
+  if (s.stage === 3) {
+    if (isRoom(war.fighting)) war.fighting = 'rematch';
+    if (isDept(war.fighting) && war.depts[war.fighting].taken) war.fighting = DEPARTMENTS.find((d) => !war.depts[d.dept].taken)?.dept ?? 'rematch';
+  } else if (s.stage === 4) {
+    if (isDept(war.fighting)) war.fighting = 'rematch';
+    if (isRoom(war.fighting) && war.rooms[war.fighting].taken) war.fighting = ROOMS.find((r) => !war.rooms[r.room].taken)?.room ?? 'rematch';
+  } else if (s.stage >= 5) war.fighting = 'rematch';
   // If we had to change who you're fighting, their Resolve comes with them.
   if (war.fighting !== was && s.stage >= 3) {
-    if (war.fighting === 'rematch') s.targetResolve = s.rematch?.left ?? s.rematch?.resolve ?? 0;
-    else s.targetResolve = war.depts[war.fighting].share * deptMax(s, war.fighting);
+    const to = war.fighting;
+    if (to === 'rematch') s.targetResolve = s.rematch?.left ?? s.rematch?.resolve ?? 0;
+    else if (isDept(to)) s.targetResolve = war.depts[to].share * deptMax(s, to);
+    else s.targetResolve = war.rooms[to].share * ROOMS.find((r) => r.room === to)!.resolve;
   }
+  for (const k of ['coffeeAt', 'meetingAt'] as const) if (!Number.isFinite(war[k])) war[k] = s.time;
+  war.meetingUntil = -999;
+  if (!Number.isFinite(war.counter.nextAt)) war.counter.nextAt = s.time + 120;
+  war.counter.attack = null;
+  war.announced4 = !!war.announced4;
   if (!Number.isFinite(war.tonyAt)) war.tonyAt = s.time;
   const cl = war.closet;
   if (!Number.isFinite(cl.nextAt)) cl.nextAt = s.time + 120;

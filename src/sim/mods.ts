@@ -1,5 +1,5 @@
-import { BAILEY, CHARGE, COWORKERS, DALE, PROMOTION, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
-import { deptTaken, type GameState } from './state';
+import { BAILEY, CHARGE, COWORKERS, DALE, DEPARTMENTS, PROMOTION, SIEGE, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { deptPerk, roomTaken, type GameState } from './state';
 
 export function has(s: GameState, id: UpgradeId) {
   return s.upgrades.includes(id);
@@ -44,6 +44,13 @@ export function knowsTrick(s: GameState, id: TrickId) {
   return (s.office?.scratches ?? 0) >= t.at;
 }
 
+/** Desks you hold right now (a department that took its desks back has them for a while). */
+export function activeDesks(s: GameState) {
+  let n = s.desks;
+  for (const d of DEPARTMENTS) if (s.war?.depts[d.dept]?.taken && !deptPerk(s, d.dept)) n -= d.desks;
+  return Math.max(0, n);
+}
+
 /** From the Department War on, Dale's closet pays you bands unless a raid just got away. */
 export function closetIsYours(s: GameState) {
   return s.stage >= 3 && s.time >= (s.war?.closet.lostUntil ?? -999);
@@ -66,9 +73,9 @@ export function mods(s: GameState) {
     (has(s, 'organizer') ? TUNING.organizerRate : 0) +
     (has(s, 'closet') ? TUNING.closetRate : 0) +
     gatherers * TUNING.gathererRate +
-    s.desks * TUNING.deskRate +
+    activeDesks(s) * TUNING.deskRate +
     (knowsTrick(s, 'fetch') ? BAILEY.fetchRate : 0) +
-    (deptTaken(s, 'mailroom') ? WAR.mailroomRate : 0) +
+    (deptPerk(s, 'mailroom') ? WAR.mailroomRate : 0) +
     (closetIsYours(s) ? WAR.closet.bonus : 0);
 
   const lookBusyMult = has(s, 'macros') ? 3 : 2;
@@ -81,7 +88,7 @@ export function mods(s: GameState) {
     warning: Math.min(TUNING.warnMax, TUNING.warnBase + (has(s, 'riser') ? 1 : 0) + lookouts * TUNING.lookoutWarnEach) + BAILEY.warn + (knowsTrick(s, 'guard') ? 1 : 0),
     priceMult: 1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach),
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
-    allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1),
+    allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1) / (roomTaken(s, 'breakroom') ? SIEGE.coffeeShooters : 1),
     yourNoiseMult: has(s, 'silent') ? 0.75 : 1,
     allNoiseMult: (has(s, 'carpet') ? 0.85 : 1) * (has(s, 'walls') ? 0.8 : 1),
     scrounge: has(s, 'rummage') ? 2 : 1,

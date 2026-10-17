@@ -19,7 +19,7 @@ import { payGrade } from './work';
 
 /** Are you fighting the rematches right now (rather than a department)? */
 export function fightingRematch(s: GameState) {
-  return s.stage >= 4 || (s.stage === 3 && s.war.fighting === 'rematch');
+  return s.stage >= 5 || ((s.stage === 3 || s.stage === 4) && s.war.fighting === 'rematch');
 }
 
 /** What the `index`th rematch of `round` is like: how tough, and what it pays. */

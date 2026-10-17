@@ -97,6 +97,21 @@ export const PEOPLE: Record<string, Person> = {
       idle: ['Love that energy!', 'Let’s circle back.', 'This is so on-brand for you.'],
     },
   },
+  // The Stage 4 room bosses (stand-ins until their painted portraits arrive).
+  gail: {
+    skin: '#f4cdb0', hair: '#cdbf98', style: 'messy', shirt: '#2f8f8a', cardigan: true, glasses: 'round', earrings: true, lanyard: '#8a5a2b', rest: 'happy',
+    lines: {
+      hit: ['My mug!', 'Not before my coffee!', 'I run payroll, you know.'],
+      idle: ['Fresh pot’s on.', 'Coffee Club members only.', 'Same mug since 1998.'],
+    },
+  },
+  victoria: {
+    skin: '#c99a72', hair: '#26211e', style: 'bun', shirt: '#1f2126', earrings: true, rest: 'smug',
+    lines: {
+      hit: ['Let’s take this offline!', 'I’ll be speaking to Mr. Feeney.', 'That is not on the agenda!'],
+      idle: ['Let’s circle up.', 'Do you have a minute? Or sixty?', 'I’ve sent a calendar invite.'],
+    },
+  },
   // Stand-in until his painted art arrives.
   dale: { skin: '#d8b08a', hair: '#5c554c', style: 'slick', shirt: '#6e7b43', lanyard: '#3a3f45', glasses: 'square', rest: 'smug' },
 };
@@ -115,6 +130,8 @@ export const TARGET_PEOPLE: Record<string, string[]> = {
   accounting: ['doris'],
   mailroom: ['tony'],
   marketing: ['skyler'],
+  breakroom: ['gail'],
+  conference: ['victoria'],
 };
 
 function hair(p: Person): string {

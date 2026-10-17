@@ -35,6 +35,8 @@ import {
 } from '../src/sim/work';
 import { mods, weapon } from '../src/sim/mods';
 import { chaseRaid, fightingDept } from '../src/sim/war';
+import { fightingRoom, holdLine, sabotage, sabotageCost, sabotaged } from '../src/sim/siege';
+import { assign } from '../src/sim/engine';
 import { newGame, type GameState } from '../src/sim/state';
 
 export interface BotStyle {
@@ -45,6 +47,9 @@ export interface BotStyle {
   stockpile?: boolean;
   /** Keeps fighting after the first slice (the Department War, rematches) instead of only working. */
   war3?: boolean;
+  /** Stage 4: puts someone on guard duty, and sabotages the rooms when it can afford to. */
+  guards?: boolean;
+  sabotage?: boolean;
   actionsPerSecond: number;
   hideAbove: number; // Suspicion level that makes the bot hide
   resumeBelow: number;
@@ -174,6 +179,18 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   }
   // A raid on the supply closet gets chased off (it pops up right in front of you).
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
+  if (s.stage === 4) {
+    // So does a counterattack on the desks you took.
+    if (s.war.counter.attack && !s.lookBusy && holdLine(s).ok) return;
+    // One person guards the floor (Kevin, if he's around).
+    if (style.guards !== false && !s.allies.some((a) => a.role === 'guard')) {
+      const g = s.allies.find((a) => a.id === 'kevin') ?? s.allies.find((a) => a.role === 'gatherer');
+      if (g) assign(s, g.id, 'guard');
+    }
+    // Shut off the room's trick when there's money to spare.
+    const r = fightingRoom(s);
+    if (style.sabotage !== false && r && !sabotaged(s, r) && s.salary > sabotageCost(s) * 3 && (r === 'conference' || s.war.rooms[r].wall <= 0) && sabotage(s, r).ok) return;
+  }
   const countdown = walkbyCountdown(s);
   // A ringing phone gets answered: that's work, and it puts you at your computer.
   if (s.work.ringing && doTask(s, style, mind)) return;

@@ -1,15 +1,21 @@
 // All tunable game content lives here as data. Balancing FLICK should mostly
 // mean editing numbers in this file, not changing code.
 
-export type Role = 'shooter' | 'gatherer' | 'lookout' | 'cover' | 'engineer';
+export type Role = 'shooter' | 'gatherer' | 'lookout' | 'cover' | 'engineer' | 'guard';
 
 export const ROLES: { id: Role; name: string; effect: string }[] = [
   { id: 'shooter', name: 'Shooter', effect: 'Fires your best weapon every 2 s' },
   { id: 'gatherer', name: 'Gatherer', effect: '+0.5 bands/s' },
   { id: 'lookout', name: 'Lookout', effect: '−12% Suspicion gain, +0.75 s warning' },
   { id: 'cover', name: 'Cover', effect: 'Does real work: +$0.50/s, −0.3 Suspicion/s' },
-  { id: 'engineer', name: 'Engineer', effect: '−10% weapon and requisition prices' },
+  { id: 'engineer', name: 'Engineer', effect: '−10% weapon and requisition prices; in Stage 4, takes filing-cabinet walls apart' },
+  { id: 'guard', name: 'Guard', effect: 'Holds your desks: stops departments taking them back (Stage 4)' },
 ];
+
+/** The roles you can give people right now (Guards come with Stage 4). */
+export function rolesFor(stage: number) {
+  return ROLES.filter((r) => r.id !== 'guard' || stage === 4);
+}
 
 // ---------------------------------------------------------------- weapons
 
@@ -199,9 +205,71 @@ export const WAR = {
   },
 };
 
+// ---------------------------------------------------------------- Stage 4: Floor Domination
+
+export type RoomId = 'breakroom' | 'conference';
+
+/**
+ * The floor's last two shared spaces, held by people who dug in behind walls of filing
+ * cabinets. The wall comes down first (it has its own bar), then their Resolve.
+ */
+export interface Room extends Target {
+  room: RoomId;
+  label: string;
+  short: string;
+  perk: string; // completes "You get ..."
+  prize: string; // the same in a few words
+  wall: number; // the wall's strength
+  sabotage: { label: string; does: string };
+}
+
+export const ROOMS: Room[] = [
+  {
+    id: 'breakroom', room: 'breakroom', label: 'Break Room', short: 'Gail', stage: 4, name: 'Gail Petroski', title: 'Payroll Supervisor', position: 'Behind the filing cabinets, by the coffee maker',
+    resolve: 330000, wall: 180000, regenPct: 0.004, desks: 3, bounty: 9000, bountyNote: 'the Coffee Club’s dues jar',
+    twist: 'Coffee: every 30 s they top up 1.5% of their Resolve.',
+    perk: 'coffee for your side: your Shooters fire 25% faster and your own shots hit 25% harder',
+    prize: 'Shooters 25% faster, your shots 25% harder',
+    sabotage: { label: 'Unplug their coffee machine', does: 'no coffee refills for 3 minutes' },
+    intro: { from: 'Gail Petroski', subject: 'Re: the Break Room', body: 'The Coffee Club has held this break room since 1998. We have a wall of filing cabinets and a full pot. We are not leaving.' },
+    defeat: { from: 'Gail Petroski', subject: 'Fine', body: 'The Coffee Club surrenders the break room. The good mugs are on the left. Rinse them.' },
+  },
+  {
+    id: 'conference', room: 'conference', label: 'Conference Room', short: 'Victoria', stage: 4, name: 'Victoria Lang', title: 'VP of Operations', position: 'Behind the filing cabinets, in the corner office',
+    resolve: 400000, wall: 230000, regenPct: 0.004, desks: 4, bounty: 12000, bountyNote: 'the executive offsite budget',
+    twist: 'Meetings: every 45 s she pulls your Shooters away for 10 s.',
+    perk: 'the corner conference room: your team works 25% faster',
+    prize: 'Your team works 25% faster',
+    sabotage: { label: 'Start a reply-all storm', does: 'no meetings for 3 minutes' },
+    intro: { from: 'Victoria Lang', subject: 'Calendar hold: the Conference Room', body: 'I have booked the corner conference room indefinitely. Recurring, all day, every day. Declining is not an option.' },
+    defeat: { from: 'Victoria Lang', subject: 'Canceled: Everything', body: 'I am releasing the conference room. Effective immediately, you report to me. Kidding. I report to you. Do not tell the board.' },
+  },
+];
+
+/** Stage 4's rules: walls, the rooms' tricks, sabotage and counterattacks. */
+export const SIEGE = {
+  wallShot: 0.5, // a normal shot does this much to a wall (the Gatling, a drill, and Barrages do all of it)
+  engineerDps: 60, // wall taken down per second per point of Engineer power
+  coffee: { every: 30, share: 0.015 },
+  meeting: { every: 45, seconds: 10 },
+  sabotageSeconds: 180,
+  sabotageMinutes: 4, // a sabotage costs this many minutes of your team's pay (at least $500 × your pay grade)
+  bountyMinutes: 15,
+  review: 0.15,
+  coffeeShooters: 1.25, // the Break Room's prize
+  coffeeShots: 1.25,
+  conferenceTeam: 1.25, // the Conference Room's prize
+  /**
+   * Counterattacks: every few minutes a department you took tries to take its desks back.
+   * Guards stop most of them; you can push the rest back. One that gets through switches
+   * that department's prize (and desks) off for a while.
+   */
+  counter: { firstAt: 150, gap: [180, 300] as [number, number], seconds: 20, lost: 180, guardEach: 0.3, guardMax: 0.9, dropSeconds: 20, dropMin: 60 },
+};
+
 /** Anyone you've ever fought, by id (rematches look them up here). */
 export function targetById(id: string): Target | undefined {
-  return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id);
+  return TARGETS.find((t) => t.id === id) ?? DEPARTMENTS.find((d) => d.id === id) ?? ROOMS.find((r) => r.id === id);
 }
 
 // ---------------------------------------------------------------- coworkers

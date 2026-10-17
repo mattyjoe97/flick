@@ -5821,6 +5821,12 @@ body.at-computer .desk-box.bulk {
   .resolve-row {
     white-space: nowrap;
   }
+
+  /* Wide enough for six-figure Resolve (and walls) on a phone. */
+  .resolve {
+    left: 19%;
+    right: 19%;
+  }
 }
 
 /* Tall phones: bigger keys to go with the bigger view. */
@@ -6305,9 +6311,160 @@ button.dept:focus-visible {
   }
 }
 
+/* Stage 4: the rooms behind their walls, and the departments you're holding. */
+.dept-bar.wall i {
+  background: repeating-linear-gradient(90deg, #7d8792 0 10px, #6a737d 10px 12px);
+}
+
+.room-acts {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.room-acts .dept-act {
+  margin: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.room-acts .dept-act:focus-visible {
+  outline: 3px solid var(--sticky);
+  outline-offset: 2px;
+}
+
+.room-acts .dept-act.sab {
+  background: #8a4fb0;
+  font-variant-numeric: tabular-nums;
+}
+
+.room-acts .dept-act.sab.cant {
+  background: #9a94a0;
+  cursor: default;
+}
+
+.dept-sab-note {
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.holding-card {
+  grid-column: 1 / -1;
+}
+
+.holding-card.raided {
+  border-color: var(--marker-red);
+  animation: raid-pulse 1s ease-in-out infinite;
+}
+
+.holding {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.holding li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: #eef5e8;
+}
+
+.holding li.lost {
+  background: #f3e2df;
+}
+
+.holding li.attack {
+  background: #ffe4dc;
+  border-color: var(--marker-red);
+}
+
+.holding li > span:last-child {
+  display: grid;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.holding b {
+  font-size: 14px;
+}
+
+.holding small {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.hold-face {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #d7dde2;
+  overflow: hidden;
+}
+
+.hold-face svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.holding-card .dept-act.raid {
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* The wall's bar, while there's a wall. */
+.resolve.wall .resolve-fill {
+  background: repeating-linear-gradient(90deg, #a3adb8 0 12px, #8a95a1 12px 14px);
+}
+
+/* Shooters away in one of Victoria's meetings. */
+.ally.away {
+  opacity: 0.22;
+  transition: opacity 0.3s;
+}
+
+.counter-pop .raid-bubble {
+  border-color: #c4661f;
+}
+
 @media (max-width: 760px) {
   .warmap {
     padding-inline: 10px;
+  }
+  .holding {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  /* Your departments come before the rematch card, so it doesn't sit alone in a half row mid-page. */
+  .holding-card {
+    order: 1;
+  }
+  .warmap-grid .rematch-card {
+    order: 2;
+  }
+  .room-acts {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .room-acts .dept-act {
+    font-size: 12px;
   }
   .warmap-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6365,6 +6522,7 @@ button.dept:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .raid-pop,
   .closet-card.raided,
+  .holding-card.raided,
   #firewall.up,
   #cover .led.blink {
     animation: none;

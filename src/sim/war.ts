@@ -13,19 +13,23 @@
 // Dale's supply closet is contested ground meanwhile: it pays you bands while it's yours,
 // and the departments you haven't taken sneak in to raid it.
 //
-// Take all four and the floor is yours (Stage 4 comes next). The rematches never stop.
+// Take all four and Stage 4 begins: the Break Room and the Conference Room, dug in behind
+// filing cabinets (see siege.ts for the walls, the rooms' tricks and the counterattacks).
+// Picking who to fight, and winning, lives here for both stages. The rematches never stop.
 
 import { addReview, reviewNeed, TOP_RANK } from './career';
 import { chatEvent } from './chat';
-import { DEPARTMENTS, WAR, type DeptId } from './content';
+import { COWORKERS, DEPARTMENTS, ROOMS, SIEGE, WAR, type DeptId, type RoomId } from './content';
 import { mods, rolePower } from './mods';
 import { rand, randRange } from './rng';
 import { fightingRematch, startRematch } from './rematch';
-import { currentTarget, deptMax, deptTaken, newWar, pushEmail, pushTicker, type GameState } from './state';
+import { currentTarget, deptMax, deptTaken, isDept, isRoom, newWar, pushEmail, pushTicker, roomTaken, type GameState } from './state';
+import { fightingRoom, startSiege } from './siege';
 import { staffPayPerMin } from './staff';
 import { payGrade } from './work';
 
 export const dept = (id: DeptId) => DEPARTMENTS.find((d) => d.dept === id)!;
+export const room = (id: RoomId) => ROOMS.find((r) => r.room === id)!;
 
 /** Departments still holding out, in map order. */
 export function deptsLeft(s: GameState) {
@@ -34,7 +38,8 @@ export function deptsLeft(s: GameState) {
 
 /** The department you're fighting right now, if any. */
 export function fightingDept(s: GameState): DeptId | null {
-  return s.stage === 3 && s.war.fighting !== 'rematch' ? s.war.fighting : null;
+  const f = s.war?.fighting;
+  return s.stage === 3 && f && isDept(f) ? f : null;
 }
 
 /** Rick's gone: the Department War begins (with IT, until you pick someone on the map). */
@@ -55,17 +60,31 @@ export function startWar(s: GameState) {
 /** Puts the fight you're leaving on hold, with whatever Resolve it has left. */
 function shelve(s: GameState) {
   const id = fightingDept(s);
+  const r = fightingRoom(s);
   if (id) s.war.depts[id].share = Math.max(0, Math.min(1, s.targetResolve / deptMax(s, id)));
+  else if (r) s.war.rooms[r].share = Math.max(0, Math.min(1, s.targetResolve / room(r).resolve));
   else if (s.rematch) s.rematch.left = Math.max(0, s.targetResolve);
 }
 
 /** Turns your desk toward someone: their Resolve comes back where you left it. */
-function load(s: GameState, to: DeptId | 'rematch') {
+function load(s: GameState, to: DeptId | RoomId | 'rematch') {
   s.war.fighting = to;
   s.sinceLastHit = 0;
   if (to === 'rematch') {
     if (!s.rematch) startRematch(s, 1, 0);
     s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;
+    return;
+  }
+  if (isRoom(to)) {
+    const w = s.war.rooms[to];
+    s.targetResolve = w.share * room(to).resolve;
+    s.war.coffeeAt = s.time + SIEGE.coffee.every;
+    s.war.meetingAt = s.time + SIEGE.meeting.every;
+    if (!w.met) {
+      w.met = true;
+      const info = room(to);
+      pushEmail(s, info.intro.from, info.intro.subject, info.intro.body, 'story');
+    }
     return;
   }
   const d = s.war.depts[to];
@@ -80,14 +99,21 @@ function load(s: GameState, to: DeptId | 'rematch') {
 
 export type WarResult = { ok: true } | { ok: false; reason: string };
 
-/** Pick who to fight from the map. */
-export function fight(s: GameState, to: DeptId | 'rematch'): WarResult {
-  if (s.stage !== 3) return { ok: false, reason: s.stage < 3 ? 'The Department War starts after Rick.' : 'The whole floor is yours already.' };
-  if (to !== 'rematch' && deptTaken(s, to)) return { ok: false, reason: `${dept(to).label} is already yours.` };
+/** Pick who to fight from the map (a department in Stage 3, a room in Stage 4, or the rematches). */
+export function fight(s: GameState, to: DeptId | RoomId | 'rematch'): WarResult {
+  if (s.stage < 3) return { ok: false, reason: 'The Department War starts after Rick.' };
+  if (s.stage >= 5) return { ok: false, reason: 'The whole floor is yours already.' };
+  if (to !== 'rematch') {
+    if (isDept(to) && s.stage !== 3) return { ok: false, reason: `${dept(to).label} is already yours.` };
+    if (isRoom(to) && s.stage !== 4) return { ok: false, reason: 'Take the four departments first.' };
+    if (isDept(to) && deptTaken(s, to)) return { ok: false, reason: `${dept(to).label} is already yours.` };
+    if (isRoom(to) && roomTaken(s, to)) return { ok: false, reason: `The ${room(to).label} is already yours.` };
+  }
   if (s.war.fighting === to) return { ok: true };
   shelve(s);
   load(s, to);
-  pushTicker(s, to === 'rematch' ? 'You turn back to your old rivals for a rematch.' : `You turn your desk toward ${dept(to).label}. ${dept(to).name} sees you coming.`);
+  const label = to === 'rematch' ? '' : isDept(to) ? dept(to).label : `the ${room(to).label}`;
+  pushTicker(s, to === 'rematch' ? 'You turn back to your old rivals for a rematch.' : `You turn your desk toward ${label}. ${(isDept(to) ? dept(to) : room(to as RoomId)).name} sees you coming.`);
   s.events.push({ type: 'fight', id: to });
   return { ok: true };
 }
@@ -128,17 +154,63 @@ export function deptWon(s: GameState) {
     return;
   }
 
-  // The whole floor is yours.
+  // All four departments: Stage 4, Floor Domination.
   s.stats.stage3At = s.time;
   s.stage = 4;
-  s.war.fighting = 'rematch';
   s.war.closet = { raid: null, nextAt: 0, lostUntil: -999 };
+  startSiege(s);
+  load(s, 'breakroom');
+  pushEmail(s, 'HR', 'Floor 4', 'It has come to our attention that the entire 4th floor now reports to you, apart from the break room and the corner conference room. HR would like to remind everyone that we are neutral, and that we are watching.', 'win');
+  pushTicker(s, 'All four departments are yours. Their people have dug in at the Break Room and the Conference Room, behind filing cabinets.');
+  s.events.push({ type: 'stage', stage: 4 });
+}
+
+/** What taking a room is worth: its bounty, or fifteen minutes of your team's pay if that's more. */
+export function roomBounty(s: GameState, id: RoomId) {
+  return Math.round(Math.max(room(id).bounty * payGrade(s).mult, staffPayPerMin(s, true) * SIEGE.bountyMinutes));
+}
+
+/** The room you were fighting gives up. */
+export function roomWon(s: GameState) {
+  const id = fightingRoom(s);
+  if (!id) return;
+  const r = room(id);
+  const w = s.war.rooms[id];
+  w.taken = true;
+  w.share = 0;
+  w.wall = 0;
+  s.desks += r.desks;
+  const bounty = roomBounty(s, id);
+  s.salary += bounty;
+  s.stats.bounties += bounty;
+  s.stats.rooms = (s.stats.rooms ?? 0) + 1;
+  if (s.career.rank < TOP_RANK) addReview(s, reviewNeed(s.career.rank) * SIEGE.review);
+  s.events.push({ type: 'pay', amount: bounty, source: 'bounty', note: r.bountyNote });
+  s.events.push({ type: 'capture', targetId: r.id });
+  s.events.push({ type: 'roomTaken', id });
+  pushEmail(s, r.defeat.from, r.defeat.subject, r.defeat.body, 'win');
+  pushTicker(s, `The ${r.label} is yours! ${r.bountyNote.charAt(0).toUpperCase()}${r.bountyNote.slice(1)}: +$${bounty.toLocaleString('en-US')}. You get ${r.perk}.`);
+  chatEvent(s, `capture:${r.id}`);
+  const other = ROOMS.find((x) => !roomTaken(s, x.room));
+  if (other) {
+    load(s, other.room);
+    s.events.push({ type: 'fight', id: other.room });
+    return;
+  }
+  // The floor is yours. Stage 5 is next.
+  s.stats.stage4At = s.time;
+  s.stage = 5;
+  s.war.counter = { attack: null, nextAt: 0 };
+  s.war.meetingUntil = -999;
+  s.war.fighting = 'rematch';
+  // Nothing left to guard: Guards go back to what they're best at.
+  for (const a of s.allies) if (a.role === 'guard') a.role = COWORKERS.find((c) => c.id === a.id)!.traitRole;
   if (!s.rematch) startRematch(s, 1, 0);
   s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;
   s.sinceLastHit = 0;
-  pushEmail(s, 'HR', 'Floor 4', 'It has come to our attention that the entire 4th floor now reports to you. HR would like to remind everyone that we are neutral, and that we are watching.', 'win');
-  pushTicker(s, 'The whole 4th floor is yours. HR is watching from the corner office.');
-  s.events.push({ type: 'stage', stage: 4 });
+  pushEmail(s, 'HR', 'Re: Floor 4', 'The break room and the corner conference room now report to you as well. HR has opened a file. It is a very thick file.', 'win');
+  pushTicker(s, 'The whole 4th floor is yours: every desk, the break room and the corner office. HR has opened a file.');
+  s.events.push({ type: 'stage', stage: 5 });
 }
 
 // ---------------------------------------------------------------- the bosses' tricks
@@ -163,6 +235,8 @@ export function shotMult(s: GameState, by: 'you' | 'ally', charge: number) {
   let m = 1;
   if (firewallUp(s)) m *= WAR.firewall.mult;
   if (fightingDept(s) === 'accounting' && by === 'you' && charge < WAR.tapBelow) m *= WAR.tapMult;
+  // The Break Room's coffee: your own shots hit harder.
+  if (by === 'you' && roomTaken(s, 'breakroom')) m *= SIEGE.coffeeShots;
   return m;
 }
 
@@ -273,6 +347,12 @@ export function stepWar(s: GameState, addSuspicion: (s: GameState, amount: numbe
     }
   }
   stepRaids(s);
+}
+
+/** Saves made before Stage 4 existed that had already taken all four departments: it opens, from your rematch. */
+export function siegeForOldSave(s: GameState) {
+  s.war.fighting = 'rematch';
+  startSiege(s);
 }
 
 /** Old saves made in rematch mode: the Department War opens, starting from your rematch. */

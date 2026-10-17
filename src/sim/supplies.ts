@@ -13,7 +13,7 @@ import { chatEvent } from './chat';
 import { WAR } from './content';
 import { has, mods } from './mods';
 import { rand } from './rng';
-import { deptTaken, pushTicker, type GameState } from './state';
+import { deptPerk, pushTicker, type GameState } from './state';
 
 export type FindKind = 'tangle' | 'ball' | 'change';
 
@@ -71,7 +71,7 @@ export function stepSupplies(s: GameState) {
 /** Once IT is yours, Derek's script orders bands when you run low (if there's cash to spare). */
 function autoOrder(s: GameState) {
   const p = s.supplies;
-  if (!deptTaken(s, 'it') || p.order) return;
+  if (!deptPerk(s, 'it') || p.order) return;
   const o = mods(s).order;
   if (s.bands >= o.amount / 2 || s.salary < o.price * WAR.autoOrderCushion) return;
   s.salary -= o.price;
@@ -83,7 +83,7 @@ function autoOrder(s: GameState) {
 export function deliver(s: GameState, amount: number, free: boolean) {
   const p = s.supplies;
   // IT's script signs for your orders and puts the bands straight in your drawer.
-  if (!free && deptTaken(s, 'it')) {
+  if (!free && deptPerk(s, 'it')) {
     s.bands += amount;
     s.stats.boxesOpened++;
     s.events.push({ type: 'delivery', amount, free, auto: true });

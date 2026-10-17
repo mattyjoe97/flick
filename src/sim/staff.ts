@@ -8,11 +8,11 @@
 // of his own; he makes every other team faster. And they work faster while you do:
 // keep a work combo going and your team follows your lead (pizza helps too).
 
-import { CAREER, MOMENTS, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
+import { CAREER, MOMENTS, SIEGE, STAFF, TEAMS, WAR, type Team, type TeamId } from './content';
 import { addReview } from './career';
 import { ballTeamMult } from './ball';
 import { chatEvent } from './chat';
-import { deptTaken, pushEmail, pushTicker, type GameState } from './state';
+import { deptPerk, pushEmail, pushTicker, roomTaken, type GameState } from './state';
 import { basePay, liveCombo, WORK } from './work';
 
 export function team(id: TeamId): Team {
@@ -69,7 +69,7 @@ export function seatCap(s: GameState, id: TeamId) {
 /** What the next seat on this team costs. */
 export function seatCost(s: GameState, id: TeamId) {
   const t = team(id);
-  return Math.round(t.cost * Math.pow(t.growth, seats(s, id)) * (deptTaken(s, 'marketing') ? WAR.marketingHire : 1));
+  return Math.round(t.cost * Math.pow(t.growth, seats(s, id)) * (deptPerk(s, 'marketing') ? WAR.marketingHire : 1));
 }
 
 /** What the next round of training costs (null once there's none left, or nobody to train). */
@@ -90,7 +90,8 @@ export function teamPerMin(s: GameState, id: TeamId, steady = false) {
   const t = team(id);
   if (!t.job) return 0;
   const boosts = steady ? 1 : leadMult(s) * pizzaMult(s) * askMult(s, id);
-  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * boosts;
+  const room = roomTaken(s, 'conference') ? SIEGE.conferenceTeam : 1;
+  return seats(s, id) * t.perMin * Math.pow(STAFF.trainBoost, trainLevel(s, id)) * managerMult(s) * ballTeamMult(s) * room * boosts;
 }
 
 /** What one thing this team does pays you. */

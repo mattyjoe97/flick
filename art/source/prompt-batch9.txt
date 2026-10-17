@@ -1,0 +1,69 @@
+FLICK — ART BATCH 9: Floor Domination (Stage 4)
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference, and batch 8 (the department bosses and their barricades) is the closest match for this batch. Match it exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+The departments surrendered, but their people have dug in at the floor's last two shared spaces, the Break Room and the Corner Conference Room, behind walls of filing cabinets. This batch is the two people holding them (four faces each), their filing-cabinet walls (standing, and broken through), and two small icons.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on clothing, mugs, cabinets, drawer labels (leave label slots blank), whiteboards, flip charts and screens (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching pairs) is authorized as before.
+
+Number the files exactly as below (they continue after 196_white_flag.png). Deliver all 14 PNGs in a folder named batch9 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch9.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch9.json (the prompt used for each file), like earlier batches.
+
+==================================================
+A. THE TWO ROOM BOSSES (8 files)
+==================================================
+
+EXACTLY the batch 4 / batch 6 / batch 7 / batch 8 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. Keep ALL hair, glasses and clothing between x=60 and x=960 and BELOW y=265, with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+Each boss has four files. The _idle file comes first; the other three are the SAME image with ONLY the face changed (everything outside the face pixel-identical), using the same expression set as the department bosses:
+  _hit     = eyes SQUEEZED SHUT, mouth an open oval (a silent "OW"), a small red welt on the forehead.
+  _angry   = strongly furrowed brows, glaring eyes, gritted teeth.
+  _worried = raised brows pinched together, wide worried eyes, a nervous wobbly closed mouth, one bead of pale blue sweat on the RIGHT temple.
+
+THE BREAK ROOM: GAIL PETROSKI, Payroll Supervisor and president of the Coffee Club. Has had the same mug since 1998.
+A woman in her late 40s with light skin, rosy cheeks and a scatter of freckles; a short choppy grey-blonde pixie cut; red-framed reading glasses pushed up on top of her head (inside the y=265 line); small silver hoop earrings; a chunky teal cable-knit cardigan over a white collared blouse; a small brown enamel coffee-bean pin on the cardigan; a lanyard of punched paper loyalty cards (blank, just punched holes).
+Idle: content and smug, eyes half-closed, a satisfied little smile, as if mid-sip.
+  197_gail_idle.png / 198_gail_hit.png / 199_gail_angry.png / 200_gail_worried.png
+
+THE CORNER CONFERENCE ROOM: VICTORIA LANG, VP of Operations, and Mr. Feeney's boss. Has never once been on time for a meeting she called.
+A Latina woman in her mid 50s with warm tan skin; sleek black hair with silver streaks, pulled back into a smooth low bun; sharp dark eyebrows; small diamond stud earrings; a thin gold necklace; a sharply tailored black power suit jacket with strong shoulders over a crisp white open-collared shirt; a slim silver pen clipped to the jacket's breast pocket.
+Idle: cool and appraising, one eyebrow slightly raised, a faint polite smile that doesn't reach the eyes.
+  201_victoria_idle.png / 202_victoria_hit.png / 203_victoria_angry.png / 204_victoria_worried.png
+
+==================================================
+B. THE FILING-CABINET WALLS (4 files)
+==================================================
+
+Each room boss hides behind a wall of filing cabinets. The game draws the boss BEHIND the wall. While the wall stands, it hides them up to about the nose (just their eyes and the top of their head show over it). Once it's broken through, the middle collapses low and they're out in the open.
+
+FORMAT for all four: EXACTLY the batch 8 barricade format: 1400 x 800 transparent PNG, seen STRAIGHT ON at eye level from across the office, drawn at the SAME SCALE as the portraits (a head is 360px wide ear to ear; a four-drawer filing cabinet is about 300px wide and 860px tall, so two-drawer cabinets are about 430px tall), resting on an invisible desk-top line at y=780, horizontally centred on x=700, between about 1100 and 1250px wide.
+
+Each room has a STANDING and a BROKEN version on the SAME canvas: the two END TOWERS (the outer 250px or so on each side) are pixel-identical in both, so the game can swap them in place. Only the middle changes.
+  STANDING: the middle band (x=500 to 900) is a solid wall whose top edge sits between y=300 and y=340.
+  BROKEN: the middle band (x=500 to 900) is no higher than y=520: cabinets knocked over, dented and tipped on their sides, drawers hanging open and loose paper spilling out.
+Record the desk line (780), the scale, each wall's alpha bounding box, and the topmost alpha y inside x=500..900 in the manifest.
+
+205_wall_breakroom_standing.png — the Break Room's wall: grey and beige metal filing cabinets pushed side by side (two-drawer ones stacked two high across the middle, blank label slots on every drawer). At the LEFT end a tower topped with a big chrome drip coffee maker with a glass carafe of coffee and a stack of paper cups; at the RIGHT end a white mini fridge stacked on a cabinet with a few mismatched mugs on top (plain mugs, no text or pictures). A coffee-stained tea towel hangs over one drawer.
+206_wall_breakroom_broken.png — the SAME wall after being battered through: the middle cabinets knocked over and dented, drawers hanging open, papers spilling, a paper cup on its side. The two end towers (coffee maker and mini fridge) are pixel-identical to 205.
+
+207_wall_conference_standing.png — the Conference Room's wall: dark charcoal and grey filing cabinets pushed side by side (two-drawer ones stacked two high across the middle, blank label slots). At the LEFT end a tall rolling whiteboard on a stand (completely blank, a red and a blue marker on its tray); at the RIGHT end a flip chart on an easel (blank pages) beside a cabinet with a grey three-legged conference speakerphone sitting on top. A neat row of identical glass water bottles along the top of the wall.
+208_wall_conference_broken.png — the SAME wall battered through: the middle cabinets toppled and dented, drawers open, papers and a couple of water bottles scattered. The two end towers (whiteboard and flip chart) are pixel-identical to 207.
+
+==================================================
+C. TWO SMALL ICONS (2 files)
+==================================================
+
+Both 256 x 256 transparent, the object filling about 80% of the canvas and centred, outline scaled to about 5px, the same style as the batch 6 desktop icons. No text.
+
+209_icon_unplug.png — sabotage: a coffee machine's black power cord with its plug pulled out of a white wall socket, the plug dangling, with three small jagged "zap" marks between plug and socket.
+210_icon_replyall.png — sabotage: a beige office CRT monitor with a burst of eight or so small white envelopes flying out of its screen in every direction.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 14 PNGs, numbered 197 to 210, exactly the sizes above.
+- No text, numbers, letters, logos or prints anywhere: not on clothing, mugs, cabinets, drawer labels, the whiteboard, the flip chart, the water bottles or the icons.
+- Portraits (197 to 204) use the batch 4 registration exactly and stay inside x=60..960 and below y=265.
+- Each boss's four faces are pixel-matched outside the face.
+- Walls (205 to 208) share the 1400 x 800 canvas, the desk line at y=780 and the portrait scale. Each standing/broken pair has pixel-identical end towers; standing middles top out between y=300 and 340, broken middles no higher than y=520.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch9 folder.

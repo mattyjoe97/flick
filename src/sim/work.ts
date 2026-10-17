@@ -22,7 +22,7 @@ import { addReview } from './career';
 import { chatEvent } from './chat';
 import { has, mods } from './mods';
 import { rand, randRange } from './rng';
-import { deptTaken, type GameState } from './state';
+import { deptPerk, type GameState } from './state';
 import {
   CALLERS,
   DEPARTMENTS,
@@ -213,7 +213,7 @@ export function payGrade(s: GameState) {
 /** What one item of this kind pays right now, before the combo. */
 export function basePay(s: GameState, kind: WorkKind) {
   const tab = kind === 'sheet' ? SHEET_TABS.find((t) => t.id === activeTab(s))!.payMult : 1;
-  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab * ballPayMult(s) * (deptTaken(s, 'accounting') ? WAR.accountingPay : 1);
+  return WORK.pay[kind] * payGrade(s).mult * mods(s).workPay * tab * ballPayMult(s) * (deptPerk(s, 'accounting') ? WAR.accountingPay : 1);
 }
 
 /** The combo still running (it lapses if you go too long without finishing something). */

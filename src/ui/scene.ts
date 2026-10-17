@@ -7,6 +7,7 @@ import { COWORKERS } from '../sim/content';
 import { walkbyCountdown } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { firewallUp } from '../sim/war';
+import { inMeeting, wallUp } from '../sim/siege';
 import { currentTarget, type GameEvent, type GameState } from '../sim/state';
 import { PEOPLE, TARGET_PEOPLE, type Mood } from './characters';
 import { PORTRAIT_UNIT, portrait, portraitStack, setPortraitMood, warmPortraits } from './portraits';
@@ -104,6 +105,8 @@ export class Scene {
   private feeneyBubble!: HTMLElement;
 
   private targetId = '';
+  private coverKey = '';
+  private meetingKey = '';
   private people: string[] = [];
   private moods: Mood[] = [];
   private hitUntil = 0;
@@ -241,8 +244,20 @@ export class Scene {
     this.enterAt = performance.now();
     this.nextDuck = performance.now() + 7000;
     this.drawPeople(true);
-    this.coverLayer.innerHTML = coverSvg(id);
+    this.coverKey = '';
+    this.syncCover();
     this.bubble.hidden = true;
+  }
+
+  /** The cover in front of the target (a Stage 4 wall swaps to its broken version when it comes down). */
+  private syncCover() {
+    const s = this.getState();
+    const room = this.targetId === 'breakroom' || this.targetId === 'conference';
+    const broken = room && !(currentTarget(s)?.id === this.targetId && wallUp(s));
+    const key = `${this.targetId}:${broken}`;
+    if (key === this.coverKey) return;
+    this.coverKey = key;
+    this.coverLayer.innerHTML = coverSvg(this.targetId, broken);
   }
 
   private drawPeople(force = false) {
@@ -295,6 +310,7 @@ export class Scene {
   handle(e: GameEvent) {
     const now = performance.now();
     if (e.type === 'shot') {
+      const walled = wallUp(this.getState());
       const head = this.aimPoint();
       const from = e.by === 'you' ? this.fromHand() : this.allyHead(e.allyId);
       if (e.by === 'ally' && e.allyId) this.recoil(e.allyId);
@@ -302,8 +318,10 @@ export class Scene {
       const dur = e.by === 'you' ? 260 - 90 * (e.charge ?? 0) : 340;
       this.launch(from, head, dur, () => {
         this.burst(head.x + (Math.random() - 0.5) * 50, head.y + (Math.random() - 0.5) * 30, big);
-        this.hitUntil = performance.now() + 260;
         if (e.by === 'you') this.hooks.hit();
+        // Bands that hit the wall just clang off the cabinets.
+        if (walled) return;
+        this.hitUntil = performance.now() + 260;
         if (performance.now() - this.lastBubble > 2600 && Math.random() < (big ? 0.8 : 0.3)) {
           const l = this.pickLine('hit');
           if (l) this.say(l, 1400);
@@ -320,7 +338,20 @@ export class Scene {
     } else if (e.type === 'review') {
       this.angryUntil = now + 1500;
       this.say('Let’s set up a quick performance review.', 2400);
-    } else if (e.type === 'deptTaken') {
+    } else if (e.type === 'wallDown') {
+      // The middle of the wall comes crashing down.
+      this.syncCover();
+      for (let i = 0; i < 6; i++) setTimeout(() => this.burst(300 + Math.random() * 200, 190 + Math.random() * 50, true), i * 70);
+      this.angryUntil = now + 1600;
+      this.say(e.id === 'breakroom' ? 'Not the filing cabinets! They were alphabetized!' : 'That wall was load-bearing. For morale.', 2600);
+    } else if (e.type === 'coffee') {
+      if (now - this.lastBubble > 1500) this.say('Ahh. Fresh pot.', 1600);
+    } else if (e.type === 'meeting') {
+      this.say('Quick sync, everyone. Shooters, my office. Now.', 2200);
+    } else if (e.type === 'sabotage' && currentTarget(this.getState())?.id === e.id) {
+      this.angryUntil = now + 1500;
+      this.say(e.id === 'breakroom' ? 'Who unplugged the coffee?!' : 'Who replied all?! Stop replying all!', 2400);
+    } else if (e.type === 'deptTaken' || e.type === 'roomTaken') {
       // The white flag goes up over their barricade.
       const at = this.pct(470, 150);
       const img = document.createElement('img');
@@ -391,6 +422,8 @@ export class Scene {
   }
 
   private aimPoint() {
+    // A wall in the way: bands hit the cabinets.
+    if (wallUp(this.getState())) return { x: 300 + Math.random() * 200, y: 176 + Math.random() * 56 };
     const slots = targetSlots(Math.max(1, this.people.length));
     const sl = slots[Math.floor(Math.random() * slots.length)];
     const h = headPos(sl);
@@ -527,6 +560,14 @@ export class Scene {
       }
     }
     this.firewallG.classList.toggle('up', firewallUp(s));
+    this.syncCover();
+    // Victoria's meetings: your Shooters leave their desks.
+    const meeting = inMeeting(s);
+    const mk = meeting ? s.allies.filter((a) => a.role === 'shooter').map((a) => a.id).join(',') : '';
+    if (mk !== this.meetingKey) {
+      this.meetingKey = mk;
+      this.allyLayer.querySelectorAll<SVGGElement>('.ally').forEach((g) => g.classList.toggle('away', meeting && mk.split(',').includes(g.dataset.ally ?? '')));
+    }
     const ducking = now < this.duckUntil || now - this.enterAt < 350;
     this.duckLayer.classList.toggle('ducked', ducking || !t);
     this.drawPeople();
@@ -547,6 +588,7 @@ export class Scene {
         order.map(({ a, i }) => drawAlly(a, i)).join('') +
         `<rect x="0" y="356" width="${wallR.toFixed(1)}" height="${H - 356}" fill="url(#fabric)"/><rect x="-4" y="350" width="${(wallR + 8).toFixed(1)}" height="9" rx="2" fill="#c9ced4"/>`;
       this.allyLayer.style.display = s.allies.length ? '' : 'none';
+      this.meetingKey = '';
     }
 
     this.stepProjectiles(now);
@@ -649,7 +691,8 @@ function mix(a: string, b: string, t: number) {
 }
 
 /** Whatever the target is hiding behind, drawn on their desk above the wall. */
-export function coverSvg(id: string): string {
+export function coverSvg(id: string, broken = false): string {
+  if (id === 'breakroom' || id === 'conference') return roomWall(id, broken);
   return paintedCover(id) ?? cover(id);
 }
 
@@ -794,3 +837,76 @@ function marketingCover(o: string) {
   </g>`;
 }
 
+
+// ------------------------------------------------------------------ Stage 4: filing-cabinet walls
+
+/**
+ * The rooms' walls of filing cabinets (drawn stand-ins until the painted ones arrive). While
+ * the wall stands, its middle comes up to the boss's nose; once it's broken through, the
+ * middle lies in a heap below their chin. The end towers are the same either way.
+ */
+function roomWall(id: 'breakroom' | 'conference', broken: boolean): string {
+  const o = 'stroke="#2b2522" stroke-width="3" stroke-linejoin="round"';
+  const thin = 'stroke="#2b2522" stroke-width="2"';
+  const fills = id === 'breakroom' ? ['#a9adb2', '#d8cdb4', '#bfc3c7', '#cbbf9f'] : ['#4a4f57', '#7d838b', '#5d636b', '#8c9299'];
+  const handle = id === 'breakroom' ? '#5d6166' : '#c9ced4';
+  // A two-drawer cabinet: blank label slots and a handle on each drawer.
+  const cab = (x: number, y: number, w: number, h: number, fill: string, open = -1) => {
+    const dh = h / 2;
+    let out = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${fill}" ${o}/>`;
+    for (let i = 0; i < 2; i++) {
+      const dy = y + i * dh;
+      if (i === open) {
+        out += `<rect x="${x - 4}" y="${dy + 3}" width="${w + 8}" height="${dh - 2}" rx="2" fill="${fill}" ${o}/><rect x="${x + 2}" y="${dy + 1}" width="${w - 4}" height="6" fill="#f4efe2" ${thin}/>`;
+        continue;
+      }
+      out += `<rect x="${x + 4}" y="${dy + 4}" width="${w - 8}" height="${dh - 7}" rx="1.5" fill="none" ${thin} opacity="0.45"/>`;
+      out += `<rect x="${x + w / 2 - 7}" y="${dy + 7}" width="14" height="6" fill="#f4efe2" ${thin}/>`;
+      out += `<rect x="${x + w / 2 - 8}" y="${dy + dh - 13}" width="16" height="4" rx="2" fill="${handle}" ${thin}/>`;
+    }
+    return out;
+  };
+  const paper = (x: number, y: number, r: number) => `<rect x="${x}" y="${y}" width="16" height="20" fill="#fbf8ef" ${thin} transform="rotate(${r} ${x + 8} ${y + 10})"/>`;
+
+  // The middle: two rows of cabinets right across, or a heap of them knocked over.
+  const cols = [292, 347, 402, 457];
+  const middle = broken
+    ? `<g>
+        <g transform="rotate(-78 322 250)">${cab(322, 250, 40, 58, fills[0], 1)}</g>
+        ${cab(352, 222, 58, 28, fills[1])}
+        <g transform="rotate(84 470 246)">${cab(470, 246, 36, 56, fills[2], 0)}</g>
+        <g transform="rotate(-12 404 216)">${cab(404, 208, 52, 26, fills[3])}</g>
+        ${paper(300, 226, -24)}${paper(340, 214, 18)}${paper(446, 222, -8)}${paper(488, 230, 30)}${paper(372, 236, 64)}
+        ${id === 'breakroom'
+          ? '<g transform="rotate(84 424 238)"><path d="M416 232 L432 232 L429 252 L419 252 Z" fill="#fbf8ef" stroke="#2b2522" stroke-width="2"/></g>'
+          : '<g transform="rotate(-70 442 240)"><rect x="438" y="228" width="9" height="22" rx="3" fill="rgba(190,225,240,0.75)" stroke="#2b2522" stroke-width="2"/></g><g transform="rotate(95 330 226)"><rect x="326" y="214" width="9" height="22" rx="3" fill="rgba(190,225,240,0.75)" stroke="#2b2522" stroke-width="2"/></g>'}
+      </g>`
+    : `<g>${cols.map((x, i) => cab(x, 208, 55, 42, fills[i % 4])).join('')}${cols.map((x, i) => cab(x, 166, 55, 42, fills[(i + 1) % 4])).join('')}
+        ${id === 'breakroom'
+          ? '<path d="M362 216 L384 216 L386 246 L374 242 L360 246 Z" fill="#efe4c8" stroke="#2b2522" stroke-width="2"/><circle cx="373" cy="232" r="4" fill="#b98a55" opacity="0.6"/>'
+          : Array.from({ length: 8 }, (_, i) => `<rect x="${298 + i * 26}" y="150" width="10" height="17" rx="3" fill="rgba(190,225,240,0.75)" stroke="#2b2522" stroke-width="2"/><rect x="${300 + i * 26}" y="147" width="6" height="4" fill="#7d838b"/>`).join('')}
+      </g>`;
+
+  const ends =
+    id === 'breakroom'
+      ? `<g>
+          ${cab(236, 208, 56, 42, fills[1])}${cab(236, 166, 56, 42, fills[0])}
+          <rect x="242" y="118" width="44" height="48" rx="4" fill="#3a3f45" ${o}/><rect x="246" y="122" width="36" height="8" rx="2" fill="#c9ced4"/>
+          <path d="M252 140 L276 140 L272 162 L256 162 Z" fill="rgba(200,230,245,0.7)" ${thin}/><path d="M255 150 L273 150 L271 161 L257 161 Z" fill="#6b4226"/>
+          <g fill="#fbf8ef" ${thin}><path d="M226 150 L238 150 L236 166 L228 166 Z"/><path d="M226 144 L238 144 L237 150 L227 150 Z"/></g>
+          ${cab(508, 208, 56, 42, fills[3])}
+          <rect x="510" y="148" width="52" height="60" rx="4" fill="#f4f4ef" ${o}/><line x1="510" y1="170" x2="562" y2="170" stroke="#2b2522" stroke-width="2"/><rect x="552" y="154" width="4" height="12" rx="2" fill="#9aa1a8"/><rect x="552" y="176" width="4" height="20" rx="2" fill="#9aa1a8"/>
+          <g ${thin}><rect x="514" y="132" width="13" height="16" rx="2" fill="#d95f43"/><rect x="531" y="134" width="12" height="14" rx="2" fill="#5b86c4"/><rect x="547" y="131" width="13" height="17" rx="2" fill="#f0d36e"/></g>
+        </g>`
+      : `<g>
+          <line x1="244" y1="176" x2="236" y2="250" stroke="#2b2522" stroke-width="4"/><line x1="284" y1="176" x2="292" y2="250" stroke="#2b2522" stroke-width="4"/>
+          <rect x="226" y="96" width="78" height="80" rx="3" fill="#fbfbf8" ${o}/><rect x="232" y="172" width="66" height="6" rx="2" fill="#9aa1a8" ${thin}/>
+          <rect x="242" y="167" width="14" height="5" rx="2" fill="#c62f28"/><rect x="262" y="167" width="14" height="5" rx="2" fill="#3d6fb6"/>
+          ${cab(236, 208, 56, 42, fills[0])}
+          <line x1="524" y1="168" x2="514" y2="250" stroke="#2b2522" stroke-width="4"/><line x1="552" y1="168" x2="562" y2="250" stroke="#2b2522" stroke-width="4"/>
+          <rect x="516" y="104" width="44" height="64" rx="2" fill="#fbfbf8" ${o}/><rect x="514" y="100" width="48" height="8" rx="2" fill="#7d838b" ${thin}/><path d="M520 108 Q538 116 556 108" fill="none" stroke="#2b2522" stroke-width="1.5" opacity="0.4"/>
+          ${cab(508, 208, 56, 42, fills[1])}
+          <path d="M522 206 L548 206 L556 198 L514 198 Z" fill="#5d636b" ${o}/><circle cx="535" cy="200" r="4" fill="#9aa1a8"/>
+        </g>`;
+  return `<g class="room-wall${broken ? ' broken' : ''}">${ends}${middle}</g>`;
+}

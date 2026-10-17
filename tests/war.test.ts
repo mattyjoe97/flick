@@ -175,7 +175,7 @@ describe('the Department War', () => {
     expect(s.stage).toBe(3);
   });
 
-  it('taking all four makes the floor yours: Stage 4, and the bosses join the rematches', () => {
+  it('taking all four starts Stage 4 at the Break Room, and the bosses join the rematches', () => {
     const s = atWar();
     for (const d of DEPARTMENTS) {
       fight(s, d.dept);
@@ -183,13 +183,15 @@ describe('the Department War', () => {
     }
     expect(s.stage).toBe(4);
     expect(s.stats.depts).toBe(4);
-    expect(s.war.fighting).toBe('rematch');
+    expect(s.war.fighting).toBe('breakroom');
+    expect(currentTarget(s)?.id).toBe('breakroom');
+    expect(fight(s, 'it').ok).toBe(false);
+    expect(fight(s, 'rematch').ok).toBe(true);
     expect(currentTarget(s)?.id).toBe('gary4');
     expect(rematchOrder(s)).toEqual(REMATCH.order);
     for (let i = 0; i < REMATCH.firstWar; i++) finish(s);
     expect(currentTarget(s)?.id).toBe('it');
     expect(currentTarget(s)?.resolve).toBe(Math.round(DEPARTMENTS[0].resolve * REMATCH.first));
-    expect(fight(s, 'it').ok).toBe(false);
   });
 });
 

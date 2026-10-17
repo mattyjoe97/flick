@@ -1,8 +1,8 @@
-import { DALE, DEPARTMENTS, MOMENTS, REMATCH, TARGETS, TUNING, WAR, targetById, type CoworkerId, type DeptId, type Department, type MomentKind, type Role, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { DALE, DEPARTMENTS, MOMENTS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
-export const SAVE_VERSION = 14;
+export const SAVE_VERSION = 15;
 
 export interface Email {
   id: number;
@@ -70,7 +70,7 @@ export interface GameState {
   salary: number;
   suspicion: number;
 
-  stage: 1 | 2 | 3 | 4; // 3 = the Department War, 4 = the whole floor is yours
+  stage: 1 | 2 | 3 | 4 | 5; // 3 = the Department War, 4 = Floor Domination, 5 = the floor is yours
   targetIndex: number;
   targetResolve: number;
   sinceLastHit: number;
@@ -232,6 +232,12 @@ export interface GameState {
     raidsLost: number;
     stage3At: number | null;
     asks: number;
+    stage4At: number | null;
+    rooms: number;
+    walls: number;
+    countersHeld: number;
+    countersLost: number;
+    sabotages: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -239,10 +245,23 @@ export interface GameState {
 }
 
 export interface WarState {
-  /** Share of its Resolve each department has left (it keeps it while you fight someone else). */
-  depts: Record<DeptId, { share: number; taken: boolean; met: boolean; rebranded: boolean }>;
-  /** Who you're fighting: a department, or your old rivals' rematches. */
-  fighting: DeptId | 'rematch';
+  /**
+   * Share of its Resolve each department has left (it keeps it while you fight someone else),
+   * and in Stage 4, until when a counterattack has its desks back.
+   */
+  depts: Record<DeptId, { share: number; taken: boolean; met: boolean; rebranded: boolean; lostUntil: number }>;
+  /** Stage 4's rooms: what's left of each wall, their Resolve, and any sabotage running. */
+  rooms: Record<RoomId, { wall: number; share: number; taken: boolean; met: boolean; sabotageUntil: number }>;
+  /** Who you're fighting: a department, a room, or your old rivals' rematches. */
+  fighting: DeptId | RoomId | 'rematch';
+  /** The rooms' tricks: the next coffee refill and meeting, and the meeting your Shooters are stuck in. */
+  coffeeAt: number;
+  meetingAt: number;
+  meetingUntil: number;
+  /** Stage 4's counterattacks: one in progress, and when the next comes. */
+  counter: { attack: { dept: DeptId; until: number } | null; nextAt: number };
+  /** The UI has shown Stage 4's welcome. */
+  announced4: boolean;
   /** When Big Tony next fires back. */
   tonyAt: number;
   /** The supply closet: a raid in progress, when the next one comes, and how long it's theirs. */
@@ -252,10 +271,17 @@ export interface WarState {
 }
 
 export function newWar(): WarState {
-  const d = () => ({ share: 1, taken: false, met: false, rebranded: false });
+  const d = () => ({ share: 1, taken: false, met: false, rebranded: false, lostUntil: -999 });
+  const r = (id: RoomId) => ({ wall: ROOMS.find((x) => x.room === id)!.wall, share: 1, taken: false, met: false, sabotageUntil: -999 });
   return {
     depts: { it: d(), accounting: d(), mailroom: d(), marketing: d() },
+    rooms: { breakroom: r('breakroom'), conference: r('conference') },
     fighting: 'it',
+    coffeeAt: 0,
+    meetingAt: 0,
+    meetingUntil: -999,
+    counter: { attack: null, nextAt: 0 },
+    announced4: false,
     tonyAt: 0,
     closet: { raid: null, nextAt: 0, lostUntil: -999 },
     announced: false,
@@ -307,11 +333,18 @@ export type GameEvent =
   | { type: 'ballReady' }
   | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
   | { type: 'rematch'; round: number; index: number }
-  | { type: 'fight'; id: DeptId | 'rematch' }
+  | { type: 'fight'; id: DeptId | RoomId | 'rematch' }
   | { type: 'rebrand' }
   | { type: 'raid'; dept: DeptId }
   | { type: 'raidOver'; dept: DeptId; how: 'chased' | 'lookout' | 'lost'; bands: number }
   | { type: 'deptTaken'; id: DeptId }
+  | { type: 'wallDown'; id: RoomId }
+  | { type: 'roomTaken'; id: RoomId }
+  | { type: 'coffee' }
+  | { type: 'meeting' }
+  | { type: 'sabotage'; id: RoomId }
+  | { type: 'counter'; dept: DeptId }
+  | { type: 'counterOver'; dept: DeptId; how: 'held' | 'guards' | 'lost'; bands: number }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
@@ -421,6 +454,12 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       raidsLost: 0,
       stage3At: null,
       asks: 0,
+      stage4At: null,
+      rooms: 0,
+      walls: 0,
+      countersHeld: 0,
+      countersLost: 0,
+      sabotages: 0,
     },
     events: [],
   };
@@ -463,15 +502,36 @@ export function deptTarget(s: GameState, id: DeptId): Department {
   return { ...d, resolve: deptMax(s, id) };
 }
 
+/** Is this department's prize working right now (taken, and its desks not retaken)? */
+export function deptPerk(s: GameState, id: DeptId) {
+  const d = s.war?.depts[id];
+  return !!d?.taken && s.time >= (d.lostUntil ?? -999);
+}
+
+/** Has this room been taken? */
+export function roomTaken(s: GameState, id: RoomId) {
+  return !!s.war?.rooms?.[id]?.taken;
+}
+
+/** A room as a target. */
+export function roomTarget(id: RoomId): Room {
+  return ROOMS.find((r) => r.room === id)!;
+}
+
+export const isRoom = (id: string): id is RoomId => id === 'breakroom' || id === 'conference';
+export const isDept = (id: string): id is DeptId => DEPARTMENTS.some((d) => d.dept === id);
+
 /** Who's in the rematch rotation: your old rivals, and the department bosses once the floor is yours. */
 export function rematchOrder(s: GameState): string[] {
   return s.stage >= 4 ? REMATCH.order : REMATCH.order.slice(0, REMATCH.firstWar);
 }
 
-/** Who you're flicking at right now: the war's next target, a department, a rematch, or nobody. */
+/** Who you're flicking at right now: the war's next target, a department, a room, a rematch, or nobody. */
 export function currentTarget(s: GameState): Target | undefined {
   if (s.stage <= 2) return TARGETS[s.targetIndex];
-  if (s.stage === 3 && s.war && s.war.fighting !== 'rematch') return deptTarget(s, s.war.fighting);
+  const f = s.war?.fighting;
+  if (s.stage === 3 && f && isDept(f)) return deptTarget(s, f);
+  if (s.stage === 4 && f && isRoom(f)) return roomTarget(f);
   const r = s.rematch;
   if (!r) return undefined;
   const base = targetById(rematchOrder(s)[r.index]);
