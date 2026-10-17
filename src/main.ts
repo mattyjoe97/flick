@@ -63,20 +63,38 @@ function boot(hotData: { save?: string }) {
   // Fixed 100 ms simulation steps, rendered every animation frame.
   let acc = 0;
   let last = performance.now();
+  // The screen only needs redrawing in full when something changed: a simulation step (ten
+  // a second), an event, or something you did. In between, only the moving parts (flying
+  // bands, your hand) are drawn. Redrawing everything every frame kept phones warm.
+  let fullAt = 0;
+  let drawnAt = 0;
+  let inputAt = 0;
+  const poke = () => (inputAt = performance.now());
+  for (const type of ['pointerdown', 'pointerup', 'keydown', 'keyup', 'click', 'input', 'wheel', 'scroll'])
+    window.addEventListener(type, poke, { capture: true, passive: true });
   const frame = (now: number) => {
     const real = Math.min(1, (now - last) / 1000);
     last = now;
     acc += real * speed;
     const dt = TUNING.stepSeconds;
     let guard = 0;
+    let stepped = false;
     while (acc >= dt && guard++ < 2000) {
       step(state, dt);
       acc -= dt;
+      stepped = true;
     }
     // A bug in drawing should never stop the game: log it and keep the loop going.
     try {
+      const input = now - inputAt < 300;
+      const full = stepped || state.events.length > 0 || input || now - fullAt > 100;
       if (state.events.length) ui.handleEvents(state.events);
-      ui.render();
+      if (full) fullAt = now;
+      // The moving parts are drawn at up to 30 frames a second (60 while you're touching it).
+      if (full || input || now - drawnAt > 30) {
+        drawnAt = now;
+        ui.render(full);
+      }
     } catch (err) {
       console.error(err);
     }

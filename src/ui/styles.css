@@ -649,7 +649,7 @@ kbd {
   stroke: rgba(255, 255, 255, 0.85);
   stroke-width: 3;
   stroke-linecap: round;
-  animation: steam 2.8s ease-in-out infinite;
+  animation: steam 2.8s steps(14) infinite;
   opacity: 0;
 }
 
@@ -906,7 +906,8 @@ kbd {
 }
 
 .bob {
-  animation: bob 3.2s ease-in-out infinite;
+  /* Stepped: inside the office picture every frame of movement redraws the whole picture. */
+  animation: bob 3.2s steps(16) infinite;
 }
 
 @keyframes bob {
@@ -916,7 +917,7 @@ kbd {
 }
 
 .fan-blades {
-  animation: spin 0.3s linear infinite;
+  animation: spin 0.6s steps(8) infinite;
 }
 
 @keyframes spin {
@@ -1178,6 +1179,7 @@ kbd {
   position: absolute;
   left: 0;
   top: 0;
+  will-change: transform;
   width: max(18px, 3.6cqw);
   aspect-ratio: 180 / 50;
   background: url('../assets/art/band-flying.webp') center / contain no-repeat;
@@ -4155,7 +4157,7 @@ body.at-computer .desk-box.bulk {
   border-color: #c62f28;
   background: #ffe1d6;
   color: #9a1e18;
-  animation: combo-glow 0.9s ease-in-out infinite alternate;
+  animation: combo-glow 0.9s steps(4) infinite alternate;
 }
 
 @keyframes combo-glow {
@@ -4639,17 +4641,22 @@ body.at-computer .desk-box.bulk {
   filter: grayscale(0.55) brightness(0.9);
 }
 
-.barrage-key[data-ready='true'] {
-  animation: barrage-ready 1.4s ease-in-out infinite;
+.barrage-key[data-ready='true']::after {
+  /* The ready glow pulses on its own layer (fading a glow costs far less than redrawing one). */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 16px 4px rgba(255, 140, 70, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  animation: barrage-glow 1.4s ease-in-out infinite;
 }
 
-@keyframes barrage-ready {
+@keyframes barrage-glow {
   50% {
-    box-shadow:
-      inset 0 -14px 0 var(--key-side),
-      inset 0 2px 0 #fff,
-      0 3px 0 #8f846f,
-      0 0 16px 4px rgba(255, 140, 70, 0.75);
+    opacity: 1;
   }
 }
 
@@ -6303,7 +6310,7 @@ button.dept:focus-visible {
 
 .closet-card.raided {
   border-color: var(--marker-red);
-  animation: raid-pulse 1s ease-in-out infinite;
+  animation: raid-pulse 1s steps(4) infinite;
 }
 
 .raid-now {
@@ -6457,7 +6464,7 @@ button.dept:focus-visible {
 
 .holding-card.raided {
   border-color: var(--marker-red);
-  animation: raid-pulse 1s ease-in-out infinite;
+  animation: raid-pulse 1s steps(4) infinite;
 }
 
 .holding {

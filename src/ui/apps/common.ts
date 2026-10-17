@@ -1,5 +1,6 @@
 // Pieces the computer's apps share: the round clock, the grade card, avatars.
 
+import { setFill } from '../fill';
 import daleHead from '../../assets/art/dale-head.webp';
 import { co } from '../co';
 import { TEAMS } from '../../sim/content';
@@ -44,7 +45,7 @@ export function updateClock(root: HTMLElement, r: Round | null) {
   if (!el || !r) return;
   const left = Math.max(0, r.limit - r.used);
   const share = left / r.limit;
-  (el.querySelector('.round-clock-fill') as HTMLElement).style.width = `${share * 100}%`;
+  setFill(el.querySelector<HTMLElement>('.round-clock-fill'), share);
   el.classList.toggle('low', share < 0.25);
   el.classList.toggle('fast', r.used <= r.limit * WORK.fastShare);
   const t = `${Math.ceil(left)} s`;

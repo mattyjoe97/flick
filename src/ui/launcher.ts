@@ -7,6 +7,7 @@
 // The art is hand-painted sprites (see art/source and tools/prepare-art.py),
 // each in a loaded and an empty version.
 
+import { attr, setFill } from './fill';
 import { CHARGE, type WeaponId } from '../sim/content';
 import { SPRITES, BAND_SNAPPED, type LauncherSprite, type BandRig } from './art';
 import flickEmpty from '../assets/art/flick-empty.webp';
@@ -366,9 +367,9 @@ export class Launcher {
     const rot = (left ? this.angle - 180 : this.angle) + lift;
     const entering = Math.min(1, (now - this.enterAt) / 420);
     const drop = reduced ? 0 : Math.pow(1 - entering, 3) * 170;
-    this.aimG.setAttribute('transform', `translate(${(pivot.x + drop * 0.3).toFixed(1)} ${(pivot.y + drop).toFixed(1)}) rotate(${rot.toFixed(2)})`);
+    attr(this.aimG, 'transform', `translate(${(pivot.x + drop * 0.3).toFixed(1)} ${(pivot.y + drop).toFixed(1)}) rotate(${rot.toFixed(1)})`);
     const unit = sp.unit;
-    this.spriteG.setAttribute('transform', `scale(${left ? unit : -unit} ${unit})`);
+    attr(this.spriteG, 'transform', `scale(${left ? unit : -unit} ${unit})`);
 
     // Pull back while stretching, kick forward right after firing, shake when over-held.
     const sinceFire = now - this.firedAt;
@@ -376,7 +377,7 @@ export class Launcher {
     const shake = reduced ? 0 : state === 'over' ? (Math.random() - 0.5) * 6 : state === 'perfect' ? (Math.random() - 0.5) * 1.5 : 0;
     const forward = left ? -1 : 1;
     const along = forward * (-22 * charge + kick + shake);
-    this.pullG.setAttribute('transform', `translate(${along.toFixed(2)} ${(shake * 0.6).toFixed(2)})`);
+    attr(this.pullG, 'transform', `translate(${along.toFixed(1)} ${(shake * 0.6).toFixed(1)})`);
 
     // The band(s): fired, reloaded, stretched.
     const sinceSnap = now - this.snappedAt;
@@ -399,8 +400,8 @@ export class Launcher {
     });
 
     // Tension meter next to the Flick key
-    this.fill.style.width = `${(charge * 100).toFixed(1)}%`;
-    this.meter.dataset.state = state;
+    setFill(this.fill, charge);
+    attr(this.meter, 'data-state', state);
     const text =
       state === 'perfect'
         ? `Perfect! ×${CHARGE.perfectMult}`

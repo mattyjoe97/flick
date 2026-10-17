@@ -3,6 +3,7 @@
 // their cubicle wall with whatever they're hiding behind, and your allies at
 // the edges. Rubber bands fly as little spinning loops.
 
+import { attr } from './fill';
 import { COWORKERS } from '../sim/content';
 import { co } from './co';
 import { walkbyCountdown } from '../sim/engine';
@@ -138,7 +139,13 @@ export class Scene {
     this.root = document.getElementById('scene')!;
     this.build();
     warmPortraits();
+    // Measuring the box forces the browser to lay the page out, so it's only done when the
+    // box actually changes size (doing it every frame kept phones busy and warm).
+    if (typeof ResizeObserver === 'function') new ResizeObserver(() => (this.measureDirty = true)).observe(this.root);
+    window.addEventListener('resize', () => (this.measureDirty = true));
   }
+  private measureDirty = true;
+  private box = { w: 1, h: 1 };
 
   // ---------------------------------------------------------------- build
 
@@ -502,10 +509,9 @@ export class Scene {
       const u = 1 - t;
       const x = u * u * p.x0 + 2 * u * t * p.cx + t * t * p.x1;
       const y = u * u * p.y0 + 2 * u * t * p.cy + t * t * p.y1;
+      // Moved with a transform only (left/top would lay the page out again every frame).
       const at = this.pct(x, y);
-      p.el.style.left = `${at.left}%`;
-      p.el.style.top = `${at.top}%`;
-      p.el.style.transform = `translate(-50%, -50%) rotate(${(p.spin * (now - p.t0)) / 1000}deg) scale(${1.25 - 0.45 * t})`;
+      p.el.style.transform = `translate(${((at.left / 100) * this.box.w).toFixed(1)}px, ${((at.top / 100) * this.box.h).toFixed(1)}px) translate(-50%, -50%) rotate(${((p.spin * (now - p.t0)) / 1000).toFixed(1)}deg) scale(${(1.25 - 0.45 * t).toFixed(3)})`;
       if (t >= 1) {
         p.el.remove();
         p.done();
@@ -519,8 +525,11 @@ export class Scene {
 
   /** Work out how much of the scene fits the box it's drawn in (it's sliced to fill it). */
   private measure() {
+    if (!this.measureDirty && typeof ResizeObserver === 'function') return;
     const r = this.root.getBoundingClientRect();
     if (r.width < 1 || r.height < 1) return;
+    this.measureDirty = false;
+    this.box = { w: r.width, h: r.height };
     const a = r.width / r.height;
     const w = a < W / H ? H * a : W;
     const h = a < W / H ? H : W / a;
@@ -626,8 +635,9 @@ export class Scene {
       if (f.x > W + 20) this.feeney = { phase: 'off', x: -140, t: now, spotted: false };
     }
     const x = this.feeney.phase === 'off' ? -140 : this.feeney.x;
-    this.feeneyG.setAttribute('transform', `translate(${x.toFixed(1)} ${this.feeney.phase === 'walk' ? Math.abs(Math.sin(now / 140)) * -3 : 0})`);
-    this.feeneyBubble.style.left = `${((x + 96) / W) * 100}%`;
+    attr(this.feeneyG, 'transform', `translate(${x.toFixed(1)} ${this.feeney.phase === 'walk' ? (Math.abs(Math.sin(now / 140)) * -3).toFixed(1) : 0})`);
+    const bubbleLeft = `${(((x + 96) / W) * 100).toFixed(2)}%`;
+    if (this.feeneyBubble.style.left !== bubbleLeft) this.feeneyBubble.style.left = bubbleLeft;
   }
 
   /**

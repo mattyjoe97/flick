@@ -2,6 +2,7 @@
 // the office moment card (pizza, a stray rubber band ball, Muffins, Joey...) that you
 // grab with a tap, and Mr. Feeney's sticky note of today's goals on your desktop.
 
+import { setFill } from './fill';
 import ball1 from '../assets/art/ball-1.webp';
 import baileyFetch from '../assets/art/pet-bailey-fetch.webp';
 import baileyHappy from '../assets/art/pet-bailey-happy.webp';
@@ -172,7 +173,7 @@ export class OfficeView {
     else if (!m && this.cardKind) this.hideCard();
     if (m && this.cardKind) {
       const left = Math.max(0, m.until - s.time) / MOMENTS.seconds;
-      (this.card.querySelector('.moment-time i') as HTMLElement).style.width = `${(left * 100).toFixed(1)}%`;
+      setFill(this.card.querySelector<HTMLElement>('.moment-time i'), left);
     }
 
     // Today's goals, on the sticky note on your desktop.

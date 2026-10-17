@@ -7,6 +7,7 @@
 // Mr. Feeney's drawer, and every few minutes he leans over your cubicle wall ("Psst")
 // with a deal for 30 seconds. The closet closes the moment Mr. Feeney's footsteps start.
 
+import { setFill } from './fill';
 import roomArt from '../assets/art/closet.webp';
 import { co } from './co';
 import daleIdle from '../assets/art/dale-idle.webp';
@@ -585,6 +586,6 @@ export class ClosetView {
     if (take.textContent !== label) take.textContent = label;
     take.disabled = s.salary < deal.price;
     const fill = this.psst.querySelector<HTMLElement>('.psst-clock span')!;
-    fill.style.width = `${Math.max(0, Math.min(1, (deal.until - s.time) / DALE.dealSeconds)) * 100}%`;
+    setFill(fill, (deal.until - s.time) / DALE.dealSeconds);
   }
 }

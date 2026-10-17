@@ -16,6 +16,7 @@
 // notifications, a screensaver if you sit idle, the desk phone beside the monitor, and
 // Mr. Feeney's reflection growing in the glass as he walks up behind you.
 
+import { setFill } from './fill';
 import './computer.css';
 import { reviewReady } from '../sim/career';
 import { chatName, chatUnread } from '../sim/chat';
@@ -455,7 +456,7 @@ export class ComputerView {
     chip.hidden = combo < 2;
     if (combo >= 2) {
       this.setText('combo-x', `Combo ${combo} · ×${comboMult(s).toFixed(1).replace(/\.0$/, '')}`);
-      $('combo-fill').style.width = `${Math.max(0, 1 - (s.time - s.work.comboAt) / COMBO.window) * 100}%`;
+      setFill($('combo-fill'), 1 - (s.time - s.work.comboAt) / COMBO.window);
       chip.classList.toggle('max', comboMult(s) >= 1 + COMBO.step * COMBO.cap);
     }
 

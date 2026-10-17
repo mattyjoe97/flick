@@ -8,6 +8,7 @@
 // the boss behind their barricade (the same drawing as the fight), what's left of their
 // Resolve and what taking them gets you.
 
+import { setFill } from './fill';
 import daleHead from '../assets/art/dale-head.webp';
 import { co } from './co';
 import iconUnplug from '../assets/art/icon-unplug.webp';
@@ -242,7 +243,7 @@ export class MapView {
       const on = s.stage >= 6 || s.war.fighting === 'rematch';
       const left = (on ? Math.max(0, s.targetResolve) : rm.left ?? rm.resolve) / rm.resolve;
       const bar = this.grid.querySelector<HTMLElement>('[data-bar="rematch"]');
-      if (bar) bar.style.width = `${(Math.min(1, left) * 100).toFixed(1)}%`;
+      setFill(bar, left);
       this.text('[data-rematch-prize]', money(rm.bounty));
     }
   }
@@ -252,7 +253,7 @@ export class MapView {
       if (deptTaken(s, d.dept)) continue;
       const share = this.share(s, d);
       const bar = this.grid.querySelector<HTMLElement>(`[data-bar="${d.dept}"]`);
-      if (bar) bar.style.width = `${(share * 100).toFixed(1)}%`;
+      setFill(bar, share);
       this.text(`[data-left="${d.dept}"]`, `${big(s, share * deptMax(s, d.dept))} Resolve left`);
     }
     if (raid) this.text('[data-clock="raid"]', `${Math.ceil(Math.max(0, raid.until - s.time))} s`);
@@ -266,11 +267,11 @@ export class MapView {
       const w = s.war.rooms[r.room];
       if (w.taken) continue;
       const wallBar = this.grid.querySelector<HTMLElement>(`[data-bar="wall-${r.room}"]`);
-      if (wallBar) wallBar.style.width = `${((w.wall / r.wall) * 100).toFixed(1)}%`;
+      setFill(wallBar, w.wall / r.wall);
       this.text(`[data-left="wall-${r.room}"]`, `Wall: ${big(s, w.wall)} left`);
       const share = this.roomShare(s, r);
       const bar = this.grid.querySelector<HTMLElement>(`[data-bar="${r.room}"]`);
-      if (bar) bar.style.width = `${(share * 100).toFixed(1)}%`;
+      setFill(bar, share);
       this.text(`[data-left="${r.room}"]`, `Resolve: ${big(s, share * r.resolve)} left`);
       const btn = this.grid.querySelector<HTMLButtonElement>(`[data-sabotage="${r.room}"]`);
       if (btn) {
@@ -296,7 +297,7 @@ export class MapView {
     const hr = s.war.fighting === 'hr' ? Math.max(0, s.targetResolve) / HR_DIRECTOR.resolve : p.hrShare;
     const bar = (key: string, share: number) => {
       const el = this.grid.querySelector<HTMLElement>(`[data-bar="${key}"]`);
-      if (el) el.style.width = `${(Math.min(1, Math.max(0, share)) * 100).toFixed(1)}%`;
+      setFill(el, share);
     };
     bar('hr', hr);
     bar('goodwill', p.goodwill / POLITICS.goodwill);
@@ -524,7 +525,7 @@ export class RaidAlert {
       this.hooks.sound.notify();
     }
     const fill = this.root.querySelector<HTMLElement>('.psst-clock span')!;
-    fill.style.width = `${Math.max(0, Math.min(1, (raid.until - s.time) / WAR.closet.seconds)) * 100}%`;
+    setFill(fill, (raid.until - s.time) / WAR.closet.seconds);
   }
 }
 
@@ -576,7 +577,7 @@ export class CounterAlert {
       this.hooks.sound.notify();
     }
     const fill = this.root.querySelector<HTMLElement>('.psst-clock span')!;
-    fill.style.width = `${Math.max(0, Math.min(1, (a.until - s.time) / SIEGE.counter.seconds)) * 100}%`;
+    setFill(fill, (a.until - s.time) / SIEGE.counter.seconds);
   }
 }
 
@@ -626,6 +627,6 @@ export class InterviewAlert {
       this.hooks.sound.notify();
     }
     const fill = this.root.querySelector<HTMLElement>('.psst-clock span')!;
-    fill.style.width = `${Math.max(0, Math.min(1, (iv.until - s.time) / POLITICS.interview.seconds)) * 100}%`;
+    setFill(fill, (iv.until - s.time) / POLITICS.interview.seconds);
   }
 }

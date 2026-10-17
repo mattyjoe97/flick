@@ -2,6 +2,7 @@
 // it does) and a clock. It shows wherever you are (at war, at your computer, on your
 // floor), since they're messaging you.
 
+import { setFill } from './fill';
 import { ASKS, TEAMS } from '../sim/content';
 import { co } from './co';
 import { answerAsk, askById, askerName, describe } from '../sim/asks';
@@ -76,6 +77,6 @@ export class AskCard {
       this.hooks.sound.notify();
     }
     const fill = this.root.querySelector<HTMLElement>('.ask-clock span');
-    if (fill) fill.style.width = `${Math.max(0, Math.min(1, (cur.until - s.time) / ASKS.seconds)) * 100}%`;
+    setFill(fill, (cur.until - s.time) / ASKS.seconds);
   }
 }

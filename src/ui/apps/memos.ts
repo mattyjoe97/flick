@@ -5,6 +5,7 @@
 // takes one of your departments). Below it, the memos you can send, each a sheet of paper
 // with what it does, what it costs, and whether it's in force, cooling down or ready.
 
+import { setFill } from '../fill';
 import { HR_DIRECTOR, MEMOS, POLITICS, type MemoId } from '../../sim/content';
 import { canSendMemo, memoCooldown, pdPerMin, sendMemo } from '../../sim/politics';
 import type { GameState } from '../../sim/state';
@@ -94,9 +95,9 @@ export class MemosApp implements AppView {
     set('[data-goodwill]', `${Math.floor(p.goodwill)} / ${POLITICS.goodwill}`);
     set('[data-evidence]', `${Math.round(p.evidence)}%`);
     const gw = this.el.querySelector<HTMLElement>('[data-goodwill-fill]');
-    if (gw) gw.style.width = `${Math.min(100, (p.goodwill / POLITICS.goodwill) * 100)}%`;
+    setFill(gw, p.goodwill / POLITICS.goodwill);
     const ev = this.el.querySelector<HTMLElement>('[data-evidence-fill]');
-    if (ev) ev.style.width = `${Math.min(100, p.evidence)}%`;
+    setFill(ev, p.evidence / 100);
     for (const m of MEMOS) {
       set(`[data-memo-on="${m.id}"]`, clock(Math.max(0, p.memos[m.id].until - s.time)));
       set(`[data-memo-cd="${m.id}"]`, clock(memoCooldown(s, m.id)));

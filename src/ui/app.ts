@@ -1,4 +1,5 @@
 import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, LADDER, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
+import { setFill } from './fill';
 import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
 import { tierFloor, tierName, toughness } from '../sim/ladder';
@@ -1096,8 +1097,17 @@ export class UI {
     build();
   }
 
-  render() {
+  /**
+   * Draws the game. `full` is false between simulation steps when nothing else happened:
+   * then only the parts that move on their own (flying bands, your hand) are drawn.
+   */
+  render(full = true) {
     const s = this.s;
+    if (!full) {
+      this.scene.render();
+      this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion(), this.scene.handShift());
+      return;
+    }
     const floor = tierFloor(s.job?.tier ?? 0);
     setCompany(s.job?.company ?? 'pemberton', floor);
     // Up the career ladder the office is on another floor: the labels that name it follow.
@@ -1131,11 +1141,11 @@ export class UI {
     const ready = reviewReady(s);
     this.set('pay-grade', ready ? 'Promotion ready! (Staffing)' : `${grade.title}${grade.mult > 1 ? ` · work ×${grade.mult}` : ''}`);
     const share = s.career.rank >= TOP_RANK ? 1 : Math.min(1, s.career.review / reviewNeed(s.career.rank));
-    $('perf-fill').style.width = `${(share * 100).toFixed(1)}%`;
+    setFill($('perf-fill'), share);
     $('perf').classList.toggle('full', ready);
     const susp = Math.min(100, s.suspicion);
     this.setNum('susp-num', susp.toFixed(0));
-    $('susp-bar').style.width = `${susp.toFixed(1)}%`;
+    setFill($('susp-bar'), susp / 100);
     // The mug on your desk fills from y=114 (empty) to y=18 (full).
     const liquidY = 114 - 96 * (susp / 100);
     $('susp-fill').setAttribute('y', liquidY.toFixed(1));
@@ -1175,7 +1185,7 @@ export class UI {
     hrCase.hidden = s.stage !== 5;
     if (s.stage === 5) {
       const ev = Math.min(100, s.war.politics.evidence);
-      $('hr-case-fill').style.width = `${ev.toFixed(1)}%`;
+      setFill($('hr-case-fill'), ev / 100);
       hrCase.classList.toggle('high', ev >= 75);
       hrCase.title = `HR’s case file: ${Math.round(ev)}% full`;
       this.set('hr-case-num', `Case ${Math.round(ev)}%`);
@@ -1284,7 +1294,7 @@ export class UI {
       // Up the career ladder everyone's Resolve is shown that many times bigger.
       const k = toughness(s);
       this.set('resolve-num', `${fmt(Math.ceil(r * k))} / ${fmt(Math.round(max * k))}`);
-      $('resolve-fill').style.width = `${(r / max) * 100}%`;
+      setFill($('resolve-fill'), r / max);
       const tw = $('twist');
       // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
       const twist = fd
@@ -1308,7 +1318,7 @@ export class UI {
       this.set('position', 'Nobody left to flick. For now.');
       this.set('resolve-num', '0 / 0');
       this.set('resolve-label', 'Resolve');
-      $('resolve-fill').style.width = '0%';
+      setFill($('resolve-fill'), 0);
       $('twist').hidden = true;
     }
     flickBtn.disabled = !t || s.time < s.flickLockUntil;
@@ -1390,7 +1400,7 @@ export class UI {
     document.querySelectorAll<HTMLElement>('#shop-rows .shop-row').forEach((b) => {
       const f = Math.min(1, s.salary / Number(b.dataset.price));
       b.classList.toggle('afford', f >= 1);
-      (b.querySelector('.shop-bar span') as HTMLElement).style.width = `${(f * 100).toFixed(1)}%`;
+      setFill(b.querySelector<HTMLElement>('.shop-bar span'), f);
     });
     // How many things in Dale's closet you could buy right now.
     const n = s.lookBusy ? 0 : affordable(s, 'closet');
@@ -1405,7 +1415,7 @@ export class UI {
     const banner = $('walkby');
     const show = c !== null && !s.lookBusy;
     banner.hidden = !show;
-    if (show) $('walkby-fill').style.width = `${(c! / warning) * 100}%`;
+    if (show) setFill($('walkby-fill'), c! / warning);
 
     const lock = $('lockout');
     const flickLeft = s.flickLockUntil - s.time;
@@ -1497,7 +1507,7 @@ export class UI {
     banner.hidden = !call || s.lookBusy;
     if (call) {
       const left = Math.max(0, call.until - s.time);
-      $('call-fill').style.width = `${(left / 9) * 100}%`;
+      setFill($('call-fill'), left / 9);
       if (!s.lookBusy) {
         const now = performance.now();
         if (now - this.lastRing > 1500) {

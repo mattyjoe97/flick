@@ -2,6 +2,7 @@
 // the Barrage key under it. Tap the ball to wind spare bands on: it grows (four sizes,
 // each a permanent perk). The Barrage key throws a pocketful for you and every Shooter.
 
+import { setFill } from './fill';
 import ball1 from '../assets/art/ball-1.webp';
 import ball2 from '../assets/art/ball-2.webp';
 import ball3 from '../assets/art/ball-3.webp';
@@ -152,7 +153,7 @@ export class BallView {
     this.btn.style.setProperty('--ball-scale', scale.toFixed(3));
     const next = nextBallSize(s);
     this.label.textContent = next ? `${short(s.ball.wound)} / ${short(next.at)}` : `${BALL.sizes[size - 1].name}`;
-    this.bar.style.width = `${(p * 100).toFixed(1)}%`;
+    setFill(this.bar, p);
   }
 
   /** The Barrage key: only in the war, once you have a team. */
@@ -170,7 +171,7 @@ export class BallView {
       this.key.dataset.ready = String(ready);
       this.key.setAttribute('aria-label', `Barrage: ${cd > 0 || s.bands < BARRAGE.min ? sub : `throw ${sub} at once`}`);
     }
-    this.keyFill.style.width = `${(cd > 0 ? (1 - cd / BARRAGE.cooldown) * 100 : 100).toFixed(1)}%`;
+    setFill(this.keyFill, cd > 0 ? 1 - cd / BARRAGE.cooldown : 1);
   }
 
   /** The tooltip: every size, its perk, and which ones you have. */
