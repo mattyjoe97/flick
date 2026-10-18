@@ -1175,6 +1175,7 @@
 }
 
 .mail-text {
+  white-space: pre-line;
   margin: 0 0 14px;
   font-size: 15px;
   line-height: 1.5;
@@ -2424,6 +2425,12 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+.ico-challenges {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 56'><rect x='8' y='8' width='32' height='42' rx='3' fill='%23fdf6e3' stroke='%233a2a14' stroke-width='2.5'/><rect x='17' y='4' width='14' height='8' rx='2' fill='%23b88a4a' stroke='%233a2a14' stroke-width='2.5'/><path d='M14 21l3 3 5-6M14 32l3 3 5-6' fill='none' stroke='%232f8a3a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><rect x='14' y='40' width='7' height='5' rx='1' fill='none' stroke='%233a2a14' stroke-width='2'/><path d='M26 22h9M26 33h9M26 43h9' stroke='%233a2a14' stroke-width='2.5' stroke-linecap='round'/></svg>");
+  background-size: 80% !important;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .ico-memos {
   background-image: url("../assets/art/app-memos.webp");
 }
@@ -3602,4 +3609,111 @@ input.rename {
   .rv-stamp {
     animation: none;
   }
+}
+
+/* Corporate Challenges: a clipboard of today's three, and the week's streak. */
+.challenges {
+  padding: 14px;
+  max-width: 560px;
+}
+.ch-empty {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ch-head {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.ch-head small {
+  display: block;
+  font-weight: 500;
+  font-size: 12px;
+  color: #6b6253;
+}
+.ch-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.ch-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px;
+  border: 1px solid #d8d0bf;
+  border-radius: 6px;
+  background: #fffdf6;
+}
+.ch-row.done {
+  background: #eef7ea;
+  border-color: #a9cfa0;
+}
+.ch-box {
+  flex: 0 0 22px;
+  height: 22px;
+  border: 2px solid #3a2a14;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #2f8a3a;
+  background: #fff;
+}
+.ch-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  font-size: 14px;
+}
+.ch-text small {
+  color: #6b6253;
+  font-size: 12px;
+}
+.ch-bar {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: #e6dfcf;
+  overflow: hidden;
+}
+.ch-bar i {
+  display: block;
+  height: 100%;
+  background: #4a9b55;
+}
+.ch-all {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.ch-streak {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+.ch-week {
+  display: flex;
+  gap: 4px;
+}
+.ch-week i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #b88a4a;
+  background: #fff;
+}
+.ch-week i.on {
+  background: #e0b13c;
+  border-color: #5b4512;
+}
+.ch-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6b6253;
+  line-height: 1.4;
 }

@@ -36,6 +36,7 @@ import { StaffingApp } from './apps/staffing';
 import { MemosApp } from './apps/memos';
 import { JobsApp } from './apps/jobs';
 import { TrophiesApp } from './apps/trophies';
+import { ChallengesApp } from './apps/challenges';
 import { canSendMemo } from '../sim/politics';
 import { MEMOS } from '../sim/content';
 import { TROPHIES } from '../sim/trophies';
@@ -43,7 +44,7 @@ import { money, officeTime } from './format';
 import { portraitSvg } from './portraits';
 import type { Sound } from './sound';
 
-export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'jobs' | 'trophies' | 'docs' | 'trash';
+export type AppId = 'mail' | 'phone' | 'sheet' | 'expenses' | 'chat' | 'catalog' | 'org' | 'staffing' | 'memos' | 'jobs' | 'challenges' | 'trophies' | 'docs' | 'trash';
 
 const TITLES: Record<AppId, string> = {
   mail: 'Mail',
@@ -56,6 +57,7 @@ const TITLES: Record<AppId, string> = {
   staffing: 'Staffing',
   memos: 'Memos',
   jobs: 'Job Search',
+  challenges: 'Corporate Challenges',
   trophies: 'Trophies',
   docs: 'My Documents',
   trash: 'Recycle Bin',
@@ -72,6 +74,7 @@ const ICON: Record<AppId, string> = {
   staffing: 'ico-staffing',
   memos: 'ico-memos',
   jobs: 'ico-doc',
+  challenges: 'ico-challenges',
   trophies: 'ico-trophies',
   docs: 'ico-folder',
   trash: 'ico-trash-full',
@@ -90,6 +93,7 @@ const FEENEY_SAYS: Record<string, string[]> = {
   memos: ['A memo? Very proactive.', 'Love a well-formatted memo.'],
   jobs: ['…Is that a job site?', 'Updating your résumé? Ha. Ha.'],
   trophies: ['Employee of the Month material.', 'Love a winner.'],
+  challenges: ['Corporate’s challenges! A team player.', 'Love the initiative.'],
   docs: ['Updating your résumé?', 'Organized. I like it.'],
   trash: ['Taking out the trash. Good.'],
   desk: ['Busy?', 'Nice wallpaper.', 'Great hustle.'],
@@ -155,6 +159,7 @@ export class ComputerView {
       staffing: this.staffing,
       memos: new MemosApp(pane('memos'), ctx, { sent: () => undefined }),
       trophies: new TrophiesApp(pane('trophies'), ctx),
+      challenges: new ChallengesApp(pane('challenges'), ctx),
       jobs: new JobsApp(pane('jobs'), ctx, { quit: (to, tier) => hooks.quitJob(to, tier) }),
       docs: this.docs,
       trash: this.docs,
@@ -299,6 +304,8 @@ export class ComputerView {
       this.hooks.notify();
     }
     else if (e.type === 'hidden') this.feeneyPeer();
+    else if (e.type === 'dailyNew' && this.app !== 'challenges') this.toast('daily', 'challenges', 'Corporate Challenges', 'Today’s three are in. Click to see them.');
+    else if (e.type === 'dailyDone') this.toast(`daily:${e.id}`, 'challenges', 'Challenge done', `+${money(e.cash)}`);
     else if (e.type === 'trophy') {
       const t = TROPHIES.find((x) => x.id === e.id);
       if (t) this.toast(`trophy:${t.id}`, 'trophies', `Trophy: ${t.name}`, t.does);
@@ -419,6 +426,9 @@ export class ComputerView {
     badge('sheet', r.sheet ? r.sheet.items - r.sheet.done : ready.sheet ? 1 : 0);
     badge('chat', chatUnread(s));
     badge('staffing', reviewReady(s) ? '!' : 0);
+    // Corporate Challenges: '!' when today's are new, otherwise how many are left.
+    const d = s.daily;
+    badge('challenges', d?.list.length ? (d.fresh ? '!' : d.list.filter((g) => !g.paid).length) : 0);
     // Stage 5: the Memos app (a badge for every memo you could send right now).
     const politics = s.stage === 5;
     this.rebuildFlag('memos-on', politics, () => document.querySelectorAll<HTMLElement>('[data-app="memos"]:not(.app)').forEach((b) => (b.hidden = !politics)));

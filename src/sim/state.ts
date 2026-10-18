@@ -2,6 +2,7 @@ import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId,
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newGolden, type GoldenKind, type GoldenState } from './golden';
 import { newChaos, type ChaosKind, type ChaosState } from './chaos';
+import { newDaily, type DailyState } from './daily';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -149,6 +150,8 @@ export interface GameState {
   golden: GoldenState;
   /** Office chaos: the next office-wide event, and the one going on now. */
   chaos: ChaosState;
+  /** Corporate Challenges: today's three (real-world days), and your streak. Kept from job to job. */
+  daily: DailyState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -409,6 +412,9 @@ export type GameEvent =
   | { type: 'golden'; kind: GoldenKind }
   | { type: 'chaosStart'; kind: ChaosKind }
   | { type: 'chaosEnd'; kind: ChaosKind }
+  | { type: 'dailyNew' }
+  | { type: 'dailyDone'; id: string; cash: number }
+  | { type: 'dailyAll'; rep: number; streak: number }
   | { type: 'trophy'; id: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
@@ -492,6 +498,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     stock: 0,
     golden: newGolden(),
     chaos: newChaos(),
+    daily: newDaily(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },

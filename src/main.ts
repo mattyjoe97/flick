@@ -8,6 +8,7 @@ import '@fontsource/kalam/latin-400.css';
 import '@fontsource/kalam/latin-700.css';
 import './ui/styles.css';
 import { TUNING } from './sim/content';
+import { localDay, newDay } from './sim/daily';
 import { applyOffline, step } from './sim/engine';
 import { clearStorage, deserialize, exportSave, importSave, loadFromStorage, saveToStorage, serialize } from './sim/save';
 import { newGame, type GameState } from './sim/state';
@@ -37,6 +38,9 @@ function boot(hotData: { save?: string }) {
   } else state = newGame();
 
   let speed = 1;
+  // Corporate Challenges follow the real calendar: check for a new day now and every half minute.
+  newDay(state, localDay());
+  setInterval(() => newDay(state, localDay()), 30_000);
 
   const host: GameHost = {
     get state() {
@@ -125,6 +129,7 @@ function boot(hotData: { save?: string }) {
     } else if (hiddenAt !== null) {
       // The simulation pauses while hidden; passive income catches up here.
       applyOffline(state, (Date.now() - hiddenAt) / 1000);
+      newDay(state, localDay());
       hiddenAt = null;
       last = performance.now();
     }

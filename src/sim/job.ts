@@ -136,12 +136,14 @@ export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed 
     trophies: { ...s.job.trophies },
     history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep, tier: s.job.tier }].slice(-12),
   };
-  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches };
+  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches, daily: s.daily };
   const fresh = newGame(seed || 1);
   fresh.job = job;
   fresh.ball = kept.ball;
   fresh.names = kept.names;
   fresh.office.scratches = kept.scratches;
+  // Today's challenges come along; the new job's counters all start at zero.
+  if (kept.daily) fresh.daily = { ...kept.daily, seen: Object.fromEntries(Object.keys(kept.daily.seen).map((k) => [k, 0])) };
   // Everything else is the new company's: swap the whole state over in place.
   for (const k of Object.keys(s)) delete (s as unknown as Record<string, unknown>)[k];
   Object.assign(s, fresh);

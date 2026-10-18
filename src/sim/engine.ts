@@ -19,6 +19,7 @@ import { execMult, offlineCap, repDamage } from './job';
 import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
+import { stepDaily } from './daily';
 import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
 
 export { openBox } from './supplies';
@@ -426,6 +427,7 @@ export function step(s: GameState, dt: number) {
   stepPolitics(s, dt);
   stepGolden(s);
   stepChaos(s);
+  stepDaily(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);

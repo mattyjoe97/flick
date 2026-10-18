@@ -4,6 +4,7 @@ import { politicsForOldSave } from './politics';
 import { ladderForOldSave } from './ladder';
 import { goldenForLoad } from './golden';
 import { chaosForLoad } from './chaos';
+import { dailyForLoad } from './daily';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -86,6 +87,7 @@ function migrate(file: SaveFile): GameState | null {
   s.renovations = { ...(file.state.renovations ?? {}) };
   s.golden = goldenForLoad(file.state.golden, s.time);
   s.chaos = chaosForLoad(file.state.chaos, s.time);
+  s.daily = dailyForLoad(file.state.daily);
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;

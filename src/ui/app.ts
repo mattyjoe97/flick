@@ -797,6 +797,15 @@ export class UI {
       } else if (e.type === 'chaosStart') {
         this.sound.alarm();
         this.say(CHAOS_INFO[e.kind].start);
+      } else if (e.type === 'dailyNew') {
+        this.sound.notify();
+        if (!this.s.lookBusy) this.say('Corporate sent today’s three challenges. They’re in the Challenges app on your computer.');
+      } else if (e.type === 'dailyDone') {
+        this.sound.kaching();
+        if (!this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
+      } else if (e.type === 'dailyAll') {
+        this.sound.grade('A');
+        this.say(this.s.ticker[0]?.text ?? '');
       } else if (e.type === 'chaosEnd') {
         this.say(CHAOS_INFO[e.kind].end);
       } else if (e.type === 'goldenSpawn') {
