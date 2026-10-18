@@ -807,6 +807,8 @@ export function applyOffline(s: GameState, seconds: number) {
   // Push the next walk-by out so nobody gets spotted the instant they return.
   s.walkby = { nextAt: Math.max(s.walkby.nextAt, s.time + 30), arrivesAt: null };
   s.work.nextCallAt = Math.max(s.work.nextCallAt, s.time + 30);
+  // No office chaos the moment you sit back down, either.
+  if (s.chaos && !s.chaos.event) s.chaos.nextAt = Math.max(s.chaos.nextAt, s.time + 60);
   suppliesOffline(s);
   s.dale.deal = null;
   s.dale.nextDealAt = Math.max(s.dale.nextDealAt, s.time + 60);

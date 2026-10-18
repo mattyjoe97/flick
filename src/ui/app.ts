@@ -92,7 +92,9 @@ const STAGE_NAMES: Record<number, string> = {
 export class UI {
   private text = new Map<string, string>();
   private keys = new Map<string, string>();
-  private flash: { text: string; until: number } | null = null;
+  /** The coach line's message: what's showing (an error clears when you next do something right), and what's waiting. */
+  private flash: { text: string; until: number; shownAt?: number; error?: boolean } | null = null;
+  private sayQueue: string[] = [];
   private launcher!: Launcher;
   private lastFrame = performance.now();
   private sound = new Sound();
@@ -356,13 +358,40 @@ export class UI {
 
   private act(fn: (s: GameState) => ActionResult) {
     const r = fn(this.s);
-    if (!r.ok && r.reason) this.say(r.reason);
-    else this.flash = null;
+    if (!r.ok && r.reason) this.sayNow(r.reason, true);
+    else if (this.flash?.error) this.flash = null;
     return r.ok;
   }
 
+  /**
+   * A message on the coach line. If one is already showing, this one waits its turn (each
+   * gets at least 2 s, the last one 3.5 s), so two things happening at once are both read.
+   */
   private say(text: string) {
-    this.flash = { text: co(text), until: performance.now() + 3500 };
+    const t = co(text);
+    if (!t) return;
+    const now = performance.now();
+    const f = this.flash;
+    if (!f || f.until <= now || f.error) return this.sayNow(t);
+    if (f.text === t || this.sayQueue.includes(t)) return;
+    this.sayQueue.push(t);
+    if (this.sayQueue.length > 4) this.sayQueue.shift();
+    f.until = Math.min(f.until, Math.max(now, (f.shownAt ?? now) + 2000));
+  }
+
+  /** Shows a message straight away (errors, from something you just tried, don't wait). */
+  private sayNow(text: string, error = false) {
+    const now = performance.now();
+    this.flash = { text: co(text), until: now + (error ? 3000 : 3500), shownAt: now, error };
+  }
+
+  /** The coach line's message right now, moving the queue along. */
+  private flashText(now: number) {
+    if ((!this.flash || this.flash.until <= now) && this.sayQueue.length) {
+      const text = this.sayQueue.shift()!;
+      this.flash = { text, until: now + (this.sayQueue.length ? 2500 : 3500), shownAt: now };
+    }
+    return this.flash && this.flash.until > now ? this.flash.text : null;
   }
 
   private bind() {
@@ -771,10 +800,20 @@ export class UI {
         this.onFired(e);
         this.sound.caught();
       } else if (e.type === 'promotion') {
-        const a = this.s.allies.find((x) => x.id === e.id);
-        const role = ROLES.find((r) => r.id === a?.role)?.name ?? '';
-        this.say(`${COWORKERS.find((c) => c.id === e.id)!.name} was promoted to ${PROMOTION.titles[e.rank]} ${role}.`);
-        this.sound.capture();
+        // Several at once: one line for all of them.
+        const all = events.filter((x): x is Extract<GameEvent, { type: 'promotion' }> => x.type === 'promotion');
+        if (all.length > 1) {
+          if (e === all[0]) {
+            const names = all.map((x) => COWORKERS.find((c) => c.id === x.id)!.name);
+            this.say(`${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} were promoted.`);
+            this.sound.capture();
+          }
+        } else {
+          const a = this.s.allies.find((x) => x.id === e.id);
+          const role = ROLES.find((r) => r.id === a?.role)?.name ?? '';
+          this.say(`${COWORKERS.find((c) => c.id === e.id)!.name} was promoted to ${PROMOTION.titles[e.rank]} ${role}.`);
+          this.sound.capture();
+        }
       } else if (e.type === 'weaponBack') {
         this.say(`Your ${WEAPONS.find((w) => w.id === e.weapon)!.name} is back.`);
       } else if (e.type === 'writeUpFaded') {
@@ -790,7 +829,7 @@ export class UI {
         this.say(`The ${r.label} is yours! You get ${r.perk}.`);
       } else if (e.type === 'trophy') {
         this.sound.grade('A');
-        if (!this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
+        if (!this.s.lookBusy) this.say(e.text ?? '');
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
@@ -800,24 +839,22 @@ export class UI {
       } else if (e.type === 'rival') {
         if (e.result === 'won') this.sound.grade('A');
         else this.sound.grade('D');
-        this.say(this.s.ticker[0]?.text ?? '');
+        this.say(e.text ?? '');
       } else if (e.type === 'dailyNew') {
         this.sound.notify();
         if (!this.s.lookBusy) this.say('Corporate sent today’s three challenges. They’re in the Challenges app on your computer.');
       } else if (e.type === 'dailyDone') {
         this.sound.kaching();
-        if (!this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
+        if (!this.s.lookBusy) this.say(e.text ?? '');
       } else if (e.type === 'dailyAll') {
         this.sound.grade('A');
-        this.say(this.s.ticker[0]?.text ?? '');
-      } else if (e.type === 'chaosEnd') {
-        this.say(CHAOS_INFO[e.kind].end);
+        this.say(e.text ?? '');
       } else if (e.type === 'goldenSpawn') {
         this.sound.coins();
       } else if (e.type === 'golden') {
         this.sound.kaching();
         this.sound.grade('A');
-        this.say(this.s.ticker[0]?.text ?? '');
+        this.say(e.text ?? '');
         this.bump(e.kind === 'windfall' ? 'salary' : 'bands');
       } else if (e.type === 'climb') {
         this.sound.grade('A');
@@ -1188,9 +1225,11 @@ export class UI {
     }
 
     // Desk
-    this.setNum('bands', fmt(s.bands));
+    // Small phones: six-digit numbers as 730.2K, so Bands and Salary don't run into each other.
+    const narrow = window.innerWidth < 400;
+    this.setNum('bands', narrow ? short(s.bands) : fmt(s.bands));
     this.set('bands-rate', m.bandsPerSec > 0 ? `+${rate(m.bandsPerSec)}/s` : '');
-    this.setNum('salary', money(s.salary));
+    this.setNum('salary', narrow ? `$${short(s.salary)}` : money(s.salary));
     // Your own steady pay plus what your team brings in.
     const perSec = m.salaryPerSec + staffPayPerMin(s) / 60;
     this.set('salary-rate', perSec > 0 ? `+$${rate(perSec)}/s` : '');
@@ -1396,7 +1435,7 @@ export class UI {
     this.set('closet-sub', deal && !s.lookBusy ? `Dale has a deal: ${Math.ceil(Math.max(0, deal.until - s.time))} s` : s.hr.confiscated ? 'Dale can get your weapon back' : 'Weapons and band “upgrades”. Don’t ask.');
 
     // Coach line: a temporary message wins, then the most useful hint.
-    const msg = this.flash && this.flash.until > performance.now() ? this.flash.text : coachHint(s);
+    const msg = this.flashText(performance.now()) ?? coachHint(s);
     this.set('coach', forTouch(msg));
   }
 
@@ -1493,7 +1532,11 @@ export class UI {
     const kind = chaosOn(s);
     const pill = $('chaos-pill');
     if (kind) {
-      this.set('chaos-pill', `${CHAOS_INFO[kind].name} · ${CHAOS_EFFECT[kind]} · ${Math.ceil(chaosLeft(s))} s`);
+      const left = Math.ceil(chaosLeft(s));
+      if (pill.dataset.left !== `${kind}${left}`) {
+        pill.dataset.left = `${kind}${left}`;
+        pill.innerHTML = `${CHAOS_INFO[kind].name}<span class="ch-eff"> · ${CHAOS_EFFECT[kind]}</span> · ${left} s`;
+      }
       if (pill.dataset.kind !== kind) pill.dataset.kind = kind;
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
@@ -1802,4 +1845,10 @@ function coachHint(s: GameState): string {
     return s.salary >= price ? 'IT is yours: Dale has the Drill-Powered Gatling for you now. Supply closet (D).' : `IT is yours: the Drill Gatling is ${money(price)} from Dale. Save up (your computer pays).`;
   }
   return '';
+}
+
+/** 730,190 → 730.2K (and millions as usual): for the status strip on small phones. */
+function short(n: number) {
+  const v = Math.floor(n);
+  return v >= 100_000 && v < 1_000_000 ? `${(v / 1000).toFixed(1)}K` : fmt(v);
 }

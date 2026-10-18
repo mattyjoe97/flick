@@ -6945,11 +6945,18 @@ body.in-map .money-floater {
 }
 
 /* A bonus running from the stapler: what it is and how long it has left. */
-.chaos-pill {
+.pills {
   position: absolute;
   top: 19%;
   left: 3%;
   z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  pointer-events: none;
+}
+.chaos-pill {
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;
@@ -7014,20 +7021,14 @@ body.in-map .money-floater {
     animation: none;
   }
 }
+/* Phones: just the name and the clock (the message said what it does). */
 @media (max-width: 520px) {
-  .chaos-pill {
-    top: auto;
-    bottom: 4%;
-    left: 50%;
-    transform: translateX(-50%);
+  .chaos-pill .ch-eff {
+    display: none;
   }
 }
 
 .boost-pill {
-  position: absolute;
-  top: 19%;
-  right: 3%;
-  z-index: 5;
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;

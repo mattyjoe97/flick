@@ -72,6 +72,9 @@ export interface BotStyle {
   doesWork: boolean;
 }
 
+/** Tests can look at each step's events before the bot clears them. */
+export const BOT_WATCH: { fn: ((s: GameState) => void) | null } = { fn: null };
+
 export const STYLES: BotStyle[] = [
   { name: 'careful', actionsPerSecond: 3, hideAbove: 70, resumeBelow: 20, workAbove: 50, reactsToWalkbys: true, accuracy: 0.92, doesWork: true },
   { name: 'aggressive', actionsPerSecond: 4, hideAbove: 95, resumeBelow: 40, workAbove: 90, reactsToWalkbys: true, accuracy: 0.85, doesWork: true },
@@ -107,6 +110,7 @@ export function runBot(s: GameState, style: BotStyle, seconds: number, until: (s
       nextAction = s.time;
     }
     step(s, TUNING.stepSeconds);
+    BOT_WATCH.fn?.(s);
     s.events.length = 0;
     if (mind.job) {
       // Busy with an item: do it when the time is up.

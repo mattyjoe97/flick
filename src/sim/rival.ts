@@ -97,9 +97,9 @@ export function stepRival(s: GameState) {
   if (his >= 6) {
     race.result = 'lost';
     s.rival.losses++;
-    pushTicker(s, `Chad closed his case at ${companyName(race.company)}. He’ll be insufferable. You can still finish yours, but there’s no bonus this time.`);
+    const text = pushTicker(s, `Chad closed his case at ${companyName(race.company)}. He’ll be insufferable. You can still finish yours, but there’s no bonus this time.`);
     pushEmail(s, RIVAL.name, 'case closed 😎', `Done. HR folded at ${companyName(race.company)}. Take your time, honestly. Some of us are just built different.`, 'story');
-    s.events.push({ type: 'rival', result: 'lost' });
+    s.events.push({ type: 'rival', result: 'lost', text });
     return;
   }
   if (his > race.stage) {
@@ -120,9 +120,9 @@ export function rivalCaseClosed(s: GameState) {
   race.result = 'won';
   r.wins++;
   const mins = Math.max(1, Math.round((race.target - s.time) / 60));
-  pushTicker(s, `You closed the case before Chad, with ${mins} minute${mins === 1 ? '' : 's'} to spare. This job pays ${Math.round(RIVAL.rep * 100)}% more Reputation when you leave.`);
+  const text = pushTicker(s, `You closed the case before Chad, with ${mins} minute${mins === 1 ? '' : 's'} to spare. This job pays ${Math.round(RIVAL.rep * 100)}% more Reputation when you leave.`);
   pushEmail(s, RIVAL.name, 're: case closed', `wait you’re done?? ok well mine is basically done too. it doesn’t count if you weren’t trying. which I wasn’t.`, 'story');
-  s.events.push({ type: 'rival', result: 'won' });
+  s.events.push({ type: 'rival', result: 'won', text });
 }
 
 /** The Reputation bonus for beating Chad on this job (a share of what the job earns). */

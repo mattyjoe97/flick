@@ -140,7 +140,7 @@ export function claimGolden(s: GameState): GoldenKind | null {
     text = 'Clean slate! Suspicion gone, and Mr. Feeney takes the long way round.';
   }
   pushTicker(s, text);
-  s.events.push({ type: 'golden', kind });
+  s.events.push({ type: 'golden', kind, text });
   return kind;
 }
 

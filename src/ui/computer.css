@@ -355,6 +355,14 @@
   font-size: 16px;
   cursor: pointer;
 }
+/* Phones: a close button you can hit with a thumb. */
+@media (max-width: 760px) {
+  .win-btn {
+    width: 38px;
+    height: 32px;
+    font-size: 20px;
+  }
+}
 
 .win-btn:active {
   border-color: var(--os-lo) var(--os-hi) var(--os-hi) var(--os-lo);

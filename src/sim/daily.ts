@@ -159,8 +159,8 @@ function payChallenge(s: GameState, id: string) {
   const cash = challengeCash(s);
   s.salary += cash;
   s.events.push({ type: 'pay', amount: cash, source: 'bounty', note: 'a challenge' });
-  s.events.push({ type: 'dailyDone', id, cash });
-  pushTicker(s, `Challenge done: ${challenge(id)!.text}. Corporate sends +$${cash.toLocaleString('en-US')}.`);
+  const text = pushTicker(s, `Challenge done: ${challenge(id)!.text}. Corporate sends +$${cash.toLocaleString('en-US')}.`);
+  s.events.push({ type: 'dailyDone', id, cash, text });
   if (d.list.every((x) => x.paid) && d.lastFull !== d.day) {
     const rep = fullDayRep(s);
     d.streak = Math.min(999, d.streak + 1);
@@ -168,8 +168,8 @@ function payChallenge(s: GameState, id: string) {
     d.fullDays++;
     s.job.reputation += rep;
     s.job.earned += rep;
-    s.events.push({ type: 'dailyAll', rep, streak: d.streak });
-    pushTicker(s, `All three of today’s challenges! +${rep} Reputation${d.streak > 1 ? ` (${d.streak} days in a row)` : ''}.`);
+    const all = pushTicker(s, `All three of today’s challenges! +${rep} Reputation${d.streak > 1 ? ` (${d.streak} days in a row)` : ''}.`);
+    s.events.push({ type: 'dailyAll', rep, streak: d.streak, text: all });
   }
 }
 

@@ -97,8 +97,8 @@ export function stepTrophies(s: GameState) {
     if (s.job.trophies[t.id] !== undefined) continue;
     if (!t.check(s)) continue;
     s.job.trophies[t.id] = s.job.runs;
-    pushTicker(s, `Trophy: ${t.name}. ${t.does} (Pay +${Math.round(TROPHY_BONUS.pay * 100)}%, bands hit +${Math.round(TROPHY_BONUS.damage * 100)}% harder.)`);
-    s.events.push({ type: 'trophy', id: t.id });
+    const text = pushTicker(s, `Trophy: ${t.name}. ${t.does} (Pay +${Math.round(TROPHY_BONUS.pay * 100)}%, bands hit +${Math.round(TROPHY_BONUS.damage * 100)}% harder.)`);
+    s.events.push({ type: 'trophy', id: t.id, text });
   }
 }
 

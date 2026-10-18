@@ -412,14 +412,14 @@ export type GameEvent =
   | { type: 'climb'; tier: number }
   | { type: 'goldenSpawn' }
   | { type: 'goldenGone' }
-  | { type: 'golden'; kind: GoldenKind }
+  | { type: 'golden'; kind: GoldenKind; text?: string }
   | { type: 'chaosStart'; kind: ChaosKind }
   | { type: 'chaosEnd'; kind: ChaosKind }
   | { type: 'dailyNew' }
-  | { type: 'rival'; result: 'won' | 'lost' }
-  | { type: 'dailyDone'; id: string; cash: number }
-  | { type: 'dailyAll'; rep: number; streak: number }
-  | { type: 'trophy'; id: string }
+  | { type: 'rival'; result: 'won' | 'lost'; text?: string }
+  | { type: 'dailyDone'; id: string; cash: number; text?: string }
+  | { type: 'dailyAll'; rep: number; streak: number; text?: string }
+  | { type: 'trophy'; id: string; text?: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
   | { type: 'dealGone'; why: 'expired' | 'walkby' | 'taken' | 'passed' };
@@ -609,6 +609,7 @@ export function pushEmail(s: GameState, from: string, subject: string, body: str
 export function pushTicker(s: GameState, text: string) {
   s.ticker.unshift({ id: s.seq++, t: s.time, text });
   if (s.ticker.length > 6) s.ticker.length = 6;
+  return text;
 }
 
 /** Has this department surrendered? */
