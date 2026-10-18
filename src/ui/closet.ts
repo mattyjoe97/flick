@@ -359,6 +359,17 @@ export class ClosetView {
 
   // ---------------------------------------------------------------- drawing
 
+  /**
+   * Every price tag's text and colour in one string. The closet rebuilds only when this
+   * changes: keying it on the salary rebuilt everything several times a second while your
+   * team earned, which made the shelves flicker under the mouse and swallowed clicks.
+   */
+  private stickerKey(s: GameState) {
+    const keys: ItemKey[] = [...GUN_ORDER.map((id) => `w:${id}` as ItemKey), ...this.goods(s).map((u) => `u:${u.id}` as ItemKey), 'forms'];
+    if (s.hr.confiscated) keys.push('lost');
+    return keys.map((k) => { const st = this.sticker(s, k); return `${st.text}/${st.cls}`; }).join(',');
+  }
+
   /** The little tag hanging off each thing: its price, or what's stopping you. */
   private sticker(s: GameState, key: ItemKey): { text: string; cls: string } {
     const deal = s.dale.deal;
@@ -540,7 +551,7 @@ export class ClosetView {
       s.hr.confiscated?.weapon ?? '',
       mods(s).hasEngineer,
       mods(s).priceMult,
-      Math.floor(s.salary / 5), // affordability stickers
+      this.stickerKey(s), // what the price tags say (not the salary itself, which changes all the time)
       deal ? `${deal.id}:${deal.price}` : '',
     ].join('|');
     if (key !== this.key) {

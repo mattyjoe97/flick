@@ -287,7 +287,7 @@ export class FloorView {
     const n = seats(s, id);
     const cost = seatCost(s, id);
     const tc = trainCost(s, id);
-    const key = [id, n, trainLevel(s, id), s.salary >= cost, tc !== null && s.salary >= tc, Math.round(teamPayPerMin(s, id)), this.outcome, JSON.stringify(s.names), this.editing, s.career.rank].join('|');
+    const key = [id, n, trainLevel(s, id), s.salary >= cost, tc !== null && s.salary >= tc, Number(teamPayPerMin(s, id).toPrecision(2)), this.outcome, JSON.stringify(s.names), this.editing, s.career.rank].join('|');
     if (key === this.sheetKey) return;
     this.sheetKey = key;
     const unlocked = teamUnlocked(s, id);
