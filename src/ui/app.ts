@@ -4,7 +4,14 @@ import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
 import { tierFloor, tierName, toughness } from '../sim/ladder';
 import { claimGolden, GOLDEN, goldenBoostLeft } from '../sim/golden';
+import chaosDrill from '../assets/art/icon-chaos-drill.webp';
+import chaosOutage from '../assets/art/icon-chaos-outage.webp';
+import chaosCake from '../assets/art/icon-chaos-cake.webp';
+import chaosInspection from '../assets/art/icon-chaos-inspection.webp';
 import { CHAOS, CHAOS_INFO, chaosLeft, chaosOn, type ChaosKind } from '../sim/chaos';
+
+/** Each chaos event's little painted icon, at the front of the pill. */
+const CHAOS_ICON: Record<ChaosKind, string> = { drill: chaosDrill, outage: chaosOutage, cake: chaosCake, inspection: chaosInspection };
 
 /** The short version of what each chaos event does, for the pill on the office picture. */
 const CHAOS_EFFECT: Record<ChaosKind, string> = {
@@ -1535,7 +1542,7 @@ export class UI {
       const left = Math.ceil(chaosLeft(s));
       if (pill.dataset.left !== `${kind}${left}`) {
         pill.dataset.left = `${kind}${left}`;
-        pill.innerHTML = `${CHAOS_INFO[kind].name}<span class="ch-eff"> · ${CHAOS_EFFECT[kind]}</span> · ${left} s`;
+        pill.innerHTML = `<img class="ch-ico" src="${CHAOS_ICON[kind]}" alt="">${CHAOS_INFO[kind].name}<span class="ch-eff"> · ${CHAOS_EFFECT[kind]}</span> · ${left} s`;
       }
       if (pill.dataset.kind !== kind) pill.dataset.kind = kind;
       if (pill.hidden) pill.hidden = false;

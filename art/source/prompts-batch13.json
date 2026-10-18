@@ -1,0 +1,626 @@
+{
+  "game": "FLICK",
+  "batch": 13,
+  "assets": [
+    {
+      "file": "225_chad_smug.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Asset type: new FLICK coworker portrait. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required.\nInput images are reference for EXISTING PORTRAIT STYLE, adult anatomy, framing, canvas registration and crisp illustrated detail only. Create a NEW character, not either reference character.\nCHAD WHITMORE: clean-cut adult man around30, light olive skin, swooping LIGHT-BROWN hair styled UP and BACK with too much product and ONE strand sticking up at the front; a THIN carefully groomed CHINSTRAP BEARD along the jaw, not a large beard or goatee, no mustache. Fitted CHARCOAL-GREY QUILTED VEST, zipped HALFWAY, over SALMON-PINK COLLARED SHIRT. Both sides of the shirt collar POPPED UP. A single WHITE wireless earbud in HIS LEFT EAR, which is the VIEWER'S RIGHT. A thin SILVER CHAIN just visible at the open collar. No lanyard, badge, pin, glasses, watch, hands or props. No logos or prints on clothing or earbud; quilt stitching is plain geometric seams.\nExpression SMUG: one eyebrow raised, confident lopsided CLOSED-MOUTH smirk, direct steady forward gaze. Eyes naturally aligned, not converging; no teeth visible in this expression. He thinks he is winning a petty office rivalry.\nExact portrait format:1024x1280 transparent canvas; head-and-shoulders bust, adult proportions, facing viewer STRAIGHT ON with shoulders SQUARE and level, no3/4turn or head tilt. Face centre x512,y620; pupils y560; chin aroundy760; ear-to-ear width360 with outer ears atx332and692. Head including styled hair begins aroundy300, ALL hair and clothing must stay BELOWy265 and withinx60..960. Large clear transparent air above head. Torso widens to shoulders and continues all the way to be cropped STRAIGHT by bottom edge only, not a rounded bust or vignette. Keep clean detailed flat stylized hair locks and garment folds matching reference quality, not chibi.",
+      "reference_assets": [
+        "176_derek_idle.png",
+        "211_fisk_idle.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "file": "225_chad_smug.png",
+        "source": "225_chad_smug.png",
+        "source_landmarks": {
+          "center_x": 562,
+          "eye_y": 585,
+          "chin_y": 824,
+          "ear_width": 428
+        },
+        "scale": [
+          0.8411214953271028,
+          0.8368200836820083
+        ],
+        "translation": [
+          39.28971962616822,
+          70.46025104602512
+        ],
+        "torso_split_y": 800,
+        "shoulder_safe_width_registration": [
+          {
+            "source_x": [
+              47,
+              332
+            ],
+            "target_x": [
+              60,
+              332
+            ]
+          },
+          {
+            "source_x": [
+              692,
+              976
+            ],
+            "target_x": [
+              692,
+              961
+            ]
+          }
+        ],
+        "alpha_bbox": [
+          60,
+          299,
+          961,
+          1280
+        ],
+        "finishing": "Clean alpha and register eyes/chin/ears; preserve portrait detail without blur or palette reduction."
+      }
+    },
+    {
+      "file": "226_chad_gloat.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. The reference is the finished master portrait of Chad Whitmore. Preserve his exact identity, canvas, framing, adult proportions, head position, ear-to-ear width, hair including front strand, chinstrap beard boundary, ears, white earbud on viewer-right, silver chain, popped salmon shirt collar, charcoal quilted vest, lighting, palette and transparent background. Change ONLY the facial expression: eyebrows, eyelids, pupils, cheeks and mouth. Do not turn or tilt the head or shoulders. Do not alter anything outside the face. Keep1024x1280 registration: eyes on y560, chin y760, face centre x512y620; hair/clothing inside x60..960, no content above y265. Same crisp illustrated detail as the master, clean dark-brown outlines and cel shades. No global smoothing or simplification. No text, logos, printed pictures, hands or extra objects. Transparent RGBA. Expression GLOAT: eyes half-closed in triumph, eyebrows raised, a HUGE TOOTHY GRIN with very white teeth. He has just beaten the player in a petty office rivalry and is obviously delighted with himself. The grin should be broad and unmistakable, but the outer jaw/chin shape and beard silhouette stay exactly the same.",
+      "reference_assets": [
+        "225_chad_smug.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "226_chad_gloat.png",
+        "base": "225_chad_smug.png",
+        "face_edit_polygon": [
+          [
+            400,
+            520
+          ],
+          [
+            430,
+            506
+          ],
+          [
+            450,
+            510
+          ],
+          [
+            467,
+            475
+          ],
+          [
+            526,
+            450
+          ],
+          [
+            609,
+            445
+          ],
+          [
+            636,
+            497
+          ],
+          [
+            640,
+            560
+          ],
+          [
+            633,
+            645
+          ],
+          [
+            610,
+            693
+          ],
+          [
+            571,
+            731
+          ],
+          [
+            529,
+            744
+          ],
+          [
+            480,
+            738
+          ],
+          [
+            436,
+            713
+          ],
+          [
+            404,
+            673
+          ],
+          [
+            391,
+            620
+          ],
+          [
+            389,
+            565
+          ]
+        ],
+        "expression_registration": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 103.57
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Align generated expression to the master; composite only inside the face polygon and restore all outside pixels exactly.",
+        "alpha_bbox": [
+          60,
+          299,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "227_chad_sulk.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. The reference is the finished master portrait of Chad Whitmore. Preserve his exact identity, canvas, framing, adult proportions, head position, ear-to-ear width, hair including front strand, chinstrap beard boundary, ears, white earbud on viewer-right, silver chain, popped salmon shirt collar, charcoal quilted vest, lighting, palette and transparent background. Change ONLY the facial expression: eyebrows, eyelids, pupils, cheeks and mouth. Do not turn or tilt the head or shoulders. Do not alter anything outside the face. Keep1024x1280 registration: eyes on y560, chin y760, face centre x512y620; hair/clothing inside x60..960, no content above y265. Same crisp illustrated detail as the master, clean dark-brown outlines and cel shades. No global smoothing or simplification. No text, logos, printed pictures, hands or extra objects. Transparent RGBA. Expression SULK: brows knitted, BOTH eyes looking off to the SAME SIDE together, LOWER LIP pushed out in a clear pout, cheeks slightly flushed in a flat muted rose shape. He has just lost to the player and is petulant. No smile, no teeth. Keep eye alignment natural, both pupils displaced to the same side, never inward toward each other. The outer jaw/chin shape and beard silhouette stay exactly the same.",
+      "reference_assets": [
+        "225_chad_smug.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "227_chad_sulk.png",
+        "base": "225_chad_smug.png",
+        "face_edit_polygon": [
+          [
+            400,
+            520
+          ],
+          [
+            430,
+            506
+          ],
+          [
+            450,
+            510
+          ],
+          [
+            467,
+            475
+          ],
+          [
+            526,
+            450
+          ],
+          [
+            609,
+            445
+          ],
+          [
+            636,
+            497
+          ],
+          [
+            640,
+            560
+          ],
+          [
+            633,
+            645
+          ],
+          [
+            610,
+            693
+          ],
+          [
+            571,
+            731
+          ],
+          [
+            529,
+            744
+          ],
+          [
+            480,
+            738
+          ],
+          [
+            436,
+            713
+          ],
+          [
+            404,
+            673
+          ],
+          [
+            391,
+            620
+          ],
+          [
+            389,
+            565
+          ]
+        ],
+        "expression_registration": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 142.09
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Align generated expression to the master; composite only inside the face polygon and restore all outside pixels exactly.",
+        "alpha_bbox": [
+          60,
+          299,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "228_golden_stapler.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. Asset type: golden stapler bonus sprite. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required.\nInput image is the EXACT base geometry, scale, angle, outline and placement reference. Make this SAME CLASSIC STAPLER in exactly the same SIDE PROFILE, pointing LEFT, horizontal, CLOSED, body sitting in the same place and at the same size on the512x384canvas. REMOVE BOTH FEATHERED WINGS completely. Recolour stapler body POLISHED GOLD using flat rich warm yellow-gold base, deeper amber underside cel-shade and TWO bold flat cream-white highlight streaks along the top. Base plate slightly darker gold. Dark brown outline same thickness as reference. Keep recognizable small hinge and inner strip.\nAdd exactly THREE separate small FOUR-POINTED WHITE sparkle stars with the same dark brown outline: ONE larger star floating at the upper RIGHT, and TWO small stars floating on the LEFT. They do not touch the stapler. No wings, letters, logos, numbers, rays, glow or background. It must read as shiny and valuable at60x45pixels. Sparkles and highlights are solid flat shapes, not bloom or gradient.",
+      "reference_assets": [
+        "131_stapler_fly_a.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        512,
+        384
+      ],
+      "scripted_finishing": {
+        "source": "228_golden_stapler.png",
+        "reference": "131_stapler_fly_a.png",
+        "body_bbox_matching_reference": [
+          37,
+          132,
+          394,
+          275
+        ],
+        "sparkle_count": 3,
+        "registered_parts": [
+          {
+            "part": "body",
+            "source_bbox": [
+              253,
+              377,
+              1269,
+              788
+            ],
+            "destination_bbox": [
+              37,
+              132,
+              394,
+              275
+            ]
+          },
+          {
+            "part": "upper_right_sparkle",
+            "source_bbox": [
+              1106,
+              239,
+              1293,
+              442
+            ],
+            "destination_bbox": [
+              410,
+              66,
+              474,
+              134
+            ]
+          },
+          {
+            "part": "upper_left_sparkle",
+            "source_bbox": [
+              160,
+              342,
+              272,
+              464
+            ],
+            "destination_bbox": [
+              20,
+              88,
+              53,
+              124
+            ]
+          },
+          {
+            "part": "lower_left_sparkle",
+            "source_bbox": [
+              137,
+              553,
+              219,
+              642
+            ],
+            "destination_bbox": [
+              8,
+              172,
+              31,
+              197
+            ]
+          }
+        ],
+        "material_palette": [
+          "#332A24",
+          "#F2C84B",
+          "#B98B2F",
+          "#FFF6D8",
+          "#B8B4AA",
+          "#939B9F"
+        ],
+        "finishing": "Match the reference body size and profile registration; position three generated sparkles; solid material palette and alpha cleanup.",
+        "alpha_bbox": [
+          8,
+          66,
+          474,
+          275
+        ]
+      }
+    },
+    {
+      "file": "229_icon_chaos_drill.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required. One icon centred in a square canvas, whole object fills about80% of canvas; final256x256 with about5px even outline. Must read clearly at24x24, so bold simple large shapes, minimal fine details, no clutter. Input references are STYLE AND PALETTE ONLY, not extra subjects to draw.\nSubject: Fire Drill. A ROUND RED WALL-MOUNTED FIRE ALARM BELL seen from the front, with one small black striker. EXACTLY THREE short curved ringing lines on EACH SIDE (six total), visibly separate from the red bell. Simple rounded red dome, one darker red cel-shade, one small pale upper-left highlight. No mounting wall, labels, words or symbols. Keep the bell large and the six ringing lines bold enough to read at24px.",
+      "reference_assets": [
+        "218_icon_reno_window.png",
+        "219_icon_reno_espresso.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        256,
+        256
+      ],
+      "scripted_finishing": {
+        "source": "229_icon_chaos_drill_corrected.png",
+        "source_bbox": [
+          58,
+          209,
+          1196,
+          1044
+        ],
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent": 205,
+        "material_palette": [
+          "#332A24",
+          "#D64C45",
+          "#A93634",
+          "#F8D6CB",
+          "#959493",
+          "#555554",
+          "#FFFBEB"
+        ],
+        "finishing": "Solid material palette to match earlier icons, clean alpha, one proportional resize to a centred 80-percent icon.",
+        "alpha_bbox": [
+          25,
+          53,
+          230,
+          203
+        ]
+      },
+      "revisions": [
+        {
+          "prompt": "Use case: precise-object-edit. Keep the reference red alarm bell, black striker, icon composition and transparent background. Correct the ringing marks to EXACTLY THREE SHORT CURVED RINGING LINES ON EACH SIDE, SIX TOTAL. Each side must have a small inner arc, medium middle arc and short outer arc, all separate and clearly countable. Make all six ringing lines thin bold dark-brown strokes, not thick red sausages, so the bell remains dominant. Keep whole icon centred, 80% of square canvas. Also make every region truly FLAT solid colour, with one flat shadow tone and a small flat upper-left highlight. Outline#332A24. No gradients, grain or texture. No text, numbers, letters, labels, symbols, logo, glow or background.",
+          "reference_assets": [
+            "229_icon_chaos_drill.png"
+          ],
+          "selected_source_file": "229_icon_chaos_drill_corrected.png"
+        }
+      ]
+    },
+    {
+      "file": "230_icon_chaos_outage.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required. One icon centred in a square canvas, whole object fills about80% of canvas; final256x256 with about5px even outline. Must read clearly at24x24, so bold simple large shapes, minimal fine details, no clutter. Input references are STYLE AND PALETTE ONLY, not extra subjects to draw.\nSubject: Power Outage. ONE UNLIT light bulb, grey-blue glass with a visibly BROKEN ZIG-ZAG FILAMENT (two dark segments separated by a small clear gap). Small silver-grey screw base. A SMALL PALE CRESCENT MOON is tucked BEHIND its UPPER RIGHT, partly hidden by the bulb. Light bulb is unlit: no rays, halo, yellow glow or spark. One small flat highlight on grey-blue glass. Make dark broken filament readable in silhouette at24px. No other symbols or objects.",
+      "reference_assets": [
+        "218_icon_reno_window.png",
+        "219_icon_reno_espresso.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        256,
+        256
+      ],
+      "scripted_finishing": {
+        "source": "230_icon_chaos_outage.png",
+        "source_bbox": [
+          270,
+          79,
+          1080,
+          1179
+        ],
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent": 205,
+        "material_palette": [
+          "#332A24",
+          "#8CA8BA",
+          "#738CA0",
+          "#CCE1EB",
+          "#F4E6B2",
+          "#D9CB9A",
+          "#FFFBEB",
+          "#B5B8B8",
+          "#939B9F",
+          "#DCD8CD"
+        ],
+        "finishing": "Solid material palette to match earlier icons, clean alpha, one proportional resize to a centred 80-percent icon.",
+        "alpha_bbox": [
+          52,
+          25,
+          203,
+          230
+        ]
+      }
+    },
+    {
+      "file": "231_icon_chaos_cake.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required. One icon centred in a square canvas, whole object fills about80% of canvas; final256x256 with about5px even outline. Must read clearly at24x24, so bold simple large shapes, minimal fine details, no clutter. Input references are STYLE AND PALETTE ONLY, not extra subjects to draw.\nSubject: Birthday Cake. ONE TRIANGULAR SLICE of layered birthday cake in a gentle three-quarter view, on ONE SMALL WHITE PAPER PLATE. Yellow sponge layers separated by PINK FROSTING layers; WHITE ICING on top with a few colourful simple SPRINKLES, no lettering or printed pictures. ONE striped candle stands on top with ONE lit flame, flat yellow and warm-orange flame shapes with no glow. Keep the plate small and the cake slice large. Bold simple geometry readable at24px; no whole round cake, extra candles, party scenery or confetti.",
+      "reference_assets": [
+        "218_icon_reno_window.png",
+        "219_icon_reno_espresso.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        256,
+        256
+      ],
+      "scripted_finishing": {
+        "source": "231_icon_chaos_cake.png",
+        "source_bbox": [
+          114,
+          40,
+          1140,
+          1203
+        ],
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent": 205,
+        "material_palette": [
+          "#332A24",
+          "#F1CC75",
+          "#D9AE58",
+          "#FFF0B7",
+          "#E58AA3",
+          "#C96E89",
+          "#F6B0C3",
+          "#F6F1E3",
+          "#D6CDB9",
+          "#E9A34B",
+          "#F2CF5B",
+          "#76ABC6",
+          "#8FB174"
+        ],
+        "finishing": "Solid material palette to match earlier icons, clean alpha, one proportional resize to a centred 80-percent icon.",
+        "alpha_bbox": [
+          37,
+          25,
+          218,
+          230
+        ]
+      }
+    },
+    {
+      "file": "232_icon_chaos_inspection.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required. One icon centred in a square canvas, whole object fills about80% of canvas; final256x256 with about5px even outline. Must read clearly at24x24, so bold simple large shapes, minimal fine details, no clutter. Input references are STYLE AND PALETTE ONLY, not extra subjects to draw.\nSubject: Surprise Inspection. ONE LARGE MAGNIFYING GLASS with a DARK WOODEN HANDLE, tilted about30degrees. Broad pale blue circular lens with ONE flat highlight, thick dark-brown rim. ONE SMALL RED NECKTIE peeks out from BEHIND THE BOTTOM OF THE LENS, its pointed end clearly visible. This is just a magnifying glass and necktie, not a face, person, mascot or cartoon character. No eyes in the lens, no tiny text or badge. Large clear shapes readable at24px.",
+      "reference_assets": [
+        "218_icon_reno_window.png",
+        "219_icon_reno_espresso.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        256,
+        256
+      ],
+      "scripted_finishing": {
+        "source": "232_icon_chaos_inspection.png",
+        "source_bbox": [
+          111,
+          99,
+          1143,
+          1160
+        ],
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent": 205,
+        "material_palette": [
+          "#332A24",
+          "#A1CCE0",
+          "#7FACC4",
+          "#D8ECF4",
+          "#E7C18A",
+          "#B28F63",
+          "#F6E1B9",
+          "#8C6244",
+          "#684B38",
+          "#D1AC7D",
+          "#D64C45",
+          "#A93634",
+          "#EBA096"
+        ],
+        "finishing": "Solid material palette to match earlier icons, clean alpha, one proportional resize to a centred 80-percent icon.",
+        "alpha_bbox": [
+          28,
+          25,
+          227,
+          230
+        ]
+      }
+    },
+    {
+      "file": "233_icon_app_challenges.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Clean flat 2D vector cartoon illustration for FLICK, matching the supplied FLICK references exactly: bold even dark-brown #332A24 outlines, warm muted solid fills, one separate cel-shade shape and one small flat highlight per shape, upper-left light. Crisp edges and confident clean curves. No gradients, painterly texture, grain, noise, photorealism or 3D rendering. Transparent RGBA background with no floor, cast shadow, background rectangle, border, watermarks or checkerboard. No words, letters, numbers, logos, brand marks or printed pictures anywhere. Keep decorative details only where explicitly required. One icon centred in a square canvas, whole object fills about80% of canvas; final256x256 with about5px even outline. Must read clearly at24x24, so bold simple large shapes, minimal fine details, no clutter. Input references are STYLE AND PALETTE ONLY, not extra subjects to draw.\nSubject: Challenges desktop app icon. ONE LIGHT WOODEN CLIPBOARD with a SILVER CLIP holding a white sheet. THREE large SQUARE CHECKBOXES arranged in a vertical column. The TOP TWO boxes contain bold GREEN CHECKMARKS; the third bottom box is EMPTY. A single BLANK GREY LINE beside each checkbox suggests an empty list item, no text or lettering. A SMALL GOLD FIVE-POINT STAR STICKER sits in the LOWER RIGHT CORNER of the sheet. Simple gently tilted three-quarter view matching the supplied batch6 desktop app icon references. Exactly3checkboxes,2greencheckmarks,3greyblanklines,1goldstar; no extra marks. The explicitly requested checkmarks, lines and star are the only symbols.",
+      "reference_assets": [
+        "120_icon_app_sheet.png",
+        "118_icon_app_mail.png"
+      ],
+      "transparent_background": true,
+      "requested_size": [
+        256,
+        256
+      ],
+      "scripted_finishing": {
+        "source": "233_icon_app_challenges.png",
+        "source_bbox": [
+          122,
+          83,
+          1137,
+          1205
+        ],
+        "center": [
+          128,
+          128
+        ],
+        "maximum_object_extent": 205,
+        "material_palette": [
+          "#332A24",
+          "#E7C18A",
+          "#B28F63",
+          "#F6E1B9",
+          "#F6F1E3",
+          "#D6CDB9",
+          "#B8B4AA",
+          "#B5B8B8",
+          "#939B9F",
+          "#FFFBEB",
+          "#6D8E61",
+          "#F2CB64",
+          "#CDA647",
+          "#FFF1B4"
+        ],
+        "finishing": "Solid material palette to match earlier icons, clean alpha, one proportional resize to a centred 80-percent icon.",
+        "alpha_bbox": [
+          35,
+          25,
+          220,
+          230
+        ]
+      }
+    }
+  ]
+}

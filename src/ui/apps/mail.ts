@@ -9,6 +9,8 @@ import type { GameState } from '../../sim/state';
 import { answerMail, burstSize, startRound, type MailAnswer } from '../../sim/work';
 import { DEPARTMENTS, MAIL } from '../../sim/workdata';
 import { officeTime } from '../format';
+import { faceSvg } from '../portraits';
+import { RIVAL } from '../../sim/rival';
 import { clockHtml, esc, keyed, money, resultHtml, updateClock, type AppCtx, type AppView } from './common';
 
 type Mode = 'reply' | 'forward' | null;
@@ -240,7 +242,7 @@ export class MailApp implements AppView {
     return `<div class="mail-split">
       <ol class="mail-list">${list}</ol>
       <article class="mail-read">
-        <header class="mail-head"><span><b>From:</b> ${esc(sel.from)}</span><span><b>Subject:</b> ${esc(sel.subject)}</span><time>${officeTime(sel.t)}</time></header>
+        <header class="mail-head${sel.from === RIVAL.name ? ' with-face' : ''}">${sel.from === RIVAL.name ? `<span class="mail-face">${faceSvg('chad', /won/i.test(sel.subject) || sel.subject.includes('😎') ? 'happy' : sel.subject.startsWith('re:') ? 'worried' : 'smug')}</span>` : ''}<span><b>From:</b> ${esc(sel.from)}</span><span><b>Subject:</b> ${esc(sel.subject)}</span><time>${officeTime(sel.t)}</time></header>
         <p class="mail-text">${esc(sel.body)}</p>
         ${this.recruitHtml(s, sel.recruit)}
         ${sel.review ? (reviewReady(s) ? `<p class="mail-recruit"><button type="button" class="win-action strong" data-review>Go to your performance review</button></p>` : `<p class="mail-recruit"><span class="stamp blue">Done</span> You’ve had this review.</p>`) : ''}

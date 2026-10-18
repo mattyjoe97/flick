@@ -8,6 +8,7 @@
 // the boss behind their barricade (the same drawing as the fight), what's left of their
 // Resolve and what taking them gets you.
 
+import { youPortrait } from './apps/staffing';
 import { RIVAL, rivalCompany, rivalLeft, rivalStage } from '../sim/rival';
 import { setFill } from './fill';
 import daleHead from '../assets/art/dale-head.webp';
@@ -416,8 +417,8 @@ export class MapView {
     const record = s.rival.wins || s.rival.losses ? ` <small>You ${s.rival.wins}–${s.rival.losses} Chad</small>` : '';
     return `<div class="dept race-card${race.result ? ` ${race.result}` : ''}">
       <span class="dept-label">The race${record}</span>
-      <span class="race-row"><b>You</b><span class="dept-bar" aria-hidden="true"><i style="width:${(yours * 100).toFixed(1)}%"></i></span><small>${s.stage >= 6 ? 'Case closed' : `Stage ${s.stage}`}</small></span>
-      <span class="race-row chad"><b>Chad</b><span class="dept-bar" aria-hidden="true"><i data-bar="chad" style="width:${(Math.min(1, s.time / race.target) * 100).toFixed(1)}%"></i></span><small>${race.result === 'lost' || his >= 6 ? 'Case closed' : `Stage ${his} at ${esc(rivalCompany(s))} · done in <span data-chad-left>${raceClock(rivalLeft(s))}</span>`}</small></span>
+      <span class="race-row"><span class="race-face">${faceSvg(youPortrait(s.career.rank), race.result === 'won' ? 'happy' : 'idle')}</span><b>You</b><span class="dept-bar" aria-hidden="true"><i style="width:${(yours * 100).toFixed(1)}%"></i></span><small>${s.stage >= 6 ? 'Case closed' : `Stage ${s.stage}`}</small></span>
+      <span class="race-row chad"><span class="race-face">${faceSvg('chad', race.result === 'lost' ? 'happy' : race.result === 'won' ? 'worried' : 'smug')}</span><b>Chad</b><span class="dept-bar" aria-hidden="true"><i data-bar="chad" style="width:${(Math.min(1, s.time / race.target) * 100).toFixed(1)}%"></i></span><small>${race.result === 'lost' || his >= 6 ? 'Case closed' : `Stage ${his} at ${esc(rivalCompany(s))} · done in <span data-chad-left>${raceClock(rivalLeft(s))}</span>`}</small></span>
       ${prize}
     </div>`;
   }

@@ -97,6 +97,9 @@ import fisk_idle from '../assets/art/face-fisk-idle.webp';
 import fisk_hit from '../assets/art/face-fisk-hit.webp';
 import fisk_angry from '../assets/art/face-fisk-angry.webp';
 import fisk_worried from '../assets/art/face-fisk-worried.webp';
+import chad_smug from '../assets/art/face-chad-smug.webp';
+import chad_happy from '../assets/art/face-chad-happy.webp';
+import chad_worried from '../assets/art/face-chad-worried.webp';
 
 /** Every portrait shares this crop of a 1024 x 1280 canvas, and this face registration. */
 export const PORTRAIT = { crop: [55, 254, 964, 1280], w: 354, h: 400, face: [512, 620], earToEar: 360 };
@@ -134,6 +137,7 @@ export const PORTRAITS: Record<string, Record<string, string>> = {
   gail: { idle: gail_idle, hit: gail_hit, angry: gail_angry, worried: gail_worried },
   victoria: { idle: victoria_idle, hit: victoria_hit, angry: victoria_angry, worried: victoria_worried },
   fisk: { idle: fisk_idle, hit: fisk_hit, angry: fisk_angry, worried: fisk_worried },
+  chad: { smug: chad_smug, happy: chad_happy, worried: chad_worried },
 };
 
 /** Dale and his closet, in sprite pixels; `face`, `pegboard` and `table` are fractions. */

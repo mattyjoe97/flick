@@ -515,6 +515,20 @@ for floor, stem in ((4, "222_view_floor4"), (12, "223_view_floor12"), (30, "224_
     im.resize((1024, 248), Image.LANCZOS).save(OUT / f"view-floor{floor}.webp", quality=86, method=6)
 print("batch 12 done")
 
+# ---------------------------------------------------------------- batch 13: Chad, the golden stapler, office chaos
+#
+# Chad's portraits go in with the coworkers (smug, gloat -> happy, sulk -> worried). Here: the
+# golden stapler (cut like the flying ones), the four chaos icons for the pill on the office
+# picture, and the Challenges app icon (with the other app icons).
+im = Image.open(SRC / "228_golden_stapler.png").convert("RGBA")
+save_fit(im, solid_box(im, 4), 220, "golden-stapler")
+for kind, stem in (("drill", "229_icon_chaos_drill"), ("outage", "230_icon_chaos_outage"), ("cake", "231_icon_chaos_cake"), ("inspection", "232_icon_chaos_inspection")):
+    im = Image.open(SRC / f"{stem}.png").convert("RGBA")
+    save_fit(im, solid_box(im, 4), 96, f"icon-chaos-{kind}")
+im = Image.open(SRC / "233_icon_app_challenges.png").convert("RGBA")
+im.resize((128, 128), Image.LANCZOS).save(OUT / "app-challenges.webp", quality=88, method=6)
+print("batch 13 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
@@ -522,7 +536,7 @@ print("batch 12 done")
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
 faces = sorted(
-    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191 or 197 <= int(f.stem.split("_")[0]) <= 204 or 211 <= int(f.stem.split("_")[0]) <= 214)),
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191 or 197 <= int(f.stem.split("_")[0]) <= 204 or 211 <= int(f.stem.split("_")[0]) <= 214 or 225 <= int(f.stem.split("_")[0]) <= 227)),
     key=lambda f: int(f.stem.split("_")[0]),
 )
 # The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would
@@ -533,6 +547,7 @@ PW = 400
 portraits = {}
 for f in faces:
     _, who, mood = f.stem.split("_", 2) if f.stem.count("_") == 2 else (None, *f.stem.split("_", 1)[1].rsplit("_", 1))
+    mood = {"gloat": "happy", "sulk": "worried"}.get(mood, mood)  # Chad's faces, in the game's moods
     who = {"taskforce_a": "tf1", "taskforce_b": "tf2", "taskforce_c": "tf3", "assistant_manager": "manager", "you_rank1": "you1", "you_rank2": "you2", "you_rank3": "you3", "you_rank4": "you4"}.get(who, who)
     im = Image.open(f).convert("RGBA")
     size, _ = save_fit(im, pbox, PW, f"face-{who}-{mood}")
