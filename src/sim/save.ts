@@ -6,6 +6,7 @@ import { goldenForLoad } from './golden';
 import { chaosForLoad } from './chaos';
 import { dailyForLoad } from './daily';
 import { rivalForLoad, rivalTarget, startRace } from './rival';
+import { tenantsForLoad } from './tenants';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -90,6 +91,7 @@ function migrate(file: SaveFile): GameState | null {
   s.chaos = chaosForLoad(file.state.chaos, s.time);
   s.daily = dailyForLoad(file.state.daily);
   s.rival = rivalForLoad(file.state.rival);
+  s.tenants = tenantsForLoad(file.state.tenants);
   // Saves from before Chad: if you've already changed jobs, he joins the race you're in now
   // (as long as there's time left to win it).
   if (!file.state.rival && s.job.runs >= 1 && s.stage < 6 && s.time < rivalTarget(s, s.job.tier ?? 0) - 20 * 60) startRace(s);
@@ -200,7 +202,8 @@ function sanitize(s: GameState): boolean {
     if (!Number.isFinite(w.sabotageUntil)) w.sabotageUntil = -999;
   }
   const f = war.fighting as string;
-  if (f !== 'rematch' && f !== 'hr' && !isDept(f) && !isRoom(f)) war.fighting = 'rematch';
+  if (f !== 'rematch' && f !== 'hr' && f !== 'tenant' && !isDept(f) && !isRoom(f)) war.fighting = 'rematch';
+  if (f === 'tenant' && s.stage < 6) war.fighting = 'rematch';
   // Who you can be fighting depends on the stage: a department in 3, a room in 4.
   if (s.stage === 3) {
     if (isRoom(war.fighting) || war.fighting === 'hr') war.fighting = 'rematch';
@@ -211,11 +214,12 @@ function sanitize(s: GameState): boolean {
   } else if (s.stage === 5) {
     // HR, a department HR took, or the rematches.
     if (isRoom(war.fighting) || (isDept(war.fighting) && !war.depts[war.fighting].seized)) war.fighting = 'hr';
-  } else if (s.stage >= 6) war.fighting = 'rematch';
+  } else if (s.stage >= 6 && !(war.fighting === 'tenant' && (s.tenants?.taken ?? 3) < 3)) war.fighting = 'rematch';
   // If we had to change who you're fighting, their Resolve comes with them.
   if (war.fighting !== was && s.stage >= 3) {
     const to = war.fighting;
-    if (to === 'rematch') s.targetResolve = s.rematch?.left ?? s.rematch?.resolve ?? 0;
+    if (to === 'tenant') void 0;
+    else if (to === 'rematch') s.targetResolve = s.rematch?.left ?? s.rematch?.resolve ?? 0;
     else if (to === 'hr') s.targetResolve = war.politics.hrShare * HR_DIRECTOR.resolve;
     else if (isDept(to)) s.targetResolve = war.depts[to].share * (s.stage === 5 ? reclaimTarget(to).resolve : deptMax(s, to));
     else s.targetResolve = war.rooms[to].share * ROOMS.find((r) => r.room === to)!.resolve;

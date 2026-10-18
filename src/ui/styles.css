@@ -7049,3 +7049,210 @@ body.in-map .money-floater {
   box-shadow: 0 0 10px rgba(255, 214, 90, 0.8);
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- Stage 6: Building Takeover */
+
+.floater.blocked {
+  color: #ff8a7a;
+  -webkit-text-stroke: 1px #6d140c;
+}
+
+.tenant-pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #3a2414;
+  background: #fff4dc;
+  color: #2b1a0c;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.tenant-pill[data-kind='objection'] {
+  background: #c62f28;
+  border-color: #5a0f0b;
+  color: #fff;
+  font-size: calc(var(--t-sm) * 1.15);
+  animation: chaos-flash 0.6s steps(2) infinite;
+}
+.tenant-pill[data-kind='floss'] {
+  background: #dff2ef;
+  border-color: #1f5c55;
+  color: #12403b;
+}
+.tenant-pill[data-kind='funded'] {
+  background: #ece6f6;
+  border-color: #4a3a73;
+  color: #2c2148;
+}
+.tenant-pill[data-kind='down'] {
+  background: #2f8a3a;
+  border-color: #134a1b;
+  color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tenant-pill[data-kind='objection'] {
+    animation: none;
+  }
+}
+
+/* Floss wrapped over your launcher: a big tap target over the hand, cut it with taps (or X). */
+.floss {
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  z-index: 7;
+  width: clamp(130px, 30cqw, 240px);
+  padding: 6px 6px 8px;
+  border: 2px dashed #3d9b8f;
+  border-radius: 12px;
+  background: rgba(31, 92, 85, 0.35);
+  color: #fff;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: floss-wobble 0.8s ease-in-out infinite alternate;
+}
+.floss svg {
+  display: block;
+  width: 100%;
+}
+.floss-label {
+  display: block;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+.floss:active {
+  transform: scale(0.96);
+}
+@keyframes floss-wobble {
+  to {
+    transform: rotate(-2deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floss {
+    animation: none;
+  }
+}
+
+/* The building card on the map: the elevator panel, and the floor you're taking next. */
+.building-card {
+  grid-column: 1 / -1;
+  background: #f3efe6;
+}
+.bld {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) 2fr;
+  gap: 12px;
+  align-items: start;
+}
+.elevator {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  border: 3px solid #6b6f75;
+  border-radius: 8px;
+  background: linear-gradient(#c9cdd2, #b5bac0);
+}
+.elevator li {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.elevator li b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid #4a4e54;
+  background: #e9ecef;
+  font-size: 14px;
+}
+.elevator li small {
+  display: block;
+  color: #4a4e54;
+  font-size: 11px;
+}
+.elevator li.yours b {
+  background: #f7d76a;
+  border-color: #5c430c;
+  box-shadow: 0 0 8px rgba(255, 214, 90, 0.9);
+}
+.elevator li.now b {
+  background: #c62f28;
+  border-color: #5a0f0b;
+  color: #fff;
+}
+.elevator li.locked {
+  opacity: 0.6;
+}
+.bld-boss {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) 1fr;
+  column-gap: 14px;
+  row-gap: 6px;
+  align-content: start;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.bld-boss .dept-scene {
+  grid-row: 1 / span 5;
+}
+.bld-boss > :not(.dept-scene) {
+  grid-column: 2;
+}
+.bld-done {
+  margin: 0;
+  align-self: center;
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  .bld {
+    grid-template-columns: 1fr;
+  }
+  .bld-boss {
+    grid-template-columns: 1fr;
+  }
+  .bld-boss .dept-scene {
+    grid-row: auto;
+  }
+  .bld-boss > :not(.dept-scene) {
+    grid-column: 1;
+  }
+}
+@media (max-width: 520px) {
+  .elevator {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    padding: 6px;
+  }
+  .elevator li {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    font-size: 11px;
+  }
+  .elevator li span {
+    display: none;
+  }
+  .elevator li b {
+    width: 30px;
+    height: 30px;
+  }
+}

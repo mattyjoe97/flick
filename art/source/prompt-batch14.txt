@@ -1,0 +1,69 @@
+FLICK — ART BATCH 14: Building Takeover (Stage 6)
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch, and batches 8 and 10 (the department bosses, the HR Director and their barricades) are the closest match. Match them exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+With HR's case closed, the player's whole floor is theirs, so they take the war to the other companies renting the floors above: a law firm, a dental practice and a tech startup. This batch is those three bosses (four faces each), their three barricades, and a tangle of dental floss.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on clothing, badges, pins, book spines, boxes, stickers, screens and packaging (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching faces) is authorized as before.
+
+Number the files exactly as below (they continue after batch 13's 233_icon_app_challenges.png). Deliver all 16 PNGs in a folder named batch14 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch14.json (size, alpha bounding box and the registration numbers asked for below, per file) and prompts-batch14.json (the prompt used for each file), like earlier batches.
+
+==================================================
+PORTRAIT FORMAT (section A)
+==================================================
+
+EXACTLY the batch 4 / batch 8 / batch 10 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. Keep ALL hair, glasses, headgear and clothing between x=60 and x=960 and BELOW y=265, with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+Each boss has four files. The _idle file comes first; the other three are the SAME image with ONLY the face changed (everything outside the face pixel-identical), using the same expression set as the other bosses:
+  _hit     = eyes SQUEEZED SHUT, mouth an open oval (a silent "OW"), a small red welt on the forehead.
+  _angry   = strongly furrowed brows, glaring eyes, gritted teeth.
+  _worried = raised brows pinched together, wide worried eyes, a nervous wobbly closed mouth, one bead of pale blue sweat on the RIGHT temple.
+
+==================================================
+A. THE THREE BOSSES (12 files)
+==================================================
+
+HARGROVE & PIKE LLP: MEG HARGROVE, Senior Partner. Bills in six-minute increments. Has never lost an argument, including ones she wasn't in.
+A woman in her early 60s with light skin; a sharp, perfectly even silver chin-length bob; black rectangular glasses; small pearl stud earrings; a charcoal pinstripe suit jacket with sharp shoulders over a crisp white blouse; a small gold lapel pin shaped like a balance scale (no text).
+Idle: one eyebrow raised over her glasses, lips pursed, an unimpressed cross-examining stare.
+  234_hargrove_idle.png / 235_hargrove_hit.png / 236_hargrove_angry.png / 237_hargrove_worried.png
+
+BRIGHT SMILES DENTAL: DR. FIONA GLEAM, Lead Dentist. Unsettlingly cheerful. Flosses with intent.
+A woman in her mid 40s with warm brown skin; dark brown hair in a neat high bun; a round silver dental head mirror on a thin black headband, pushed up onto her forehead; mint-green scrubs under an open white lab coat; a small white tooth-shaped pin on the coat (no text).
+Idle: a huge, unnervingly bright closed-eye smile showing perfect white teeth.
+  238_gleam_idle.png / 239_gleam_hit.png / 240_gleam_angry.png / 241_gleam_worried.png
+
+DISRUPTR: TYLER VANCE, Founder & CEO. Twenty-six. Has raised four rounds and shipped nothing.
+A young man in his mid 20s with fair skin; spiky bleached-blond hair, dark at the roots; patchy blond stubble; a pair of dark sunglasses pushed up on top of his head; a charcoal zip hoodie half open over a plain black t-shirt; a bright orange lanyard with a blank white badge.
+Idle: a cocky, open-mouthed grin, eyebrows high ("we're disrupting rubber bands").
+  242_vance_idle.png / 243_vance_hit.png / 244_vance_angry.png / 245_vance_worried.png
+
+==================================================
+B. THE BARRICADES (3 files)
+==================================================
+
+EXACTLY the batch 8 / batch 10 barricade format: 1400 x 800 transparent PNG, seen STRAIGHT ON at eye level from across the office (NOT from above), drawn at the SAME SCALE as the portraits (a head is 360px wide ear to ear), resting on an invisible desk-top line at y=780, horizontally centred on x=700, between about 1000 and 1250px wide.
+IMPORTANT: keep the MIDDLE band (x=500 to 900) LOW, no higher than y=340, so the boss's face shows above it. The two ends may rise higher, up to y=60, like towers on either side of the boss.
+Record the desk line (780), the scale, the alpha bounding box and the topmost alpha y inside x=500..900 in the manifest.
+
+246_cover_law.png — the law firm's defences: at the LEFT end, a tall tower of tan cardboard bankers boxes with lid handles (blank, no labels); at the RIGHT end, a stack of thick leather-bound law books in oxblood, dark green and navy with gold bands on the spines (bands only, NO lettering), topped by a wooden gavel resting on its round sound block; across the low middle, a neat row of the same law books lying flat and a brass desk lamp with a green glass shade.
+
+247_cover_dental.png — the dental practice's front desk: at the LEFT end, a giant oversized dental model of a jaw (white teeth, pink gums) sitting on a tower of mint-green supply boxes; at the RIGHT end, a big clear cup crammed with colourful toothbrushes on top of a stack of small mint-green floss dispensers; across the low middle, a curved white and mint reception counter with a glass bowl of round lollipops on it.
+
+248_cover_startup.png — the startup's beanbag fort: at the LEFT end, two big beanbags piled up (orange on the bottom, purple on top); at the RIGHT end, a stainless steel kombucha keg with a tap, and a kick scooter leaning against it; across the low middle, an open silver laptop covered in round, plain coloured stickers (dots only, no logos or symbols), a ping-pong paddle and a tall glass bottle of amber kombucha.
+
+==================================================
+C. THE FLOSS SNARE (1 file)
+==================================================
+
+249_floss_snare.png — 640 x 360 transparent: three or four long, wavy strands of white dental floss tangled loosely across the whole canvas, loop-de-loops and knots, with a thin mint-teal outline and a single flat highlight, plus a small mint-green floss dispenser dangling from one strand at the lower right. It is laid over the player's launcher when Dr. Gleam snares it, so keep the middle mostly open (strands, not a solid mass) and readable at 200 x 112 pixels.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 16 PNGs, numbered 234 to 249, exactly the sizes above.
+- No text, numbers, letters, logos or prints anywhere: not on pins, badges, lanyards, book spines, boxes, stickers, the laptop or the floss dispenser.
+- Portraits (234 to 245) use the batch 4 registration exactly, stay inside x=60..960 and below y=265, and are pixel-matched outside the face.
+- Barricades (246 to 248) use the 1400 x 800 canvas, the desk line at y=780, the portrait scale, and keep the middle band x=500..900 below y=340.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch14 folder.

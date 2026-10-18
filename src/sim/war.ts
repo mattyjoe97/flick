@@ -17,6 +17,7 @@
 // filing cabinets (see siege.ts for the walls, the rooms' tricks and the counterattacks).
 // Picking who to fight, and winning, lives here for both stages. The rematches never stop.
 
+import { fightingTenant, loadTenant, nextTenant, shelveTenant } from './tenants';
 import { addReview, reviewNeed, TOP_RANK } from './career';
 import { chatEvent } from './chat';
 import { COWORKERS, DEPARTMENTS, HR_DIRECTOR, ROOMS, SIEGE, WAR, type DeptId, type RoomId } from './content';
@@ -67,6 +68,7 @@ function shelve(s: GameState) {
   else if (r) s.war.rooms[r].share = Math.max(0, Math.min(1, s.targetResolve / room(r).resolve));
   else if (back) s.war.depts[back].share = Math.max(0, Math.min(1, s.targetResolve / reclaimTarget(back).resolve));
   else if (fightingHr(s)) s.war.politics.hrShare = Math.max(0, Math.min(1, s.targetResolve / HR_DIRECTOR.resolve));
+  else if (fightingTenant(s)) shelveTenant(s);
   else if (s.rematch) s.rematch.left = Math.max(0, s.targetResolve);
 }
 
@@ -112,9 +114,20 @@ function load(s: GameState, to: DeptId | RoomId | 'hr' | 'rematch') {
 export type WarResult = { ok: true } | { ok: false; reason: string };
 
 /** Pick who to fight from the map (a department in Stage 3, a room in Stage 4, HR in Stage 5, or the rematches). */
-export function fight(s: GameState, to: DeptId | RoomId | 'hr' | 'rematch'): WarResult {
+export function fight(s: GameState, to: DeptId | RoomId | 'hr' | 'rematch' | 'tenant'): WarResult {
   if (s.stage < 3) return { ok: false, reason: 'The Department War starts after Rick.' };
-  if (s.stage >= 6) return { ok: false, reason: 'The whole floor is yours already.' };
+  if (to === 'tenant') {
+    if (s.stage < 6) return { ok: false, reason: 'The other companies in the building are next, once the floor is yours.' };
+    const t = nextTenant(s);
+    if (!t) return { ok: false, reason: 'The whole building is yours already.' };
+    if (s.war.fighting === 'tenant') return { ok: true };
+    shelve(s);
+    loadTenant(s);
+    pushTicker(s, `You take the stairs up to ${t.company}. ${t.name} sees you coming.`);
+    s.events.push({ type: 'fight', id: to });
+    return { ok: true };
+  }
+  if (s.stage >= 6 && to !== 'rematch') return { ok: false, reason: 'The whole floor is yours already.' };
   if (to === 'hr' && s.stage !== 5) return { ok: false, reason: 'HR is neutral. For now.' };
   if (s.stage === 5 && to !== 'hr' && to !== 'rematch') {
     if (!isDept(to) || !s.war.depts[to].seized) return { ok: false, reason: 'That one is yours already.' };

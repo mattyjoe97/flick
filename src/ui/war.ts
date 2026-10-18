@@ -8,6 +8,8 @@
 // the boss behind their barricade (the same drawing as the fight), what's left of their
 // Resolve and what taking them gets you.
 
+import { nextTenant, TENANTS, TENANT_RULES, tenantBounty, tenantFloor, tenantRepBonus } from '../sim/tenants';
+import { tierFloor } from '../sim/ladder';
 import { youPortrait } from './apps/staffing';
 import { RIVAL, rivalCompany, rivalLeft, rivalStage } from '../sim/rival';
 import { setFill } from './fill';
@@ -170,7 +172,7 @@ export class MapView {
       this.key = '';
       return;
     }
-    const to = b.dataset.fight as DeptId | RoomId | 'hr' | 'rematch' | undefined;
+    const to = b.dataset.fight as DeptId | RoomId | 'hr' | 'rematch' | 'tenant' | undefined;
     if (!to) return;
     if (s.war.fighting === to) return this.close();
     const r = fight(s, to);
@@ -183,6 +185,8 @@ export class MapView {
     this.hooks.say(
       to === 'rematch'
         ? 'Back to the rematches.'
+        : to === 'tenant'
+          ? `You take the stairs up to ${nextTenant(s)?.company ?? 'the next floor'}.`
         : to === 'hr'
           ? 'You turn your desk toward HR.'
           : room
@@ -221,13 +225,16 @@ export class MapView {
       closetIsYours(s),
       rm ? `${rm.round}:${rm.index}` : '',
       s.rival?.race ? `${s.rival.race.stage}:${s.rival.race.result}:${s.rival.race.company}` : '',
+      s.stage >= 6 ? `t${s.tenants?.taken}:${s.job?.tier}` : '',
     ].join('|');
     if (key !== this.key) {
       this.key = key;
       const taken = deptsTaken(s);
       this.sum.textContent =
         s.stage >= 6
-          ? 'The whole floor is yours. The rematches never stop.'
+          ? nextTenant(s)
+            ? 'The whole floor is yours. The other companies in the building are next, one floor at a time (or quit any time: every floor you take makes this job worth more).'
+            : 'The whole building is yours. The rematches never stop.'
           : politics
             ? `HR has opened an investigation. Close it either way: flick ${HR_DIRECTOR.name} down, or win HR over by sending memos from your computer. If HR’s case file fills, HR takes one of your departments.`
           : siege
@@ -237,11 +244,17 @@ export class MapView {
         ? [this.raceCard(s), this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s), this.atStakeCard(s)].join('')
         : siege
           ? [this.raceCard(s), ...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
-          : [this.raceCard(s), ...DEPARTMENTS.map((d) => this.deptCard(s, d)), ...(s.stage >= 6 ? ROOMS.map((r) => this.roomCard(s, r)) : []), this.closetCard(s), this.rematchCard(s)].join('');
+          : [this.raceCard(s), ...(s.stage >= 6 ? [this.buildingCard(s)] : []), ...DEPARTMENTS.map((d) => this.deptCard(s, d)), ...(s.stage >= 6 ? ROOMS.map((r) => this.roomCard(s, r)) : []), this.closetCard(s), this.rematchCard(s)].join('');
     }
     if (politics) this.updatePolitics(s);
     else if (siege) this.updateSiege(s);
     else this.updateDepts(s, raid);
+    const ten = nextTenant(s);
+    if (ten && s.stage >= 6) {
+      const share = s.war.fighting === 'tenant' ? Math.max(0, s.targetResolve) / ten.resolve : s.tenants.share;
+      setFill(this.grid.querySelector<HTMLElement>('[data-bar="tenant"]'), share);
+      this.text('[data-left="tenant"]', `${big(s, share * ten.resolve)} Resolve left`);
+    }
     if (s.rival?.race && !s.rival.race.result) {
       setFill(this.grid.querySelector<HTMLElement>('[data-bar="chad"]'), Math.min(1, s.time / s.rival.race.target));
       this.text('[data-chad-left]', raceClock(rivalLeft(s)));
@@ -400,6 +413,32 @@ export class MapView {
       <span class="dept-prize">${guards ? `${guards} Guard${guards > 1 ? 's' : ''} on duty: they stop about ${stop}% of attempts.` : 'They’ll try to take their desks back. Make someone a Guard (tap them in the office) to stop most attempts.'} One that gets through switches its prize off for ${SIEGE.counter.lost / 60} minutes.</span>
       ${hold}
     </div>`;
+  }
+
+  /** Stage 6: the building's other companies, a floor at a time, with the elevator panel beside them. */
+  private buildingCard(s: GameState) {
+    const st = s.tenants;
+    const t = nextTenant(s);
+    const on = s.war.fighting === 'tenant';
+    const mine = tierFloor(s.job?.tier ?? 0);
+    const floors = TENANTS.map((x, i) => {
+      const state = i < st.taken ? 'yours' : i === st.taken ? (on ? 'now' : 'next') : 'locked';
+      const note = state === 'yours' ? 'Yours' : state === 'now' ? 'Fighting now' : state === 'next' ? 'Next' : 'Locked';
+      return `<li class="${state}"><b>${tenantFloor(s, i)}</b><span>${esc(x.company)}<small>${note}</small></span></li>`;
+    })
+      .reverse()
+      .join('');
+    const panel = `<ol class="elevator">${floors}<li class="yours"><b>${mine}</b><span>You<small>Yours</small></span></li></ol>`;
+    const boss = t
+      ? `<button type="button" class="bld-boss${on ? ' fighting' : ''}" data-fight="tenant" aria-label="${esc(t.company)}: ${esc(t.name)}. ${on ? 'Fighting now' : 'Attack'}.">
+          <span class="dept-scene">${deptPicture(t.id, on ? 'angry' : 'smug')}</span>
+          <span class="dept-who"><b>${esc(t.name)}</b> <small>${esc(t.title)}, ${esc(t.company)}</small></span>
+          <span class="dept-bar" aria-hidden="true"><i data-bar="tenant"></i></span><span class="dept-left" data-left="tenant"></span>
+          <span class="dept-prize">${esc(t.twist ?? '')} Take Floor ${tenantFloor(s, st.taken)}: ${money(tenantBounty(s, st.taken))}, and this job is worth +${Math.round(TENANT_RULES.repEach * 100)}% Reputation${st.taken === TENANTS.length - 1 ? ` (+${Math.round((TENANT_RULES.repEach + TENANT_RULES.repAll) * 100)}% for the last floor)` : ''}.</span>
+          <span class="dept-act">${on ? 'Fighting now' : 'Attack'}</span>
+        </button>`
+      : `<p class="bld-done">Every floor from ${mine} to ${tenantFloor(s, TENANTS.length - 1)} is yours. This job is worth ${Math.round(tenantRepBonus(s) * 100)}% more Reputation.</p>`;
+    return `<div class="dept building-card"><span class="dept-label">The building</span><div class="bld">${panel}${boss}</div></div>`;
   }
 
   /** Chad's race to close HR's case first (from your second job on). */

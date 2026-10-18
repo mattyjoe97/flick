@@ -8,6 +8,7 @@ import chaosDrill from '../assets/art/icon-chaos-drill.webp';
 import chaosOutage from '../assets/art/icon-chaos-outage.webp';
 import chaosCake from '../assets/art/icon-chaos-cake.webp';
 import chaosInspection from '../assets/art/icon-chaos-inspection.webp';
+import { cutFloss, downRound, fightingTenant, objectionOn, snared, TENANT_RULES, tenantBounty, tenantFloor } from '../sim/tenants';
 import { CHAOS, CHAOS_INFO, chaosLeft, chaosOn, type ChaosKind } from '../sim/chaos';
 
 /** Each chaos event's little painted icon, at the front of the pill. */
@@ -481,6 +482,11 @@ export class UI {
     });
     $('call-answer').addEventListener('click', () => this.answerPhone());
     // The golden stapler: grab it before it's gone.
+    $('floss').addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.doCutFloss();
+    });
     $('golden').addEventListener('pointerdown', (e) => e.stopPropagation());
     $('golden').addEventListener('click', () => {
       if (claimGolden(this.s)) $('golden').hidden = true;
@@ -638,6 +644,7 @@ export class UI {
     else if (k === 'o') this.doOrder();
     else if (k === 'd') this.closet.show();
     else if (k === 'v') this.ball.barrage();
+    else if (k === 'x') this.doCutFloss();
     else if (k === 't') this.openFloor();
     else if (k === 'm') this.openMap();
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
@@ -847,6 +854,27 @@ export class UI {
         if (e.result === 'won') this.sound.grade('A');
         else this.sound.grade('D');
         this.say(e.text ?? '');
+      } else if (e.type === 'tenantsOpen') {
+        this.sound.notify();
+        this.say(this.s.ticker[0]?.text ?? '');
+      } else if (e.type === 'objection') {
+        this.sound.stamp();
+        if (!this.s.lookBusy) this.say('Objection! Hold your fire for 5 seconds, or your bands bounce back.');
+      } else if (e.type === 'ricochet') {
+        this.bump('bands');
+      } else if (e.type === 'floss') {
+        this.sound.miss();
+        if (!this.s.lookBusy) this.say(forTouch('Floss! Your launcher is snared: tap the floss (X) to cut it.'));
+      } else if (e.type === 'downRound') {
+        this.sound.kaching();
+        this.say(this.s.ticker[0]?.text ?? '');
+      } else if (e.type === 'tenantTaken') {
+        this.sound.grade('A');
+        this.say(e.text);
+      } else if (e.type === 'buildingTaken') {
+        this.sound.capture();
+        this.sound.grade('A');
+        this.say(e.text);
       } else if (e.type === 'dailyNew') {
         this.sound.notify();
         if (!this.s.lookBusy) this.say('Corporate sent today’s three challenges. They’re in the Challenges app on your computer.');
@@ -970,10 +998,12 @@ export class UI {
     const box = $('floaters');
     if (box.childElementCount > 12) box.firstElementChild?.remove();
     const f = document.createElement('span');
-    f.className = by === 'ally' ? 'floater ally' : perfect ? 'floater perfect' : 'floater';
+    // An Objection upstairs: nothing lands, and your own bands bounce back.
+    if (damage <= 0 && by === 'ally') return;
+    f.className = damage <= 0 ? 'floater blocked' : by === 'ally' ? 'floater ally' : perfect ? 'floater perfect' : 'floater';
     // Decimals only while the numbers are small; big ones round (and get commas).
     const n = damage < 100 && damage % 1 !== 0 ? damage.toFixed(1) : fmt(Math.round(damage));
-    f.textContent = perfect ? `Perfect! −${n}` : `−${n}`;
+    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `Perfect! −${n}` : `−${n}`;
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
@@ -1308,6 +1338,7 @@ export class UI {
     this.renderAlerts(s, m.warning);
     this.renderGolden(s);
     this.renderChaos(s);
+    this.renderTenant(s);
     this.renderFloor(s);
     this.renderTicker(s);
     this.renderPanes(s);
@@ -1353,6 +1384,8 @@ export class UI {
             ? `${STAGE_NAMES[5]} · case file ${Math.round(s.war.politics.evidence)}%`
             : back
               ? `Stage 5 · Winning back ${dept(back).label}`
+              : fightingTenant(s)
+                ? `Stage 6: Building Takeover · Floor ${tenantFloor(s, s.tenants.taken)}`
               : s.stage >= 3 && s.rematch
                 ? `${s.stage < 6 ? `Stage ${s.stage} · ` : ''}Rematches · round ${s.rematch.round}`
                 : STAGE_NAMES[s.stage],
@@ -1412,6 +1445,8 @@ export class UI {
             : sabotaged(s, room.room)
               ? `${room.sabotage.does.charAt(0).toUpperCase()}${room.sabotage.does.slice(1)}: ${clock(s.war.rooms[room.room].sabotageUntil - s.time)} left.`
               : `${t.twist} Sabotage it from the map.`
+        : fightingTenant(s)
+          ? `${t.twist} Take Floor ${tenantFloor(s, s.tenants.taken)}: ${money(tenantBounty(s, s.tenants.taken))}, and this job is worth more Reputation.`
         : s.stage >= 3
           ? `${t.twist ? `${t.twist} ` : ''}Worth ${money(t.bounty)} and some Performance.`
           : t.twist;
@@ -1533,6 +1568,45 @@ export class UI {
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
   }
+
+  /** Stage 6: Hargrove's Objections, Dr. Gleam's floss and Disruptr's funding, on the office picture. */
+  private renderTenant(s: GameState) {
+    const t = s.lookBusy ? null : fightingTenant(s);
+    const pill = $('tenant-pill');
+    let kind = '';
+    let text = '';
+    if (t?.tenant === 'law' && objectionOn(s)) {
+      kind = 'objection';
+      text = `Objection! Hold fire · ${Math.ceil(s.tenants.objection.until - s.time)} s`;
+    } else if (t?.tenant === 'dental' && snared(s)) {
+      kind = 'floss';
+      text = `Floss · flicks ½ speed · ${Math.ceil(s.tenants.floss.until - s.time)} s`;
+    } else if (t?.tenant === 'startup') {
+      if (downRound(s)) {
+        kind = 'down';
+        text = `Down round! ${TENANT_RULES.funding.downDamage}× · ${Math.ceil(s.tenants.funding.downUntil - s.time)} s`;
+      } else {
+        kind = 'funded';
+        text = `Funded ${Math.round(s.tenants.funding.level * 100)}%`;
+      }
+    }
+    if (kind) {
+      if (pill.dataset.kind !== kind) pill.dataset.kind = kind;
+      this.set('tenant-pill', text);
+      if (pill.hidden) pill.hidden = false;
+    } else if (!pill.hidden) pill.hidden = true;
+    const floss = $('floss');
+    const tied = t?.tenant === 'dental' && snared(s);
+    if (floss.hidden === tied) floss.hidden = !tied;
+    if (tied) this.set('floss-label', `Snared! Tap to cut (${TENANT_RULES.floss.cuts - s.tenants.floss.cuts} left)`);
+  }
+
+  private doCutFloss = () => {
+    if (cutFloss(this.s)) {
+      this.sound.snap();
+      if (!snared(this.s)) this.say('You cut through the floss. Back to full speed.');
+    }
+  };
 
   /** Office chaos: what's going on and for how long, and the lights going out. */
   private renderChaos(s: GameState) {

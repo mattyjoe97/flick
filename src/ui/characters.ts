@@ -120,6 +120,28 @@ export const PEOPLE: Record<string, Person> = {
       idle: ['My door is always open.', 'This is a safe space.', 'I have a file on that.', 'Let’s circle back on your conduct.'],
     },
   },
+  // Stage 6: the building's other companies (drawn until their painted portraits arrive).
+  hargrove: {
+    skin: '#ecc7a9', hair: '#d6d1c8', style: 'bob', shirt: '#2a2f3a', glasses: 'square', earrings: true,
+    lines: {
+      hit: ['Objection!', 'That’s billable.', 'I’ll see you in court.', 'Strike that from the record!'],
+      idle: ['Let the record show…', 'Billing in six-minute increments.', 'Sustained.'],
+    },
+  },
+  gleam: {
+    skin: '#c98e6a', hair: '#3b2a20', style: 'bun', shirt: '#8fd0c8', earrings: true, lanyard: '#3d9b8f',
+    lines: {
+      hit: ['My enamel!', 'Rinse and spit!', 'That’s going on your chart.', 'Ow! Gums!'],
+      idle: ['Floss daily!', 'Open wide.', 'Any sensitivity?'],
+    },
+  },
+  vance: {
+    skin: '#f2d2b6', hair: '#c8a46a', style: 'spiky', shirt: '#3b3f45', hoodie: true,
+    lines: {
+      hit: ['Bro.', 'That’s not scalable!', 'We’re pre-revenue!', 'Ow, my runway!'],
+      idle: ['We’re disrupting rubber bands.', 'Ship it.', 'Have you tried the kombucha?'],
+    },
+  },
   // Stand-in until his painted art arrives.
   dale: { skin: '#d8b08a', hair: '#5c554c', style: 'slick', shirt: '#6e7b43', lanyard: '#3a3f45', glasses: 'square', rest: 'smug' },
 };
@@ -141,6 +163,9 @@ export const TARGET_PEOPLE: Record<string, string[]> = {
   breakroom: ['gail'],
   conference: ['victoria'],
   hr: ['fisk'],
+  law: ['hargrove'],
+  dental: ['gleam'],
+  startup: ['vance'],
 };
 
 function hair(p: Person): string {

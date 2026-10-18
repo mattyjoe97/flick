@@ -1,3 +1,4 @@
+import { cutFloss, objectionOn, snared } from '../src/sim/tenants';
 import { COWORKERS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { promote, reviewReady } from '../src/sim/career';
 import { hire, seatCap, seatCost, seats, teamUnlocked, train, trainCost } from '../src/sim/staff';
@@ -200,8 +201,16 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
   }
   // A raid on the supply closet gets chased off (it pops up right in front of you).
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
-  // The floor is yours: spend Reputation and take the next offer.
-  if (style.quit && s.stage >= 6 && s.job.unlocked) {
+  // Stage 6: take the building's floors first, if this bot is set to.
+  if (s.stage >= 6 && s.tenants.taken < BOT_FLAGS.tenants) {
+    if (s.war.fighting !== 'tenant') fight(s, 'tenant');
+    // Floss on the launcher: tap it off. An Objection: hold fire (do some work instead).
+    while (snared(s)) cutFloss(s);
+    if (objectionOn(s)) {
+      if (style.doesWork) doTask(s, style, mind);
+      return;
+    }
+  } else if (style.quit && s.stage >= 6 && s.job.unlocked) {
     // Whatever money's left goes into company stock on the way out.
     if (!BOT_FLAGS.noStock) buyStock(s, 9999);
     BOT_FLAGS.lastStock = s.stock;
@@ -321,7 +330,7 @@ function renovate(s: GameState): boolean {
 }
 
 /** Switches for experiments (pacing tests turn the new spending off to compare). */
-export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0 };
+export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0, tenants: 0 };
 
 /** Grows the team: the cheapest seat or training it can afford with money to spare. */
 function hireSomeone(s: GameState): boolean {

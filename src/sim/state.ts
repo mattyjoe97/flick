@@ -4,6 +4,7 @@ import { newGolden, type GoldenKind, type GoldenState } from './golden';
 import { newChaos, type ChaosKind, type ChaosState } from './chaos';
 import { newDaily, type DailyState } from './daily';
 import { newRival, type RivalState } from './rival';
+import { newTenants, nextTenant, type TenantState } from './tenants';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -155,6 +156,8 @@ export interface GameState {
   daily: DailyState;
   /** Chad, your rival: this job's race to close HR's case, your record against him, your best times. */
   rival: RivalState;
+  /** Stage 6: the other companies in the building, one floor at a time. */
+  tenants: TenantState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -268,6 +271,8 @@ export interface GameState {
     shares: number;
     goldens: number;
     chaos: number;
+    tenants: number;
+    flossCut: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -283,7 +288,7 @@ export interface WarState {
   /** Stage 4's rooms: what's left of each wall, their Resolve, and any sabotage running. */
   rooms: Record<RoomId, { wall: number; share: number; taken: boolean; met: boolean; sabotageUntil: number }>;
   /** Who you're fighting: a department, a room, HR, or your old rivals' rematches. */
-  fighting: DeptId | RoomId | 'hr' | 'rematch';
+  fighting: DeptId | RoomId | 'hr' | 'rematch' | 'tenant';
   /** The rooms' tricks: the next coffee refill and meeting, and the meeting your Shooters are stuck in. */
   coffeeAt: number;
   meetingAt: number;
@@ -390,7 +395,7 @@ export type GameEvent =
   | { type: 'ballReady' }
   | { type: 'barrage'; damage: number; bands: number; shooters: CoworkerId[] }
   | { type: 'rematch'; round: number; index: number }
-  | { type: 'fight'; id: DeptId | RoomId | 'hr' | 'rematch' }
+  | { type: 'fight'; id: DeptId | RoomId | 'hr' | 'rematch' | 'tenant' }
   | { type: 'rebrand' }
   | { type: 'raid'; dept: DeptId }
   | { type: 'raidOver'; dept: DeptId; how: 'chased' | 'lookout' | 'lost'; bands: number }
@@ -417,6 +422,15 @@ export type GameEvent =
   | { type: 'chaosEnd'; kind: ChaosKind }
   | { type: 'dailyNew' }
   | { type: 'rival'; result: 'won' | 'lost'; text?: string }
+  | { type: 'tenantsOpen' }
+  | { type: 'objection' }
+  | { type: 'ricochet'; bands: number }
+  | { type: 'floss' }
+  | { type: 'flossCut' }
+  | { type: 'downRound' }
+  | { type: 'funded' }
+  | { type: 'tenantTaken'; index: number; text: string }
+  | { type: 'buildingTaken'; text: string }
   | { type: 'dailyDone'; id: string; cash: number; text?: string }
   | { type: 'dailyAll'; rep: number; streak: number; text?: string }
   | { type: 'trophy'; id: string; text?: string }
@@ -504,6 +518,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     chaos: newChaos(),
     daily: newDaily(),
     rival: newRival(),
+    tenants: newTenants(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -591,6 +606,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       shares: 0,
       goldens: 0,
       chaos: 0,
+      tenants: 0,
+      flossCut: 0,
     },
     events: [],
   };
@@ -707,6 +724,10 @@ export function currentTarget(s: GameState): Target | undefined {
   if (s.stage === 4 && f && isRoom(f)) return roomTarget(f);
   if (s.stage === 5 && f === 'hr') return HR_DIRECTOR;
   if (s.stage === 5 && f && isDept(f) && s.war.depts[f].seized) return reclaimTarget(f);
+  if (s.stage >= 6 && f === 'tenant') {
+    const t = nextTenant(s);
+    if (t) return t;
+  }
   const r = s.rematch;
   if (!r) return undefined;
   const base = targetById(rematchOrder(s)[r.index]);

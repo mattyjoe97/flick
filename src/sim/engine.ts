@@ -21,6 +21,7 @@ import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
 import { stepDaily } from './daily';
 import { stepRival } from './rival';
+import { fightingTenant, ricochet, stepTenants, tenantDamage, tenantReloadMult, tenantWon } from './tenants';
 import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
 
 export { openBox } from './supplies';
@@ -35,7 +36,7 @@ export { openBox } from './supplies';
  * bigger (see `toughness`), so the numbers grow instead.
  */
 function ladderDamage(s: GameState) {
-  return (renoDamage(s) * goldenDamage(s) * chaosDamage(s)) / toughness(s);
+  return (renoDamage(s) * goldenDamage(s) * chaosDamage(s) * tenantDamage(s)) / toughness(s);
 }
 
 export function addSuspicion(s: GameState, amount: number) {
@@ -252,6 +253,8 @@ function fire(
   s.stats.shots++;
   s.stats.damage += dmg;
   s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
+  // An Objection upstairs: your own bands bounce back as paperclips.
+  if (by === 'you') ricochet(s, w.burst);
   const stretch = 1 + CHARGE.noisePerCharge * shot.charge;
   const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1) * politicsNoise(s);
   addSuspicion(s, noise);
@@ -270,6 +273,7 @@ function capture(s: GameState) {
     else if (fightingRoom(s)) roomWon(s);
     else if (fightingHr(s)) hrWon(s);
     else if (back) reclaimWon(s, back);
+    else if (fightingTenant(s)) tenantWon(s);
     else rematchWon(s);
     addSuspicion(s, TUNING.captureNoise);
     return;
@@ -430,6 +434,7 @@ export function step(s: GameState, dt: number) {
   stepChaos(s);
   stepDaily(s);
   stepRival(s);
+  stepTenants(s, dt);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);
@@ -512,7 +517,7 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   // Reloading: silently ignore shots faster than the weapon allows (no message, no spam).
   if (s.time + 1e-6 < s.nextFlickAt) return no('');
-  s.nextFlickAt = s.time + w.reload;
+  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s);
   const c = Math.min(1, Math.max(0, charge));
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;

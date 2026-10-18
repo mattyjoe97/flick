@@ -9,6 +9,7 @@
 // Every company has its own rules and its own names for the same faces (offices all look
 // alike). Later jobs go faster as the perks pile up, so there's always another one.
 
+import { tenantRepBonus } from './tenants';
 import { rivalBonus, startRace } from './rival';
 import { COMPANIES, EXEC_PERKS, JOB, PERKS, type CompanyId, type ExecId, type PerkId } from './content';
 import { trophyDamageMult, trophyPayMult } from './trophies';
@@ -32,7 +33,12 @@ export function stockRep(s: GameState) {
 /** What leaving now would earn you in Reputation (nothing before the Department War): the job, plus your shares. */
 export function repForRun(s: GameState) {
   if (s.stage < JOB.minStage) return 0;
-  return repForWork(s) + stockRep(s) + rivalRep(s);
+  return repForWork(s) + stockRep(s) + rivalRep(s) + tenantRep(s);
+}
+
+/** What the floors you took from the building's other companies add to that. */
+export function tenantRep(s: GameState) {
+  return Math.floor(repForWork(s) * tenantRepBonus(s));
 }
 
 /** What beating Chad adds to that. */

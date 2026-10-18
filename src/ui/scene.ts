@@ -828,9 +828,41 @@ function cover(id: string): string {
       return mailroomCover(o);
     case 'marketing':
       return marketingCover(o);
+    case 'law':
+      return lawCover(o);
+    case 'dental':
+      return dentalCover(o);
+    case 'startup':
+      return startupCover(o);
     default:
       return '';
   }
+}
+
+// Stage 6's barricades, drawn until their painted art arrives.
+
+function lawCover(o: string) {
+  const box = (x: number, y: number) => `<g transform="translate(${x} ${y})"><rect width="64" height="40" rx="2" fill="#d9c49a" ${o}/><rect x="22" y="12" width="20" height="8" rx="2" fill="#8a6a3e"/></g>`;
+  const books = ['#7a2e33', '#2f5d44', '#25304d', '#7a2e33', '#5c430c', '#25304d', '#2f5d44', '#7a2e33'];
+  const row = books.map((c, i) => `<rect x="${334 + i * 17}" y="${226 - (i % 3) * 4}" width="16" height="${26 + (i % 3) * 4}" rx="2" fill="${c}" ${o}/><rect x="${337 + i * 17}" y="${232 - (i % 3) * 4}" width="10" height="3" fill="#e0b13c"/>`).join('');
+  return `<g>${row}${box(258, 212)}${box(262, 172)}${box(258, 132)}${box(478, 212)}${box(474, 172)}
+    <g transform="translate(486 150) rotate(-20)"><rect x="0" y="0" width="44" height="18" rx="5" fill="#6b4226" ${o}/><rect x="18" y="16" width="8" height="40" rx="3" fill="#8a5a2b" ${o}/></g></g>`;
+}
+
+function dentalCover(o: string) {
+  const tooth = `<path d="M0 0 C-14 0 -20 14 -14 30 C-10 44 -8 58 -2 58 C4 58 2 40 10 40 C18 40 16 58 22 58 C28 58 30 44 34 30 C40 14 34 0 20 0 C14 0 12 4 10 4 C8 4 6 0 0 0 Z" fill="#fbf8ef" ${o}/>`;
+  const floss = (x: number, y: number) => `<g transform="translate(${x} ${y})"><rect width="46" height="28" rx="6" fill="#8fd0c8" ${o}/><circle cx="23" cy="14" r="6" fill="#fbf8ef" ${o}/></g>`;
+  return `<g><rect x="300" y="216" width="200" height="36" rx="6" fill="#dff2ef" ${o}/><rect x="300" y="210" width="200" height="10" rx="4" fill="#8fd0c8" ${o}/>
+    <g transform="translate(272 168)">${tooth}</g>
+    <g transform="translate(282 226)"><rect width="30" height="26" rx="3" fill="#c9d0d6" ${o}/><rect x="8" y="-26" width="5" height="30" rx="2" fill="#ff9fb2" ${o}/><rect x="17" y="-22" width="5" height="26" rx="2" fill="#8fd0f5" ${o}/></g>
+    ${floss(486, 224)}${floss(490, 196)}${floss(484, 168)}</g>`;
+}
+
+function startupCover(o: string) {
+  const bag = (x: number, y: number, c: string, w: number) => `<path d="M${x} ${y + 60} Q${x - 6} ${y + 10} ${x + w / 2} ${y} Q${x + w + 6} ${y + 10} ${x + w} ${y + 60} Z" fill="${c}" ${o}/>`;
+  return `<g>${bag(244, 192, '#e8833a', 92)}${bag(258, 150, '#7b5ea7', 70)}${bag(468, 192, '#3d9b8f', 92)}
+    <g transform="translate(350 224)"><rect width="80" height="28" rx="3" fill="#9aa3ad" ${o}/><rect x="-6" y="24" width="92" height="6" rx="2" fill="#7b828b" ${o}/>${[[10, 6, '#ff9fb2'], [34, 10, '#ffe36e'], [56, 5, '#8fd0f5']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="5" fill="${c}"/>`).join('')}</g>
+    <g transform="translate(442 206)"><rect width="16" height="46" rx="5" fill="#f2c94c" opacity="0.9" ${o}/><rect x="3" y="-8" width="10" height="10" rx="2" fill="#2b2522"/></g></g>`;
 }
 
 // The department barricades, drawn (the painted ones above are used when they're there). Each
