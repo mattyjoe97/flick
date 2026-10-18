@@ -221,6 +221,11 @@ export class Sound {
   }
 
   /** Messenger: a message for you. */
+  /** Office chaos: a short two-tone office alarm. */
+  alarm() {
+    if (!this.ok('alarm', 1000)) return;
+    [0, 0.18, 0.36].forEach((d, i) => this.tone('square', i % 2 ? 660 : 880, i % 2 ? 660 : 880, 0.14, 0.05, d));
+  }
   notify() {
     if (!this.ok('notify', 400)) return;
     this.tone('sine', 880, 880, 0.08, 0.08);

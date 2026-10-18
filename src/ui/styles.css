@@ -6911,6 +6911,84 @@ body.in-map .money-floater {
 }
 
 /* A bonus running from the stapler: what it is and how long it has left. */
+.chaos-pill {
+  position: absolute;
+  top: 19%;
+  left: 3%;
+  z-index: 5;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #3a2414;
+  background: #fff4dc;
+  color: #2b1a0c;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.chaos-pill[data-kind='drill'] {
+  background: #e4483a;
+  border-color: #6d140c;
+  color: #fff;
+  animation: chaos-flash 1s steps(2) infinite;
+}
+.chaos-pill[data-kind='outage'] {
+  background: #23262e;
+  border-color: #000;
+  color: #ffe9a3;
+}
+.chaos-pill[data-kind='cake'] {
+  background: #f9c6d8;
+  border-color: #7a2f4b;
+  color: #4a1529;
+}
+.chaos-pill[data-kind='inspection'] {
+  background: #cfe0f5;
+  border-color: #1f3d66;
+  color: #10233d;
+}
+@keyframes chaos-flash {
+  50% {
+    background: #ff7a57;
+  }
+}
+.scene-wrap.dark .scene {
+  filter: brightness(0.42) saturate(0.55) hue-rotate(-12deg);
+  transition: filter 0.4s ease-out;
+}
+.scene-wrap.dark .desk-front {
+  filter: brightness(0.6) saturate(0.7);
+}
+.scene-wrap.dark .hand-svg {
+  filter: brightness(0.6) drop-shadow(-4px 6px 6px rgba(20, 10, 2, 0.35));
+}
+.outage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 60%, transparent 35%, rgba(5, 7, 18, 0.55));
+  animation: outage-in 0.4s ease-out;
+}
+@keyframes outage-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chaos-pill[data-kind='drill'] {
+    animation: none;
+  }
+}
+@media (max-width: 520px) {
+  .chaos-pill {
+    top: auto;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .boost-pill {
   position: absolute;
   top: 19%;

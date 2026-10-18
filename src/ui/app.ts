@@ -4,6 +4,15 @@ import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
 import { tierFloor, tierName, toughness } from '../sim/ladder';
 import { claimGolden, GOLDEN, goldenBoostLeft } from '../sim/golden';
+import { CHAOS, CHAOS_INFO, chaosLeft, chaosOn, type ChaosKind } from '../sim/chaos';
+
+/** The short version of what each chaos event does, for the pill on the office picture. */
+const CHAOS_EFFECT: Record<ChaosKind, string> = {
+  drill: `${CHAOS.drillDamage}× damage, silent`,
+  outage: 'silent, team off',
+  cake: `${CHAOS.cakeDamage}× damage`,
+  inspection: 'hide for a bonus',
+};
 import viewFloor4 from '../assets/art/view-floor4.webp';
 import viewFloor12 from '../assets/art/view-floor12.webp';
 import viewFloor30 from '../assets/art/view-floor30.webp';
@@ -785,6 +794,11 @@ export class UI {
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
+      } else if (e.type === 'chaosStart') {
+        this.sound.alarm();
+        this.say(CHAOS_INFO[e.kind].start);
+      } else if (e.type === 'chaosEnd') {
+        this.say(CHAOS_INFO[e.kind].end);
       } else if (e.type === 'goldenSpawn') {
         this.sound.coins();
       } else if (e.type === 'golden') {
@@ -1234,6 +1248,7 @@ export class UI {
     this.renderFront(s, m.warning);
     this.renderAlerts(s, m.warning);
     this.renderGolden(s);
+    this.renderChaos(s);
     this.renderFloor(s);
     this.renderTicker(s);
     this.renderPanes(s);
@@ -1458,6 +1473,23 @@ export class UI {
       this.set('boost-pill', b.kind === 'frenzy' ? `★ Frenzy ${GOLDEN.frenzy.damage}× · ${Math.ceil(left)} s` : `★ Overtime ${GOLDEN.overtime.team}× · ${Math.ceil(left)} s`);
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
+  }
+
+  /** Office chaos: what's going on and for how long, and the lights going out. */
+  private renderChaos(s: GameState) {
+    const kind = chaosOn(s);
+    const pill = $('chaos-pill');
+    if (kind) {
+      this.set('chaos-pill', `${CHAOS_INFO[kind].name} · ${CHAOS_EFFECT[kind]} · ${Math.ceil(chaosLeft(s))} s`);
+      if (pill.dataset.kind !== kind) pill.dataset.kind = kind;
+      if (pill.hidden) pill.hidden = false;
+    } else if (!pill.hidden) pill.hidden = true;
+    const dark = kind === 'outage';
+    const outage = $('outage');
+    if (outage.hidden === dark) {
+      outage.hidden = !dark;
+      outage.parentElement!.classList.toggle('dark', dark);
+    }
   }
 
   private renderAlerts(s: GameState, warning: number) {

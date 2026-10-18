@@ -19,6 +19,7 @@ import { execMult, offlineCap, repDamage } from './job';
 import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
+import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
 
 export { openBox } from './supplies';
 
@@ -32,12 +33,12 @@ export { openBox } from './supplies';
  * bigger (see `toughness`), so the numbers grow instead.
  */
 function ladderDamage(s: GameState) {
-  return (renoDamage(s) * goldenDamage(s)) / toughness(s);
+  return (renoDamage(s) * goldenDamage(s) * chaosDamage(s)) / toughness(s);
 }
 
 export function addSuspicion(s: GameState, amount: number) {
   const m = mods(s);
-  s.suspicion += amount * (1 - m.lookoutCut) * company(s).rules.suspicion;
+  s.suspicion += amount * (1 - m.lookoutCut) * company(s).rules.suspicion * chaosSuspicion(s);
   checkThresholds(s);
 }
 
@@ -424,6 +425,7 @@ export function step(s: GameState, dt: number) {
   stepSiege(s, dt);
   stepPolitics(s, dt);
   stepGolden(s);
+  stepChaos(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);
@@ -433,7 +435,9 @@ export function step(s: GameState, dt: number) {
 
 function walkbys(s: GameState, warning: number, intervalMult: number) {
   const w = s.walkby;
-  if (w.arrivesAt === null && s.time >= w.nextAt) {
+  const chaos = chaosWalkbys(s);
+  intervalMult *= chaos.intervalMult;
+  if (w.arrivesAt === null && s.time >= w.nextAt && !chaos.paused) {
     w.arrivesAt = s.time + warning;
     s.events.push({ type: 'walkby' });
   }
@@ -448,6 +452,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
       pushTicker(s, `Mr. Feeney glances at your spreadsheet. "Great hustle." Suspicion −${TUNING.hideReward}, +$${bonus}.`);
       s.work.hustleUntil = s.time + WORK.hustleWindow;
       s.events.push({ type: 'hidden' });
+      chaosHidden(s);
     } else {
       s.stats.walkbysSpotted++;
       const firing = s.time - s.lastShotAt <= 3;

@@ -64,6 +64,8 @@ export const TROPHIES: Trophy[] = [
   // The golden stapler
   { id: 'shiny', name: 'Ooh, Shiny', does: 'Grab a golden stapler.', check: (s) => (s.stats.goldens ?? 0) >= 1 },
   { id: 'magpie', name: 'Magpie', does: 'Grab 25 golden staplers in one job.', check: (s) => (s.stats.goldens ?? 0) >= 25 },
+  // Office chaos
+  { id: 'chaos', name: 'Business as Usual', does: 'Live through 10 office chaos events in one job.', check: (s) => (s.stats.chaos ?? 0) >= 10 },
 ];
 
 export const TROPHY_BONUS = { pay: 0.02, damage: 0.01 };

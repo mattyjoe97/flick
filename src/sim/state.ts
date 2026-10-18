@@ -1,6 +1,7 @@
 import { COMPANIES, DALE, DEPARTMENTS, HR_DIRECTOR, type CompanyId, type PerkId, type ExecId, type RenovationId, MEMOS, MOMENTS, POLITICS, REMATCH, ROOMS, TARGETS, TUNING, WAR, targetById, type CoworkerId, type MemoId, type DeptId, type Department, type MomentKind, type Role, type Room, type RoomId, type Target, type TeamId, type TrickId, type UpgradeId, type WeaponId } from './content';
 import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newGolden, type GoldenKind, type GoldenState } from './golden';
+import { newChaos, type ChaosKind, type ChaosState } from './chaos';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -146,6 +147,8 @@ export interface GameState {
   stock: number;
   /** The golden stapler: when it turns up next, where it is now, and any bonus it's running. */
   golden: GoldenState;
+  /** Office chaos: the next office-wide event, and the one going on now. */
+  chaos: ChaosState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -258,6 +261,7 @@ export interface GameState {
     renovations: number;
     shares: number;
     goldens: number;
+    chaos: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -403,6 +407,8 @@ export type GameEvent =
   | { type: 'goldenSpawn' }
   | { type: 'goldenGone' }
   | { type: 'golden'; kind: GoldenKind }
+  | { type: 'chaosStart'; kind: ChaosKind }
+  | { type: 'chaosEnd'; kind: ChaosKind }
   | { type: 'trophy'; id: string }
   | { type: 'ask'; id: string }
   | { type: 'askDone'; id: string; choice: 0 | 1; auto: boolean; text: string }
@@ -485,6 +491,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     renovations: {},
     stock: 0,
     golden: newGolden(),
+    chaos: newChaos(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -571,6 +578,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       renovations: 0,
       shares: 0,
       goldens: 0,
+      chaos: 0,
     },
     events: [],
   };
