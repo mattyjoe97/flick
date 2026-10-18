@@ -1,0 +1,58 @@
+FLICK — ART BATCH 13: Chad, the golden stapler, office chaos and the Challenges app
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch: clean flat 2D vector cartoon, bold even dark-brown outline #332A24, flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+Four new things came into the game: a rival named Chad who races the player at every new job, a golden stapler that turns up for a few seconds and gives a bonus when tapped, office-wide chaos events (a fire drill, a power outage, a birthday cake, a surprise inspection), and a daily Challenges app on the player's computer. This batch is Chad's portrait (three faces), the golden stapler, four small chaos icons and one desktop app icon.
+
+Rules for EVERY image: transparent PNG (RGBA); no background, floor, cast shadow or border; no gradients, painterly texture, noise, photorealism or 3D rendering; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on clothing, badges, the cake, the clipboard and the icons (the game draws all text itself). Scripted finishing (exact canvas size, clean alpha, alignment, matching faces) is authorized as before.
+
+Number the files exactly as below (they continue after batch 12's 224_view_floor30.png). Deliver all 9 PNGs in a folder named batch13 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch13.json (size and alpha bounding box per file) and prompts-batch13.json (the prompt used for each file), like earlier batches.
+
+==================================================
+A. CHAD, THE RIVAL (3 files)
+==================================================
+
+EXACTLY the batch 4 / batch 8 / batch 10 portrait format: 1024 x 1280 transparent PNG, head-and-shoulders bust facing the viewer STRAIGHT ON with shoulders square (no 3/4 turn), face centre at x=512, y=620, eye pupils on y=560, chin around y=760, ear-to-ear width 360px (outer ears at x=332 and x=692), torso widening to the shoulders and cropped straight by the BOTTOM edge only, no hands. Keep ALL hair and clothing between x=60 and x=960 and BELOW y=265, with clear transparent air above the head. Skin uses flat fills with one darker cel shade, matching the existing cast.
+
+The _smug file comes first; the other two are the SAME image with ONLY the face changed (everything outside the face pixel-identical):
+  _gloat   = eyes half-closed in triumph, eyebrows raised, a huge toothy grin showing very white teeth (he just beat you).
+  _sulk    = brows knitted, eyes looking off to the side, lower lip pushed out in a pout, cheeks a little flushed (you just beat him).
+
+CHAD WHITMORE, the former Pemberton intern. Left the same day the player did and won't stop bringing it up. Thinks he's winning.
+A clean-cut man around 30 with light olive skin; swooping light-brown hair styled up and back with far too much product, one strand sticking up at the front; a thin, carefully groomed chinstrap beard; bright white teeth. He wears a fitted charcoal-grey quilted vest zipped halfway over a salmon-pink collared shirt with the collar popped up on both sides; a single white wireless earbud in his LEFT ear (viewer's right); a thin silver chain just visible at the collar. No logos anywhere on the vest or shirt.
+Smug: one eyebrow raised, a confident lopsided smirk with the mouth closed ("race you").
+  225_chad_smug.png / 226_chad_gloat.png / 227_chad_sulk.png
+
+==================================================
+B. THE GOLDEN STAPLER (1 file)
+==================================================
+
+228_golden_stapler.png — 512 x 384 transparent, EXACTLY the scale, angle and outline weight of the flying staplers in batch 6 (131_stapler_fly_a.png): a classic desk stapler in side view, closed, its body polished gold (a rich warm yellow-gold base, a deeper amber cel shade underneath, and two bold flat cream-white highlight streaks along the top), the base plate a slightly darker gold. Three small four-pointed white sparkle stars float around it (one large at upper right, two small at left), drawn as flat shapes with the same outline. It must read as "shiny and valuable" at 60 x 45 pixels.
+
+==================================================
+C. OFFICE CHAOS ICONS (4 files)
+==================================================
+
+All four: 256 x 256 transparent, the object filling about 80% of the canvas and centred, outline scaled to about 5px, EXACTLY the style and scale of the renovation icons in batch 11 (218 to 221). Each must read clearly at 24 x 24 pixels, so keep them bold and simple.
+
+229_icon_chaos_drill.png — Fire Drill: a round red wall-mounted fire alarm bell with a small black striker, and three short curved ringing lines on each side.
+230_icon_chaos_outage.png — Power Outage: an unlit light bulb with grey-blue glass and a broken zig-zag filament, a small pale crescent moon tucked behind its upper right.
+231_icon_chaos_cake.png — Birthday Cake: one triangular slice of layered birthday cake (yellow sponge, pink frosting layers, white icing on top with colourful sprinkles) on a small white paper plate, one striped candle on top with a lit flame.
+232_icon_chaos_inspection.png — Surprise Inspection: a large magnifying glass with a dark wooden handle and a pale blue lens with one flat highlight, tilted about 30 degrees, with a small red necktie peeking out from behind the bottom of the lens.
+
+==================================================
+D. THE CHALLENGES APP (1 file)
+==================================================
+
+233_icon_app_challenges.png — 256 x 256 transparent, the object filling about 80% of the canvas and centred, outline scaled to about 5px, EXACTLY the style of the batch 6 desktop app icons (118 to 130): a light wooden clipboard with a silver clip holding a white sheet with three blank square checkboxes, the top two ticked with bold green checkmarks and blank grey lines beside each (no text), and a small gold star sticker in the lower right corner of the sheet.
+
+==================================================
+CHECKLIST
+==================================================
+
+- 9 PNGs, numbered 225 to 233, exactly the sizes above.
+- No text, numbers, letters, logos or prints anywhere: not on Chad's vest, shirt or earbud, not on the stapler, cake, clipboard or icons.
+- Chad's portraits use the batch 4 registration exactly, stay inside x=60..960 and below y=265, and are pixel-matched outside the face.
+- The golden stapler matches the batch 6 flying staplers' scale and angle.
+- Icons 229 to 232 match the batch 11 icons; 233 matches the batch 6 app icons.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch13 folder.
