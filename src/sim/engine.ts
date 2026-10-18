@@ -18,6 +18,7 @@ import { addEvidence, hrWon, politicsOffline, reclaimWon, stepPolitics } from '.
 import { execMult, offlineCap, repDamage } from './job';
 import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
+import { goldenDamage, stepGolden } from './golden';
 
 export { openBox } from './supplies';
 
@@ -31,7 +32,7 @@ export { openBox } from './supplies';
  * bigger (see `toughness`), so the numbers grow instead.
  */
 function ladderDamage(s: GameState) {
-  return renoDamage(s) / toughness(s);
+  return (renoDamage(s) * goldenDamage(s)) / toughness(s);
 }
 
 export function addSuspicion(s: GameState, amount: number) {
@@ -422,6 +423,7 @@ export function step(s: GameState, dt: number) {
   stepWar(s, addSuspicion);
   stepSiege(s, dt);
   stepPolitics(s, dt);
+  stepGolden(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);

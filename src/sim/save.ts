@@ -2,6 +2,7 @@ import { COMPANIES, COWORKERS, DEPARTMENTS, HR_DIRECTOR, MEMOS, PERKS, EXEC_PERK
 import { deptMax, isDept, isRoom, newGame, newJob, newWar, reclaimTarget, rematchOrder, SAVE_VERSION, type GameState, type WarState } from './state';
 import { politicsForOldSave } from './politics';
 import { ladderForOldSave } from './ladder';
+import { goldenForLoad } from './golden';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -82,6 +83,7 @@ function migrate(file: SaveFile): GameState | null {
   // The career ladder: saves from before it count the cases they'd already closed.
   if (file.version < 18) ladderForOldSave(s);
   s.renovations = { ...(file.state.renovations ?? {}) };
+  s.golden = goldenForLoad(file.state.golden, s.time);
   if (!Number.isFinite(s.barrageAt)) s.barrageAt = 0;
   s.version = SAVE_VERSION;
   return sanitize(s) ? s : null;

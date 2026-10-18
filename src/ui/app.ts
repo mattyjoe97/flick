@@ -3,6 +3,7 @@ import { setFill } from './fill';
 import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
 import { tierFloor, tierName, toughness } from '../sim/ladder';
+import { claimGolden, GOLDEN, goldenBoostLeft } from '../sim/golden';
 import viewFloor4 from '../assets/art/view-floor4.webp';
 import viewFloor12 from '../assets/art/view-floor12.webp';
 import viewFloor30 from '../assets/art/view-floor30.webp';
@@ -434,6 +435,11 @@ export class UI {
       }
     });
     $('call-answer').addEventListener('click', () => this.answerPhone());
+    // The golden stapler: grab it before it's gone.
+    $('golden').addEventListener('pointerdown', (e) => e.stopPropagation());
+    $('golden').addEventListener('click', () => {
+      if (claimGolden(this.s)) $('golden').hidden = true;
+    });
 
     // No long-press menus on the things you hold.
     for (const el of [$('flick-btn'), $('scene'), $('desk-front'), $('key-row')]) el.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -779,6 +785,13 @@ export class UI {
       } else if (e.type === 'interviewOver' && e.how === 'lost') {
         this.say(this.s.ticker[0]?.text ?? '');
         this.sound.miss();
+      } else if (e.type === 'goldenSpawn') {
+        this.sound.coins();
+      } else if (e.type === 'golden') {
+        this.sound.kaching();
+        this.sound.grade('A');
+        this.say(this.s.ticker[0]?.text ?? '');
+        this.bump(e.kind === 'windfall' ? 'salary' : 'bands');
       } else if (e.type === 'climb') {
         this.sound.grade('A');
         this.say(this.s.ticker[0]?.text ?? '');
@@ -1220,6 +1233,7 @@ export class UI {
     this.maybeInstallTip();
     this.renderFront(s, m.warning);
     this.renderAlerts(s, m.warning);
+    this.renderGolden(s);
     this.renderFloor(s);
     this.renderTicker(s);
     this.renderPanes(s);
@@ -1425,6 +1439,25 @@ export class UI {
       $(id).hidden = n === 0;
       this.set(id, String(n));
     }
+  }
+
+  /** The golden stapler (while it's out), and the bonus it's running. */
+  private renderGolden(s: GameState) {
+    const g = s.golden?.shown;
+    const el = $('golden');
+    const show = !!g && !s.lookBusy;
+    if (show && el.hidden) {
+      el.style.left = `${(g!.x * 100).toFixed(1)}%`;
+      el.style.top = `${(g!.y * 100).toFixed(1)}%`;
+      el.hidden = false;
+    } else if (!show && !el.hidden) el.hidden = true;
+    const left = goldenBoostLeft(s);
+    const pill = $('boost-pill');
+    const b = s.golden?.boost;
+    if (b && left > 0) {
+      this.set('boost-pill', b.kind === 'frenzy' ? `★ Frenzy ${GOLDEN.frenzy.damage}× · ${Math.ceil(left)} s` : `★ Overtime ${GOLDEN.overtime.team}× · ${Math.ceil(left)} s`);
+      if (pill.hidden) pill.hidden = false;
+    } else if (!pill.hidden) pill.hidden = true;
   }
 
   private renderAlerts(s: GameState, warning: number) {

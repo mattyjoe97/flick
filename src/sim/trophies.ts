@@ -61,6 +61,9 @@ export const TROPHIES: Trophy[] = [
   { id: 'globalhq', name: 'Top Floor', does: 'Work at Global HQ.', check: (s) => (s.job.tier ?? 0) >= 2 },
   { id: 'renovator', name: 'Extreme Makeover', does: 'Buy 15 renovations at one job.', check: (s) => (s.stats.renovations ?? 0) >= 15 },
   { id: 'shares', name: 'Shareholder Value', does: 'Hold 25 shares of company stock.', check: (s) => (s.stats.shares ?? 0) >= 25 },
+  // The golden stapler
+  { id: 'shiny', name: 'Ooh, Shiny', does: 'Grab a golden stapler.', check: (s) => (s.stats.goldens ?? 0) >= 1 },
+  { id: 'magpie', name: 'Magpie', does: 'Grab 25 golden staplers in one job.', check: (s) => (s.stats.goldens ?? 0) >= 25 },
 ];
 
 export const TROPHY_BONUS = { pay: 0.02, damage: 0.01 };
