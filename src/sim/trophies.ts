@@ -65,6 +65,7 @@ export const TROPHIES: Trophy[] = [
   { id: 'shiny', name: 'Ooh, Shiny', does: 'Grab a golden stapler.', check: (s) => (s.stats.goldens ?? 0) >= 1 },
   { id: 'magpie', name: 'Magpie', does: 'Grab 25 golden staplers in one job.', check: (s) => (s.stats.goldens ?? 0) >= 25 },
   // Office chaos
+  { id: 'rival', name: 'Eat My Dust', does: 'Beat Chad to closing HR’s case 5 times.', check: (s) => (s.rival?.wins ?? 0) >= 5 },
   { id: 'streak', name: 'Employee of the Week', does: 'Finish all three Corporate Challenges 7 days in a row.', check: (s) => (s.daily?.streak ?? 0) >= 7 },
   { id: 'chaos', name: 'Business as Usual', does: 'Live through 10 office chaos events in one job.', check: (s) => (s.stats.chaos ?? 0) >= 10 },
 ];

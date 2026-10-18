@@ -20,6 +20,7 @@ import { renoDamage, toughness } from './ladder';
 import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
 import { stepDaily } from './daily';
+import { stepRival } from './rival';
 import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
 
 export { openBox } from './supplies';
@@ -428,6 +429,7 @@ export function step(s: GameState, dt: number) {
   stepGolden(s);
   stepChaos(s);
   stepDaily(s);
+  stepRival(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);

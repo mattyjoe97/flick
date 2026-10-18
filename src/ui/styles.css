@@ -6471,6 +6471,40 @@ button.dept:focus-visible {
   grid-column: 1 / -1;
 }
 
+/* Chad's race: two progress bars, you and him. */
+.race-card {
+  grid-column: 1 / -1;
+  gap: 6px;
+  background: #fbf3e2;
+}
+.race-card.won {
+  background: #eef5e8;
+}
+.race-card .dept-label small {
+  font-family: var(--font-body, inherit);
+  font-weight: 600;
+  font-size: 11px;
+  margin-left: 6px;
+  opacity: 0.8;
+}
+.race-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 8px;
+  align-items: center;
+}
+.race-row small {
+  grid-column: 2;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+.race-row:not(.chad) .dept-bar i {
+  background: #2f8a3a;
+}
+.race-row.chad .dept-bar i {
+  background: #6a5acd;
+}
+
 .holding-card.raided {
   border-color: var(--marker-red);
   animation: raid-pulse 1s steps(4) infinite;

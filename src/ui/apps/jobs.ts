@@ -5,8 +5,9 @@
 // with its rules, and a two-step "hand in your notice". Then your résumé perks, bought with
 // Reputation and kept forever, and the jobs you've left.
 
+import { RIVAL, rivalCompany } from '../../sim/rival';
 import { COMPANIES, EXEC_PERKS, LADDER, PERKS, STOCK, type CompanyId, type ExecId } from '../../sim/content';
-import { buyExec, buyPerk, canQuit, execCost, execLevel, execOpen, offers, perkCost, repDamage, repForRun, stockRep } from '../../sim/job';
+import { buyExec, buyPerk, canQuit, execCost, execLevel, execOpen, offers, perkCost, repDamage, repForRun, rivalRep, stockRep } from '../../sim/job';
 import { buyStock, closedAt, stockOpen, stockPrice, tierFloor, tierName } from '../../sim/ladder';
 import { company, perk, type GameState } from '../../sim/state';
 import { money } from '../format';
@@ -157,6 +158,7 @@ export class JobsApp implements AppView {
         <div class="case-row"><span class="case-label">Reputation</span><b class="case-pd">${s.job.reputation.toLocaleString('en-US')}</b></div>
         <p class="case-note">${s.job.earned.toLocaleString('en-US')} earned in all. Your reputation precedes you: your bands hit ${boost(repDamage(s))} harder${s.job.earned ? '' : ' (every point you earn adds a little)'}.</p>
         <div class="case-row"><span class="case-label">Quit now</span><b>${can.ok ? `+${rep.toLocaleString('en-US')} Reputation` : esc(can.reason)}</b></div>
+        ${raceNote(s)}
         <p class="case-note">You earn more the further you get, the higher your title, the more bounties you collected${here > 0 ? `, and the higher the office (×${(LADDER.rep ** here).toLocaleString('en-US')} at ${esc(tierName(here))})` : ''}. You keep Bailey, your ball and your names; everything else stays behind.</p>
       </section>
       ${stock}
@@ -174,4 +176,18 @@ export class JobsApp implements AppView {
       ${past ? `<h3 class="jobs-h">Past jobs</h3><ul class="past-jobs">${past}</ul>` : ''}
     </div>`;
   }
+}
+
+/** How the race with Chad went on this job, and what it adds. */
+function raceNote(s: GameState) {
+  const race = s.rival?.race;
+  if (!race) return '';
+  const pct = Math.round(RIVAL.rep * 100);
+  const text =
+    race.result === 'won'
+      ? `You beat Chad to closing the case: +${rivalRep(s).toLocaleString('en-US')} of that is his ${pct}% bonus.`
+      : race.result === 'lost'
+        ? `Chad closed his case at ${esc(rivalCompany(s))} first. No bonus this job.`
+        : `Close HR’s case before Chad (at ${esc(rivalCompany(s))}) and this job pays ${pct}% more.`;
+  return `<p class="case-note">${text} Record: ${s.rival.wins} won, ${s.rival.losses} lost.</p>`;
 }

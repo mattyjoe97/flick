@@ -3,6 +3,7 @@ import { newSupplies, type FindKind, type SuppliesState } from './supplies';
 import { newGolden, type GoldenKind, type GoldenState } from './golden';
 import { newChaos, type ChaosKind, type ChaosState } from './chaos';
 import { newDaily, type DailyState } from './daily';
+import { newRival, type RivalState } from './rival';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -152,6 +153,8 @@ export interface GameState {
   chaos: ChaosState;
   /** Corporate Challenges: today's three (real-world days), and your streak. Kept from job to job. */
   daily: DailyState;
+  /** Chad, your rival: this job's race to close HR's case, your record against him, your best times. */
+  rival: RivalState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -413,6 +416,7 @@ export type GameEvent =
   | { type: 'chaosStart'; kind: ChaosKind }
   | { type: 'chaosEnd'; kind: ChaosKind }
   | { type: 'dailyNew' }
+  | { type: 'rival'; result: 'won' | 'lost' }
   | { type: 'dailyDone'; id: string; cash: number }
   | { type: 'dailyAll'; rep: number; streak: number }
   | { type: 'trophy'; id: string }
@@ -499,6 +503,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     golden: newGolden(),
     chaos: newChaos(),
     daily: newDaily(),
+    rival: newRival(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },

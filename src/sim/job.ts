@@ -9,6 +9,7 @@
 // Every company has its own rules and its own names for the same faces (offices all look
 // alike). Later jobs go faster as the perks pile up, so there's always another one.
 
+import { rivalBonus, startRace } from './rival';
 import { COMPANIES, EXEC_PERKS, JOB, PERKS, type CompanyId, type ExecId, type PerkId } from './content';
 import { trophyDamageMult, trophyPayMult } from './trophies';
 import { renoPay, stockBonus, tierFloor, tierName, tierPay, tierRep } from './ladder';
@@ -31,7 +32,12 @@ export function stockRep(s: GameState) {
 /** What leaving now would earn you in Reputation (nothing before the Department War): the job, plus your shares. */
 export function repForRun(s: GameState) {
   if (s.stage < JOB.minStage) return 0;
-  return repForWork(s) + stockRep(s);
+  return repForWork(s) + stockRep(s) + rivalRep(s);
+}
+
+/** What beating Chad adds to that. */
+export function rivalRep(s: GameState) {
+  return Math.floor(repForWork(s) * rivalBonus(s));
 }
 
 export type JobResult = { ok: true } | { ok: false; reason: string };
@@ -136,7 +142,7 @@ export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed 
     trophies: { ...s.job.trophies },
     history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep, tier: s.job.tier }].slice(-12),
   };
-  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches, daily: s.daily };
+  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches, daily: s.daily, rival: s.rival };
   const fresh = newGame(seed || 1);
   fresh.job = job;
   fresh.ball = kept.ball;
@@ -148,11 +154,13 @@ export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed 
   for (const k of Object.keys(s)) delete (s as unknown as Record<string, unknown>)[k];
   Object.assign(s, fresh);
   startPerks(s);
+  if (kept.rival) s.rival = kept.rival;
   const c = company(s);
   s.inbox = [];
   const office = tier > 0 ? ` (${tierName(tier)})` : '';
   pushEmail(s, 'HR', `Welcome to ${c.name}${office}!`, `We’re so glad you’re here. ${c.pitch} Your desk is on Floor ${tierFloor(tier)}. The person next to you is Gary. He seems nice.`, 'story');
   if (s.job.runs === 1) pushEmail(s, 'Dale (Facilities)', 'small world', 'turns out I work here too. don’t ask. same closet, end of the hall. D for Dale.', 'story');
+  startRace(s);
   pushTicker(s, `Day one at ${c.name}. You brought your rubber band ball, your dog, and ${rep} Reputation’s worth of stories.`);
   return { ok: true };
 }

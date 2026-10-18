@@ -17,6 +17,7 @@
 //
 // Picking who to fight lives in war.ts with the departments and rooms.
 
+import { rivalCaseClosed } from './rival';
 import { addReview, reviewNeed, TOP_RANK } from './career';
 import { chatEvent } from './chat';
 import { recordClose } from './ladder';
@@ -226,6 +227,7 @@ export function closeCase(s: GameState, how: 'fight' | 'goodwill') {
   s.stats.stage5At = s.time;
   s.stage = 6;
   recordClose(s);
+  rivalCaseClosed(s);
   s.war.fighting = 'rematch';
   if (!s.rematch) startRematch(s, 1, 0);
   s.targetResolve = s.rematch!.left ?? s.rematch!.resolve;

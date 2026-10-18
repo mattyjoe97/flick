@@ -8,6 +8,7 @@
 // the boss behind their barricade (the same drawing as the fight), what's left of their
 // Resolve and what taking them gets you.
 
+import { RIVAL, rivalCompany, rivalLeft, rivalStage } from '../sim/rival';
 import { setFill } from './fill';
 import daleHead from '../assets/art/dale-head.webp';
 import { co } from './co';
@@ -218,6 +219,7 @@ export class MapView {
       raid ? `${raid.dept}:${raid.until}` : '',
       closetIsYours(s),
       rm ? `${rm.round}:${rm.index}` : '',
+      s.rival?.race ? `${s.rival.race.stage}:${s.rival.race.result}:${s.rival.race.company}` : '',
     ].join('|');
     if (key !== this.key) {
       this.key = key;
@@ -231,14 +233,18 @@ export class MapView {
             ? `Two rooms left, behind walls of filing cabinets: knock the wall down, then them. The Drill Gatling, Barrages and Engineers hit walls hardest. Take both and the floor is yours.`
             : `${taken} of 4 taken. Switch any time: they keep the damage you’ve done. Each one you take makes the rest ${Math.round((WAR.reinforce - 1) * 100)}% tougher.`;
       this.grid.innerHTML = politics
-        ? [this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s), this.atStakeCard(s)].join('')
+        ? [this.raceCard(s), this.hrCard(s), ...DEPARTMENTS.filter((d) => s.war.depts[d.dept].seized).map((d) => this.reclaimCard(s, d)), this.rematchCard(s), this.atStakeCard(s)].join('')
         : siege
-          ? [...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
-          : [...DEPARTMENTS.map((d) => this.deptCard(s, d)), ...(s.stage >= 6 ? ROOMS.map((r) => this.roomCard(s, r)) : []), this.closetCard(s), this.rematchCard(s)].join('');
+          ? [this.raceCard(s), ...ROOMS.map((r) => this.roomCard(s, r)), this.rematchCard(s), this.holdingCard(s)].join('')
+          : [this.raceCard(s), ...DEPARTMENTS.map((d) => this.deptCard(s, d)), ...(s.stage >= 6 ? ROOMS.map((r) => this.roomCard(s, r)) : []), this.closetCard(s), this.rematchCard(s)].join('');
     }
     if (politics) this.updatePolitics(s);
     else if (siege) this.updateSiege(s);
     else this.updateDepts(s, raid);
+    if (s.rival?.race && !s.rival.race.result) {
+      setFill(this.grid.querySelector<HTMLElement>('[data-bar="chad"]'), Math.min(1, s.time / s.rival.race.target));
+      this.text('[data-chad-left]', raceClock(rivalLeft(s)));
+    }
     if (rm) {
       const on = s.stage >= 6 || s.war.fighting === 'rematch';
       const left = (on ? Math.max(0, s.targetResolve) : rm.left ?? rm.resolve) / rm.resolve;
@@ -395,6 +401,27 @@ export class MapView {
     </div>`;
   }
 
+  /** Chad's race to close HR's case first (from your second job on). */
+  private raceCard(s: GameState) {
+    const race = s.rival?.race;
+    if (!race) return '';
+    const yours = s.stage >= 6 ? 1 : (s.stage - 1) / 5;
+    const his = rivalStage(s);
+    const prize =
+      race.result === 'won'
+        ? `<span class="dept-prize got">You beat him! This job pays ${Math.round(RIVAL.rep * 100)}% more Reputation when you leave.</span>`
+        : race.result === 'lost'
+          ? `<span class="dept-prize">Chad closed his case first. No bonus this time: get him on the next job.</span>`
+          : `<span class="dept-prize">Close HR’s case before he does: this job pays ${Math.round(RIVAL.rep * 100)}% more Reputation when you leave.</span>`;
+    const record = s.rival.wins || s.rival.losses ? ` <small>You ${s.rival.wins}–${s.rival.losses} Chad</small>` : '';
+    return `<div class="dept race-card${race.result ? ` ${race.result}` : ''}">
+      <span class="dept-label">The race${record}</span>
+      <span class="race-row"><b>You</b><span class="dept-bar" aria-hidden="true"><i style="width:${(yours * 100).toFixed(1)}%"></i></span><small>${s.stage >= 6 ? 'Case closed' : `Stage ${s.stage}`}</small></span>
+      <span class="race-row chad"><b>Chad</b><span class="dept-bar" aria-hidden="true"><i data-bar="chad" style="width:${(Math.min(1, s.time / race.target) * 100).toFixed(1)}%"></i></span><small>${race.result === 'lost' || his >= 6 ? 'Case closed' : `Stage ${his} at ${esc(rivalCompany(s))} · done in <span data-chad-left>${raceClock(rivalLeft(s))}</span>`}</small></span>
+      ${prize}
+    </div>`;
+  }
+
   /** Stage 5: your four departments, and which (if any) HR has taken. */
   private atStakeCard(s: GameState) {
     const rows = DEPARTMENTS.map((d) => {
@@ -474,6 +501,12 @@ export class MapView {
       <span class="dept-act">${on ? 'Fighting now' : 'Rematch'}</span>
     </button>`;
   }
+}
+
+/** Chad's clock: minutes (and hours) left. */
+function raceClock(seconds: number) {
+  const m = Math.ceil(seconds / 60);
+  return m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
 }
 
 /** A department sneaking into the supply closet: chase them off before the clock runs out. */

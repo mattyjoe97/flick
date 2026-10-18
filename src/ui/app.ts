@@ -797,6 +797,10 @@ export class UI {
       } else if (e.type === 'chaosStart') {
         this.sound.alarm();
         this.say(CHAOS_INFO[e.kind].start);
+      } else if (e.type === 'rival') {
+        if (e.result === 'won') this.sound.grade('A');
+        else this.sound.grade('D');
+        this.say(this.s.ticker[0]?.text ?? '');
       } else if (e.type === 'dailyNew') {
         this.sound.notify();
         if (!this.s.lookBusy) this.say('Corporate sent today’s three challenges. They’re in the Challenges app on your computer.');
