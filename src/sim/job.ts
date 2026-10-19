@@ -148,7 +148,7 @@ export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed 
     trophies: { ...s.job.trophies },
     history: [...s.job.history, { company: from.id, minutes: Math.round(s.time / 60), stage: s.stage, rep, tier: s.job.tier }].slice(-12),
   };
-  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches, daily: s.daily, rival: s.rival };
+  const kept = { ball: { ...s.ball }, names: { ...(s.names ?? {}) }, scratches: s.office.scratches, daily: s.daily, rival: s.rival, safety: s.safety };
   const fresh = newGame(seed || 1);
   fresh.job = job;
   fresh.ball = kept.ball;
@@ -161,6 +161,7 @@ export function startNewJob(s: GameState, to: CompanyId, tier = s.job.top, seed 
   Object.assign(s, fresh);
   startPerks(s);
   if (kept.rival) s.rival = kept.rival;
+  s.safety = kept.safety !== false;
   const c = company(s);
   s.inbox = [];
   const office = tier > 0 ? ` (${tierName(tier)})` : '';

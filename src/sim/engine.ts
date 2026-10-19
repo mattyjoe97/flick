@@ -40,10 +40,37 @@ function ladderDamage(s: GameState) {
 }
 
 export function addSuspicion(s: GameState, amount: number) {
-  const m = mods(s);
-  s.suspicion += amount * (1 - m.lookoutCut) * company(s).rules.suspicion * chaosSuspicion(s);
+  s.suspicion += suspicionFrom(s, amount);
   checkThresholds(s);
 }
+
+/** How much Suspicion some noise really adds (after your Lookouts, the company and any cake). */
+function suspicionFrom(s: GameState, amount: number) {
+  return amount * (1 - mods(s).lookoutCut) * company(s).rules.suspicion * chaosSuspicion(s);
+}
+
+/** The noise one shot makes (yours, stretched by `charge`, or a teammate's). */
+function shotNoise(s: GameState, by: 'you' | 'ally', charge = 0) {
+  const m = mods(s);
+  const stretch = 1 + CHARGE.noisePerCharge * charge;
+  return TUNING.noisePerShot * weapon(s).noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1) * politicsNoise(s);
+}
+
+/** The noise a Barrage of `n` bands makes. */
+function barrageNoise(s: GameState, n: number) {
+  const m = mods(s);
+  return (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult * politicsNoise(s);
+}
+
+/**
+ * The safety catch (on unless you turn it off in settings): nothing on your side fires if it
+ * would push Suspicion to 100. Walk-bys can still get you caught; your own shots can't.
+ */
+export function safetyHolds(s: GameState, noise: number) {
+  return s.safety !== false && s.suspicion + suspicionFrom(s, noise) >= 100;
+}
+
+export const SAFETY_MESSAGE = 'Safety catch: one more shot and Mr. Feeney calls you in. Let it cool off first (your computer cools you fastest).';
 
 // Work tasks raise Suspicion through the same path (Lookouts, warnings, getting caught).
 setSuspicionHook(addSuspicion);
@@ -255,8 +282,7 @@ function fire(
   s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
   // An Objection upstairs: your own bands bounce back as paperclips.
   if (by === 'you') ricochet(s, w.burst);
-  const stretch = 1 + CHARGE.noisePerCharge * shot.charge;
-  const noise = TUNING.noisePerShot * w.noise * m.allNoiseMult * stretch * (by === 'you' ? m.yourNoiseMult : 1) * politicsNoise(s);
+  const noise = shotNoise(s, by, shot.charge);
   addSuspicion(s, noise);
   // HR hears every shot fired at HR: some of it goes in the case file.
   if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
@@ -367,6 +393,11 @@ export function step(s: GameState, dt: number) {
     a.timer += dt;
     while (a.timer >= interval && currentTarget(s)) {
       a.timer -= interval;
+      // The safety catch: your Shooters hold fire rather than get you caught.
+      if (safetyHolds(s, shotNoise(s, 'ally'))) {
+        a.timer = 0;
+        break;
+      }
       const power = allyPower(a.id, 'shooter', a.rank);
       if (!fire(s, 'ally', power, a.id)) {
         outOfAmmo = true;
@@ -517,8 +548,9 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   // Reloading: silently ignore shots faster than the weapon allows (no message, no spam).
   if (s.time + 1e-6 < s.nextFlickAt) return no('');
-  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s);
   const c = Math.min(1, Math.max(0, charge));
+  if (safetyHolds(s, shotNoise(s, 'you', c))) return no(SAFETY_MESSAGE);
+  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s);
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
@@ -564,6 +596,7 @@ export function canBarrage(s: GameState): ActionResult {
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
   if (s.time < s.barrageAt) return no(`Everyone’s still reloading (${Math.ceil(barrageCooldown(s))} s).`);
   if (s.bands < BARRAGE.min) return no(`A Barrage takes at least ${BARRAGE.min} bands.`);
+  if (safetyHolds(s, barrageNoise(s, barrageSize(s)))) return no('Safety catch: a Barrage that loud would get you caught. Let Suspicion cool off first.');
   return ok;
 }
 
@@ -594,7 +627,7 @@ export function barrage(s: GameState): ActionResult {
   s.events.push({ type: 'barrage', damage: dmg, bands: n, shooters });
   chatEvent(s, 'barrage');
   pushTicker(s, `Barrage! ${n.toLocaleString('en-US')} bands in the air at once. ${t.name.split(' ')[0]} loses ${Math.round(dmg * toughness(s)).toLocaleString('en-US')} Resolve.`);
-  const noise = (BARRAGE.noise + BARRAGE.noisePerBand * n) * m.allNoiseMult * m.yourNoiseMult * politicsNoise(s);
+  const noise = barrageNoise(s, n);
   addSuspicion(s, noise);
   if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
   if (!walled && s.targetResolve <= 0) capture(s);

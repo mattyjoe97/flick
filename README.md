@@ -94,6 +94,8 @@ Meanwhile the departments you took try to take their desks back, every 3 to 5 mi
 - **HR interviews** replace counterattacks: every 3 to 5 minutes someone you beat is called in, with a 20-second clock. Tap **Coach them** and they remember nothing.
 - **Close the case either way:** flick Fisk's Resolve to nothing, or win HR over (every memo you send counts toward goodwill; at 300 the case closes). Then the whole floor is yours for good and the rematches carry on. A careful player takes about 40 to 50 minutes either way; one who never sends a memo, a couple of hours.
 
+**The safety catch.** On by default (Settings): your flicks, Barrages and Shooters hold fire rather than push Suspicion to 100, and the coach line says to cool off. Mr. Feeney's walk-bys can still catch you if you're not at your computer. Added after a playtest save showed 7 catches in 97 minutes (each heals the boss 20%, costs 40% of your bands and confiscates your weapon for 3 minutes); the bots were tuned without it and still play with it off.
+
 **Stage 6: Building Takeover.** With the case closed, the other companies renting the floors above yours notice (Building Management emails everyone). Take them one floor at a time from the **Building** card on the map, an elevator panel beside the boss you're up against. Each fights its own way:
 
 - **Hargrove & Pike LLP** (Meg Hargrove, Senior Partner): every 20 to 26 seconds she objects for 5. Nothing lands during an **Objection**, and each band you fire bounces back as paperclips and costs you 1% of your bands. A red pill says when to hold fire.

@@ -101,6 +101,8 @@ export function playBot(style: BotStyle, maxSeconds = 4 * 3600, seed = 12345, un
 /** Keeps a bot playing an existing game for up to `seconds` (or until `until` says stop). */
 export function runBot(s: GameState, style: BotStyle, seconds: number, until: (s: GameState) => boolean = () => false, seed = 12345) {
   const mind: BotMind = { busyUntil: 0, job: null, coin: seed % 997 };
+  // The bots were tuned without the safety catch (the oblivious one is meant to get caught).
+  if (!BOT_FLAGS.safety) s.safety = false;
   const actionEvery = 1 / style.actionsPerSecond;
   let nextAction = s.time;
   const steps = Math.round(seconds / TUNING.stepSeconds);
@@ -330,7 +332,7 @@ function renovate(s: GameState): boolean {
 }
 
 /** Switches for experiments (pacing tests turn the new spending off to compare). */
-export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0, tenants: 0 };
+export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0, tenants: 0, safety: false };
 
 /** Grows the team: the cheapest seat or training it can afford with money to spare. */
 function hireSomeone(s: GameState): boolean {

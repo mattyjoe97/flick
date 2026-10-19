@@ -158,6 +158,8 @@ export interface GameState {
   rival: RivalState;
   /** Stage 6: the other companies in the building, one floor at a time. */
   tenants: TenantState;
+  /** The safety catch: nothing on your side fires if it would push Suspicion to 100 (a setting). */
+  safety: boolean;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -519,6 +521,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     daily: newDaily(),
     rival: newRival(),
     tenants: newTenants(),
+    safety: true,
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },

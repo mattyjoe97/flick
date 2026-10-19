@@ -375,6 +375,14 @@ export class UI {
    * A message on the coach line. If one is already showing, this one waits its turn (each
    * gets at least 2 s, the last one 3.5 s), so two things happening at once are both read.
    */
+  /** The settings button for the safety catch shows whether it's on. */
+  private syncSafety() {
+    const on = this.s.safety !== false;
+    const b = $('safety-btn');
+    b.setAttribute('aria-pressed', String(on));
+    b.querySelector('span')!.textContent = on ? 'Safety catch is on' : 'Safety catch is off';
+  }
+
   private say(text: string) {
     const t = co(text);
     if (!t) return;
@@ -566,7 +574,13 @@ export class UI {
       $<HTMLTextAreaElement>('export-text').value = this.host.exportText();
       $('import-msg').textContent = '';
       $('reset-confirm').hidden = true;
+      this.syncSafety();
       dlg.showModal();
+    });
+    $('safety-btn').addEventListener('click', () => {
+      this.s.safety = this.s.safety === false;
+      this.syncSafety();
+      this.host.save();
     });
     $('copy-btn').addEventListener('click', async () => {
       const ta = $<HTMLTextAreaElement>('export-text');
