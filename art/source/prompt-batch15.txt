@@ -1,4 +1,4 @@
-FLICK — ART BATCH 15: The Break Room
+FLICK — ART BATCH 15: The Break Room and Mr. Feeney's office
 
 Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch; the supply closet room (batch 3) and Dale's goods are the closest match. Match them exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
 
@@ -6,7 +6,7 @@ The player can now walk to the office break room: a coffee maker, a vending mach
 
 Rules for EVERY image: PNG; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on packaging, cans, the vending machine buttons, the corkboard notes and the mugs (the game draws all text itself). No gradients, painterly texture, noise, photorealism or 3D rendering. Scripted finishing (exact canvas size, clean alpha, alignment) is authorized as before.
 
-Number the files exactly as below (they continue after batch 14's 249_floss_snare.png). Deliver all 10 PNGs in a folder named batch15 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch15.json (size and alpha bounding box per file, and the registration numbers asked for below) and prompts-batch15.json (the prompt used for each file), like earlier batches.
+Number the files exactly as below (they continue after batch 14's 249_floss_snare.png). Deliver all 11 PNGs in a folder named batch15 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch15.json (size and alpha bounding box per file, and the registration numbers asked for below) and prompts-batch15.json (the prompt used for each file), like earlier batches.
 
 ==================================================
 A. THE ROOM (1 file, opaque)
@@ -43,11 +43,26 @@ C. ICONS (4 snacks + 1 mug, transparent)
 259_icon_mug.png — a chunky cream coffee mug, full, with a curl of steam (for the "Caffeinated" pill and the Break room button).
 
 ==================================================
+D. MR. FEENEY'S OFFICE (1 file, opaque)
+==================================================
+
+The player can also sneak into their manager's office while he's out. Mr. Feeney himself (batch 1) is NOT in the room: it's empty.
+
+260_feeney_office.png — 2048 x 1152, OPAQUE, a small manager's office seen STRAIGHT ON at standing eye level, same style as the break room. Muted sage-green walls, a darker brown carpet from about y=880 down. Lay it out exactly like this (the game puts click spots on these areas, so keep the positions):
+- LEFT: a window with closed horizontal blinds at about x=120..540, y=150..530.
+- CENTRE: a big wooden executive desk, its top edge at about y=610, spanning x=540..1500, with a pedestal of drawers on each side down to the carpet (y≈890). The RIGHT pedestal's top drawer front (about x=1150..1470, y=760..960) is the important one: give it a small brass keyhole and a brass handle, clearly a drawer that locks.
+- Behind the desk at about x=680..840: a tall empty black leather office chair.
+- ON the desk: a beige office computer monitor facing us at about x=890..1220, y=300..530 on a short stand, its screen showing a plain calendar grid (squares only, a few filled in pale orange, NO numbers or words); on the left, two loose stacks of papers and a manila folder; on the right, a red coffee mug and a brass desk nameplate (blank, NO name).
+- WALL behind: an empty gold picture frame at about x=1262..1530, y=140..430 (leave its inside a flat pale cream: the game puts his photo in it), and a framed blank certificate with a gold seal further right (x≈1660..1960, y≈120..340).
+- RIGHT: a grey three-drawer filing cabinet at about x=1620..1870, y=430..890.
+Record in the manifest: the desk top line, the drawer front box, the monitor box and the empty frame's inside box.
+
+==================================================
 CHECKLIST
 ==================================================
 
-- 10 PNGs, numbered 250 to 259, exactly the sizes above.
-- 250 is opaque; 251 to 259 are transparent.
+- 11 PNGs, numbered 250 to 260, exactly the sizes above.
+- 250 and 260 are opaque; 251 to 259 are transparent.
 - 250 leaves the four empty areas (front of the window, left half of the counter top, the wall above the counter, the vending machine's spot) and the manifest records them and the countertop line.
 - 251 and 252 are identical except the carafe, the drip, the light and the steam.
 - No text, numbers, letters, logos or prints anywhere.

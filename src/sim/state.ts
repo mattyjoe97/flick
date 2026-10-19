@@ -8,6 +8,7 @@ import { newTenants, nextTenant, type TenantState } from './tenants';
 import { newStreak, newWeak, type StreakState, type WeakState } from './feel';
 import { newHacks, type HackId, type HackState } from './hacks';
 import { newBreak, type BreakState, type SnackId } from './breakroom';
+import { newFeeney, type FeeneyState, type SnoopId } from './feeney';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -169,6 +170,7 @@ export interface GameState {
   /** This job's hacks: the ones you've picked, and any pick waiting. */
   hacks: HackState;
   breakroom: BreakState;
+  feeney: FeeneyState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -289,6 +291,8 @@ export interface GameState {
     cups: number;
     snacks: number;
     shook: number;
+    snoops: number;
+    officeCaught: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -435,7 +439,10 @@ export type GameEvent =
   | { type: 'goldenGone' }
   | { type: 'golden'; kind: GoldenKind; text?: string }
   | { type: 'chaosStart'; kind: ChaosKind }
-  | { type: 'coffee' }
+  | { type: 'pour' }
+  | { type: 'office'; inside: boolean }
+  | { type: 'officeCaught' }
+  | { type: 'snooped'; what: SnoopId; text: string }
   | { type: 'snack'; id: SnackId }
   | { type: 'snackStuck'; id: SnackId }
   | { type: 'chaosEnd'; kind: ChaosKind }
@@ -551,6 +558,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     streak: newStreak(),
     hacks: newHacks(),
     breakroom: newBreak(),
+    feeney: newFeeney(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -645,6 +653,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       cups: 0,
       snacks: 0,
       shook: 0,
+      snoops: 0,
+      officeCaught: 0,
     },
     events: [],
   };

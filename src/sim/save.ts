@@ -10,6 +10,7 @@ import { tenantsForLoad } from './tenants';
 import { newStreak, newWeak, WEAK } from './feel';
 import { hacksForLoad } from './hacks';
 import { breakForLoad } from './breakroom';
+import { feeneyForLoad } from './feeney';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -100,6 +101,7 @@ function migrate(file: SaveFile): GameState | null {
   s.streak = newStreak();
   s.hacks = hacksForLoad(file.state.hacks);
   s.breakroom = breakForLoad(file.state.breakroom);
+  s.feeney = feeneyForLoad(file.state.feeney);
   // Saves from before Chad: if you've already changed jobs, he joins the race you're in now
   // (as long as there's time left to win it).
   if (!file.state.rival && s.job.runs >= 1 && s.stage < 6 && s.time < rivalTarget(s, s.job.tier ?? 0) - 20 * 60) startRace(s);

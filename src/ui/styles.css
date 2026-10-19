@@ -2372,7 +2372,8 @@ kbd {
     border-image: none;
     filter: none;
   }
-  .my-desk .cards {
+  /* On a phone the desk buttons are in the bottom bar; only Mr. Feeney's office stays here (in the List sheet). */
+  .my-desk .cards > :not(#feeney-btn) {
     display: none;
   }
   .desk {
@@ -7846,5 +7847,140 @@ body.in-map .money-floater {
   }
   50% {
     transform: scale(1.25);
+  }
+}
+
+/* ---------------------------------------------------------------- Mr. Feeney's office */
+
+.feeney-office {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, #3d4a3c, #121611);
+}
+
+.feeney-photo {
+  position: absolute;
+  left: 63%;
+  top: 14.6%;
+  width: 10.35%;
+  height: 20.3%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.feeney-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+.snoop-spot {
+  border-radius: 10px;
+  filter: none;
+}
+
+.snoop-spot:hover,
+.snoop-spot.selected {
+  transform: none;
+  filter: none;
+  background: rgba(255, 244, 200, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 244, 200, 0.85), 0 0 18px rgba(255, 236, 160, 0.7);
+}
+
+.snoop-spot.spent {
+  opacity: 0.75;
+}
+
+.snoop-spot[data-snoop='desk'] .spot-tag {
+  bottom: auto;
+  top: 50%;
+  left: 18%;
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+
+.snoop-spot[data-snoop='calendar'] .spot-tag {
+  bottom: auto;
+  top: -0.3em;
+  transform: translate(-50%, -100%) rotate(1deg);
+}
+
+.snoop-spot[data-snoop='drawer'] .spot-tag {
+  bottom: -0.3em;
+}
+
+.snoop-bar {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 40%;
+  height: clamp(10px, 1.8cqw, 20px);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.snoop-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: #f0b23c;
+}
+
+.feeney-alarm {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  z-index: 6;
+  margin: 0;
+  transform: translateX(-50%);
+  padding: 0.4em 1em;
+  border: 3px solid #4a0e0a;
+  border-radius: 8px;
+  background: #d8352a;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(13px, 2.2cqw, 26px);
+  white-space: nowrap;
+  box-shadow: 0 0 20px rgba(255, 60, 40, 0.8);
+  animation: alarm-flash 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes alarm-flash {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.25);
+  }
+}
+
+.round-pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #2b3a2a;
+  background: #dfe9d3;
+  color: #1d2a1c;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+#feeney-btn .card-art {
+  width: 64px;
+  border-radius: 6px;
+}
+
+/* The box on your desk stays on your desk while you're in a room. */
+body.in-closet .desk-box {
+  visibility: hidden;
+}
+
+@media (max-width: 600px) {
+  .feeney-alarm {
+    white-space: normal;
+    width: 86%;
+    text-align: center;
   }
 }

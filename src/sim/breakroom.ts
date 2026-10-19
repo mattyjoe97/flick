@@ -121,7 +121,7 @@ export function pourCoffee(s: GameState): BreakResult {
   b.coffeeAt = s.time + brewSeconds(s);
   b.cups++;
   s.stats.cups = (s.stats.cups ?? 0) + 1;
-  s.events.push({ type: 'coffee' });
+  s.events.push({ type: 'pour' });
   return { ok: true, text: `Caffeinated for ${Math.round(coffeeSeconds(s))} s: your flicks reload faster and Suspicion cools faster.` };
 }
 

@@ -9,6 +9,7 @@ import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
 import { coffeeCool, coffeeReload, snackBarrage } from './breakroom';
+import { caughtInOffice, inOffice, seize, stepFeeney } from './feeney';
 import { ballBarrageMult, ballCoolMult, ballDamageMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
@@ -105,6 +106,7 @@ function getCaught(s: GameState) {
   const playDead = knowsTrick(s, 'playdead');
   const lost = Math.floor(s.bands * TUNING.caughtBandLoss * (playDead ? BAILEY.playDeadLoss : 1));
   s.bands -= lost;
+  seize(s, lost);
   s.suspicion = TUNING.caughtResetTo;
   s.flickLockUntil = s.time + TUNING.caughtFlickLock;
   s.shooterLockUntil = s.time + TUNING.caughtShooterLock;
@@ -473,6 +475,7 @@ export function step(s: GameState, dt: number) {
   stepRival(s);
   stepTenants(s, dt);
   stepWeak(s);
+  stepFeeney(s);
   stepHacks(s);
   stepTrophies(s);
   stepAsks(s);
@@ -492,7 +495,11 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
   if (w.arrivesAt !== null && s.time >= w.arrivesAt) {
     w.arrivesAt = null;
     w.nextAt = s.time + randRange(s, TUNING.walkbyMin, TUNING.walkbyMax) * intervalMult;
-    if (s.lookBusy) {
+    if (inOffice(s)) {
+      // He walks back into his own office, and there you are.
+      caughtInOffice(s);
+      getCaught(s);
+    } else if (s.lookBusy) {
       s.stats.hides++;
       s.suspicion = Math.max(0, s.suspicion - TUNING.hideReward);
       const bonus = 5 * s.stage;

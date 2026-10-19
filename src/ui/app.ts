@@ -66,6 +66,9 @@ import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
 import { BreakRoomView, breakPills } from './breakroom';
+import { FeeneyView } from './feeney';
+import { PORTRAITS } from './portrait-art';
+import { drawerHas, nextRoundKnown, officeUnlocked } from '../sim/feeney';
 import { breakUnlocked, coffeeReady } from '../sim/breakroom';
 import { OfficeView } from './office';
 import { BallView } from './ball';
@@ -119,6 +122,7 @@ export class UI {
   private delivery: DeliveryView;
   private closet: ClosetView;
   private breakroom: BreakRoomView;
+  private feeney: FeeneyView;
   private office: OfficeView;
   private ball: BallView;
   private floor: FloorView;
@@ -233,6 +237,23 @@ export class UI {
         if (safetyHolds(this.s, n)) return false;
         addSuspicion(this.s, n);
         return true;
+      },
+    }, this.sound);
+    this.feeney = new FeeneyView(() => this.s, {
+      ...supplyHooks,
+      opened: () => {
+        this.launcher.cancel();
+        this.drawer.close();
+        this.closet.close();
+        this.breakroom.close();
+        document.body.classList.add('in-closet');
+      },
+      closed: (to) => {
+        document.body.classList.remove('in-closet');
+        if (to === 'computer') {
+          this.toggleHide(true);
+          this.say('You slip out and sit down at your computer like nothing happened.');
+        }
       },
     }, this.sound);
     const warHooks = {
@@ -473,6 +494,12 @@ export class UI {
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('floor-btn').addEventListener('click', () => this.openFloor());
     $('break-btn').addEventListener('click', () => this.breakroom.show());
+    $('feeney-btn').addEventListener('click', () => {
+      this.showList(false);
+      this.feeney.show();
+    });
+    const face = PORTRAITS.feeney?.peer;
+    if (face) $('feeney-btn').insertAdjacentHTML('beforeend', `<img class="card-art" src="${face}" alt="" draggable="false">`);
     $('map-btn').addEventListener('click', () => this.openMap());
     for (const id of ['sound-btn', 'sound-btn-2'])
       $(id).addEventListener('click', () => {
@@ -671,6 +698,10 @@ export class UI {
       if (this.breakroom.onKey(e)) e.preventDefault();
       return;
     }
+    if (this.feeney.isOpen) {
+      if (this.feeney.onKey(e)) e.preventDefault();
+      return;
+    }
     if (this.map.isOpen) {
       if (this.map.onKey(e)) e.preventDefault();
       return;
@@ -706,6 +737,7 @@ export class UI {
     else if (k === 'o') this.doOrder();
     else if (k === 'd') this.closet.show();
     else if (k === 'r') this.breakroom.show();
+    else if (k === 'e') this.feeney.show();
     else if (k === 'v') this.ball.barrage();
     else if (k === 'x') this.doCutFloss();
     else if (k === 'h') this.openHacks();
@@ -800,6 +832,7 @@ export class UI {
     this.drawer.close();
     this.closet.close();
     this.breakroom.close();
+    this.feeney.leave();
     this.map.close();
     this.closeRolePop();
   }
@@ -1037,6 +1070,7 @@ export class UI {
       this.computer.handle(e);
       this.office.handle(e);
       this.ball.handle(e);
+      this.feeney.handle(e);
     }
   }
 
@@ -1472,6 +1506,7 @@ export class UI {
     this.delivery.render();
     this.closet.render();
     this.breakroom.render();
+    this.feeney.render();
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion(), this.scene.handShift());
     void dt;
@@ -1683,7 +1718,9 @@ export class UI {
     } else if (!pill.hidden) pill.hidden = true;
     // The Break Room: coffee and a snack.
     const bp = breakPills(s);
-    for (const [id, text] of [['coffee-pill', bp.coffee], ['snack-pill', bp.snack]] as const) {
+    const round = nextRoundKnown(s);
+    const roundText = round === null ? null : round <= 0 ? 'Feeney: on his way!' : `Feeney’s next round · ${Math.floor(round / 60)}:${String(Math.floor(round % 60)).padStart(2, '0')}`;
+    for (const [id, text] of [['coffee-pill', bp.coffee], ['snack-pill', bp.snack], ['round-pill', roundText]] as const) {
       const el = $(id);
       const show = !!text && !s.lookBusy;
       if (show) this.set(id, text!);
@@ -1952,6 +1989,16 @@ export class UI {
     $('break-btn').classList.toggle('dot', brew);
     $('bar-break').hidden = !br;
     $('bar-break-dot').hidden = !brew;
+    // Mr. Feeney's office: what's waiting in there.
+    const off = officeUnlocked(s);
+    $('feeney-btn').hidden = !off;
+    if (off) {
+      const mine = drawerHas(s);
+      const desk = s.time >= s.feeney.deskAt;
+      this.set('feeney-sub', s.walkby.arrivesAt !== null ? 'He’s on his way. Not now.' : mine ? `His drawer: ${s.feeney.seized >= 1 ? `${fmt(s.feeney.seized)} of your bands` : 'your weapon'}` : desk ? 'He’s out. Something new on his desk.' : 'He’s out walking the floor.');
+      $('feeney-badge').hidden = !mine;
+    }
+    $('bar-list-dot').hidden = !(off && drawerHas(s));
 
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
@@ -2095,6 +2142,8 @@ function coachHint(s: GameState): string {
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'
       : 'Out of bands. Scrounge your drawer (S), or earn some Salary on your computer (Esc) for a supply order.';
   }
+  if ((s.feeney?.seized ?? 0) >= 500 && officeUnlocked(s) && s.walkby.arrivesAt === null)
+    return `Mr. Feeney’s drawer has ${Math.floor(s.feeney.seized).toLocaleString('en-US')} of your bands. Sneak into his office while he’s out (E, or List on a phone) and take them back.`;
   // Noise is what limits you now: full stretches get three times the damage out of the same Suspicion.
   if (s.suspicion >= 70 && s.stats.shots > 50 && s.stats.charged < s.stats.shots * 0.3)
     return 'Hold Flick instead of tapping: it keeps firing full stretches on its own, 5× the damage for barely more noise.';
