@@ -161,12 +161,13 @@ describe('New Job pacing (scripted bot)', () => {
     const s = playBot(style, 8 * 3600, 12345, (x) => x.stage >= 6);
     const first = s.time / 60;
     runBot(s, style, 2, () => s.job.runs > 0);
-    runBot(s, style, 8 * 3600, (x) => x.stage >= 6);
-    const second = s.time / 60;
+    // (The bot quits the moment the case closes, sometimes within the same step.)
+    runBot(s, style, 8 * 3600, (x) => x.stage >= 6 || x.job.runs > 1);
+    const second = s.job.runs > 1 ? s.job.history[s.job.history.length - 1].minutes : s.time / 60;
     console.log(JSON.stringify({ firstJobMin: Math.round(first), secondJobMin: Math.round(second), rep: s.job.earned, perks: s.job.perks }));
-    expect(s.job.runs).toBe(1);
+    expect(s.job.runs).toBeGreaterThanOrEqual(1);
     expect(second).toBeLessThan(first * 0.9);
-    // (The bot never stops flicking, so it always has a full hot streak: about 88 minutes now.)
-    expect(second).toBeGreaterThan(75);
+    // (The bot never stops flicking, keeps a full hot streak and takes a hack after every boss: about 75 minutes now.)
+    expect(second).toBeGreaterThan(60);
   }, 1800000);
 });

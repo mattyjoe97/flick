@@ -2049,6 +2049,10 @@ function coachHint(s: GameState): string {
       ? 'Out of bands. Order supplies (O) or scrounge your drawer (S).'
       : 'Out of bands. Scrounge your drawer (S), or earn some Salary on your computer (Esc) for a supply order.';
   }
+  // Noise is what limits you now: full stretches get three times the damage out of the same Suspicion.
+  if (s.suspicion >= 70 && s.stats.shots > 50 && s.stats.charged < s.stats.shots * 0.3)
+    return 'Hold Flick instead of tapping: it keeps firing full stretches on its own, 5× the damage for barely more noise.';
+  if (s.suspicion >= 70 && fightingHr(s)) return 'HR hears everything. Send a Team-Building memo (Memos, on your computer) for two minutes of silent shots.';
   if (s.suspicion >= 70) return 'Suspicion is high. Get on your computer (Esc) and do some work until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {
     return s.salary >= 15
@@ -2056,7 +2060,7 @@ function coachHint(s: GameState): string {
       : 'Earn $15 for the Ruler Launcher: press Esc to get on your computer and answer some emails.';
   }
   if (s.stats.shots >= 6 && s.stats.charged === 0)
-    return 'Tip: hold Flick (or F) to stretch the band. Let go at full stretch for a Perfect shot: 6\u00d7 damage from one band.';
+    return 'Tip: hold Flick (or F). At full stretch it fires on its own (5\u00d7 damage) and starts the next one; let go right at full stretch for a Perfect (6\u00d7).';
   if (s.stats.walkbysSpotted + s.stats.hides === 0 && s.time > 60)
     return 'Mr. Feeney walks the floor every few minutes. When you hear footsteps, press Esc to get on your computer.';
   if (s.stage === 2 && s.allies.length < 3) return 'Coworkers email you when they want in: recruit them from Mail or the Org Chart on your computer (Esc).';
@@ -2074,7 +2078,7 @@ function coachHint(s: GameState): string {
     if (seized && !reclaimingDept(s)) return touch() ? `HR took ${seized.label}. Tap Map and win it back.` : `HR took ${seized.label}. Open the map (M) and win it back.`;
     const ready = MEMOS.filter((x) => canSendMemo(s, x.id).ok);
     if (fightingHr(s) && !memoOn(s, 'teambuilding') && ready.some((x) => x.id === 'teambuilding'))
-      return 'Shots at HR are twice as loud. Send a Team-Building memo first (Memos, on your computer): two minutes of silent shots.';
+      return 'Shots at HR are louder. Send a Team-Building memo first (Memos, on your computer): two minutes of silent shots.';
     if (p.evidence >= 60 && ready.some((x) => x.id === 'retention')) return `HR’s case file is at ${Math.round(p.evidence)}%. A Document Retention memo shreds a quarter of it.`;
     if ((s.stats.memos ?? 0) === 0 && s.time - (s.stats.stage4At ?? 0) > 60)
       return 'Real work earns Plausible Deniability. Spend it in Memos, the new app on your computer (Esc).';

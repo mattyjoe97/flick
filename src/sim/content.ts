@@ -276,7 +276,7 @@ export const SIEGE = {
 export const HR_DIRECTOR: Target = {
   id: 'hr', stage: 5, name: 'Leonard Fisk', title: 'Director of Human Resources', position: 'Behind a fortress of binders',
   resolve: 1700000, regenPct: 0.004, desks: 2, bounty: 15000, bountyNote: 'HR’s “team-building” budget',
-  twist: 'Shots at HR are twice as loud, and feed his case file.',
+  twist: 'Shots at HR are louder, and feed his case file.',
   intro: { from: 'Leonard Fisk (HR)', subject: 'A safe space', body: 'Hi. I’m Leonard, from HR. I’ve opened a file on the 4th floor. It’s a very thick file. My door is always open, and so is the investigation.' },
   defeat: { from: 'Leonard Fisk (HR)', subject: 'Case closed', body: 'After a thorough review, HR finds no evidence of any rubber band activity on Floor 4. The file has been misplaced. Permanently. Please stop flicking me.' },
 };
@@ -302,7 +302,7 @@ export const POLITICS = {
   evidence: { caught: 25, noiseShare: 0.03, interview: 15, decayPerMin: 0.5, full: 100, after: 50, retention: 25, warn: 75 },
   /** HR interviews: every few minutes someone you beat is called in. Coach them before the clock runs out. */
   interview: { firstAt: 120, gap: [180, 300] as [number, number], seconds: 20 },
-  hrNoise: 2, // shots at the HR Director make this much noise
+  hrNoise: 1.25, // shots at the HR Director make this much noise (was 2: with the safety catch, HR stopped taking damage)
   openPlan: { damage: 1.5, noise: 1.5 },
   synergyTeam: 2,
   casualPrice: 0.5,

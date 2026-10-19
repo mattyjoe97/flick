@@ -9,14 +9,13 @@
 
 import { attr, setFill } from './fill';
 import { CHARGE, type WeaponId } from '../sim/content';
-import { SPRITES, BAND_SNAPPED, type LauncherSprite, type BandRig } from './art';
+import { SPRITES, type LauncherSprite, type BandRig } from './art';
 import flickEmpty from '../assets/art/flick-empty.webp';
 import rulerEmpty from '../assets/art/ruler-empty.webp';
 import clothespinEmpty from '../assets/art/clothespin-empty.webp';
 import repeaterEmpty from '../assets/art/repeater-empty.webp';
 // The Gatling's spool is painted loaded (it has no bands for the game to draw).
 import gatlingLoaded from '../assets/art/gatling-loaded.webp';
-import bandSnapped from '../assets/art/band-snapped.webp';
 
 const ART: Record<WeaponId, { sprite: LauncherSprite; art: string }> = {
   flick: { sprite: SPRITES.flick, art: flickEmpty },
@@ -45,7 +44,6 @@ const RELEASE_MS = 80;
 const LOAD_DELAY = 110;
 const LOAD_MS = 300;
 const STAGGER = 70;
-const SNAP_RELOAD = 650;
 
 const BAND_INK = '#2b2018';
 const BAND_TAN = '#d9b783';
@@ -100,7 +98,6 @@ export class Launcher {
   private loadAt = -1e9;
   /** When the current launcher was put in your hand (it slides up into view). */
   private enterAt = -1e9;
-  private fxG!: SVGGElement;
   private dropped: Dropped[] = [];
   private angle = -150;
   private lastFrame = performance.now();
@@ -177,7 +174,6 @@ export class Launcher {
     this.aimG = this.layer.querySelector('.launch-aim')!;
     this.pullG = this.layer.querySelector('.launch-pull')!;
     this.spriteG = this.layer.querySelector('.launch-sprite')!;
-    this.fxG = this.layer.querySelector('.launch-fx')!;
     const outs = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-out'));
     const ins = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-in'));
     this.bands = sp.bands.map((rig, i) => {
@@ -294,33 +290,6 @@ export class Launcher {
     return this.spriteToClient(this.sprite.tip);
   }
 
-  /** The snapped band falls off the launcher and drops out of view. */
-  private dropBand() {
-    const ctm = this.spriteG?.getCTM();
-    if (!ctm || !this.fxG) return;
-    const sp = this.sprite;
-    const x = sp.band[0] - sp.wrist[0];
-    const y = sp.band[1] - sp.wrist[1];
-    const el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-    const w = 46;
-    const h = (w * BAND_SNAPPED.h) / BAND_SNAPPED.w;
-    el.setAttribute('href', bandSnapped);
-    el.setAttribute('x', String(-w / 2));
-    el.setAttribute('y', String(-h / 2));
-    el.setAttribute('width', String(w));
-    el.setAttribute('height', String(h));
-    this.fxG.appendChild(el);
-    this.dropped.push({
-      el,
-      x: ctm.a * x + ctm.c * y + ctm.e,
-      y: ctm.b * x + ctm.d * y + ctm.f,
-      vx: 40 + Math.random() * 40,
-      vy: -120,
-      rot: 0,
-      spin: 260 + Math.random() * 200,
-      t0: performance.now(),
-    });
-  }
 
   /** Call every frame with the weapon and the point (in scene units) to aim at. */
   /** `shift`: how far left of the corner your wrist sits (a narrow view crops the right side). */
@@ -336,14 +305,15 @@ export class Launcher {
       const r = this.read(now);
       charge = r.charge;
       state = r.perfect ? 'perfect' : r.overheld ? 'over' : 'stretch';
-      if (r.held >= CHARGE.snapAfter) {
-        this.holding = false;
-        this.snappedAt = now;
-        this.hooks.stretchSound(null);
-        this.hooks.snap();
-        if (!reduced) this.dropBand();
-        this.releaseAt = -1e9;
-        this.loadAt = now + SNAP_RELOAD;
+      // Still holding past the Perfect window: it lets go at full stretch on its own and starts
+      // the next stretch, so holding Flick keeps firing full-stretch shots (no more snapping).
+      if (r.overheld) {
+        this.hooks.fire(1, false);
+        this.shot(now);
+        this.holdStart = now;
+        charge = 0;
+        state = 'stretch';
+        this.hooks.stretchSound(0);
       } else this.hooks.stretchSound(charge);
     }
 
