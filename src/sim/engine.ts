@@ -8,7 +8,7 @@ import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } fr
 import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
-import { ballBarrageMult, ballCoolMult, ballUnlocked, stepBall } from './ball';
+import { ballBarrageMult, ballCoolMult, ballDamageMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
 import { fightingRoom, hitWall, inMeeting, siegeOffline, stepSiege, wallMult, wallUp } from './siege';
@@ -273,7 +273,7 @@ function fire(
   if (!shot.free && s.bands < w.burst) return false;
   const m = mods(s);
   if (!shot.free) s.bands -= w.burst;
-  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s) * ladderDamage(s);
+  let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s) * ballDamageMult(s) * ladderDamage(s);
   // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'shot'));
@@ -650,7 +650,7 @@ export function barrage(s: GameState): ActionResult {
   const shooters = barrageShooters(s);
   const n = barrageSize(s);
   s.bands -= n;
-  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ladderDamage(s);
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ballDamageMult(s) * ladderDamage(s);
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
   else s.targetResolve -= dmg;
@@ -679,7 +679,7 @@ function echoVolley(s: GameState) {
   const m = mods(s);
   const shooters = barrageShooters(s);
   const n = HK.echo.bands * (1 + shooters.length);
-  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ladderDamage(s);
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ballDamageMult(s) * ladderDamage(s);
   const walled = wallUp(s);
   if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
   else s.targetResolve -= dmg;

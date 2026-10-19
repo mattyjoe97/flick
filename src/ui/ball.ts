@@ -7,7 +7,7 @@ import ball1 from '../assets/art/ball-1.webp';
 import ball2 from '../assets/art/ball-2.webp';
 import ball3 from '../assets/art/ball-3.webp';
 import ball4 from '../assets/art/ball-4.webp';
-import { ballProgress, ballSize, ballUnlocked, nextBallSize, wind } from '../sim/ball';
+import { ballDamageMult, ballLayers, ballProgress, ballSize, ballUnlocked, layerProgress, nextBallSize, wind } from '../sim/ball';
 import { BALL, BARRAGE } from '../sim/content';
 import { barrage, barrageCooldown, barrageSize, barrageUnlocked, canBarrage, type ActionResult } from '../sim/engine';
 import type { GameEvent, GameState } from '../sim/state';
@@ -19,6 +19,8 @@ const SCALE = [0.46, 0.6, 0.74, 0.88, 1];
 const n = (x: number) => Math.floor(x).toLocaleString('en-US');
 /** Short numbers for the little label under the ball (25k, 150k). */
 const short = (x: number) => (x >= 10000 ? `${Math.floor(x / 1000)}k` : n(x));
+/** What the layers past The Monster add to your damage, in percent. */
+const pct = (s: GameState) => Math.round((ballDamageMult(s) - 1) * 100);
 
 export interface BallHooks {
   say(text: string): void;
@@ -91,12 +93,14 @@ export class BallView {
     const s = this.s;
     const r = wind(s);
     if (!r.ok) return this.hooks.say(r.reason);
-    this.hooks.sound.wind(r.grew);
+    this.hooks.sound.wind(r.grew || !!r.layer);
     this.plus(`+${n(r.amount)}`);
     this.btn.classList.remove('wound', 'grew');
     void this.btn.offsetWidth;
-    this.btn.classList.add(r.grew ? 'grew' : 'wound');
-    if (r.grew) {
+    this.btn.classList.add(r.grew || r.layer ? 'grew' : 'wound');
+    if (r.layer) {
+      this.hooks.say(`Another layer on The Monster! Your bands hit ${pct(s)}% harder now, for good.`);
+    } else if (r.grew) {
       const z = BALL.sizes[r.size - 1];
       this.hooks.say(`Your ball is a ${z.name.replace('The ', '')} now! ${z.perk}, for good.`);
     } else {
@@ -104,7 +108,7 @@ export class BallView {
       this.hooks.say(
         next
           ? `${n(r.amount)} bands wound on. ${n(s.ball.wound)} / ${n(next.at)} to a ${next.name.replace('The ', '')}: ${next.perk.charAt(0).toLowerCase()}${next.perk.slice(1)}.`
-          : `${n(r.amount)} bands wound on. ${n(s.ball.wound)} in all. It’s getting a little scary.`,
+          : `${n(r.amount)} bands wound on. ${short(layerProgress(s).into)} / ${short(BALL.layer)} to the next layer: bands hit ${Math.round(BALL.layerDamage * 100)}% harder.`,
       );
     }
   }
@@ -143,8 +147,9 @@ export class BallView {
 
     const size = ballSize(s);
     const p = ballProgress(s);
-    if (size !== this.size) {
-      this.size = size;
+    const look = size * 1000 + ballLayers(s);
+    if (look !== this.size) {
+      this.size = look;
       this.img.src = ART[size];
       this.wrap.dataset.size = String(size);
       this.btn.title = this.tip(s);
@@ -152,7 +157,7 @@ export class BallView {
     const scale = SCALE[size] + (SCALE[Math.min(4, size + 1)] - SCALE[size]) * p * 0.8;
     this.btn.style.setProperty('--ball-scale', scale.toFixed(3));
     const next = nextBallSize(s);
-    this.label.textContent = next ? `${short(s.ball.wound)} / ${short(next.at)}` : `${BALL.sizes[size - 1].name}`;
+    this.label.textContent = next ? `${short(s.ball.wound)} / ${short(next.at)}` : ballLayers(s) ? `Monster +${pct(s)}%` : BALL.sizes[size - 1].name;
     setFill(this.bar, p);
   }
 
@@ -180,6 +185,7 @@ export class BallView {
     return [
       'Your rubber band ball. Tap to wind on a quarter of your loose bands.',
       ...BALL.sizes.map((z, i) => `${i < size ? '✓' : '·'} ${z.name} (${n(z.at)}): ${z.perk}`),
+      `${size >= 4 ? '✓' : '·'} Then every ${short(BALL.layer)} more: bands hit ${Math.round(BALL.layerDamage * 100)}% harder${ballLayers(s) ? ` (+${pct(s)}% so far)` : ''}`,
     ].join('\n');
   }
 }

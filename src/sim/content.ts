@@ -731,6 +731,9 @@ export const BALL = {
   cool: 1.25,
   team: 1.2,
   pay: 1.25,
+  // Past The Monster it keeps growing: every layer of this many bands, your bands hit harder (no cap).
+  layer: 100000,
+  layerDamage: 0.05,
 };
 
 /**

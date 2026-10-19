@@ -9,7 +9,7 @@ import { baileyHowl, canHowl, claimMoment, nextTrick, petBailey } from '../src/s
 import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
 import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS, REMATCH } from '../src/sim/content';
 import { rematchStats } from '../src/sim/rematch';
-import { ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
+import { ballDamageMult, ballLayers, ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
 import { addSuspicion, applyOffline, barrage, barrageSize, canFlick, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
 import { drawerCap, SUPPLIES } from '../src/sim/supplies';
 import { knowsTrick, mods, rolePower, weapon } from '../src/sim/mods';
@@ -1077,6 +1077,32 @@ describe('the rubber band ball and the Barrage', () => {
     s.ball.wound = BALL.sizes[3].at;
     expect(ballSize(s)).toBe(4);
     expect(basePay(s, 'mail')).toBeCloseTo(pay * BALL.pay);
+  });
+
+  it('keeps growing past The Monster: every layer, bands hit 5% harder', () => {
+    const s = stage2();
+    s.ball.wound = BALL.sizes[3].at;
+    expect(ballLayers(s)).toBe(0);
+    expect(ballDamageMult(s)).toBe(1);
+    s.ball.wound = BALL.sizes[3].at + BALL.layer * 4 + 10;
+    expect(ballLayers(s)).toBe(4);
+    expect(ballDamageMult(s)).toBeCloseTo(1 + 4 * BALL.layerDamage);
+    // Winding over the line tells you.
+    s.ball.wound = BALL.sizes[3].at + BALL.layer * 5 - 5;
+    s.bands = 1000;
+    const r = wind(s);
+    expect(r.ok && r.layer).toBe(5);
+    // And it shows up in the damage.
+    s.suspicion = 0;
+    const plain = stage2();
+    plain.suspicion = 0;
+    const hit = (g: typeof s) => {
+      const before = g.targetResolve;
+      g.time += 100;
+      flick(g);
+      return before - g.targetResolve;
+    };
+    expect(hit(s) / hit(plain)).toBeCloseTo(1 + 5 * BALL.layerDamage, 2);
   });
 
   it('Barrage: a pocketful each for you and your Shooters, all at once, then a cooldown', () => {
