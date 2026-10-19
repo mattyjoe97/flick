@@ -744,6 +744,8 @@ export const BARRAGE = {
   noise: 10, // Suspicion, plus a little per band
   noisePerBand: 0.04,
   cooldown: 90,
+  /** Every flick you land takes this much of the weapon's reload time off the Barrage's (a Perfect one twice). */
+  flickRefill: 1,
 };
 
 /**

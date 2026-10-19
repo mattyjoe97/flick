@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TUNING } from '../src/sim/content';
+import { BARRAGE, TUNING } from '../src/sim/content';
 import { barrage, flick, step } from '../src/sim/engine';
 import { startNewJob } from '../src/sim/job';
 import { deserialize, serialize } from '../src/sim/save';
@@ -65,5 +65,19 @@ describe('The safety catch', () => {
     s.stats.bounties = 400000;
     expect(startNewJob(s, 'bank').ok).toBe(true);
     expect(s.safety).toBe(false);
+  });
+});
+
+describe('Flicking reloads the Barrage', () => {
+  it('every flick that lands takes its reload time off the Barrage (a Perfect one twice)', () => {
+    const s = atWar();
+    s.barrageAt = s.time + 90;
+    s.nextFlickAt = 0;
+    flick(s, 0);
+    const reload = s.nextFlickAt - s.time;
+    expect(s.barrageAt - s.time).toBeCloseTo(90 - reload * BARRAGE.flickRefill, 6);
+    s.nextFlickAt = 0;
+    flick(s, 1, true);
+    expect(s.barrageAt - s.time).toBeCloseTo(90 - reload * BARRAGE.flickRefill * 3, 6);
   });
 });

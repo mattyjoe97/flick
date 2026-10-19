@@ -554,7 +554,10 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
+  const before = s.stats.damage;
   fire(s, 'you', chargeMult(c, p), undefined, { charge: c, perfect: p });
+  // Every flick that lands gets the team's next Barrage ready sooner (flicking non-stop: about twice as fast).
+  if (s.stats.damage > before && s.barrageAt > s.time) s.barrageAt = Math.max(s.time, s.barrageAt - w.reload * BARRAGE.flickRefill * (p ? 2 : 1));
   return ok;
 }
 

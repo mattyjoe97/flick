@@ -293,7 +293,8 @@ describe('Corporate Politics pacing (scripted bot)', () => {
       const minutes = (s.time - start) / 60;
       console.log(JSON.stringify({ politicsMin: +minutes.toFixed(1), politicsOnly: !!(extra as { politicsOnly?: boolean }).politicsOnly, memos: s.stats.memos, seized: s.stats.seized }));
       expect(s.stage).toBe(6);
-      expect(minutes).toBeGreaterThan(35);
+      // (Every flick you land reloads the Barrage sooner, so a bot that never stops flicking is quicker now.)
+      expect(minutes).toBeGreaterThan(30);
       expect(minutes).toBeLessThan(75);
     }
   }, 900000);

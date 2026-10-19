@@ -1127,7 +1127,7 @@ export class UI {
         <p>Gary surrendered and joined your side. His desk is your first captured territory.</p>
         <p>Across the aisle, Brad from Sales is waiting. Coworkers will email you asking to join: recruit them from <strong>Mail</strong> or the <strong>Org Chart</strong> on your computer (Esc). Each one gets a role: Shooter, Gatherer, Lookout, Cover or Engineer. Click a teammate in the office to change it.</p>
         <p>Your Shooters keep firing while you're at your computer, at half speed.</p>
-        <p><strong>New: Barrage (V).</strong> You and every Shooter empty your pockets at once: a pile of bands in one huge volley. Loud, and once every ${BARRAGE.cooldown / 60 === 1 ? 'minute' : `${BARRAGE.cooldown} seconds`}. Stockpile bands for it.</p>`;
+        <p><strong>New: Barrage (V).</strong> You and every Shooter empty your pockets at once: a pile of bands in one huge volley. Loud, and it reloads in ${BARRAGE.cooldown} seconds, sooner with every flick you land. Stockpile bands for it.</p>`;
     } else if (stage === 3) {
       const mins = s.stats.stage2At ? Math.round(s.stats.stage2At / 60) : 0;
       $('stage-dlg-h').textContent = 'Stage 3: Department War';
