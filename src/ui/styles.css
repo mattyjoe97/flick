@@ -7258,3 +7258,149 @@ body.in-map .money-floater {
     height: 30px;
   }
 }
+
+/* ---------------------------------------------------------------- weak spots, streaks, big moments */
+
+/* A bullseye on the boss for a few seconds: tap it for five times the damage. */
+.weak {
+  position: absolute;
+  z-index: 6;
+  width: clamp(54px, 11cqw, 86px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: crosshair;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: weak-in 0.25s ease-out, weak-pulse 0.6s ease-in-out 0.25s infinite alternate;
+}
+.weak-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #c62f28 0 16%, #fff 16% 32%, #c62f28 32% 48%, #fff 48% 64%, #c62f28 64% 80%, transparent 80%);
+  border: 3px solid #5a0f0b;
+  box-shadow: 0 0 12px rgba(255, 80, 60, 0.85);
+}
+@keyframes weak-in {
+  from {
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+}
+@keyframes weak-pulse {
+  to {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+.streak-pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #6b3d10;
+  background: #ffe9b8;
+  color: #5c2d08;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.streak-pill[data-heat='hot'] {
+  background: #ffb36b;
+  border-color: #7a2e10;
+}
+.streak-pill[data-heat='max'] {
+  background: #e4483a;
+  border-color: #6d140c;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 120, 60, 0.9);
+}
+
+/* A big word over the office: halfway, nearly there, a knockout, a weak spot hit. */
+.pop {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  z-index: 8;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: max(26px, 6cqw);
+  color: #ffe36e;
+  -webkit-text-stroke: 1.5px #6b3d10;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.pop[data-kind='ko'] {
+  color: #fff;
+  -webkit-text-stroke: 2px #c62f28;
+  font-size: max(34px, 8cqw);
+}
+.pop[data-kind='weak'] {
+  color: #ff8a7a;
+  -webkit-text-stroke: 1.5px #5a0f0b;
+}
+.pop.go {
+  animation: pop-up 1.2s ease-out both;
+}
+@keyframes pop-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(-6deg);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1) rotate(-3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -75%) scale(1) rotate(-3deg);
+  }
+}
+
+.scene-wrap.shake {
+  animation: scene-shake 0.28s ease-out;
+}
+@keyframes scene-shake {
+  20% {
+    transform: translate(-4px, 2px);
+  }
+  40% {
+    transform: translate(4px, -2px);
+  }
+  60% {
+    transform: translate(-3px, 1px);
+  }
+  80% {
+    transform: translate(2px, -1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weak,
+  .pop.go,
+  .scene-wrap.shake {
+    animation: none;
+  }
+}
+
+/* The best buy right now: a gold star and a warm glow on its row. */
+.shop-row.best {
+  box-shadow: inset 0 0 0 2px #e0b13c;
+  background: #fff8e1;
+}
+.shop-best {
+  color: #d9a21c;
+  margin-right: 4px;
+  -webkit-text-stroke: 0.5px #6b4a0c;
+}

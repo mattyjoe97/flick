@@ -21,6 +21,7 @@ import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
 import { stepDaily } from './daily';
 import { stepRival } from './rival';
+import { stepWeak, streakEnd, streakHit, streakMult, weakHit, weakMult } from './feel';
 import { fightingTenant, ricochet, stepTenants, tenantDamage, tenantReloadMult, tenantWon } from './tenants';
 import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
 
@@ -466,6 +467,7 @@ export function step(s: GameState, dt: number) {
   stepDaily(s);
   stepRival(s);
   stepTenants(s, dt);
+  stepWeak(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);
@@ -555,10 +557,29 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
   const before = s.stats.damage;
-  fire(s, 'you', chargeMult(c, p), undefined, { charge: c, perfect: p });
+  fire(s, 'you', chargeMult(c, p) * weakMult(s) * streakMult(s), undefined, { charge: c, perfect: p });
+  if (s.stats.damage > before) {
+    streakHit(s);
+    if (s.weak?.boost) weakHit(s, s.stats.damage - before);
+  }
   // Every flick that lands gets the team's next Barrage ready sooner (flicking non-stop: about twice as fast).
   if (s.stats.damage > before && s.barrageAt > s.time) s.barrageAt = Math.max(s.time, s.barrageAt - w.reload * BARRAGE.flickRefill * (p ? 2 : 1));
   return ok;
+}
+
+/**
+ * You tapped the weak spot: a full-stretch flick at it, five times as hard. It doesn't wait
+ * for your weapon to reload (it's a quick extra throw), but everything else still applies.
+ */
+export function hitWeakSpot(s: GameState): ActionResult {
+  if (!s.weak?.shown) return no('');
+  const wait = s.nextFlickAt;
+  s.nextFlickAt = Math.min(s.nextFlickAt, s.time);
+  s.weak.boost = true;
+  const r = flick(s, 1, false);
+  s.weak.boost = false;
+  if (!r.ok) s.nextFlickAt = wait;
+  return r;
 }
 
 /** You held the band too long and it snapped: the band is gone and it stung. */
@@ -657,6 +678,7 @@ export function orderSupplies(s: GameState): ActionResult {
 
 export function setLookBusy(s: GameState, on: boolean): ActionResult {
   s.lookBusy = on;
+  if (on) streakEnd(s);
   if (!on) focusApp(s, null); // back to the war: rounds pause, a call ends
   return ok;
 }

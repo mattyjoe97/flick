@@ -1367,10 +1367,12 @@ describe('hold to charge', () => {
     flick(s, 0);
     const tap = before - s.targetResolve;
     step(s, TUNING.stepSeconds);
+    s.streak.n = 0; // (no hot streak: compare the stretch alone)
     const mid = s.targetResolve;
     flick(s, 1, false);
     const full = mid - s.targetResolve;
     step(s, TUNING.stepSeconds);
+    s.streak.n = 0;
     const mid2 = s.targetResolve;
     flick(s, 1, true);
     const perfect = mid2 - s.targetResolve;

@@ -65,6 +65,9 @@ export const TROPHIES: Trophy[] = [
   { id: 'shiny', name: 'Ooh, Shiny', does: 'Grab a golden stapler.', check: (s) => (s.stats.goldens ?? 0) >= 1 },
   { id: 'magpie', name: 'Magpie', does: 'Grab 25 golden staplers in one job.', check: (s) => (s.stats.goldens ?? 0) >= 25 },
   // Office chaos
+  // Flicking
+  { id: 'bullseye', name: 'Bullseye', does: 'Hit 50 weak spots in one job.', check: (s) => (s.stats.weakHits ?? 0) >= 50 },
+  { id: 'onfire', name: 'On Fire', does: 'Build a full hot streak (16 flicks in a row).', check: (s) => (s.stats.bestStreak ?? 0) >= 16 },
   // Building Takeover
   { id: 'hostile', name: 'Hostile Takeover', does: 'Take a floor from another company in the building.', check: (s) => (s.tenants?.taken ?? 0) >= 1 },
   { id: 'landlord', name: 'Landlord', does: 'Take every floor of the building in one job.', check: (s) => (s.tenants?.taken ?? 0) >= 3 },

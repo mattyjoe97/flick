@@ -7,6 +7,7 @@ import { chaosForLoad } from './chaos';
 import { dailyForLoad } from './daily';
 import { rivalForLoad, rivalTarget, startRace } from './rival';
 import { tenantsForLoad } from './tenants';
+import { newStreak, newWeak, WEAK } from './feel';
 import { TROPHIES } from './trophies';
 import { siegeForOldSave, warForOldSave } from './war';
 
@@ -92,6 +93,9 @@ function migrate(file: SaveFile): GameState | null {
   s.daily = dailyForLoad(file.state.daily);
   s.rival = rivalForLoad(file.state.rival);
   s.tenants = tenantsForLoad(file.state.tenants);
+  // A weak spot on screen doesn't wait while the game is closed, and neither does a streak.
+  s.weak = { ...newWeak(), nextAt: s.time + WEAK.first };
+  s.streak = newStreak();
   // Saves from before Chad: if you've already changed jobs, he joins the race you're in now
   // (as long as there's time left to win it).
   if (!file.state.rival && s.job.runs >= 1 && s.stage < 6 && s.time < rivalTarget(s, s.job.tier ?? 0) - 20 * 60) startRace(s);

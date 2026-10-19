@@ -6,7 +6,7 @@ import { COWORKERS, RENOVATIONS, UPGRADES, WEAPONS, type CoworkerId, type Renova
 import { renoCost, renoLevel, renovationsOpen } from './ladder';
 import { coworkerAvailable, priceOf, upgradeAvailable, weaponAvailable } from './engine';
 import { has, mods } from './mods';
-import type { GameState } from './state';
+import { currentTarget, type GameState } from './state';
 
 export type ShopItem =
   | { kind: 'weapon'; id: WeaponId; name: string; price: number }
@@ -51,6 +51,30 @@ export function shoppingList(s: GameState, n = 3): ShopItem[] {
   const gun = all.find((i) => i.kind === 'weapon');
   const rest = all.filter((i) => i !== gun);
   return [...(gun ? [gun, ...rest] : rest), ...renovationsForSale(s)].slice(0, n);
+}
+
+const QUIET = new Set(['silent', 'carpet', 'walls', 'calendar', 'riser', 'panels']);
+const DAMAGE = new Set(['thick', 'training', 'window']);
+
+export type BestWhy = 'quiet' | 'damage' | 'money';
+
+/**
+ * The one thing that would help most right now: quieter if you've been caught lately (or you're
+ * on edge), harder-hitting while there's a fight on, more pay otherwise. The cheapest of those,
+ * even if it takes saving up for.
+ */
+export function bestBuy(s: GameState): { item: ShopItem; why: BestWhy } | null {
+  const all = [...forSale(s), ...renovationsForSale(s)];
+  if (!all.length) return null;
+  const why = (it: ShopItem): BestWhy =>
+    it.kind === 'weapon' || it.kind === 'recruit' || DAMAGE.has(it.id) ? 'damage' : QUIET.has(it.id) ? 'quiet' : 'money';
+  const edgy = s.suspicion >= 60 || (s.stats.caught > 0 && s.time - (s.lastCaughtAt ?? -1e9) < 300) || (s.hr?.writeUps ?? 0) >= 2;
+  const order: BestWhy[] = edgy ? ['quiet', 'damage', 'money'] : currentTarget(s) ? ['damage', 'quiet', 'money'] : ['money', 'damage', 'quiet'];
+  for (const w of order) {
+    const pick = all.filter((i) => why(i) === w).sort((a, b) => a.price - b.price)[0];
+    if (pick) return { item: pick, why: w };
+  }
+  return null;
 }
 
 /** How many things you could afford right now (for badges). `where` picks Dale's closet or the Org Chart. */

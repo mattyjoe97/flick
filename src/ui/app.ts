@@ -8,6 +8,7 @@ import chaosDrill from '../assets/art/icon-chaos-drill.webp';
 import chaosOutage from '../assets/art/icon-chaos-outage.webp';
 import chaosCake from '../assets/art/icon-chaos-cake.webp';
 import chaosInspection from '../assets/art/icon-chaos-inspection.webp';
+import { STREAK, streakCount, streakMult } from '../sim/feel';
 import { cutFloss, downRound, fightingTenant, objectionOn, snared, TENANT_RULES, tenantBounty, tenantFloor } from '../sim/tenants';
 import { CHAOS, CHAOS_INFO, chaosLeft, chaosOn, type ChaosKind } from '../sim/chaos';
 
@@ -34,6 +35,7 @@ import {
   buyWeapon,
   coworkerAvailable,
   flick,
+  hitWeakSpot,
   orderSupplies,
   priceOf,
   recruit,
@@ -66,7 +68,7 @@ import { FloorView } from './floor';
 import { leadName, seatCap, seatCost, seats, staffPayPerMin, teamUnlocked } from '../sim/staff';
 import { chatUnread } from '../sim/chat';
 import { reviewNeed, reviewReady, TOP_RANK } from '../sim/career';
-import { affordable, itemKey, shoppingList } from '../sim/shop';
+import { affordable, bestBuy, itemKey, shoppingList } from '../sim/shop';
 import { GUN_ART, ICON_ART, RENO_ART } from './goods-art';
 
 export interface GameHost {
@@ -495,6 +497,11 @@ export class UI {
       e.preventDefault();
       this.doCutFloss();
     });
+    $('weak').addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (this.act(hitWeakSpot)) this.sound.flick(1, true);
+    });
     $('golden').addEventListener('pointerdown', (e) => e.stopPropagation());
     $('golden').addEventListener('click', () => {
       if (claimGolden(this.s)) $('golden').hidden = true;
@@ -815,10 +822,12 @@ export class UI {
       if (e.type === 'shot') {
         this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false);
         if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
+        if (e.by === 'you' && e.perfect) this.shake();
         else this.sound.ally();
       } else if (e.type === 'barrage') {
         this.sound.barrage();
         this.onBarrage(e);
+        this.shake();
       } else if (e.type === 'wound') this.bump('bands');
       else if (e.type === 'rematch' && !this.s.lookBusy) this.say(this.s.ticker[0]?.text ?? '');
       else if (e.type === 'caught') {
@@ -937,7 +946,18 @@ export class UI {
       } else if (e.type === 'rebrand') this.say(this.s.ticker[0]?.text ?? '');
       else if (e.type === 'askDone' && e.auto) this.say(e.text);
 
-      else if (e.type === 'capture') this.sound.capture();
+      else if (e.type === 'capture') {
+        this.sound.capture();
+        if (!this.s.lookBusy) this.popUp(this.s.stage >= 3 ? 'Knocked out!' : 'Surrender!', 'ko', true);
+      } else if (e.type === 'weakHit') {
+        this.sound.grade('A');
+        this.shake();
+        this.popUp(`Weak spot! −${fmt(Math.round(e.damage * toughness(this.s)))}`, 'weak');
+      } else if (e.type === 'weakSpawn') this.sound.notify();
+      else if (e.type === 'streakMax') {
+        this.sound.grade('B');
+        this.say(`Hot streak! Every flick hits ${Math.round(STREAK.per * STREAK.max * 100)}% harder while you keep it going.`);
+      }
       else if (e.type === 'enemyShot') {
         this.sound.incoming();
         this.bump('bands');
@@ -1353,6 +1373,7 @@ export class UI {
     this.renderGolden(s);
     this.renderChaos(s);
     this.renderTenant(s);
+    this.renderFeel(s);
     this.renderFloor(s);
     this.renderTicker(s);
     this.renderPanes(s);
@@ -1534,8 +1555,12 @@ export class UI {
 
   /** The shopping list on your desk: the next weapon, then the cheapest things you could buy. */
   private renderShop(s: GameState) {
-    const items = shoppingList(s, 3);
-    const key = items.map((i) => `${itemKey(i)}:${i.price}`).join(',');
+    let items = shoppingList(s, 3);
+    // The best buy right now always makes the list (in place of the last row if it has to).
+    const best = bestBuy(s);
+    if (best && !items.some((i) => itemKey(i) === itemKey(best.item))) items = [...items.slice(0, 2), best.item];
+    const bestKey = best ? itemKey(best.item) : '';
+    const key = items.map((i) => `${itemKey(i)}:${i.price}`).join(',') + `|${bestKey}:${best?.why}`;
     this.rebuild('shop', key, () => {
       $('shop-rows').innerHTML = items.length
         ? items
@@ -1545,8 +1570,10 @@ export class UI {
                   ? `<span class="shop-pic face">${faceSvg(i.id, 'idle')}</span>`
                   : `<span class="shop-pic"><img src="${i.kind === 'weapon' ? GUN_ART[i.id] : i.kind === 'renovation' ? RENO_ART[i.id] : ICON_ART[i.id]}" alt="" draggable="false"></span>`;
               const where = i.kind === 'recruit' ? 'the Org Chart' : 'Dale';
-              return `<li><button type="button" class="shop-row ${i.kind}" data-go="${itemKey(i)}" data-price="${i.price}" aria-label="${esc(i.name)}, ${money(i.price)}, from ${where}">
-                ${pic}<span class="shop-name">${esc(i.name)}</span><span class="shop-price">${money(i.price)}</span><i class="shop-bar" aria-hidden="true"><span></span></i></button></li>`;
+              const star = itemKey(i) === bestKey;
+              const why = best?.why === 'quiet' ? 'quieter: you’ve been caught lately' : best?.why === 'damage' ? 'hits harder' : 'pays more';
+              return `<li><button type="button" class="shop-row ${i.kind}${star ? ' best' : ''}" data-go="${itemKey(i)}" data-price="${i.price}" aria-label="${esc(i.name)}, ${money(i.price)}, from ${where}${star ? `. Best buy right now (${why})` : ''}"${star ? ` title="Best buy right now: ${why}"` : ''}>
+                ${pic}<span class="shop-name">${star ? '<b class="shop-best" aria-hidden="true">★</b>' : ''}${esc(i.name)}</span><span class="shop-price">${money(i.price)}</span><i class="shop-bar" aria-hidden="true"><span></span></i></button></li>`;
             })
             .join('')
         : '<li class="shop-empty">Nothing left to buy. Dale is impressed.</li>';
@@ -1581,6 +1608,66 @@ export class UI {
       this.set('boost-pill', b.kind === 'frenzy' ? `★ Frenzy ${GOLDEN.frenzy.damage}× · ${Math.ceil(left)} s` : `★ Overtime ${GOLDEN.overtime.team}× · ${Math.ceil(left)} s`);
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
+  }
+
+  /** The weak spot on the boss, your hot streak, and the boss reacting as their Resolve runs down. */
+  private renderFeel(s: GameState) {
+    const w = s.weak?.shown;
+    const el = $('weak');
+    const show = !!w && !s.lookBusy;
+    if (show && el.hidden) {
+      el.style.left = `${(w!.x * 100).toFixed(1)}%`;
+      el.style.top = `${(w!.y * 100).toFixed(1)}%`;
+      el.hidden = false;
+    } else if (!show && !el.hidden) el.hidden = true;
+    const n = s.lookBusy ? 0 : streakCount(s);
+    const pill = $('streak-pill');
+    if (n >= 3) {
+      const bonus = Math.round((streakMult(s) - 1) * 100);
+      this.set('streak-pill', `Streak ${n} · +${bonus}%`);
+      const heat = n > STREAK.max ? 'max' : n >= 10 ? 'hot' : 'warm';
+      if (pill.dataset.heat !== heat) pill.dataset.heat = heat;
+      if (pill.hidden) pill.hidden = false;
+    } else if (!pill.hidden) pill.hidden = true;
+    // The boss reacts as their Resolve runs down: halfway, and nearly there.
+    const t = currentTarget(s);
+    if (t && !s.lookBusy) {
+      const share = Math.max(0, s.targetResolve) / t.resolve;
+      const id = `${t.id}:${s.rematch?.round ?? 0}:${s.tenants?.taken ?? 0}`;
+      const last = this.bossMark.id === id ? this.bossMark.share : 1;
+      if (this.bossMark.id === id) {
+        if (last > 0.5 && share <= 0.5 && share > 0) this.popUp('Halfway!', 'half');
+        else if (last > 0.25 && share <= 0.25 && share > 0) this.popUp('Almost there!', 'near');
+      }
+      this.bossMark = { id, share };
+    }
+  }
+
+  private bossMark = { id: '', share: 1 };
+
+  /** A big word over the office (halfway, nearly, a knockout), and a little shake. */
+  private popUp(text: string, kind: string, shake = false) {
+    const el = $('pop');
+    el.textContent = text;
+    el.dataset.kind = kind;
+    el.hidden = false;
+    el.classList.remove('go');
+    void el.offsetWidth;
+    el.classList.add('go');
+    clearTimeout(this.popTimer);
+    this.popTimer = window.setTimeout(() => (el.hidden = true), 1300);
+    if (shake) this.shake();
+  }
+
+  private popTimer = 0;
+
+  private shake() {
+    if (reducedMotion()) return;
+    const wrap = document.querySelector('.scene-wrap');
+    if (!wrap) return;
+    wrap.classList.remove('shake');
+    void (wrap as HTMLElement).offsetWidth;
+    wrap.classList.add('shake');
   }
 
   /** Stage 6: Hargrove's Objections, Dr. Gleam's floss and Disruptr's funding, on the office picture. */

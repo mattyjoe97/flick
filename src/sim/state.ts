@@ -5,6 +5,7 @@ import { newChaos, type ChaosKind, type ChaosState } from './chaos';
 import { newDaily, type DailyState } from './daily';
 import { newRival, type RivalState } from './rival';
 import { newTenants, nextTenant, type TenantState } from './tenants';
+import { newStreak, newWeak, type StreakState, type WeakState } from './feel';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -160,6 +161,9 @@ export interface GameState {
   tenants: TenantState;
   /** The safety catch: nothing on your side fires if it would push Suspicion to 100 (a setting). */
   safety: boolean;
+  /** A weak spot on whoever you're fighting (hit it for a 5x flick), and your hot streak. */
+  weak: WeakState;
+  streak: StreakState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -275,6 +279,8 @@ export interface GameState {
     chaos: number;
     tenants: number;
     flossCut: number;
+    weakHits: number;
+    bestStreak: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -425,6 +431,10 @@ export type GameEvent =
   | { type: 'dailyNew' }
   | { type: 'rival'; result: 'won' | 'lost'; text?: string }
   | { type: 'tenantsOpen' }
+  | { type: 'weakSpawn' }
+  | { type: 'weakGone' }
+  | { type: 'weakHit'; damage: number }
+  | { type: 'streakMax' }
   | { type: 'objection' }
   | { type: 'ricochet'; bands: number }
   | { type: 'floss' }
@@ -522,6 +532,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     rival: newRival(),
     tenants: newTenants(),
     safety: true,
+    weak: newWeak(),
+    streak: newStreak(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -611,6 +623,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       chaos: 0,
       tenants: 0,
       flossCut: 0,
+      weakHits: 0,
+      bestStreak: 0,
     },
     events: [],
   };
