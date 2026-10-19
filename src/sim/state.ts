@@ -9,6 +9,7 @@ import { newStreak, newWeak, type StreakState, type WeakState } from './feel';
 import { newHacks, type HackId, type HackState } from './hacks';
 import { newBreak, type BreakState, type SnackId } from './breakroom';
 import { newFeeney, type FeeneyState, type SnoopId } from './feeney';
+import { newFightback, type FightbackState, type Throwable } from './fightback';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -171,6 +172,7 @@ export interface GameState {
   hacks: HackState;
   breakroom: BreakState;
   feeney: FeeneyState;
+  fightback: FightbackState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -293,6 +295,10 @@ export interface GameState {
     shook: number;
     snoops: number;
     officeCaught: number;
+    dodges: number;
+    perfectDodges: number;
+    thrownHit: number;
+    planes: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -442,6 +448,9 @@ export type GameEvent =
   | { type: 'pour' }
   | { type: 'office'; inside: boolean }
   | { type: 'officeCaught' }
+  | { type: 'incoming'; what: Throwable }
+  | { type: 'thrown'; what: Throwable; result: 'hit' | 'missed' | 'dodged' | 'perfect' | 'caught' | 'gone' }
+  | { type: 'payback'; mult: number }
   | { type: 'snooped'; what: SnoopId; text: string }
   | { type: 'snack'; id: SnackId }
   | { type: 'snackStuck'; id: SnackId }
@@ -559,6 +568,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     hacks: newHacks(),
     breakroom: newBreak(),
     feeney: newFeeney(),
+    fightback: newFightback(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -655,6 +665,10 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       shook: 0,
       snoops: 0,
       officeCaught: 0,
+      dodges: 0,
+      perfectDodges: 0,
+      thrownHit: 0,
+      planes: 0,
     },
     events: [],
   };

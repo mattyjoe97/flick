@@ -72,6 +72,7 @@ export const TROPHIES: Trophy[] = [
   { id: 'lifehacker', name: 'Life Hacker', does: 'Pick 15 hacks in one job.', check: (s) => hackCount(s) >= 15 },
   { id: 'regular', name: 'Break Room Regular', does: 'Drink 15 cups of coffee in one job.', check: (s) => (s.stats.cups ?? 0) >= 15 },
   { id: 'snoop', name: 'Snoop', does: 'Search Mr. Feeney’s office 10 times in one job without him walking in on you.', check: (s) => (s.stats.snoops ?? 0) >= 10 && (s.stats.officeCaught ?? 0) === 0 },
+  { id: 'matrix', name: 'Dodge This', does: 'Pull off 25 Perfect dodges in one job.', check: (s) => (s.stats.perfectDodges ?? 0) >= 25 },
   // Building Takeover
   { id: 'hostile', name: 'Hostile Takeover', does: 'Take a floor from another company in the building.', check: (s) => (s.tenants?.taken ?? 0) >= 1 },
   { id: 'landlord', name: 'Landlord', does: 'Take every floor of the building in one job.', check: (s) => (s.tenants?.taken ?? 0) >= 3 },

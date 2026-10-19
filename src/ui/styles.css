@@ -8035,3 +8035,195 @@ body.in-closet .desk-box {
 .snack-pill[hidden] {
   display: none;
 }
+
+/* ---------------------------------------------------------------- bosses fight back */
+
+.incoming {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  z-index: 7;
+  width: clamp(48px, 12cqw, 130px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translate(-50%, -50%) scale(0.3);
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.incoming .inc-obj,
+.incoming svg,
+.incoming img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.incoming.throw {
+  animation: incoming-throw var(--t, 1.8s) cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+
+.incoming.throw .inc-obj {
+  animation: incoming-spin 0.5s linear infinite;
+}
+
+.incoming.plane {
+  top: 26%;
+  animation: incoming-plane var(--t, 3s) linear forwards;
+}
+
+.incoming.plane .inc-obj {
+  animation: plane-bob 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes incoming-throw {
+  from {
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  to {
+    left: 62%;
+    top: 78%;
+    transform: translate(-50%, -50%) scale(1.9);
+  }
+}
+
+@keyframes incoming-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes incoming-plane {
+  from {
+    left: -8%;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    left: 108%;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@keyframes plane-bob {
+  from {
+    transform: translateY(-8px) rotate(-6deg);
+  }
+  to {
+    transform: translateY(8px) rotate(4deg);
+  }
+}
+
+.duck-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  z-index: 8;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px 26px 8px;
+  border: 3px solid #4a0e0a;
+  border-radius: 14px;
+  background: #ffcf3f;
+  color: #3a1405;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: clamp(20px, 3.4cqw, 36px);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #8a5a0c, 0 0 22px rgba(255, 200, 60, 0.9);
+  animation: duck-pulse 0.35s ease-in-out infinite alternate;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.duck-btn.plane {
+  background: #e9f5ff;
+  border-color: #17405e;
+  color: #17405e;
+  box-shadow: 0 5px 0 #4d7899, 0 0 22px rgba(160, 210, 255, 0.9);
+}
+
+.duck-btn kbd {
+  font-family: var(--font-body, inherit);
+  font-size: 0.4em;
+}
+
+.duck-clock {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.duck-clock i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #c62f28;
+}
+
+@keyframes duck-pulse {
+  from {
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    transform: translateX(-50%) scale(1.07);
+  }
+}
+
+.stars {
+  position: absolute;
+  right: 12%;
+  bottom: 30%;
+  z-index: 7;
+  margin: 0;
+  color: #ffe36e;
+  -webkit-text-stroke: 1px #6b3d10;
+  font-size: clamp(22px, 4cqw, 44px);
+  letter-spacing: 0.2em;
+  pointer-events: none;
+  animation: stars-spin 1s linear infinite;
+}
+
+@keyframes stars-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.payback-pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #4a0e0a;
+  background: #ffcf3f;
+  color: #3a1405;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(255, 200, 60, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duck-btn,
+  .stars,
+  .incoming .inc-obj {
+    animation: none;
+  }
+}

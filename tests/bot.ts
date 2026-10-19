@@ -1,4 +1,5 @@
 import { pickHack } from '../src/sim/hacks';
+import { duck } from '../src/sim/fightback';
 import { cutFloss, objectionOn, snared } from '../src/sim/tenants';
 import { COWORKERS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { promote, reviewReady } from '../src/sim/career';
@@ -204,6 +205,8 @@ function act(s: GameState, style: BotStyle, mind: BotMind) {
     doTask(s, style, mind);
     return;
   }
+  // Something thrown at you: duck as soon as you see it (a paper airplane: catch it).
+  if (s.fightback?.incoming && !s.lookBusy) duck(s);
   // A raid on the supply closet gets chased off (it pops up right in front of you).
   if (s.war.closet.raid && !s.lookBusy && chaseRaid(s).ok) return;
   // Stage 6: take the building's floors first, if this bot is set to.

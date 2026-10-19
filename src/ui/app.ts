@@ -67,6 +67,8 @@ import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
 import { BreakRoomView, breakPillArt, breakPills } from './breakroom';
 import { FeeneyView } from './feeney';
+import { THROW_ART } from './throwables';
+import { duck, paybackMult, stunned, THROW_NAME } from '../sim/fightback';
 import { PORTRAITS } from './portrait-art';
 import { drawerHas, nextRoundKnown, officeUnlocked } from '../sim/feeney';
 import { breakUnlocked, coffeeReady } from '../sim/breakroom';
@@ -543,6 +545,12 @@ export class UI {
     });
     $('call-answer').addEventListener('click', () => this.answerPhone());
     // The golden stapler: grab it before it's gone.
+    for (const id of ['duck-btn', 'incoming'])
+      $(id).addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.doDuck();
+      });
     $('floss').addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -728,6 +736,11 @@ export class UI {
       return;
     }
     if (e.repeat) return;
+    if (k === ' ' && this.s.fightback?.incoming) {
+      e.preventDefault();
+      this.doDuck();
+      return;
+    }
     if (k === 'f') {
       this.drawer.close();
       this.launcher.start();
@@ -1046,7 +1059,30 @@ export class UI {
         this.sound.grade('B');
         this.say(`Hot streak! Every flick hits ${Math.round(STREAK.per * STREAK.max * 100)}% harder while you keep it going.`);
       }
-      else if (e.type === 'enemyShot') {
+      else if (e.type === 'incoming') {
+        this.sound.incoming();
+        if (!this.fightbackTold) {
+          this.fightbackTold = true;
+          if ((this.s.stats.dodges ?? 0) + (this.s.stats.thrownHit ?? 0) < 3)
+            this.say(e.what === 'plane' ? 'A paper airplane! Tap it (or Space) to catch it.' : `Incoming: ${THROW_NAME[e.what]}! Tap Duck (or Space) before it lands, and your next flick is Payback.`);
+        }
+      } else if (e.type === 'thrown') {
+        if (e.result === 'hit') {
+          this.sound.hit();
+          this.popUp('Ouch!', 'ko', true);
+          this.say(`${THROW_NAME[e.what].replace(/^./, (c) => c.toUpperCase())} got you. Seeing stars for a moment. Duck next time (Space).`);
+        } else if (e.result === 'dodged' || e.result === 'perfect') {
+          this.sound.yip();
+          this.popUp(e.result === 'perfect' ? `Perfect dodge! ×${paybackMult(this.s)}` : `Dodged! ×${paybackMult(this.s)}`, 'weak');
+        } else if (e.result === 'caught') {
+          this.sound.find();
+          this.bump('bands');
+          this.popUp('Caught it!', 'weak');
+        }
+      } else if (e.type === 'payback') {
+        this.floatWord(`Payback ×${e.mult}!`);
+        this.sound.grade('A');
+      } else if (e.type === 'enemyShot') {
         this.sound.incoming();
         this.bump('bands');
       } else if (e.type === 'callMissed') this.say('The phone stopped ringing. It was probably nothing.');
@@ -1075,6 +1111,8 @@ export class UI {
   }
 
   private shotsThisFrame = 0;
+  private fightbackTold = false;
+  private incomingFrom = -1;
 
   /** Where your Salary is on screen right now (the taskbar at your computer, the status strip at war). */
   private salaryTarget(): HTMLElement {
@@ -1754,6 +1792,37 @@ export class UI {
       if (pill.dataset.heat !== heat) pill.dataset.heat = heat;
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
+    // Something thrown at you: it flies at you, with a big Duck button (Catch for a paper airplane).
+    const inc = s.lookBusy ? null : s.fightback?.incoming ?? null;
+    const flying = $('incoming');
+    const btn = $('duck-btn');
+    if (inc) {
+      if (this.incomingFrom !== inc.from) {
+        this.incomingFrom = inc.from;
+        const plane = inc.what === 'plane';
+        $('inc-obj').innerHTML = THROW_ART[inc.what];
+        flying.className = `incoming ${plane ? 'plane' : 'throw'}`;
+        flying.style.setProperty('--t', `${(inc.at - inc.from).toFixed(2)}s`);
+        void flying.offsetWidth;
+        btn.classList.toggle('plane', plane);
+        $('duck-label').textContent = plane ? 'Catch it!' : 'Duck!';
+      }
+      flying.hidden = false;
+      btn.hidden = false;
+      $('duck-fill').style.width = `${Math.max(0, Math.min(1, (inc.at - s.time) / (inc.at - inc.from))) * 100}%`;
+    } else {
+      if (!flying.hidden) flying.hidden = true;
+      if (!btn.hidden) btn.hidden = true;
+      this.incomingFrom = -1;
+    }
+    const dazed = stunned(s) && !s.lookBusy;
+    if ($('stars').hidden === dazed) $('stars').hidden = !dazed;
+    const pb = paybackMult(s);
+    const pbp = $('payback-pill');
+    if (pb > 1 && !s.lookBusy) {
+      this.set('payback-pill', `Payback ×${pb} · next flick`);
+      if (pbp.hidden) pbp.hidden = false;
+    } else if (!pbp.hidden) pbp.hidden = true;
     // A hack waiting to be picked: the gold chip.
     const h = s.hacks;
     const chip = $('hack-chip');
@@ -1869,6 +1938,12 @@ export class UI {
     if (floss.hidden === tied) floss.hidden = !tied;
     if (tied) this.set('floss-label', `Snared! Tap to cut (${TENANT_RULES.floss.cuts - s.tenants.floss.cuts} left)`);
   }
+
+  /** Space, or the big button: duck (or catch the paper airplane). */
+  private doDuck = () => {
+    if (this.s.lookBusy) return;
+    duck(this.s);
+  };
 
   private doCutFloss = () => {
     if (cutFloss(this.s)) {

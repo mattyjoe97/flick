@@ -10,6 +10,7 @@ import { stepOffice } from './office';
 import { stepGoals } from './goals';
 import { coffeeCool, coffeeReload, snackBarrage } from './breakroom';
 import { caughtInOffice, inOffice, seize, stepFeeney } from './feeney';
+import { paybackMult, paybackUsed, stepFightback, stunned } from './fightback';
 import { ballBarrageMult, ballCoolMult, ballDamageMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
@@ -475,6 +476,7 @@ export function step(s: GameState, dt: number) {
   stepRival(s);
   stepTenants(s, dt);
   stepWeak(s);
+  stepFightback(s);
   stepFeeney(s);
   stepHacks(s);
   stepTrophies(s);
@@ -548,6 +550,7 @@ export function canFlick(s: GameState): ActionResult {
   if (!currentTarget(s)) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
+  if (stunned(s)) return no('You’re seeing stars. Give it a second.');
   if (s.bands < weapon(s).burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   return ok;
 }
@@ -560,6 +563,7 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (!currentTarget(s)) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
+  if (stunned(s)) return no('You’re seeing stars. Give it a second.');
   const w = weapon(s);
   if (s.bands < w.burst) return no('Out of bands. Scrounge your drawer or order supplies.');
   // Reloading: silently ignore shots faster than the weapon allows (no message, no spam).
@@ -571,9 +575,10 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
   const before = s.stats.damage;
-  const power = chargeMult(c, p) * weakMult(s) * streakMult(s) * hackFlick(s, p);
+  const power = chargeMult(c, p) * weakMult(s) * streakMult(s) * hackFlick(s, p) * paybackMult(s);
   fire(s, 'you', power, undefined, { charge: c, perfect: p });
   if (s.stats.damage > before) {
+    paybackUsed(s);
     streakHit(s);
     if (s.weak?.boost) weakHit(s, s.stats.damage - before);
     // Hacks: a Ricochet (a free second hit), an Echo Volley (a free mini-Barrage).
