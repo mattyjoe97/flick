@@ -7117,9 +7117,11 @@ body.in-map .money-floater {
   -webkit-tap-highlight-color: transparent;
   animation: floss-wobble 0.8s ease-in-out infinite alternate;
 }
-.floss svg {
+.floss-art {
   display: block;
   width: 100%;
+  aspect-ratio: 400 / 205;
+  background: url('../assets/art/floss-snare.webp') center / contain no-repeat;
 }
 .floss-label {
   display: block;

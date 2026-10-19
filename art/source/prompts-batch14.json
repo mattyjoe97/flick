@@ -1,0 +1,1442 @@
+{
+  "game": "FLICK",
+  "batch": 14,
+  "assets": [
+    {
+      "file": "234_hargrove_idle.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a NEW original female law-firm boss portrait for FLICK, visually distinct from the older woman Doris. Input image is STYLE and game REGISTRATION reference only, NOT this new character. Match the clean crisp detailed 2D cartoon linework, warm muted palette and cel-shaded finish of the reference, dark-brown #332A24 outlines. No 3D, no painterly or photographic texture, no gradients or blur.\nMEG HARGROVE is an imposing early-60s woman with PALE LIGHT SKIN, a NARROW ANGULAR FACE, high sharply defined cheekbones, lean cheeks, a long straight refined nose, thin tightly pursed lips and a pointed angular jaw. Silver hair in a sleek perfectly even blunt CHIN-LENGTH BOB, precisely CENTRE PARTED, with two smooth long side sections and a FULLY EXPOSED FOREHEAD: NO BANGS, NO FRINGE, NO layered scalloped ends. Hair ends form a perfectly even straight blunt line on both sides, sleek architectural silhouette. Slim BLACK RECTANGULAR glasses with NARROW RECTANGULAR LENSES and STRAIGHT HORIZONTAL TOP AND BOTTOM EDGES, not cat-eye glasses, not rounded lenses. Small pearl stud earrings. CHARCOAL FINE PINSTRIPE suit jacket with very sharp tailored shoulders and narrow angular lapels. Under it a plain crisp WHITE POINT-COLLAR BLOUSE, open at neck, NO BOW and NO TIE. A SMALL GOLD BALANCE-SCALE metal lapel pin, no lettering. Idle expression: one eyebrow clearly raised, lips tightly PURSED, cold unimpressed cross-examining stare. Mature elegant adult, stern litigation partner, not cute or friendly; eyes naturally parallel looking straight at viewer.\nComposition: one transparent RGBA 1024x1280 game portrait, head and shoulders STRAIGHT ON, square shoulders, no tilt or three-quarter turn. Face center x512,y620, pupils exactly on y560, chin about760, outer ears x332 andx692 (ear-to-ear360px). Entire hair and clothing inside x60..960 and BELOW y265 with transparent air above. Torso widens to shoulders and crops ONLY at bottom1280. No hands, props, background, floor, cast shadow, border. No text/letters/numbers/logos/printed pictures anywhere. Include ONLY the person. Flat fills, one cel-shade shape and small flat upper-left highlight per shape. All details must remain crisp.",
+      "reference_assets": [
+        "211_fisk_idle.png"
+      ],
+      "selected_source_file": "234_hargrove_idle_distinct.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "234_hargrove_idle_distinct.png",
+        "source_landmarks": {
+          "center_x": 561,
+          "eye_y": 535,
+          "chin_y": 799,
+          "ear_width": 420
+        },
+        "scale": [
+          0.8571428571428571,
+          0.7575757575757576
+        ],
+        "translation": [
+          31.142857142857167,
+          154.6969696969697
+        ],
+        "torso_split_y": 800,
+        "shoulder_safe_width_registration": [
+          {
+            "source_x": [
+              32,
+              332
+            ],
+            "target_x": [
+              60,
+              332
+            ]
+          },
+          {
+            "source_x": [
+              692,
+              992
+            ],
+            "target_x": [
+              692,
+              961
+            ]
+          }
+        ],
+        "head_safe_height_registration": null,
+        "finishing": "Clean alpha, register eyes/chin/ears and torso; fit upper hair into head-safe area only where needed. Preserve detail without blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          328,
+          961,
+          1280
+        ]
+      },
+      "earlier_generation_history": [
+        {
+          "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1024x1280 transparent portrait. STRAIGHT ON to viewer, face and shoulders square, zero head tilt or 3/4 turn. Head-and-shoulders adult bust, NO hands or props. Match reference registration: face center x512,y620; eye line y560; chin y760; outer ears x332 and x692 (360px ear width). ALL hair, headgear, glasses and clothing inside x60..960 and y265..1279. Large clear transparent air above y265. Torso widens to shoulders and continues to crop ONLY at the bottom edge. Head should not be enlarged relative to body. Keep both ears on the same horizontal level. Transparent background.\nInput images: STYLE and REGISTRATION references only, not the new character. Subject: MEG HARGROVE, senior law partner, woman early 60s, light skin, sharp perfectly EVEN SILVER CHIN-LENGTH BOB with a flat blunt lower edge on both sides, black RECTANGULAR glasses, small pearl stud earrings. Charcoal PINSTRIPE suit jacket with sharp shoulders over crisp white blouse. A small gold BALANCE SCALE shaped lapel pin (simple metal silhouette, no text). Idle expression: one eyebrow raised above glasses, lips PURSED, unimpressed cross-examining stare. Eyes aimed straight at viewer, naturally parallel gaze. Preserve the detailed polished facial linework of the reference but flat crisp cel coloring.",
+          "reference_assets": [
+            "180_doris_idle.png",
+            "211_fisk_idle.png"
+          ],
+          "selected": false
+        }
+      ],
+      "revision_reason": "User requested Meg be visually distinct from existing coworker Doris; revised angular face, center-parted bob without bangs, slim rectangular glasses and plain collared blouse."
+    },
+    {
+      "file": "235_hargrove_hit.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both eyes SQUEEZED TIGHTLY SHUT in a sharp pained squint, mouth an OPEN VERTICAL OVAL (silent OW), no smile, a small red welt on the exposed forehead ABOVE one eyebrow and BELOW the hairline. Preserve forehead hair and any headgear. Welt is a plain red swollen oval, no decorative stars or marks.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.\nUse the NEW narrow angular Meg design in this reference exactly. Preserve center-parted sleek blunt silver bob with NO bangs, slim rectangular glasses, sharp cheekbones, long straight nose, charcoal pinstripe jacket and plain open-collar white blouse. Do not change her into Doris.",
+      "reference_assets": [
+        "234_hargrove_idle.png"
+      ],
+      "selected_source_file": "235_hargrove_hit_distinct.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "234_hargrove_idle.png",
+        "source": "235_hargrove_hit_distinct.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 162.28
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          328,
+          961,
+          1280
+        ]
+      },
+      "revision_reason": "User requested Meg be visually distinct from existing coworker Doris; revised angular face, center-parted bob without bangs, slim rectangular glasses and plain collared blouse."
+    },
+    {
+      "file": "236_hargrove_angry.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both brows STRONGLY FURROWED into a deep V, eyes open GLARING directly forward with pupils aligned on y560, mouth showing GRITTED WHITE TEETH. Clearly furious expression. NO sweat, NO welt, no extra symbols.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.\nUse the NEW narrow angular Meg design in this reference exactly. Preserve center-parted sleek blunt silver bob with NO bangs, slim rectangular glasses, sharp cheekbones, long straight nose, charcoal pinstripe jacket and plain open-collar white blouse. Do not change her into Doris.",
+      "reference_assets": [
+        "234_hargrove_idle.png"
+      ],
+      "selected_source_file": "236_hargrove_angry_distinct.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "234_hargrove_idle.png",
+        "source": "236_hargrove_angry_distinct.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 104.2
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          328,
+          961,
+          1280
+        ]
+      },
+      "revision_reason": "User requested Meg be visually distinct from existing coworker Doris; revised angular face, center-parted bob without bangs, slim rectangular glasses and plain collared blouse."
+    },
+    {
+      "file": "237_hargrove_worried.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Eyebrows RAISED with inner ends PINCHED TOGETHER, eyes WIDE and worried looking straight ahead with pupils on y560, a nervous WAVY WOBBLY CLOSED mouth, no visible teeth, ONE pale-blue SWEAT BEAD at the RIGHT temple as seen on the image (viewer's right side), inside the face boundary. Put the sweat bead beside the outer eyebrow and inside the hairline so it is contained on skin. No other sweat, no welt.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.\nUse the NEW narrow angular Meg design in this reference exactly. Preserve center-parted sleek blunt silver bob with NO bangs, slim rectangular glasses, sharp cheekbones, long straight nose, charcoal pinstripe jacket and plain open-collar white blouse. Do not change her into Doris.",
+      "reference_assets": [
+        "234_hargrove_idle.png"
+      ],
+      "selected_source_file": "237_hargrove_worried_distinct.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "234_hargrove_idle.png",
+        "source": "237_hargrove_worried_distinct.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 221.14
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          328,
+          961,
+          1280
+        ]
+      },
+      "revision_reason": "User requested Meg be visually distinct from existing coworker Doris; revised angular face, center-parted bob without bangs, slim rectangular glasses and plain collared blouse."
+    },
+    {
+      "file": "238_gleam_idle.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: precise-object-edit. Edit this FLICK dentist portrait. REMOVE the red eyeglasses entirely, revealing clean natural face underneath; she wears NO eyeglasses. Remove pearl earrings and loose curling hair tendrils beside neck. Her hair is neatly gathered in the existing high dark-brown bun. Make the black headband supporting the silver dental mirror THINNER, about half its current width. Preserve the mirror, facial identity, warm brown skin, adult anatomy, huge bright closed-eye toothy smile, mint scrubs, white lab coat and tooth pin, sharp detailed cel illustration and transparent background. Only make these local corrections. Same front-facing pose, canvas, placement, head size. No added props or text. No gradients, no blur, no loss of detail.",
+      "reference_assets": [
+        "238_gleam_idle.png"
+      ],
+      "selected_source_file": "238_gleam_idle_corrected.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "238_gleam_idle_corrected.png",
+        "source_landmarks": {
+          "center_x": 561,
+          "eye_y": 543,
+          "chin_y": 796,
+          "ear_width": 448
+        },
+        "scale": [
+          0.8035714285714286,
+          0.7905138339920948
+        ],
+        "translation": [
+          61.196428571428555,
+          130.7509881422925
+        ],
+        "torso_split_y": 800,
+        "shoulder_safe_width_registration": [],
+        "head_safe_height_registration": {
+          "source_y": [
+            225,
+            315
+          ],
+          "target_y": [
+            270,
+            315
+          ]
+        },
+        "finishing": "Clean alpha, register eyes/chin/ears and torso; fit upper hair into head-safe area only where needed. Preserve detail without blur or palette reduction.",
+        "alpha_bbox": [
+          73,
+          270,
+          950,
+          1280
+        ]
+      },
+      "earlier_generation_history": [
+        {
+          "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1024x1280 transparent portrait. STRAIGHT ON to viewer, face and shoulders square, zero head tilt or 3/4 turn. Head-and-shoulders adult bust, NO hands or props. Match reference registration: face center x512,y620; eye line y560; chin y760; outer ears x332 and x692 (360px ear width). ALL hair, headgear, glasses and clothing inside x60..960 and y265..1279. Large clear transparent air above y265. Torso widens to shoulders and continues to crop ONLY at the bottom edge. Head should not be enlarged relative to body. Keep both ears on the same horizontal level. Transparent background.\nInput images: STYLE and REGISTRATION references only. New character: DR FIONA GLEAM, woman mid40s with warm brown skin, dark brown hair in a neat HIGH BUN, a ROUND SILVER DENTAL HEAD MIRROR on a THIN BLACK HEADBAND pushed up onto forehead. Fit the ENTIRE bun and mirror below y265 with clear air above. Mint-green scrubs under an OPEN WHITE LAB COAT. Small white TOOTH-SHAPED metal pin on lapel, no text. Idle expression: HUGE unnervingly cheerful CLOSED-EYE SMILE, both eyes curved shut at eye line y560, mouth showing a broad row of PERFECT WHITE TEETH. Adult professional dentist, not cute/chibi. No stethoscope, no additional props.",
+          "reference_assets": [
+            "211_fisk_idle.png",
+            "180_doris_idle.png"
+          ],
+          "selected": false
+        }
+      ]
+    },
+    {
+      "file": "239_gleam_hit.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both eyes SQUEEZED TIGHTLY SHUT in a sharp pained squint, mouth an OPEN VERTICAL OVAL (silent OW), no smile, a small red welt on the exposed forehead ABOVE one eyebrow and BELOW the hairline. Preserve forehead hair and any headgear. Welt is a plain red swollen oval, no decorative stars or marks.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "238_gleam_idle.png"
+      ],
+      "selected_source_file": "239_gleam_hit.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 0.998,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 127.1
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          73,
+          270,
+          950,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "240_gleam_angry.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both brows STRONGLY FURROWED into a deep V, eyes open GLARING directly forward with pupils aligned on y560, mouth showing GRITTED WHITE TEETH. Clearly furious expression. NO sweat, NO welt, no extra symbols.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "238_gleam_idle.png"
+      ],
+      "selected_source_file": "240_gleam_angry.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 147.11
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          73,
+          270,
+          950,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "241_gleam_worried.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Eyebrows RAISED with inner ends PINCHED TOGETHER, eyes WIDE and worried looking straight ahead with pupils on y560, a nervous WAVY WOBBLY CLOSED mouth, no visible teeth, ONE pale-blue SWEAT BEAD at the RIGHT temple as seen on the image (viewer's right side), inside the face boundary. Put the sweat bead beside the outer eyebrow and inside the hairline so it is contained on skin. No other sweat, no welt.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "238_gleam_idle.png"
+      ],
+      "selected_source_file": "241_gleam_worried.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 0.998,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 101.9
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          73,
+          270,
+          950,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "242_vance_idle.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1024x1280 transparent portrait. STRAIGHT ON to viewer, face and shoulders square, zero head tilt or 3/4 turn. Head-and-shoulders adult bust, NO hands or props. Match reference registration: face center x512,y620; eye line y560; chin y760; outer ears x332 and x692 (360px ear width). ALL hair, headgear, glasses and clothing inside x60..960 and y265..1279. Large clear transparent air above y265. Torso widens to shoulders and continues to crop ONLY at the bottom edge. Head should not be enlarged relative to body. Keep both ears on the same horizontal level. Transparent background.\nInput images: STYLE and REGISTRATION references only. New character: TYLER VANCE, startup founder, man age26, fair skin, SPIKY BLEACHED-BLOND HAIR with DARK ROOTS, PATCHY BLOND STUBBLE. DARK SUNGLASSES pushed UP ON TOP OF HEAD, eyes unobstructed. Charcoal ZIP HOODIE HALF OPEN over PLAIN BLACK T-SHIRT. Bright ORANGE LANYARD with completely blank WHITE rectangular badge. All hair and sunglasses below y265. Idle expression: cocky OPEN-MOUTHED GRIN, both eyebrows HIGH, eyes looking directly at viewer with parallel gaze. Young adult proportions, symmetrical frontal pose. No other jewelry, no symbols.",
+      "reference_assets": [
+        "176_derek_idle.png",
+        "211_fisk_idle.png"
+      ],
+      "selected_source_file": "242_vance_idle.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "source": "242_vance_idle.png",
+        "source_landmarks": {
+          "center_x": 566,
+          "eye_y": 617,
+          "chin_y": 846,
+          "ear_width": 400
+        },
+        "scale": [
+          0.9,
+          0.8733624454148472
+        ],
+        "translation": [
+          2.599999999999966,
+          21.135371179039225
+        ],
+        "torso_split_y": 800,
+        "shoulder_safe_width_registration": [
+          {
+            "source_x": [
+              46,
+              332
+            ],
+            "target_x": [
+              60,
+              332
+            ]
+          },
+          {
+            "source_x": [
+              692,
+              971
+            ],
+            "target_x": [
+              692,
+              961
+            ]
+          }
+        ],
+        "head_safe_height_registration": null,
+        "finishing": "Clean alpha, register eyes/chin/ears and torso; fit upper hair into head-safe area only where needed. Preserve detail without blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          316,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "243_vance_hit.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both eyes SQUEEZED TIGHTLY SHUT in a sharp pained squint, mouth an OPEN VERTICAL OVAL (silent OW), no smile, a small red welt on the exposed forehead ABOVE one eyebrow and BELOW the hairline. Preserve forehead hair and any headgear. Welt is a plain red swollen oval, no decorative stars or marks.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "242_vance_idle.png"
+      ],
+      "selected_source_file": "243_vance_hit.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 124.48
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          316,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "244_vance_angry.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Both brows STRONGLY FURROWED into a deep V, eyes open GLARING directly forward with pupils aligned on y560, mouth showing GRITTED WHITE TEETH. Clearly furious expression. NO sweat, NO welt, no extra symbols.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "242_vance_idle.png"
+      ],
+      "selected_source_file": "244_vance_angry.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 85.83
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          316,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "245_vance_worried.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: identity-preserve / precise-object-edit. Edit only the FACE EXPRESSION of this exact FLICK portrait. New expression: Eyebrows RAISED with inner ends PINCHED TOGETHER, eyes WIDE and worried looking straight ahead with pupils on y560, a nervous WAVY WOBBLY CLOSED mouth, no visible teeth, ONE pale-blue SWEAT BEAD at the RIGHT temple as seen on the image (viewer's right side), inside the face boundary. Put the sweat bead beside the outer eyebrow and inside the hairline so it is contained on skin. No other sweat, no welt.\nEverything outside the face must remain PIXEL-IDENTICAL: same hair, ears, head outline, chin silhouette, glasses and other accessories, headgear, body, clothes, pins, lanyard, badge, colors, folds, shadow shapes, outline, canvas and transparent alpha. Do not change head position, scale, gaze direction, pose or crop. Keep adult proportions and the same recognizable person. If glasses are present, preserve the rectangular black frames exactly, changing only the eyes inside and brows above; sweat/welt stay on skin. If a dental head mirror is present, preserve it entirely unchanged and do not add eyeglasses. Keep any facial stubble.\nCanvas 1024x1280. Same eye line y560, chin y760, outer ears x332..692. No alpha above y265 or beyond x60..960. Crisp polished flat vector cartoon, dark-brown outlines, warm muted fills, upper-left light, clear cel shadows and small flat highlights. No blur, gradients, textures, text, numbers, logos, background, floor or cast shadow. This is ONE alternate expression of the supplied image, not a redesigned portrait.",
+      "reference_assets": [
+        "242_vance_idle.png"
+      ],
+      "selected_source_file": "245_vance_worried.png",
+      "transparent_background": true,
+      "requested_size": [
+        1024,
+        1280
+      ],
+      "scripted_finishing": {
+        "base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "expression_alignment": {
+          "scale_relative_to_canvas": 1.0,
+          "translation_about_512_560": [
+            0,
+            0
+          ],
+          "stable_region_match_error": 171.47
+        },
+        "outside_face_changed_pixels": 0,
+        "finishing": "Register generated expression to master, then composite only inside the face. All pixels outside that mask restored verbatim. No full-image blur or palette reduction.",
+        "alpha_bbox": [
+          60,
+          316,
+          961,
+          1280
+        ]
+      }
+    },
+    {
+      "file": "246_cover_law.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1400x800 transparent barricade sprite. Reference image is style, framing and scale reference only, replace its objects with the specified new objects. Straight-on at EYE LEVEL across the room, not top-down; front faces dominate, only slight top surfaces like reference. One connected arrangement 1240px wide, centered x700, from x80 to1320. All items rest on one invisible horizontal baseline y780, no object below y780. TALL END TOWERS at x80..430 and x970..1320 may reach y60. The ENTIRE MIDDLE BAND x500..900 must stay LOW: every visible object there lies at y350 or BELOW. Leave a large open transparent U-shaped gap above the low center for a boss face. Nothing in that center gap. Head scale reference 360px wide. End towers and middle objects must read clearly and be fully included.\nLaw firm's defenses: LEFT END tall tower of tan cardboard bankers boxes with lids and visible lid/hand handles, entirely blank no labels. RIGHT END a tall stack of thick leather-bound LAW BOOKS in oxblood, dark green and navy, with GOLD HORIZONTAL SPINE BANDS ONLY, no writing. On top of the right book tower a WOODEN GAVEL resting on its ROUND SOUND BLOCK. LOW MIDDLE: neat short horizontal stacks of the same leather law books LYING FLAT, and a BRASS BANKER'S DESK LAMP with GREEN GLASS SHADE. The TOP of the entire green lamp shade in the middle must be at y350, with shade, stem, base and low books all below it. Do not make the center book stack tall. No desk underneath, no surrounding scene.",
+      "reference_assets": [
+        "215_cover_hr.png"
+      ],
+      "selected_source_file": "246_cover_law.png",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source": "246_cover_law.png",
+        "source_bbox": [
+          38,
+          67,
+          1633,
+          885
+        ],
+        "desk_line_y": 780,
+        "portrait_ear_width_scale": 360,
+        "target_bbox": [
+          80,
+          60,
+          1320,
+          781
+        ],
+        "middle_topmost_alpha_y": 415,
+        "finishing": "Remove disconnected alpha flecks, register the invisible desk baseline and bounding width; preserve generated detail.",
+        "alpha_bbox": [
+          80,
+          60,
+          1320,
+          781
+        ]
+      }
+    },
+    {
+      "file": "247_cover_dental.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1400x800 transparent barricade sprite. Reference image is style, framing and scale reference only, replace its objects with the specified new objects. Straight-on at EYE LEVEL across the room, not top-down; front faces dominate, only slight top surfaces like reference. One connected arrangement 1240px wide, centered x700, from x80 to1320. All items rest on one invisible horizontal baseline y780, no object below y780. TALL END TOWERS at x80..430 and x970..1320 may reach y60. The ENTIRE MIDDLE BAND x500..900 must stay LOW: every visible object there lies at y350 or BELOW. Leave a large open transparent U-shaped gap above the low center for a boss face. Nothing in that center gap. Head scale reference 360px wide. End towers and middle objects must read clearly and be fully included.\nDental practice defenses: LEFT END a GIANT OVERSIZED DENTAL JAW MODEL, white teeth and pink gums, sitting on a tall stack of blank MINT GREEN SUPPLY BOXES. RIGHT END a big CLEAR GLASS CUP crammed with colorful TOOTHBRUSHES standing atop stacked small MINT GREEN FLOSS DISPENSERS. LOW MIDDLE a shallow CURVED WHITE AND MINT RECEPTION COUNTER with a transparent GLASS BOWL OF ROUND LOLLIPOPS. Entire lollipops and bowl must begin at y350 or LOWER so nothing in the middle rises above y340. Teeth model and toothbrushes only on tall far ends. Counter low and no floor or backdrop. All packaging blank. Lollipops plain solid colored circles, not printed.",
+      "reference_assets": [
+        "215_cover_hr.png"
+      ],
+      "selected_source_file": "247_cover_dental.png",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source": "247_cover_dental.png",
+        "source_bbox": [
+          46,
+          71,
+          1615,
+          899
+        ],
+        "desk_line_y": 780,
+        "portrait_ear_width_scale": 360,
+        "target_bbox": [
+          80,
+          60,
+          1320,
+          781
+        ],
+        "middle_topmost_alpha_y": 482,
+        "finishing": "Remove disconnected alpha flecks, register the invisible desk baseline and bounding width; preserve generated detail.",
+        "alpha_bbox": [
+          80,
+          60,
+          1320,
+          781
+        ]
+      }
+    },
+    {
+      "file": "248_cover_startup.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nOutput one 1400x800 transparent barricade sprite. Reference image is style, framing and scale reference only, replace its objects with the specified new objects. Straight-on at EYE LEVEL across the room, not top-down; front faces dominate, only slight top surfaces like reference. One connected arrangement 1240px wide, centered x700, from x80 to1320. All items rest on one invisible horizontal baseline y780, no object below y780. TALL END TOWERS at x80..430 and x970..1320 may reach y60. The ENTIRE MIDDLE BAND x500..900 must stay LOW: every visible object there lies at y350 or BELOW. Leave a large open transparent U-shaped gap above the low center for a boss face. Nothing in that center gap. Head scale reference 360px wide. End towers and middle objects must read clearly and be fully included.\nStartup beanbag fort: LEFT END TWO HUGE BEANBAGS piled up, ORANGE BOTTOM beanbag and PURPLE TOP beanbag. RIGHT END a STAINLESS STEEL KOMBUCHA KEG with a tap, a KICK SCOOTER leaning against it entirely in the right end. LOW MIDDLE an OPEN SILVER LAPTOP with its back toward viewer, lid covered in ROUND PLAIN COLORED DOT STICKERS ONLY, no symbols/logos; a PING-PONG PADDLE; and a TALL GLASS BOTTLE OF AMBER KOMBUCHA, no label. Bottle and laptop in middle: their TOPS at y350 or LOWER. Scooter handlebar must NOT cross above the middle zone x500..900. No extra objects, no platform or floor.",
+      "reference_assets": [
+        "215_cover_hr.png"
+      ],
+      "selected_source_file": "248_cover_startup.png",
+      "transparent_background": true,
+      "requested_size": [
+        1400,
+        800
+      ],
+      "scripted_finishing": {
+        "source": "248_cover_startup.png",
+        "source_bbox": [
+          15,
+          173,
+          1637,
+          883
+        ],
+        "desk_line_y": 780,
+        "portrait_ear_width_scale": 360,
+        "horizontal_knots": {
+          "source": [
+            15,
+            628,
+            1178,
+            1637
+          ],
+          "target": [
+            80,
+            475,
+            960,
+            1320
+          ]
+        },
+        "middle_topmost_alpha_y": 436,
+        "finishing": "Remove disconnected alpha flecks, register the invisible desk baseline and bounding width; preserve generated detail.",
+        "alpha_bbox": [
+          80,
+          60,
+          1320,
+          781
+        ]
+      }
+    },
+    {
+      "file": "249_floss_snare.png",
+      "generation": "Built-in ImageGen",
+      "prompt": "Use case: stylized-concept. Create a polished 2D FLICK game sprite. Match the supplied earlier FLICK artwork precisely in drawing language and palette: adult proportions, clean vector-cartoon shapes, crisp even dark-brown #332A24 outlines about 12 px per 1024 px, warm muted flat fills, ONE distinct cel-shade shape and ONE small flat highlight per shape, upper-left lighting. No gradients, grain, painterly texture, photorealism or 3D rendering. Genuine transparent RGBA background, no floor, no cast shadow, no border. Absolutely NO text, letters, numbers, words, logos, brand marks or printed illustrations anywhere. All badges, packaging, labels and screens blank. Required purely geometric ornamental details are allowed.\nInput image: FLICK style reference ONLY, do not copy its objects. Output one 640x360 transparent game overlay effect: THREE OR FOUR long, thin wavy WHITE DENTAL FLOSS STRANDS loosely tangled across the wide canvas, with loop-de-loops and a few small knots, THIN MINT-TEAL OUTLINES and one crisp flat highlight. A SMALL MINT GREEN FLOSS DISPENSER dangles from ONE strand at the LOWER RIGHT. Whole tangle fills about 90 percent of canvas with all ends fully inside margins. Center mostly OPEN TRANSPARENT AIR: loose strands, not solid mass or web. Distinct looping paths, readable at200x112. No shadows, no background, no labels, no extra objects.",
+      "reference_assets": [
+        "215_cover_hr.png"
+      ],
+      "selected_source_file": "249_floss_snare.png",
+      "transparent_background": true,
+      "requested_size": [
+        640,
+        360
+      ],
+      "scripted_finishing": {
+        "source": "249_floss_snare.png",
+        "source_bbox": [
+          53,
+          74,
+          1618,
+          868
+        ],
+        "center": [
+          320,
+          180
+        ],
+        "review_size": [
+          200,
+          112
+        ],
+        "finishing": "Remove cyan/green matte fringe, clean alpha, proportionally fit to canvas with clear margins; preserve open strand loops.",
+        "alpha_bbox": [
+          20,
+          28,
+          620,
+          332
+        ]
+      }
+    }
+  ]
+}

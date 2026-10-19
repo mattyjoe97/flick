@@ -1,0 +1,1772 @@
+{
+  "game": "FLICK",
+  "batch": 14,
+  "title": "Building Takeover (Stage 6)",
+  "asset_count": 16,
+  "units": "pixels",
+  "generation": "Built-in ImageGen with authorized scripted finishing.",
+  "checks": {
+    "exact_filenames_sizes_rgba": true,
+    "genuine_transparent_backgrounds": true,
+    "transparent_pixels_zero_rgb": true,
+    "portrait_registration_and_safe_bounds": true,
+    "expression_pixels_outside_face_identical": true,
+    "barricade_width_center_baseline_and_middle_clearance": true,
+    "floss_reviewed_at_200x112": true,
+    "no_text_logos_or_printed_characters_visual_review": true,
+    "meg_redesigned_to_be_distinct_from_doris": true
+  },
+  "expression_pixel_proofs": [
+    {
+      "file": "235_hargrove_hit.png",
+      "base": "234_hargrove_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 64141
+    },
+    {
+      "file": "236_hargrove_angry.png",
+      "base": "234_hargrove_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 63992
+    },
+    {
+      "file": "237_hargrove_worried.png",
+      "base": "234_hargrove_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 64360
+    },
+    {
+      "file": "239_gleam_hit.png",
+      "base": "238_gleam_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 61780
+    },
+    {
+      "file": "240_gleam_angry.png",
+      "base": "238_gleam_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 61860
+    },
+    {
+      "file": "241_gleam_worried.png",
+      "base": "238_gleam_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 61948
+    },
+    {
+      "file": "243_vance_hit.png",
+      "base": "242_vance_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 59351
+    },
+    {
+      "file": "244_vance_angry.png",
+      "base": "242_vance_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 59044
+    },
+    {
+      "file": "245_vance_worried.png",
+      "base": "242_vance_idle.png",
+      "outside_face_changed_pixels": 0,
+      "inside_face_changed_pixels": 59748
+    }
+  ],
+  "assets": [
+    {
+      "file": "234_hargrove_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        328,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "68ee2ee0f5d4636da6048e963fec0a19a0720a238196544ed2ff81ef7c5ce33c",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Meg Hargrove",
+        "expression": "idle",
+        "expression_base": "234_hargrove_idle.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false
+      }
+    },
+    {
+      "file": "235_hargrove_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        328,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "c84bc20a3a19a36158ff08ef0f97b9a91f22a56b1157a975d16716fcaecf45bd",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Meg Hargrove",
+        "expression": "hit",
+        "expression_base": "234_hargrove_idle.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": true
+      }
+    },
+    {
+      "file": "236_hargrove_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        328,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "7bc6d8d3a48ab5d283eaa91dd2ff389ba34f6f41478ff428ff102b385fc8f5e8",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Meg Hargrove",
+        "expression": "angry",
+        "expression_base": "234_hargrove_idle.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false
+      }
+    },
+    {
+      "file": "237_hargrove_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        328,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "043f75c0be6ec1ae3f219f38d87057b6fc0d1651a5ab3963931ad03ceefce843",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Meg Hargrove",
+        "expression": "worried",
+        "expression_base": "234_hargrove_idle.png",
+        "face_edit_polygon": [
+          [
+            400,
+            490
+          ],
+          [
+            421,
+            458
+          ],
+          [
+            450,
+            434
+          ],
+          [
+            484,
+            423
+          ],
+          [
+            526,
+            423
+          ],
+          [
+            562,
+            433
+          ],
+          [
+            594,
+            455
+          ],
+          [
+            618,
+            484
+          ],
+          [
+            633,
+            531
+          ],
+          [
+            638,
+            580
+          ],
+          [
+            628,
+            639
+          ],
+          [
+            611,
+            679
+          ],
+          [
+            582,
+            707
+          ],
+          [
+            546,
+            735
+          ],
+          [
+            512,
+            746
+          ],
+          [
+            477,
+            738
+          ],
+          [
+            449,
+            718
+          ],
+          [
+            420,
+            695
+          ],
+          [
+            402,
+            674
+          ],
+          [
+            390,
+            632
+          ],
+          [
+            380,
+            575
+          ],
+          [
+            384,
+            534
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false,
+        "sweat_side": "image-right temple"
+      }
+    },
+    {
+      "file": "238_gleam_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        73,
+        270,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "05af7616614d91412b106aae60680b86be4dca5e75aa8623d19074008d694c33",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Dr. Fiona Gleam",
+        "expression": "idle",
+        "expression_base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": true
+      }
+    },
+    {
+      "file": "239_gleam_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        73,
+        270,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "8b27fac9d7fdb51b62bcea2238ae3d2e60a3d54ddba75cd46b1bc5b647435ffc",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Dr. Fiona Gleam",
+        "expression": "hit",
+        "expression_base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": true
+      }
+    },
+    {
+      "file": "240_gleam_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        73,
+        270,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9b9cff061f1622a9a3f7c3af8b52f593664f673306a3a4e35536a8a286225cd0",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Dr. Fiona Gleam",
+        "expression": "angry",
+        "expression_base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false
+      }
+    },
+    {
+      "file": "241_gleam_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        73,
+        270,
+        950,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "b7bf949deceb9cb30431d2a7895ee002ac263021d665569c8ff747312276de4b",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Dr. Fiona Gleam",
+        "expression": "worried",
+        "expression_base": "238_gleam_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            494
+          ],
+          [
+            424,
+            457
+          ],
+          [
+            453,
+            438
+          ],
+          [
+            477,
+            449
+          ],
+          [
+            523,
+            454
+          ],
+          [
+            561,
+            442
+          ],
+          [
+            584,
+            443
+          ],
+          [
+            608,
+            471
+          ],
+          [
+            632,
+            507
+          ],
+          [
+            640,
+            547
+          ],
+          [
+            636,
+            629
+          ],
+          [
+            622,
+            674
+          ],
+          [
+            595,
+            702
+          ],
+          [
+            553,
+            730
+          ],
+          [
+            512,
+            737
+          ],
+          [
+            472,
+            727
+          ],
+          [
+            433,
+            702
+          ],
+          [
+            407,
+            675
+          ],
+          [
+            391,
+            634
+          ],
+          [
+            384,
+            555
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false,
+        "sweat_side": "image-right temple"
+      }
+    },
+    {
+      "file": "242_vance_idle.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        316,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "789564caf6acde3ff5c41ad293d4c5bcf01d9e20b3a36271e079d29a195192e6",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Tyler Vance",
+        "expression": "idle",
+        "expression_base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false
+      }
+    },
+    {
+      "file": "243_vance_hit.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        316,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "b96ac5d418e26146461964e9126d324f08af5a36b2e944252e64a89412588e99",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Tyler Vance",
+        "expression": "hit",
+        "expression_base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": true
+      }
+    },
+    {
+      "file": "244_vance_angry.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        316,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "466c305a8bb94674d8d7ac3c6734cb962e6cd48e953db09c528750dc9dcbf2f8",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Tyler Vance",
+        "expression": "angry",
+        "expression_base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false
+      }
+    },
+    {
+      "file": "245_vance_worried.png",
+      "size": [
+        1024,
+        1280
+      ],
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        60,
+        316,
+        961,
+        1280
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "9c01073f9a0dc98ecd4271868200379154002d97c5aeea55e63946d7e5947e5a",
+      "registration": {
+        "face_center": [
+          512,
+          620
+        ],
+        "eye_line_y": 560,
+        "chin_y_approx": 760,
+        "ear_to_ear_width": 360,
+        "outer_ear_x": [
+          332,
+          692
+        ],
+        "safe_area": {
+          "left": 60,
+          "right_inclusive": 960,
+          "top": 265,
+          "bottom_exclusive": 1280
+        },
+        "torso_crop_edge": "bottom",
+        "character": "Tyler Vance",
+        "expression": "worried",
+        "expression_base": "242_vance_idle.png",
+        "face_edit_polygon": [
+          [
+            397,
+            518
+          ],
+          [
+            419,
+            483
+          ],
+          [
+            443,
+            462
+          ],
+          [
+            478,
+            443
+          ],
+          [
+            514,
+            442
+          ],
+          [
+            540,
+            452
+          ],
+          [
+            566,
+            442
+          ],
+          [
+            592,
+            457
+          ],
+          [
+            619,
+            478
+          ],
+          [
+            632,
+            514
+          ],
+          [
+            632,
+            586
+          ],
+          [
+            623,
+            641
+          ],
+          [
+            604,
+            685
+          ],
+          [
+            575,
+            722
+          ],
+          [
+            548,
+            748
+          ],
+          [
+            511,
+            755
+          ],
+          [
+            478,
+            740
+          ],
+          [
+            451,
+            715
+          ],
+          [
+            420,
+            678
+          ],
+          [
+            400,
+            640
+          ],
+          [
+            389,
+            590
+          ]
+        ],
+        "outside_face_changed_pixels": 0,
+        "eyes_closed": false,
+        "sweat_side": "image-right temple"
+      }
+    },
+    {
+      "file": "246_cover_law.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "e22292676c3282cf538ae575ecb823db513aec55285de54eae051e6d1b1ea74f",
+      "registration": {
+        "desk_line_y": 780,
+        "portrait_ear_to_ear_scale_px": 360,
+        "horizontal_center_x": 700,
+        "object_width": 1240,
+        "middle_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 415,
+        "minimum_middle_topmost_alpha_y": 340,
+        "view": "straight-on across office at eye level"
+      }
+    },
+    {
+      "file": "247_cover_dental.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "eea6b12513e034f58d9ee092c30c6370048c2868fe2387b7a68edca73c088c2b",
+      "registration": {
+        "desk_line_y": 780,
+        "portrait_ear_to_ear_scale_px": 360,
+        "horizontal_center_x": 700,
+        "object_width": 1240,
+        "middle_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 482,
+        "minimum_middle_topmost_alpha_y": 340,
+        "view": "straight-on across office at eye level"
+      }
+    },
+    {
+      "file": "248_cover_startup.png",
+      "size": [
+        1400,
+        800
+      ],
+      "width": 1400,
+      "height": 800,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        80,
+        60,
+        1320,
+        781
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "2b64364f87893b9bf89e4b61ec0c08e7ae25306bf13b142a3222cefe17f762c1",
+      "registration": {
+        "desk_line_y": 780,
+        "portrait_ear_to_ear_scale_px": 360,
+        "horizontal_center_x": 700,
+        "object_width": 1240,
+        "middle_x_inclusive": [
+          500,
+          900
+        ],
+        "middle_topmost_alpha_y": 436,
+        "minimum_middle_topmost_alpha_y": 340,
+        "view": "straight-on across office at eye level"
+      }
+    },
+    {
+      "file": "249_floss_snare.png",
+      "size": [
+        640,
+        360
+      ],
+      "width": 640,
+      "height": 360,
+      "mode": "RGBA",
+      "background": "transparent",
+      "alpha_bbox": [
+        20,
+        28,
+        620,
+        332
+      ],
+      "alpha_bbox_convention": "[left, top, right-exclusive, bottom-exclusive], alpha > 0",
+      "sha256": "47e3789c9b8817f293d69e7e8ac73d224824a97827d7cbe5a1be307e04594b7f",
+      "registration": {
+        "center": [
+          320,
+          180
+        ],
+        "review_size": [
+          200,
+          112
+        ],
+        "center_test_box": [
+          190,
+          100,
+          450,
+          260
+        ],
+        "center_transparent_fraction": 0.86875
+      }
+    }
+  ]
+}

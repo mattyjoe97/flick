@@ -448,7 +448,7 @@ print("batch 7 done", pet_art)
 # `middle` is how high each one comes up in the middle (where the boss's face shows).
 b8 = {a["file"]: a for a in json.loads((SRC / "asset-manifest-batch8.json").read_text())["assets"]}
 # (The HR Director's barricade from batch 10 shares the format, so it rides along.)
-cover_stems = {"it": "192_cover_it", "accounting": "193_cover_accounting", "mailroom": "194_cover_mailroom", "marketing": "195_cover_marketing", "hr": "215_cover_hr"}
+cover_stems = {"it": "192_cover_it", "accounting": "193_cover_accounting", "mailroom": "194_cover_mailroom", "marketing": "195_cover_marketing", "hr": "215_cover_hr", "law": "246_cover_law", "dental": "247_cover_dental", "startup": "248_cover_startup"}
 cims = {k: Image.open(SRC / f"{st}.png").convert("RGBA") for k, st in cover_stems.items()}
 cbxs = [solid_box(im, 4) for im in cims.values()]
 cbox = (min(b[0] for b in cbxs), min(b[1] for b in cbxs), max(b[2] for b in cbxs), max(b[3] for b in cbxs))
@@ -529,6 +529,14 @@ im = Image.open(SRC / "233_icon_app_challenges.png").convert("RGBA")
 im.resize((128, 128), Image.LANCZOS).save(OUT / "app-challenges.webp", quality=88, method=6)
 print("batch 13 done")
 
+# ---------------------------------------------------------------- batch 14: Building Takeover
+#
+# The three bosses go in with the coworkers and their barricades with batch 8's (same format);
+# here is Dr. Gleam's floss, laid over your launcher when she snares it.
+im = Image.open(SRC / "249_floss_snare.png").convert("RGBA")
+save_fit(im, solid_box(im, 4), 400, "floss-snare")
+print("batch 14 done")
+
 # ---------------------------------------------------------------- batch 4: the coworkers
 #
 # Every portrait shares one registration (face centre, eye line, head size), so they all
@@ -536,7 +544,7 @@ print("batch 13 done")
 
 b4 = json.loads((SRC / "asset-manifest-batch4.json").read_text())
 faces = sorted(
-    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191 or 197 <= int(f.stem.split("_")[0]) <= 204 or 211 <= int(f.stem.split("_")[0]) <= 214 or 225 <= int(f.stem.split("_")[0]) <= 227)),
+    (f for f in SRC.glob("*_*.png") if f.stem.split("_")[0].isdigit() and (50 <= int(f.stem.split("_")[0]) <= 94 or 136 <= int(f.stem.split("_")[0]) <= 146 or 151 <= int(f.stem.split("_")[0]) <= 162 or 176 <= int(f.stem.split("_")[0]) <= 191 or 197 <= int(f.stem.split("_")[0]) <= 204 or 211 <= int(f.stem.split("_")[0]) <= 214 or 225 <= int(f.stem.split("_")[0]) <= 227 or 234 <= int(f.stem.split("_")[0]) <= 245)),
     key=lambda f: int(f.stem.split("_")[0]),
 )
 # The crop comes from the original cast (and Feeney's peer pose). The temp's tall bun would

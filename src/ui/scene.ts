@@ -19,6 +19,9 @@ import coverAccounting from '../assets/art/cover-accounting.webp';
 import coverMailroom from '../assets/art/cover-mailroom.webp';
 import coverMarketing from '../assets/art/cover-marketing.webp';
 import coverHr from '../assets/art/cover-hr.webp';
+import coverLaw from '../assets/art/cover-law.webp';
+import coverDental from '../assets/art/cover-dental.webp';
+import coverStartup from '../assets/art/cover-startup.webp';
 import whiteFlag from '../assets/art/white-flag.webp';
 import wallBreakroom from '../assets/art/roomwall-breakroom-standing.webp';
 import wallBreakroomBroken from '../assets/art/roomwall-breakroom-broken.webp';
@@ -732,7 +735,7 @@ export function coverSvg(id: string, broken = false): string {
   return paintedCover(id) ?? cover(id);
 }
 
-const COVER_ART: Record<string, string> = { it: coverIt, accounting: coverAccounting, mailroom: coverMailroom, marketing: coverMarketing, hr: coverHr };
+const COVER_ART: Record<string, string> = { it: coverIt, accounting: coverAccounting, mailroom: coverMailroom, marketing: coverMarketing, hr: coverHr, law: coverLaw, dental: coverDental, startup: coverStartup };
 
 /**
  * A department's painted barricade. It's painted at the portraits' scale, so it goes in at
