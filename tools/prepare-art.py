@@ -585,3 +585,16 @@ out.append("")
 out.append("/** Dale and his closet, in sprite pixels; `face`, `pegboard` and `table` are fractions. */")
 out.append("export const CLOSET_ART = " + json.dumps(closet_art) + " as const;")
 (ROOT / "src" / "ui" / "portrait-art.ts").write_text("\n".join(out) + "\n")
+
+# ---------------------------------------------------------------- batch 15: the Break Room
+br = Image.open(SRC / "250_breakroom.png").convert("RGB")
+br.resize((1600, 900), Image.LANCZOS).save(OUT / "breakroom.webp", quality=82, method=6)
+for stem, name, size in [
+    ("251_coffee_maker", "break-coffee", (288, 360)),
+    ("252_coffee_maker_brewing", "break-coffee-brewing", (288, 360)),
+    ("253_vending_machine", "break-vending", (420, 896)),
+    ("254_corkboard", "break-board", (588, 420)),
+]:
+    Image.open(SRC / f"{stem}.png").convert("RGBA").resize(size, Image.LANCZOS).save(OUT / f"{name}.webp", quality=88, method=6)
+for stem, name in [("255_snack_pretzels", "snack-pretzels"), ("256_snack_gummies", "snack-gummies"), ("257_snack_energy", "snack-energy"), ("258_snack_mints", "snack-mints"), ("259_icon_mug", "icon-mug")]:
+    Image.open(SRC / f"{stem}.png").convert("RGBA").resize((96, 96), Image.LANCZOS).save(OUT / f"{name}.webp", quality=88, method=6)

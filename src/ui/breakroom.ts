@@ -94,9 +94,9 @@ export class BreakRoomView {
           ${R.room ? `<img class="closet-bg" src="${R.room}" alt="" draggable="false">` : `<div class="closet-bg">${ROOM_SVG}</div>`}
           <img class="break-gail" alt="" draggable="false" style="height:${pct(R.gail[1])};left:${pct(R.gail[0])}">
           <p class="dale-say break-say" aria-live="polite"></p>
-          <button type="button" class="break-spot" data-spot="board" style="${place(R.board)}">${R.room ? '' : BOARD_SVG}<span class="spot-tag">Corkboard</span></button>
-          <button type="button" class="break-spot" data-spot="coffee" style="${place(R.coffee)}">${R.room ? '' : COFFEE_SVG}<span class="spot-tag">Coffee</span><i class="spot-dot" hidden></i></button>
-          <button type="button" class="break-spot" data-spot="vending" style="${place(R.vending)}">${R.room ? '' : VENDING_SVG}<span class="spot-tag">Snacks</span></button>
+          <button type="button" class="break-spot" data-spot="board" style="${place(R.board)}">${R.room ? `<img src="${R.img.board}" alt="" draggable="false">` : BOARD_SVG}<span class="spot-tag">Corkboard</span></button>
+          <button type="button" class="break-spot" data-spot="coffee" style="${place(R.coffee)}">${R.room ? `<img class="cm-ready" src="${R.img.coffee}" alt="" draggable="false"><img class="cm-brewing" src="${R.img.coffeeBrewing}" alt="" draggable="false">` : COFFEE_SVG}<span class="spot-tag">Coffee</span><i class="spot-dot" hidden></i></button>
+          <button type="button" class="break-spot" data-spot="vending" style="${place(R.vending)}">${R.room ? `<img src="${R.img.vending}" alt="" draggable="false">` : VENDING_SVG}<span class="spot-tag">Snacks</span></button>
         </div>
         <aside class="closet-detail break-detail" aria-live="polite"></aside>
       </div>`;
@@ -314,7 +314,7 @@ export class BreakRoomView {
       const on = snackOn(s);
       const stuck = s.breakroom.stuck;
       const price = snackPrice(s);
-      const list = SNACKS.map((x) => `<li${x.id === on ? ' class="on"' : ''}><b>${esc(x.name)}</b> ${esc(x.does)}</li>`).join('');
+      const list = SNACKS.map((x) => `<li${x.id === on ? ' class="on"' : ''}><img class="snack-ic" src="${BREAK_ART.snacks[x.id]}" alt="" draggable="false"><span><b>${esc(x.name)}</b> ${esc(x.does)}</span></li>`).join('');
       const btn = stuck
         ? `<button type="button" class="paper-btn paper-btn-strong" data-act="vending">Shake it! (${stuck.shakes} / ${BREAK.shakes}) <kbd>V</kbd></button>`
         : `<button type="button" class="paper-btn${s.salary >= price ? ' paper-btn-strong' : ''}" data-act="vending" ${s.salary >= price ? '' : 'disabled'}>Buy a snack · ${money(price)} <kbd>V</kbd></button>`;
@@ -361,12 +361,18 @@ export function breakPills(s: GameState): { coffee: string | null; snack: string
   const caf = caffeinated(s);
   const on = snackOn(s);
   return {
-    coffee: caf > 0 ? `☕ Caffeinated · ${Math.ceil(caf)} s` : null,
+    coffee: caf > 0 ? `Caffeinated · ${Math.ceil(caf)} s` : null,
     snack: on ? `${snackName(on)} · ${clock(Math.ceil(snackLeft(s)))}` : null,
   };
 }
 
 export { NAMES as BREAK_NAMES };
+
+/** The little picture at the front of each pill. */
+export function breakPillArt(s: GameState): { coffee: string; snack: string | null } {
+  const on = snackOn(s);
+  return { coffee: BREAK_ART.mug, snack: on ? BREAK_ART.snacks[on] : null };
+}
 
 // ---------------------------------------------------------------- drawn stand-ins (until the painted room arrives)
 

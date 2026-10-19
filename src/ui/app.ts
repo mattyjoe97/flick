@@ -65,7 +65,7 @@ import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
-import { BreakRoomView, breakPills } from './breakroom';
+import { BreakRoomView, breakPillArt, breakPills } from './breakroom';
 import { FeeneyView } from './feeney';
 import { PORTRAITS } from './portrait-art';
 import { drawerHas, nextRoundKnown, officeUnlocked } from '../sim/feeney';
@@ -1720,10 +1720,17 @@ export class UI {
     const bp = breakPills(s);
     const round = nextRoundKnown(s);
     const roundText = round === null ? null : round <= 0 ? 'Feeney: on his way!' : `Feeney’s next round · ${Math.floor(round / 60)}:${String(Math.floor(round % 60)).padStart(2, '0')}`;
-    for (const [id, text] of [['coffee-pill', bp.coffee], ['snack-pill', bp.snack], ['round-pill', roundText]] as const) {
+    const art = breakPillArt(s);
+    for (const [id, text, pic] of [['coffee-pill', bp.coffee, art.coffee], ['snack-pill', bp.snack, art.snack], ['round-pill', roundText, null]] as const) {
       const el = $(id);
       const show = !!text && !s.lookBusy;
-      if (show) this.set(id, text!);
+      if (show) {
+        if (pic) {
+          this.set(`${id}-t`, text!);
+          const ic = $<HTMLImageElement>(`${id}-ic`);
+          if (ic.getAttribute('src') !== pic) ic.src = pic;
+        } else this.set(id, text!);
+      }
       if (el.hidden === show) el.hidden = !show;
     }
   }
