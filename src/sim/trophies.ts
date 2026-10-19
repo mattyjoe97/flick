@@ -2,6 +2,7 @@
 // app. Each one you've won makes all your pay 2% better and your bands hit 1% harder, so
 // every restart has a few more goals to chase.
 
+import { hackCount } from './hacks';
 import { COMPANIES, COWORKERS } from './content';
 import { pushTicker, type GameState } from './state';
 
@@ -68,6 +69,7 @@ export const TROPHIES: Trophy[] = [
   // Flicking
   { id: 'bullseye', name: 'Bullseye', does: 'Hit 50 weak spots in one job.', check: (s) => (s.stats.weakHits ?? 0) >= 50 },
   { id: 'onfire', name: 'On Fire', does: 'Build a full hot streak (16 flicks in a row).', check: (s) => (s.stats.bestStreak ?? 0) >= 16 },
+  { id: 'lifehacker', name: 'Life Hacker', does: 'Pick 15 hacks in one job.', check: (s) => hackCount(s) >= 15 },
   // Building Takeover
   { id: 'hostile', name: 'Hostile Takeover', does: 'Take a floor from another company in the building.', check: (s) => (s.tenants?.taken ?? 0) >= 1 },
   { id: 'landlord', name: 'Landlord', does: 'Take every floor of the building in one job.', check: (s) => (s.tenants?.taken ?? 0) >= 3 },

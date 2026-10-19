@@ -16,6 +16,7 @@ import { randRange, rand } from './rng';
 import { staffPayPerMin } from './staff';
 import { payGrade } from './work';
 import { jobPayMult } from './job';
+import { hackChaosGap } from './hacks';
 
 export type ChaosKind = 'drill' | 'outage' | 'cake' | 'inspection';
 
@@ -121,7 +122,7 @@ export function stepChaos(s: GameState) {
     if (s.time >= c.event.until) {
       const kind = c.event.kind;
       c.event = null;
-      c.nextAt = s.time + randRange(s, CHAOS.gap[0], CHAOS.gap[1]);
+      c.nextAt = s.time + randRange(s, CHAOS.gap[0], CHAOS.gap[1]) * hackChaosGap(s);
       pushTicker(s, CHAOS_INFO[kind].end);
       s.events.push({ type: 'chaosEnd', kind });
     }

@@ -21,6 +21,7 @@ import { stepTrophies } from './trophies';
 import { goldenDamage, stepGolden } from './golden';
 import { stepDaily } from './daily';
 import { stepRival } from './rival';
+import { echoNow, hackAllySpeed, hackBarrageReload, hackBusywork, hackFlick, hackHidden, hackReload, HK, ricochets, stepHacks, useAlibi } from './hacks';
 import { stepWeak, streakEnd, streakHit, streakMult, weakHit, weakMult } from './feel';
 import { fightingTenant, ricochet, stepTenants, tenantDamage, tenantReloadMult, tenantWon } from './tenants';
 import { chaosDamage, chaosHidden, chaosSuspicion, chaosWalkbys, stepChaos } from './chaos';
@@ -91,6 +92,8 @@ function checkThresholds(s: GameState) {
 }
 
 function getCaught(s: GameState) {
+  // Airtight Alibi (a hack): talk your way out of it.
+  if (useAlibi(s)) return;
   if (onFinalWarning(s)) {
     getFired(s);
     return;
@@ -262,14 +265,14 @@ function fire(
   by: 'you' | 'ally',
   powerMult: number,
   allyId?: CoworkerId,
-  shot: { charge: number; perfect: boolean } = { charge: 0, perfect: false },
+  shot: { charge: number; perfect: boolean; free?: boolean } = { charge: 0, perfect: false },
 ): boolean {
   const t = currentTarget(s);
   if (!t) return false;
   const w = weapon(s);
-  if (s.bands < w.burst) return false;
+  if (!shot.free && s.bands < w.burst) return false;
   const m = mods(s);
-  s.bands -= w.burst;
+  if (!shot.free) s.bands -= w.burst;
   let dmg = w.damage * w.burst * powerMult * (t.damageMult ?? 1) * m.bandDamage * shotMult(s, by, shot.charge) * politicsDamage(s) * repDamage(s) * ladderDamage(s);
   // In Stage 4 there may be a filing-cabinet wall in the way: it soaks up the hit.
   const walled = wallUp(s);
@@ -282,9 +285,10 @@ function fire(
   s.stats.damage += dmg;
   s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
   // An Objection upstairs: your own bands bounce back as paperclips.
-  if (by === 'you') ricochet(s, w.burst);
-  const noise = shotNoise(s, by, shot.charge);
-  addSuspicion(s, noise);
+  if (by === 'you' && !shot.free) ricochet(s, w.burst);
+  // (A free hit, like a Ricochet, makes no extra noise.)
+  const noise = shot.free ? 0 : shotNoise(s, by, shot.charge);
+  if (noise) addSuspicion(s, noise);
   // HR hears every shot fired at HR: some of it goes in the case file.
   if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
   if (!walled && s.targetResolve <= 0) capture(s);
@@ -387,7 +391,7 @@ export function step(s: GameState, dt: number) {
 
   // Allies fire (at half speed while you're at your computer: they're covering for you)
   const shootersActive = t && s.time >= s.shooterLockUntil && !inMeeting(s);
-  const interval = m.allyInterval * (s.lookBusy ? TUNING.computerAllySlow : 1);
+  const interval = (m.allyInterval * (s.lookBusy && !hackBusywork(s) ? TUNING.computerAllySlow : 1)) / hackAllySpeed(s);
   let outOfAmmo = false;
   for (const a of s.allies) {
     if (a.role !== 'shooter' || !shootersActive) continue;
@@ -468,6 +472,7 @@ export function step(s: GameState, dt: number) {
   stepRival(s);
   stepTenants(s, dt);
   stepWeak(s);
+  stepHacks(s);
   stepTrophies(s);
   stepAsks(s);
   stepChat(s);
@@ -495,6 +500,7 @@ function walkbys(s: GameState, warning: number, intervalMult: number) {
       s.work.hustleUntil = s.time + WORK.hustleWindow;
       s.events.push({ type: 'hidden' });
       chaosHidden(s);
+      hackHidden(s);
     } else {
       s.stats.walkbysSpotted++;
       const firing = s.time - s.lastShotAt <= 3;
@@ -552,15 +558,22 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.time + 1e-6 < s.nextFlickAt) return no('');
   const c = Math.min(1, Math.max(0, charge));
   if (safetyHolds(s, shotNoise(s, 'you', c))) return no(SAFETY_MESSAGE);
-  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s);
+  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s) * hackReload(s);
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
   const before = s.stats.damage;
-  fire(s, 'you', chargeMult(c, p) * weakMult(s) * streakMult(s), undefined, { charge: c, perfect: p });
+  const power = chargeMult(c, p) * weakMult(s) * streakMult(s) * hackFlick(s, p);
+  fire(s, 'you', power, undefined, { charge: c, perfect: p });
   if (s.stats.damage > before) {
     streakHit(s);
     if (s.weak?.boost) weakHit(s, s.stats.damage - before);
+    // Hacks: a Ricochet (a free second hit), an Echo Volley (a free mini-Barrage).
+    if (ricochets(s)) {
+      fire(s, 'you', power * HK.ricochet.power, undefined, { charge: c, perfect: false, free: true });
+      s.events.push({ type: 'hackProc', id: 'ricochet' });
+    }
+    if (echoNow(s)) echoVolley(s);
   }
   // Every flick that lands gets the team's next Barrage ready sooner (flicking non-stop: about twice as fast).
   if (s.stats.damage > before && s.barrageAt > s.time) s.barrageAt = Math.max(s.time, s.barrageAt - w.reload * BARRAGE.flickRefill * (p ? 2 : 1));
@@ -644,7 +657,7 @@ export function barrage(s: GameState): ActionResult {
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
   afterHit(s);
-  s.barrageAt = s.time + BARRAGE.cooldown;
+  s.barrageAt = s.time + BARRAGE.cooldown * hackBarrageReload(s);
   s.stats.barrages = (s.stats.barrages ?? 0) + 1;
   s.stats.barrageDamage = (s.stats.barrageDamage ?? 0) + dmg;
   s.stats.damage += dmg;
@@ -656,6 +669,26 @@ export function barrage(s: GameState): ActionResult {
   if (fightingHr(s)) addEvidence(s, noise * POLITICS.evidence.noiseShare);
   if (!walled && s.targetResolve <= 0) capture(s);
   return ok;
+}
+
+/** Echo Volley (a hack): every so many flicks, your team throws a free little Barrage. */
+function echoVolley(s: GameState) {
+  const t = currentTarget(s);
+  if (!t) return;
+  const w = weapon(s);
+  const m = mods(s);
+  const shooters = barrageShooters(s);
+  const n = HK.echo.bands * (1 + shooters.length);
+  let dmg = n * w.damage * BARRAGE.power * (t.damageMult ?? 1) * m.bandDamage * politicsDamage(s) * repDamage(s) * ladderDamage(s);
+  const walled = wallUp(s);
+  if (walled) dmg = hitWall(s, dmg * wallMult(s, 'barrage'));
+  else s.targetResolve -= dmg;
+  s.sinceLastHit = 0;
+  afterHit(s);
+  s.stats.damage += dmg;
+  s.events.push({ type: 'barrage', damage: dmg, bands: n, shooters });
+  s.events.push({ type: 'hackProc', id: 'echo' });
+  if (!walled && s.targetResolve <= 0) capture(s);
 }
 
 /** Grab something from your desk drawer: the good stuff first, unless you pick a band. */

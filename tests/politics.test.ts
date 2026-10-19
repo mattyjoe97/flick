@@ -294,7 +294,7 @@ describe('Corporate Politics pacing (scripted bot)', () => {
       console.log(JSON.stringify({ politicsMin: +minutes.toFixed(1), politicsOnly: !!(extra as { politicsOnly?: boolean }).politicsOnly, memos: s.stats.memos, seized: s.stats.seized }));
       expect(s.stage).toBe(6);
       // (Every flick you land reloads the Barrage sooner, so a bot that never stops flicking is quicker now.)
-      expect(minutes).toBeGreaterThan(30);
+      expect(minutes).toBeGreaterThan(22); // (with the bot taking a hack after every boss)
       expect(minutes).toBeLessThan(75);
     }
   }, 900000);

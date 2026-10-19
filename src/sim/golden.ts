@@ -11,6 +11,7 @@
 // Feeney is on his way. Miss it and it's gone until next time.
 
 import { BARRAGE } from './content';
+import { hackGoldenGap } from './hacks';
 import { jobPayMult } from './job';
 import { mods } from './mods';
 import { rand, randRange } from './rng';
@@ -83,7 +84,7 @@ export function stepGolden(s: GameState) {
   if (g.shown) {
     if (s.time >= g.shown.until || s.lookBusy) {
       g.shown = null;
-      g.nextAt = s.time + randRange(s, GOLDEN.gap[0], GOLDEN.gap[1]);
+      g.nextAt = s.time + randRange(s, GOLDEN.gap[0], GOLDEN.gap[1]) * hackGoldenGap(s);
       s.events.push({ type: 'goldenGone' });
     }
     return;
@@ -98,7 +99,7 @@ export function claimGolden(s: GameState): GoldenKind | null {
   const g = s.golden;
   if (!g?.shown || s.time >= g.shown.until) return null;
   g.shown = null;
-  g.nextAt = s.time + randRange(s, GOLDEN.gap[0], GOLDEN.gap[1]);
+  g.nextAt = s.time + randRange(s, GOLDEN.gap[0], GOLDEN.gap[1]) * hackGoldenGap(s);
   s.stats.goldens = (s.stats.goldens ?? 0) + 1;
   const hasTeam = staffPayPerMin(s, true) > 0;
   const weights: [GoldenKind, number][] = [

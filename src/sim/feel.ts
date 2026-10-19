@@ -7,6 +7,7 @@
 
 import { randRange } from './rng';
 import { currentTarget, type GameState } from './state';
+import { hackStreak, hackWeak } from './hacks';
 
 export const WEAK = { first: 20, gap: [20, 35] as [number, number], seconds: 3, mult: 5 };
 export const STREAK = { gap: 3, per: 0.02, max: 15 }; // max: the bonus steps (so 16 hits in a row)
@@ -40,13 +41,13 @@ export function stepWeak(s: GameState) {
   if (w.shown) {
     if (s.time >= w.shown.until || !fighting) {
       w.shown = null;
-      w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]);
+      w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap;
       s.events.push({ type: 'weakGone' });
     }
     return;
   }
   if (!fighting || s.time < w.nextAt || s.walkby.arrivesAt !== null) return;
-  w.shown = { x: randRange(s, 0.38, 0.62), y: randRange(s, 0.2, 0.42), until: s.time + WEAK.seconds };
+  w.shown = { x: randRange(s, 0.38, 0.62), y: randRange(s, 0.2, 0.42), until: s.time + WEAK.seconds + hackWeak(s).seconds };
   s.events.push({ type: 'weakSpawn' });
 }
 
@@ -59,7 +60,7 @@ export function weakMult(s: GameState) {
 export function weakHit(s: GameState, damage: number) {
   const w = s.weak;
   w.shown = null;
-  w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]);
+  w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap;
   s.stats.weakHits = (s.stats.weakHits ?? 0) + 1;
   s.events.push({ type: 'weakHit', damage });
 }
@@ -67,11 +68,11 @@ export function weakHit(s: GameState, damage: number) {
 /** Your streak right now (0 once it's gone cold). */
 export function streakCount(s: GameState) {
   const st = s.streak;
-  return st && !s.lookBusy && s.time - st.lastAt <= STREAK.gap ? st.n : 0;
+  return st && !s.lookBusy && s.time - st.lastAt <= STREAK.gap + hackStreak(s).gap ? st.n : 0;
 }
 
 export function streakMult(s: GameState) {
-  return 1 + STREAK.per * Math.min(STREAK.max, Math.max(0, streakCount(s) - 1));
+  return 1 + STREAK.per * Math.min(STREAK.max + hackStreak(s).steps, Math.max(0, streakCount(s) - 1));
 }
 
 /** A flick of yours landed: the streak goes up one. */

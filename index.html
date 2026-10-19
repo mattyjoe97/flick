@@ -127,6 +127,7 @@
                 <p class="boost-pill" id="boost-pill" hidden></p>
                 <p class="tenant-pill" id="tenant-pill" hidden></p>
                 <p class="streak-pill" id="streak-pill" hidden></p>
+                <button type="button" class="hack-chip" id="hack-chip" hidden>Pick a hack</button>
               </div>
               <button type="button" class="weak" id="weak" hidden aria-label="Weak spot! Hit it for five times the damage"><span class="weak-ring" aria-hidden="true"></span></button>
               <p class="pop" id="pop" hidden aria-live="polite"></p>
@@ -289,6 +290,14 @@
           </div>
         </div>
       </div>
+
+      <dialog class="dlg dlg-hack" id="hack-dlg" aria-labelledby="hack-dlg-h">
+        <h2 id="hack-dlg-h">Pick a hack</h2>
+        <p class="hack-sub" id="hack-sub">One of three, for the rest of this job.</p>
+        <div class="hack-cards" id="hack-cards"></div>
+        <p class="hack-owned" id="hack-owned"></p>
+        <form method="dialog"><button class="paper-btn" id="hack-later">Later</button></form>
+      </dialog>
 
       <dialog class="dlg" id="stage-dlg" aria-labelledby="stage-dlg-h">
         <h2 id="stage-dlg-h">Stage 2: Cubicle Alliance</h2>

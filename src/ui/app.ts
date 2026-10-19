@@ -9,6 +9,7 @@ import chaosOutage from '../assets/art/icon-chaos-outage.webp';
 import chaosCake from '../assets/art/icon-chaos-cake.webp';
 import chaosInspection from '../assets/art/icon-chaos-inspection.webp';
 import { STREAK, streakCount, streakMult } from '../sim/feel';
+import { hack, hackLevel, HACKS, pickHack, type HackId } from '../sim/hacks';
 import { cutFloss, downRound, fightingTenant, objectionOn, snared, TENANT_RULES, tenantBounty, tenantFloor } from '../sim/tenants';
 import { CHAOS, CHAOS_INFO, chaosLeft, chaosOn, type ChaosKind } from '../sim/chaos';
 
@@ -497,6 +498,19 @@ export class UI {
       e.preventDefault();
       this.doCutFloss();
     });
+    $('hack-chip').addEventListener('click', () => this.openHacks());
+    $('hack-cards').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-hack]');
+      if (b) this.chooseHack(b.dataset.hack as HackId);
+    });
+    $<HTMLDialogElement>('hack-dlg').addEventListener('keydown', (e) => {
+      const n = Number(e.key);
+      const offer = this.s.hacks?.offer;
+      if (offer && n >= 1 && n <= offer.length) {
+        e.preventDefault();
+        this.chooseHack(offer[n - 1]);
+      }
+    });
     $('weak').addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -666,6 +680,7 @@ export class UI {
     else if (k === 'd') this.closet.show();
     else if (k === 'v') this.ball.barrage();
     else if (k === 'x') this.doCutFloss();
+    else if (k === 'h') this.openHacks();
     else if (k === 't') this.openFloor();
     else if (k === 'm') this.openMap();
     else if (/^[1-9]$/.test(k)) this.switchWeapon(Number(k) - 1);
@@ -954,6 +969,17 @@ export class UI {
         this.shake();
         this.popUp(`Weak spot! −${fmt(Math.round(e.damage * toughness(this.s)))}`, 'weak');
       } else if (e.type === 'weakSpawn') this.sound.notify();
+      else if (e.type === 'hackOffer') {
+        this.sound.coins();
+        if (!this.s.lookBusy) this.say(forTouch('A new hack to pick! Tap the gold "Pick a hack" chip on the office (H).'));
+      } else if (e.type === 'hackPicked') this.say(e.text);
+      else if (e.type === 'hackProc') {
+        const word = { ricochet: 'Ricochet!', stapler: 'Stapler!', lucky: 'Lucky!', echo: 'Echo volley!' }[e.id as string];
+        if (word && !this.s.lookBusy) this.floatWord(word);
+      } else if (e.type === 'alibi') {
+        this.sound.grade('B');
+        this.say(e.text);
+      }
       else if (e.type === 'streakMax') {
         this.sound.grade('B');
         this.say(`Hot streak! Every flick hits ${Math.round(STREAK.per * STREAK.max * 100)}% harder while you keep it going.`);
@@ -1043,6 +1069,22 @@ export class UI {
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
     // Numbers appear when the band lands, not when it leaves your hand.
     f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
+    box.appendChild(f);
+    setTimeout(() => f.remove(), 1300);
+  }
+
+  /** A word floating up off the boss (a hack going off). */
+  private floatWord(word: string) {
+    if (reducedMotion()) return;
+    const box = $('floaters');
+    if (box.childElementCount > 12) box.firstElementChild?.remove();
+    const f = document.createElement('span');
+    f.className = 'floater perfect';
+    f.textContent = word;
+    const o = this.scene.floaterOrigin();
+    f.style.left = `${o.left + (Math.random() - 0.5) * 30}%`;
+    f.style.top = `${o.top - 8}%`;
+    f.style.animationDelay = '0.2s';
     box.appendChild(f);
     setTimeout(() => f.remove(), 1300);
   }
@@ -1629,6 +1671,12 @@ export class UI {
       if (pill.dataset.heat !== heat) pill.dataset.heat = heat;
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
+    // A hack waiting to be picked: the gold chip.
+    const h = s.hacks;
+    const chip = $('hack-chip');
+    const want = !!h?.offer && !s.lookBusy;
+    if (want) this.set('hack-chip', h.pending > 1 ? `Pick a hack (${h.pending})` : 'Pick a hack');
+    if (chip.hidden === want) chip.hidden = !want;
     // The boss reacts as their Resolve runs down: halfway, and nearly there.
     const t = currentTarget(s);
     if (t && !s.lookBusy) {
@@ -1644,6 +1692,43 @@ export class UI {
   }
 
   private bossMark = { id: '', share: 1 };
+
+  /** The hack picker: three cards, and the hacks you already have. */
+  private openHacks() {
+    const s = this.s;
+    const offer = s.hacks?.offer;
+    if (!offer) return;
+    if (s.walkby.arrivesAt !== null) return this.say('Footsteps! Pick your hack once Mr. Feeney has gone.');
+    // Mr. Feeney gives you a few seconds to choose.
+    s.walkby.nextAt = Math.max(s.walkby.nextAt, s.time + 8);
+    const kindName = { fight: 'Fighting', flow: 'Sneaking', money: 'Money', wild: 'Wild card' } as const;
+    $('hack-cards').innerHTML = offer
+      .map((id, i) => {
+        const h = hack(id);
+        const next = hackLevel(s, id) + 1;
+        return `<button type="button" class="hack-card" data-kind="${h.kind}" data-hack="${id}">
+          <span class="hack-key" aria-hidden="true">${i + 1}</span>
+          <span class="hack-kind">${kindName[h.kind]}${next > 1 ? ` · level ${next}` : ''}</span>
+          <b class="hack-name">${esc(h.name)}</b>
+          <span class="hack-does">${esc(h.does(next))}</span>
+        </button>`;
+      })
+      .join('');
+    const owned = HACKS.filter((x) => hackLevel(s, x.id) > 0).map((x) => `${x.name}${hackLevel(s, x.id) > 1 ? ` ${hackLevel(s, x.id)}` : ''}`);
+    $('hack-owned').textContent = owned.length ? `Your hacks: ${owned.join(', ')}.` : 'Your first hack. You get a new pick after nearly every boss.';
+    $('hack-sub').textContent = s.hacks.pending > 1 ? `One of three, for the rest of this job (${s.hacks.pending} picks waiting).` : 'One of three, for the rest of this job.';
+    const dlg = $<HTMLDialogElement>('hack-dlg');
+    if (!dlg.open) dlg.showModal();
+  }
+
+  private chooseHack(id: HackId) {
+    if (!pickHack(this.s, id)) return;
+    this.sound.grade('A');
+    const dlg = $<HTMLDialogElement>('hack-dlg');
+    // Another pick waiting: show the next three straight away.
+    if (this.s.hacks.offer) this.openHacks();
+    else dlg.close();
+  }
 
   /** A big word over the office (halfway, nearly, a knockout), and a little shake. */
   private popUp(text: string, kind: string, shake = false) {

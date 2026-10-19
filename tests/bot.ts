@@ -1,3 +1,4 @@
+import { pickHack } from '../src/sim/hacks';
 import { cutFloss, objectionOn, snared } from '../src/sim/tenants';
 import { COWORKERS, TEAMS, TUNING, UPGRADES, WEAPONS } from '../src/sim/content';
 import { promote, reviewReady } from '../src/sim/career';
@@ -189,6 +190,8 @@ function doTask(s: GameState, style: BotStyle, mind: BotMind): boolean {
 const needsMoney = (s: GameState) => s.salary < 15 && s.ownedWeapons.length < 2 && s.time > 3;
 
 function act(s: GameState, style: BotStyle, mind: BotMind) {
+  // A hack on offer: take the first one (a real player would choose; this is a fair average).
+  if (s.hacks?.offer && !BOT_FLAGS.noHacks) pickHack(s, s.hacks.offer[0]);
   // A delivered box gets opened right away (it's on the desk, even from your chair).
   if (s.supplies.box) openBox(s);
   // Reviews get taken as soon as they're ready.
@@ -332,7 +335,7 @@ function renovate(s: GameState): boolean {
 }
 
 /** Switches for experiments (pacing tests turn the new spending off to compare). */
-export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0, tenants: 0, safety: false };
+export const BOT_FLAGS = { noRenovate: false, noStock: false, noExec: false, lastStock: 0, lastBounties: 0, tenants: 0, safety: false, noHacks: false };
 
 /** Grows the team: the cheapest seat or training it can afford with money to spare. */
 function hireSomeone(s: GameState): boolean {

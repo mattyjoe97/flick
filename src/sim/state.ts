@@ -6,6 +6,7 @@ import { newDaily, type DailyState } from './daily';
 import { newRival, type RivalState } from './rival';
 import { newTenants, nextTenant, type TenantState } from './tenants';
 import { newStreak, newWeak, type StreakState, type WeakState } from './feel';
+import { newHacks, type HackId, type HackState } from './hacks';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -164,6 +165,8 @@ export interface GameState {
   /** A weak spot on whoever you're fighting (hit it for a 5x flick), and your hot streak. */
   weak: WeakState;
   streak: StreakState;
+  /** This job's hacks: the ones you've picked, and any pick waiting. */
+  hacks: HackState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -432,6 +435,10 @@ export type GameEvent =
   | { type: 'rival'; result: 'won' | 'lost'; text?: string }
   | { type: 'tenantsOpen' }
   | { type: 'weakSpawn' }
+  | { type: 'hackOffer' }
+  | { type: 'hackPicked'; id: HackId; level: number; text: string }
+  | { type: 'hackProc'; id: HackId }
+  | { type: 'alibi'; text: string }
   | { type: 'weakGone' }
   | { type: 'weakHit'; damage: number }
   | { type: 'streakMax' }
@@ -534,6 +541,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     safety: true,
     weak: newWeak(),
     streak: newStreak(),
+    hacks: newHacks(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },

@@ -290,7 +290,7 @@ describe('Floor Domination pacing (scripted bot)', () => {
       gatling: s.ownedWeapons.includes('gatling'), allies: s.allies.map((a) => `${a.id}:${a.role}`).join(','),
     }));
     expect(s.stage).toBe(5);
-    expect(minutes).toBeGreaterThan(35);
+    expect(minutes).toBeGreaterThan(26); // (with the bot taking a hack after every boss)
     expect(minutes).toBeLessThan(75);
   }, 600000);
 });

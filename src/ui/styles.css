@@ -7404,3 +7404,128 @@ body.in-map .money-floater {
   margin-right: 4px;
   -webkit-text-stroke: 0.5px #6b4a0c;
 }
+
+/* ---------------------------------------------------------------- hacks */
+
+.hack-chip {
+  pointer-events: auto;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid #5c430c;
+  background: #f7d76a;
+  color: #3b2a07;
+  font: inherit;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255, 214, 90, 0.9);
+  animation: hack-glow 1s ease-in-out infinite alternate;
+  touch-action: manipulation;
+}
+@keyframes hack-glow {
+  to {
+    box-shadow: 0 0 20px rgba(255, 200, 60, 1);
+    transform: scale(1.04);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hack-chip {
+    animation: none;
+  }
+}
+
+.dlg-hack {
+  max-width: min(760px, calc(100vw - 24px));
+  padding: 20px 18px 16px;
+}
+.dlg-hack h2 {
+  margin: 0;
+}
+.hack-sub {
+  margin: 2px 0 12px;
+  color: var(--ink-2);
+}
+.hack-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.hack-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 150px;
+  padding: 12px 12px 14px;
+  border: 3px solid var(--ink);
+  border-top-width: 10px;
+  border-radius: 8px;
+  background: #fffdf6;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s ease-out;
+  touch-action: manipulation;
+}
+.hack-card:hover,
+.hack-card:focus-visible {
+  transform: translateY(-3px);
+}
+.hack-card[data-kind='fight'] {
+  border-top-color: #c62f28;
+}
+.hack-card[data-kind='flow'] {
+  border-top-color: #3d7fc4;
+}
+.hack-card[data-kind='money'] {
+  border-top-color: #2f8a3a;
+}
+.hack-card[data-kind='wild'] {
+  border-top-color: #7b5ea7;
+  background: #f8f3ff;
+}
+.hack-key {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-2);
+  border: 1.5px solid var(--ink-2);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.hack-kind {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.hack-name {
+  font-size: 18px;
+}
+.hack-does {
+  font-size: 14px;
+  line-height: 1.35;
+}
+.hack-owned {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+@media (max-width: 600px) {
+  .hack-cards {
+    grid-template-columns: 1fr;
+  }
+  .hack-card {
+    min-height: 0;
+  }
+  .hack-key {
+    display: none;
+  }
+}
