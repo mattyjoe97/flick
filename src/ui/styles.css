@@ -5569,6 +5569,7 @@ body.at-computer .desk-box.bulk {
   #sound-btn,
   #floor-btn,
   #map-btn,
+  #break-btn,
   .kb,
   kbd {
     display: none !important;
@@ -7321,7 +7322,7 @@ body.in-map .money-floater {
 }
 
 /* A big word over the office: halfway, nearly there, a knockout, a weak spot hit. */
-.pop {
+#pop {
   position: absolute;
   left: 50%;
   top: 34%;
@@ -7337,16 +7338,16 @@ body.in-map .money-floater {
   white-space: nowrap;
   pointer-events: none;
 }
-.pop[data-kind='ko'] {
+#pop[data-kind='ko'] {
   color: #fff;
   -webkit-text-stroke: 2px #c62f28;
   font-size: max(34px, 8cqw);
 }
-.pop[data-kind='weak'] {
+#pop[data-kind='weak'] {
   color: #ff8a7a;
   -webkit-text-stroke: 1.5px #5a0f0b;
 }
-.pop.go {
+#pop.go {
   animation: pop-up 1.2s ease-out both;
 }
 @keyframes pop-up {
@@ -7388,7 +7389,7 @@ body.in-map .money-floater {
 
 @media (prefers-reduced-motion: reduce) {
   .weak,
-  .pop.go,
+  #pop.go,
   .scene-wrap.shake {
     animation: none;
   }
@@ -7527,5 +7528,323 @@ body.in-map .money-floater {
   }
   .hack-key {
     display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- the Break Room */
+
+.breakroom {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, #5a4a35, #1b140d);
+}
+
+.break-stage .closet-bg svg {
+  display: block;
+}
+
+.break-gail {
+  position: absolute;
+  bottom: 0;
+  z-index: 1;
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(6px 6px 10px rgba(30, 15, 5, 0.45));
+}
+
+.break-say {
+  left: 2.5%;
+  top: 3%;
+}
+
+.break-spot {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(2px 5px 3px rgba(40, 20, 5, 0.35));
+  transition: transform 0.12s ease-out, filter 0.12s;
+}
+
+.break-spot > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.break-spot:hover,
+.break-spot.selected {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 0 6px rgba(255, 244, 200, 0.95)) drop-shadow(2px 7px 4px rgba(40, 20, 5, 0.4));
+}
+
+.break-spot:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.spot-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -0.2em;
+  transform: translate(-50%, 100%);
+  padding: 0.15em 0.6em;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: var(--tape);
+  font-family: var(--font-hand);
+  font-size: clamp(10px, 1.5cqw, 17px);
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.break-spot[data-spot='vending'] .spot-tag {
+  bottom: 6%;
+  transform: translate(-50%, 0);
+}
+
+.break-spot[data-spot='board'] .spot-tag {
+  bottom: auto;
+  top: -0.3em;
+  transform: translate(-50%, -100%) rotate(-2deg);
+}
+
+.spot-dot {
+  position: absolute;
+  top: 2%;
+  right: 4%;
+  width: clamp(10px, 1.6cqw, 18px);
+  height: clamp(10px, 1.6cqw, 18px);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #5ad16b;
+  box-shadow: 0 0 8px #8fffa0;
+  animation: spotdot 1.4s ease-in-out infinite;
+}
+
+.break-spot.brewing .steam {
+  display: none;
+}
+
+.break-spot:not(.brewing) .steam {
+  animation: steam 1.8s ease-in-out infinite;
+}
+
+@keyframes steam {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 0.35;
+  }
+}
+
+.break-spot.brewing .brew {
+  animation: brewing 2.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+}
+
+@keyframes brewing {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.break-spot.stuck {
+  animation: wobble 2s ease-in-out infinite;
+}
+
+.break-spot.shaking {
+  animation: shake 0.35s ease-in-out;
+}
+
+@keyframes wobble {
+  0%,
+  90%,
+  100% {
+    transform: rotate(0);
+  }
+  94% {
+    transform: rotate(-1deg);
+  }
+  97% {
+    transform: rotate(1deg);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(-4%) rotate(-3deg);
+  }
+  50% {
+    transform: translateX(4%) rotate(3deg);
+  }
+  75% {
+    transform: translateX(-2%) rotate(-1deg);
+  }
+}
+
+.break-pop {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  z-index: 5;
+  transform: translateX(-50%);
+  padding: 0.2em 0.6em;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff6c8;
+  font-weight: 800;
+  font-size: clamp(11px, 1.8cqw, 20px);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: breakpop 1.1s ease-out forwards;
+}
+
+@keyframes breakpop {
+  from {
+    transform: translate(-50%, 10px) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, 0) scale(1.08);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -40px) scale(1);
+    opacity: 0;
+  }
+}
+
+.break-detail {
+  max-height: calc(100dvh - 110px);
+  overflow: auto;
+}
+
+.break-detail .memo-note {
+  margin: 0;
+  font-size: var(--t-sm);
+}
+
+.break-detail kbd {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.snack-list,
+.pins {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.snack-list li {
+  font-size: var(--t-sm);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.snack-list li.on {
+  background: #fff3a6;
+  outline: 2px solid #c79a12;
+}
+
+.board-h {
+  margin: 6px 0 0;
+  font-family: var(--font-hand);
+  font-size: var(--t-md);
+}
+
+.pins .pin {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px;
+  background: #fffdf4;
+  border: 1px solid rgba(60, 35, 10, 0.25);
+  box-shadow: 1px 2px 0 rgba(60, 35, 10, 0.2);
+}
+
+.pins .pin:nth-child(odd) {
+  transform: rotate(-0.6deg);
+}
+
+.pins .pin:nth-child(even) {
+  transform: rotate(0.5deg);
+}
+
+.pins .pin.owned {
+  background: #f0f8e4;
+}
+
+.pins .pin p {
+  margin: 2px 0 0;
+  font-size: var(--t-xs);
+}
+
+.pins .pin .paper-btn {
+  flex: none;
+  white-space: nowrap;
+}
+
+.pins .perk-lv,
+.pins .perk-max {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  font-weight: 700;
+}
+
+.coffee-pill,
+.snack-pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #4a2c14;
+  background: #f1dcc0;
+  color: #3b220e;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.snack-pill {
+  border-color: #1f4a6b;
+  background: #d4ecfa;
+  color: #123049;
+}
+
+@media (max-width: 900px) {
+  .break-detail {
+    max-height: none;
+  }
+}
+
+@keyframes spotdot {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
   }
 }

@@ -1,4 +1,5 @@
 import { BAILEY, CHARGE, COWORKERS, DALE, DEPARTMENTS, PROMOTION, SIEGE, TUNING, WAR, WEAPONS, type CoworkerId, type Role, type TrickId, type UpgradeId, type WeaponId } from './content';
+import { snackDamage, snackQuiet } from './breakroom';
 import { company, deptPerk, roomTaken, type GameState } from './state';
 import { jobPriceMult } from './job';
 import { renoQuiet } from './ladder';
@@ -93,7 +94,7 @@ export function mods(s: GameState) {
     priceMult: (1 - Math.min(TUNING.engineerCutMax, engineers * TUNING.engineerCutEach)) * jobPriceMult(s),
     hasEngineer: s.allies.some((a) => a.role === 'engineer'),
     allyInterval: TUNING.allyInterval / (has(s, 'training') ? 1.3 : 1) / (roomTaken(s, 'breakroom') ? SIEGE.coffeeShooters : 1),
-    yourNoiseMult: (has(s, 'silent') ? 0.75 : 1) * hackQuiet(s),
+    yourNoiseMult: (has(s, 'silent') ? 0.75 : 1) * hackQuiet(s) * snackQuiet(s),
     allNoiseMult: (has(s, 'carpet') ? 0.85 : 1) * (has(s, 'walls') ? 0.8 : 1) * renoQuiet(s) * chaosNoise(s),
     scrounge: has(s, 'rummage') ? 2 : 1,
     workPay: has(s, 'chair') ? 2 : 1,
@@ -103,7 +104,7 @@ export function mods(s: GameState) {
     bandsPerSec: bandsPerSec * company(s).rules.bands * hackBands(s),
     salaryPerSec: basePay * (s.lookBusy ? lookBusyMult : 1),
     coverCool: covers * TUNING.coverCool,
-    bandDamage: has(s, 'thick') ? DALE.thickDamage : 1,
+    bandDamage: (has(s, 'thick') ? DALE.thickDamage : 1) * snackDamage(s),
     perfectWindow: has(s, 'waxed') ? DALE.waxedWindow : CHARGE.perfectWindow,
     snapAfter: has(s, 'waxed') ? DALE.waxedSnap : CHARGE.snapAfter,
   };

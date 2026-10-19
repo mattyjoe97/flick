@@ -368,10 +368,10 @@ export const COMPANIES: Company[] = [
   },
 ];
 
-export type PerkId = 'refs' | 'friends' | 'hustle' | 'headhunter' | 'contacts' | 'bonus' | 'seniority' | 'standing' | 'delegate' | 'templates';
+export type PerkId = 'refs' | 'friends' | 'hustle' | 'headhunter' | 'contacts' | 'bonus' | 'seniority' | 'standing' | 'delegate' | 'templates' | 'mug' | 'beans' | 'change';
 
 /** Résumé perks: bought with Reputation, kept forever. */
-export const PERKS: { id: PerkId; name: string; does: string; max: number; cost: number; growth: number }[] = [
+export const PERKS: { id: PerkId; name: string; does: string; max: number; cost: number; growth: number; room?: true }[] = [
   { id: 'refs', name: 'Strong References', does: 'Start every job one pay grade higher.', max: 5, cost: 10, growth: 2 },
   { id: 'bonus', name: 'Signing Bonus', does: 'Start every job with $1,000 and 300 bands more.', max: 5, cost: 5, growth: 1.6 },
   { id: 'hustle', name: 'Hustle', does: 'All your work pays 20% more.', max: 10, cost: 8, growth: 1.6 },
@@ -382,6 +382,10 @@ export const PERKS: { id: PerkId; name: string; does: string; max: number; cost:
   { id: 'seniority', name: 'Seniority', does: 'Time away counts for 4 more hours.', max: 4, cost: 12, growth: 2 },
   { id: 'delegate', name: 'Delegation', does: 'Raids, counterattacks and HR interviews you miss get handled anyway.', max: 1, cost: 40, growth: 1 },
   { id: 'templates', name: 'Memo Templates', does: 'Synergy Offsite and Document Retention memos send themselves when they’re ready.', max: 1, cost: 35, growth: 1 },
+  // The Break Room's own (on the corkboard with the rest):
+  { id: 'mug', name: 'Your Own Mug', does: 'Coffee keeps you Caffeinated 30 s longer.', max: 3, cost: 6, growth: 1.8, room: true },
+  { id: 'beans', name: 'Good Beans', does: 'The coffee pot brews 20% faster.', max: 3, cost: 6, growth: 1.8, room: true },
+  { id: 'change', name: 'Exact Change', does: 'Snacks cost 20% less and last a minute longer.', max: 3, cost: 5, growth: 1.8, room: true },
 ];
 
 export type ExecId = 'clout' | 'morale' | 'expense' | 'warchest' | 'lunch';

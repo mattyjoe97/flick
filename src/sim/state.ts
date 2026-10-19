@@ -7,6 +7,7 @@ import { newRival, type RivalState } from './rival';
 import { newTenants, nextTenant, type TenantState } from './tenants';
 import { newStreak, newWeak, type StreakState, type WeakState } from './feel';
 import { newHacks, type HackId, type HackState } from './hacks';
+import { newBreak, type BreakState, type SnackId } from './breakroom';
 import { newWorkState, type Grade, type WorkKind, type WorkState } from './work';
 
 export const SAVE_VERSION = 18;
@@ -167,6 +168,7 @@ export interface GameState {
   streak: StreakState;
   /** This job's hacks: the ones you've picked, and any pick waiting. */
   hacks: HackState;
+  breakroom: BreakState;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -284,6 +286,9 @@ export interface GameState {
     flossCut: number;
     weakHits: number;
     bestStreak: number;
+    cups: number;
+    snacks: number;
+    shook: number;
   };
 
   /** One-shot UI events the renderer consumes (flick animation, captures...). */
@@ -430,6 +435,9 @@ export type GameEvent =
   | { type: 'goldenGone' }
   | { type: 'golden'; kind: GoldenKind; text?: string }
   | { type: 'chaosStart'; kind: ChaosKind }
+  | { type: 'coffee' }
+  | { type: 'snack'; id: SnackId }
+  | { type: 'snackStuck'; id: SnackId }
   | { type: 'chaosEnd'; kind: ChaosKind }
   | { type: 'dailyNew' }
   | { type: 'rival'; result: 'won' | 'lost'; text?: string }
@@ -542,6 +550,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     weak: newWeak(),
     streak: newStreak(),
     hacks: newHacks(),
+    breakroom: newBreak(),
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },
@@ -633,6 +642,9 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       flossCut: 0,
       weakHits: 0,
       bestStreak: 0,
+      cups: 0,
+      snacks: 0,
+      shook: 0,
     },
     events: [],
   };

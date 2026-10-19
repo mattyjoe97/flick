@@ -1,0 +1,54 @@
+FLICK — ART BATCH 15: The Break Room
+
+Same game, same chat. Every earlier FLICK image here is the STYLE AND PALETTE reference for this batch; the supply closet room (batch 3) and Dale's goods are the closest match. Match them exactly: clean flat 2D vector cartoon, bold even dark-brown outline #332A24 (about 12px on a 1024px canvas), flat warm muted fills, one cel-shade shape and one small flat highlight per shape, light from the upper left. Adult proportions, never chibi.
+
+The player can now walk to the office break room: a coffee maker, a vending machine full of snacks, and a corkboard. Gail from Payroll (batch 8) stands in it, but she is NOT in this batch: leave room for her on the left.
+
+Rules for EVERY image: PNG; ABSOLUTELY NO letters, numbers, words, logos, brand marks, cartoon characters or printed graphics anywhere, including on packaging, cans, the vending machine buttons, the corkboard notes and the mugs (the game draws all text itself). No gradients, painterly texture, noise, photorealism or 3D rendering. Scripted finishing (exact canvas size, clean alpha, alignment) is authorized as before.
+
+Number the files exactly as below (they continue after batch 14's 249_floss_snare.png). Deliver all 10 PNGs in a folder named batch15 inside the outputs folder, plus a zip of that folder, plus asset-manifest-batch15.json (size and alpha bounding box per file, and the registration numbers asked for below) and prompts-batch15.json (the prompt used for each file), like earlier batches.
+
+==================================================
+A. THE ROOM (1 file, opaque)
+==================================================
+
+250_breakroom.png — 2048 x 1152, OPAQUE (no transparency), a small office break room seen STRAIGHT ON at standing eye level (not from above), like the supply closet room. Warm beige walls with a darker band near the top, a dado rail at about y=520, a warm brown tiled floor from about y=860 down to the bottom edge.
+- LEFT third (x 0 to 620): a window with four panes and a pale blue sky with a hint of rooftops at about x=160..540, y=140..440, and a tall potted plant in the far left corner. Keep the area in front of the window (x 0..600, y 440..1152) plain wall and floor: a character is drawn standing there.
+- CENTRE (x 600 to 1420): a kitchen counter with a pale cream countertop whose top edge is at y=600, and warm wooden cabinet doors with small round knobs below it down to y=870. On the RIGHT end of the counter top only: a small paper-towel holder, a stack of two plain mugs and a plain white kettle. Keep the LEFT HALF of the counter top (x 620..960) EMPTY: a coffee maker is drawn there. Keep the wall above the counter between x 940 and 1420, y 100..500 EMPTY plain wall: a corkboard hangs there.
+- RIGHT (x 1460 to 2048): plain wall and floor, EMPTY from x 1490 to 1930 all the way from y 100 down to the floor: a vending machine stands there. A small fire extinguisher on the wall near the right edge is fine.
+Record in the manifest: the countertop line (y of its top edge), and the three empty areas you left (left/top/right/bottom).
+
+==================================================
+B. THE THREE THINGS (5 files, transparent)
+==================================================
+
+All transparent PNG (RGBA), no background, floor or cast shadow, drawn straight on at the SAME SCALE as the room (as if cut out of it), each resting on its bottom edge.
+
+251_coffee_maker.png — 480 x 600: a classic drip coffee maker in charcoal grey with a little red power light, a round glass carafe FULL of dark coffee on the warming plate, and two soft white wisps of steam rising from the carafe.
+252_coffee_maker_brewing.png — 480 x 600: the SAME image pixel-for-pixel except the carafe is only a quarter full, a thin stream of coffee drips into it from the filter, the light is amber, and there is no steam.
+
+253_vending_machine.png — 600 x 1280: a tall snack vending machine, red body, a big glass front showing four rows of colourful snack packets and cans on silver spiral coils, a narrow black keypad panel on the right with blank square buttons and a coin slot, and a dark pick-up flap at the bottom. Nothing printed anywhere (blank packets, blank buttons).
+
+254_corkboard.png — 840 x 600: a cork notice board in a light wooden frame, with five or six blank pinned papers and sticky notes (white, yellow, pale blue, pink) held by red push pins, some slightly crooked, a couple with faint grey scribble lines (NOT letters), and one torn tear-off flyer.
+
+==================================================
+C. ICONS (4 snacks + 1 mug, transparent)
+==================================================
+
+240 x 240 transparent PNG each, centred, filling about 80% of the canvas, readable at 32 x 32. No text or logos on any packaging.
+255_snack_pretzels.png — an open crinkly orange snack bag with a few golden pretzels spilling out.
+256_snack_gummies.png — an open clear bag of bright two-tone gummy worms (red-yellow, green-orange, blue-pink).
+257_snack_energy.png — a tall slim electric-blue drink can with a lightning-bolt shape (shape only) and a pull tab.
+258_snack_mints.png — a small open silver tin of round white mints, the lid propped open.
+259_icon_mug.png — a chunky cream coffee mug, full, with a curl of steam (for the "Caffeinated" pill and the Break room button).
+
+==================================================
+CHECKLIST
+==================================================
+
+- 10 PNGs, numbered 250 to 259, exactly the sizes above.
+- 250 is opaque; 251 to 259 are transparent.
+- 250 leaves the four empty areas (front of the window, left half of the counter top, the wall above the counter, the vending machine's spot) and the manifest records them and the countertop line.
+- 251 and 252 are identical except the carafe, the drip, the light and the steam.
+- No text, numbers, letters, logos or prints anywhere.
+- Manifest + prompts JSON + zip in the outputs folder, inside a batch15 folder.

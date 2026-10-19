@@ -8,6 +8,7 @@
 import { randRange } from './rng';
 import { currentTarget, type GameState } from './state';
 import { hackStreak, hackWeak } from './hacks';
+import { snackWeakGap } from './breakroom';
 
 export const WEAK = { first: 20, gap: [20, 35] as [number, number], seconds: 3, mult: 5 };
 export const STREAK = { gap: 3, per: 0.02, max: 15 }; // max: the bonus steps (so 16 hits in a row)
@@ -41,7 +42,7 @@ export function stepWeak(s: GameState) {
   if (w.shown) {
     if (s.time >= w.shown.until || !fighting) {
       w.shown = null;
-      w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap;
+      w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap * snackWeakGap(s);
       s.events.push({ type: 'weakGone' });
     }
     return;
@@ -60,7 +61,7 @@ export function weakMult(s: GameState) {
 export function weakHit(s: GameState, damage: number) {
   const w = s.weak;
   w.shown = null;
-  w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap;
+  w.nextAt = s.time + randRange(s, WEAK.gap[0], WEAK.gap[1]) * hackWeak(s).gap * snackWeakGap(s);
   s.stats.weakHits = (s.stats.weakHits ?? 0) + 1;
   s.events.push({ type: 'weakHit', damage });
 }

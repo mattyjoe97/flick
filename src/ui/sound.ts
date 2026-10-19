@@ -334,4 +334,18 @@ export class Sound {
     this.noise(3000, 0.6, 0.22, 0.12);
     this.noise(1500, 0.9, 0.18, 0.08, 0.06);
   }
+
+  /** Coffee glugging into a mug. */
+  pour() {
+    if (!this.ok('pour', 300)) return;
+    for (let i = 0; i < 4; i++) this.tone('sine', 260 + i * 40, 200 + i * 30, 0.07, 0.12, i * 0.09);
+    this.noise(900, 1.5, 0.35, 0.05);
+  }
+
+  /** A snack dropping in the vending machine (or a good shake). */
+  thunk() {
+    if (!this.ok('thunk', 120)) return;
+    this.tone('square', 160, 70, 0.08, 0.15);
+    this.noise(400, 1, 0.08, 0.18);
+  }
 }

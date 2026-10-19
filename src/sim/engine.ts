@@ -8,6 +8,7 @@ import { boxSpotted, deliver, grab, stepSupplies, suppliesOffline, SUPPLIES } fr
 import { staffOffline, stepStaff } from './staff';
 import { stepOffice } from './office';
 import { stepGoals } from './goals';
+import { coffeeCool, coffeeReload, snackBarrage } from './breakroom';
 import { ballBarrageMult, ballCoolMult, ballDamageMult, ballUnlocked, stepBall } from './ball';
 import { rematchWon, stepRematch } from './rematch';
 import { afterHit, deptWon, fightingDept, roomWon, shotMult, startWar, stepWar } from './war';
@@ -385,7 +386,7 @@ export function step(s: GameState, dt: number) {
 
   // Cooling off
   const idle = s.time - s.lastShotAt >= TUNING.idleCoolDelay;
-  const cool = (TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0)) * ballCoolMult(s);
+  const cool = (TUNING.baseCool + (idle ? TUNING.idleCool : 0) + m.coverCool + (s.lookBusy ? TUNING.lookBusyCool : 0)) * ballCoolMult(s) * coffeeCool(s);
   s.suspicion = Math.max(0, s.suspicion - cool * dt);
   checkThresholds(s);
 
@@ -558,7 +559,7 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   if (s.time + 1e-6 < s.nextFlickAt) return no('');
   const c = Math.min(1, Math.max(0, charge));
   if (safetyHolds(s, shotNoise(s, 'you', c))) return no(SAFETY_MESSAGE);
-  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s) * hackReload(s);
+  s.nextFlickAt = s.time + w.reload * tenantReloadMult(s) * hackReload(s) * coffeeReload(s);
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
@@ -657,7 +658,7 @@ export function barrage(s: GameState): ActionResult {
   s.sinceLastHit = 0;
   s.lastShotAt = s.time;
   afterHit(s);
-  s.barrageAt = s.time + BARRAGE.cooldown * hackBarrageReload(s);
+  s.barrageAt = s.time + BARRAGE.cooldown * hackBarrageReload(s) * snackBarrage(s);
   s.stats.barrages = (s.stats.barrages ?? 0) + 1;
   s.stats.barrageDamage = (s.stats.barrageDamage ?? 0) + dmg;
   s.stats.damage += dmg;

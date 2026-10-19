@@ -27,7 +27,9 @@ import viewFloor4 from '../assets/art/view-floor4.webp';
 import viewFloor12 from '../assets/art/view-floor12.webp';
 import viewFloor30 from '../assets/art/view-floor30.webp';
 import {
+  addSuspicion,
   assign,
+  safetyHolds,
   buyBack,
   buyBackPrice,
   confiscatedLeft,
@@ -63,6 +65,8 @@ import { bigFloater, coinsFor, moneyBurst, onScreen } from './juice';
 import { SUPPLIES } from '../sim/supplies';
 import { DeliveryView, DrawerView } from './supplies';
 import { ClosetView } from './closet';
+import { BreakRoomView, breakPills } from './breakroom';
+import { breakUnlocked, coffeeReady } from '../sim/breakroom';
 import { OfficeView } from './office';
 import { BallView } from './ball';
 import { FloorView } from './floor';
@@ -114,6 +118,7 @@ export class UI {
   private drawer: DrawerView;
   private delivery: DeliveryView;
   private closet: ClosetView;
+  private breakroom: BreakRoomView;
   private office: OfficeView;
   private ball: BallView;
   private floor: FloorView;
@@ -215,6 +220,21 @@ export class UI {
         $('closet-btn').focus();
       },
     }, this.sound);
+    this.breakroom = new BreakRoomView(() => this.s, {
+      ...supplyHooks,
+      opened: () => {
+        this.launcher.cancel();
+        this.drawer.close();
+        this.closet.close();
+        document.body.classList.add('in-closet');
+      },
+      closed: () => document.body.classList.remove('in-closet'),
+      noise: (n: number) => {
+        if (safetyHolds(this.s, n)) return false;
+        addSuspicion(this.s, n);
+        return true;
+      },
+    }, this.sound);
     const warHooks = {
       say: (t: string) => this.say(t),
       bump: (w: 'bands' | 'salary') => this.bump(w),
@@ -222,6 +242,7 @@ export class UI {
         this.launcher.cancel();
         this.drawer.close();
         this.closet.close();
+        this.breakroom.close();
         document.body.classList.add('in-map');
       },
       closed: () => document.body.classList.remove('in-map'),
@@ -451,6 +472,7 @@ export class UI {
     );
     $('hide-btn').addEventListener('click', () => this.toggleHide());
     $('floor-btn').addEventListener('click', () => this.openFloor());
+    $('break-btn').addEventListener('click', () => this.breakroom.show());
     $('map-btn').addEventListener('click', () => this.openMap());
     for (const id of ['sound-btn', 'sound-btn-2'])
       $(id).addEventListener('click', () => {
@@ -461,13 +483,14 @@ export class UI {
     $('app').addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-mini]');
       if (!b) return;
-      const go = b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet' | 'floor' | 'map' | 'list';
+      const go = b.dataset.mini as 'scrounge' | 'work' | 'order' | 'closet' | 'break' | 'floor' | 'map' | 'list';
       if (go !== 'list') this.showList(false);
       ({
         scrounge: this.doScrounge,
         work: this.doWork,
         order: this.doOrder,
         closet: () => this.closet.show(),
+        break: () => this.breakroom.show(),
         floor: () => this.openFloor(),
         map: () => this.openMap(),
         list: () => this.showList(!document.body.classList.contains('list-open')),
@@ -644,6 +667,10 @@ export class UI {
       if (this.closet.onKey(e)) e.preventDefault();
       return;
     }
+    if (this.breakroom.isOpen) {
+      if (this.breakroom.onKey(e)) e.preventDefault();
+      return;
+    }
     if (this.map.isOpen) {
       if (this.map.onKey(e)) e.preventDefault();
       return;
@@ -678,6 +705,7 @@ export class UI {
     else if (k === 'w') this.doWork();
     else if (k === 'o') this.doOrder();
     else if (k === 'd') this.closet.show();
+    else if (k === 'r') this.breakroom.show();
     else if (k === 'v') this.ball.barrage();
     else if (k === 'x') this.doCutFloss();
     else if (k === 'h') this.openHacks();
@@ -771,6 +799,7 @@ export class UI {
     this.launcher.cancel();
     this.drawer.close();
     this.closet.close();
+    this.breakroom.close();
     this.map.close();
     this.closeRolePop();
   }
@@ -997,6 +1026,7 @@ export class UI {
       else if (e.type === 'pay') this.onPay(e);
       else if (e.type === 'walkby') {
         this.closet.kickOut();
+        this.breakroom.kickOut();
         this.closeRolePop();
       }
       else if (e.type === 'dealGone' && e.why === 'walkby') this.say('Dale melted away. Footsteps!');
@@ -1259,7 +1289,7 @@ export class UI {
         <dt>Reputation to spend</dt><dd>${s.job.reputation}</dd>
         <dt>Your bands hit harder</dt><dd>${repDamage(s) >= 10 ? `×${fmt(Math.round(repDamage(s)))}` : `+${Math.round((repDamage(s) - 1) * 100)}%`}</dd>
       </dl>
-      <p>Bailey, your rubber band ball and your names came with you. Spend your Reputation on résumé perks in <strong>Job Search</strong>, on your computer.</p>`;
+      <p>Bailey, your rubber band ball and your names came with you. Spend your Reputation on the <strong>corkboard in the Break Room</strong> (R): résumé perks, kept forever.</p>`;
     $('stage-dlg-ok').textContent = 'Get to work';
     this.mapAfterStage = false;
     const dlg = $<HTMLDialogElement>('stage-dlg');
@@ -1441,6 +1471,7 @@ export class UI {
     this.floor.render();
     this.delivery.render();
     this.closet.render();
+    this.breakroom.render();
     this.scene.render();
     this.launcher.update(weapon(s).id, this.scene.handAim(), reducedMotion(), this.scene.handShift());
     void dt;
@@ -1650,6 +1681,14 @@ export class UI {
       this.set('boost-pill', b.kind === 'frenzy' ? `★ Frenzy ${GOLDEN.frenzy.damage}× · ${Math.ceil(left)} s` : `★ Overtime ${GOLDEN.overtime.team}× · ${Math.ceil(left)} s`);
       if (pill.hidden) pill.hidden = false;
     } else if (!pill.hidden) pill.hidden = true;
+    // The Break Room: coffee and a snack.
+    const bp = breakPills(s);
+    for (const [id, text] of [['coffee-pill', bp.coffee], ['snack-pill', bp.snack]] as const) {
+      const el = $(id);
+      const show = !!text && !s.lookBusy;
+      if (show) this.set(id, text!);
+      if (el.hidden === show) el.hidden = !show;
+    }
   }
 
   /** The weak spot on the boss, your hot streak, and the boss reacting as their Resolve runs down. */
@@ -1906,6 +1945,13 @@ export class UI {
     $('map-btn').classList.toggle('dot', war && !this.mapSeen);
     $('bar-map').hidden = !war;
     $('bar-map-dot').hidden = !war || this.mapSeen;
+    // The Break Room: from Stage 2 (day one at later jobs), with a dot when the coffee's ready.
+    const br = breakUnlocked(s);
+    const brew = br && coffeeReady(s);
+    $('break-btn').hidden = !br;
+    $('break-btn').classList.toggle('dot', brew);
+    $('bar-break').hidden = !br;
+    $('bar-break-dot').hidden = !brew;
 
     // The desk phone rings at war: a banner to pick it up (which puts you at your computer).
     const banner = $('call-banner');
