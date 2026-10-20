@@ -345,6 +345,12 @@ export class Sound {
     this.noise(1500, 0.9, 0.18, 0.08, 0.06);
   }
 
+  /** A band whistling past (a miss). */
+  whiff() {
+    if (!this.ok('whiff', 120)) return;
+    this.noise(1800, 0.7, 0.22, 0.12, 0.05);
+  }
+
   /** Coffee glugging into a mug. */
   pour() {
     if (!this.ok('pour', 300)) return;

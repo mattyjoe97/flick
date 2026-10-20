@@ -6,7 +6,7 @@
 import { attr } from './fill';
 import { COWORKERS } from '../sim/content';
 import { co } from './co';
-import { walkbyCountdown } from '../sim/engine';
+import { walkbyCountdown, type AimZone } from '../sim/engine';
 import { mods } from '../sim/mods';
 import { firewallUp } from '../sim/war';
 import { inMeeting, wallUp } from '../sim/siege';
@@ -106,6 +106,17 @@ export class Scene {
   private root: HTMLElement;
   private svg!: SVGSVGElement;
   private peopleLayer!: SVGGElement;
+  /** Whoever you're fighting sways from side to side (so aiming takes a little skill). */
+  private swayLayer!: SVGGElement;
+  private swayX = 0;
+  /** Spent bands on the top of their cubicle wall. */
+  private pileLayer!: SVGGElement;
+  private piled = 0;
+  /** Band-aids on so far (one at half Resolve, another at a quarter). */
+  private aids = 0;
+  /** Where you're aiming with your finger or the mouse (scene units), and where your next shot goes. */
+  private aim: { x: number; y: number } | null = null;
+  private pending: { x: number; y: number; zone: AimZone; person: number } | null = null;
   private duckLayer!: SVGGElement;
   private coverLayer!: SVGGElement;
   private firewallG!: SVGGElement;
@@ -226,11 +237,12 @@ export class Scene {
         <rect x="0" y="262" width="${W}" height="${H - 262}" fill="url(#carpet)"/>
         <rect x="0" y="192" width="${W}" height="70" fill="url(#fabric-far)"/>
         <rect x="0" y="186" width="${W}" height="8" fill="#c9ced4"/>
-        <g id="duck"><g class="bob"><g id="people"></g></g></g>
+        <g id="duck"><g class="bob"><g id="sway"><g id="people"></g></g></g></g>
         <g id="cover"></g>
         <g id="firewall" class="firewall" aria-hidden="true"><rect x="236" y="62" width="328" height="190" rx="6" fill="rgba(80,160,255,0.16)" stroke="#5fb0ff" stroke-width="4"/><g stroke="#8ec9ff" stroke-opacity="0.55" stroke-width="2">${Array.from({ length: 9 }, (_, i) => `<line x1="${272 + i * 32}" y1="64" x2="${272 + i * 32}" y2="250"/>`).join('')}${Array.from({ length: 5 }, (_, i) => `<line x1="238" y1="${94 + i * 32}" x2="562" y2="${94 + i * 32}"/>`).join('')}</g></g>
         <rect x="150" y="${WALL_TOP + 4}" width="500" height="${H - WALL_TOP}" fill="url(#fabric)"/>
         <rect x="146" y="${WALL_TOP - 4}" width="508" height="10" rx="2" fill="#c9ced4"/>
+        <g id="pile"></g>
         <g id="allies"></g>
         <rect id="dusk" width="${W}" height="${H}" fill="#ff9a3c" opacity="0" pointer-events="none" style="mix-blend-mode:multiply"/>
       </svg>
@@ -246,6 +258,8 @@ export class Scene {
     );
     this.svg = this.root.querySelector('svg')!;
     this.peopleLayer = this.svg.querySelector('#people')!;
+    this.swayLayer = this.svg.querySelector('#sway')!;
+    this.pileLayer = this.svg.querySelector('#pile')!;
     this.duckLayer = this.svg.querySelector('#duck')!;
     this.coverLayer = this.svg.querySelector('#cover')!;
     this.firewallG = this.svg.querySelector('#firewall')!;
@@ -265,6 +279,9 @@ export class Scene {
     this.enterAt = performance.now();
     this.nextDuck = performance.now() + 7000;
     this.drawPeople(true);
+    this.pileLayer.innerHTML = '';
+    this.piled = 0;
+    this.aids = 0;
     this.coverKey = '';
     this.syncCover();
     this.bubble.hidden = true;
@@ -286,7 +303,7 @@ export class Scene {
     const want = this.people.map((p) => this.moodFor(p));
     if (force) {
       this.peopleLayer.innerHTML = this.people
-        .map((p, i) => `<g transform="translate(${slots[i].x} 70) scale(${slots[i].scale})">${portraitStack(p, want[i])}</g>`)
+        .map((p, i) => `<g transform="translate(${slots[i].x} 70) scale(${slots[i].scale})">${portraitStack(p, want[i])}<g class="marks" data-marks="${i}"></g></g>`)
         .join('');
     } else if (want.every((m, i) => m === this.moods[i])) return;
     else {
@@ -332,14 +349,15 @@ export class Scene {
     const now = performance.now();
     if (e.type === 'shot') {
       const walled = wallUp(this.getState());
-      const head = this.aimPoint();
+      const mine = e.by === 'you' ? this.takePending() : null;
+      const head = mine ?? this.aimPoint();
       const from = e.by === 'you' ? this.fromHand() : this.allyHead(e.allyId);
       if (e.by === 'ally' && e.allyId) this.recoil(e.allyId);
       const big = e.by === 'you' && ((e.charge ?? 0) > 0.6 || e.perfect);
       const dur = e.by === 'you' ? 260 - 90 * (e.charge ?? 0) : 340;
       this.launch(from, head, dur, () => {
-        const bx = head.x + (Math.random() - 0.5) * 50;
-        const by = head.y + (Math.random() - 0.5) * 30;
+        const bx = mine ? head.x : head.x + (Math.random() - 0.5) * 50;
+        const by = mine ? head.y : head.y + (Math.random() - 0.5) * 30;
         this.burst(bx, by, big);
         if (e.by === 'you') {
           const power = e.perfect ? 2 : big ? 1 : 0;
@@ -347,6 +365,9 @@ export class Scene {
           if (!walled) {
             this.debris(bx, by, 3 + power * 3);
             this.jolt(power);
+            // Your hits leave their mark: welts where they land on a face, now and then a band
+            // stuck in their hair, and the spent band drops onto the top of their wall.
+            if (mine) this.markHit(mine, power);
           }
         }
         // Bands that hit the wall just clang off the cabinets.
@@ -358,6 +379,13 @@ export class Scene {
         }
         if (big) this.duckUntil = performance.now() + 500;
       }, big);
+    } else if (e.type === 'miss') {
+      // A miss: the band sails past where you aimed and drops out of sight.
+      const mine = this.takePending();
+      const to = mine ?? { x: 400 + (Math.random() - 0.5) * 300, y: 120 };
+      const from = this.fromHand();
+      const past = { x: to.x + (to.x - from.x) * 0.35, y: to.y - 30 };
+      this.launch(from, past, 300, () => {});
     } else if (e.type === 'enemyShot') {
       this.duckUntil = 0;
       this.angryUntil = now + 900;
@@ -442,6 +470,122 @@ export class Scene {
     setTimeout(() => (b.hidden = true), 1800);
   }
 
+  // ---------------------------------------------------------------- aiming
+
+  /** A point on the page, in scene coordinates. */
+  toScene(clientX: number, clientY: number) {
+    const r = this.root.getBoundingClientRect();
+    const v = this.view;
+    if (r.width === 0) return null;
+    return { x: v.x0 + ((clientX - r.left) / r.width) * v.w, y: v.y0 + ((clientY - r.top) / r.height) * v.h };
+  }
+
+  /** Where your finger (or the mouse) is aiming, in page coordinates; null for the Flick key. */
+  setAim(client: { x: number; y: number } | null) {
+    this.aim = client ? this.toScene(client.x, client.y) : null;
+  }
+
+  /** Each person's head right now: centre and radii, in scene units (swaying, ducking). */
+  private heads() {
+    const slots = targetSlots(Math.max(1, this.people.length));
+    const down = performance.now() < this.duckUntil ? 150 : 0;
+    return this.people.map((_, i) => {
+      const sl = slots[i];
+      return { i, sl, x: sl.x + 60 * sl.scale + this.swayX, y: 70 + 56 * sl.scale + down, rx: 38 * sl.scale, ry: 40 * sl.scale };
+    });
+  }
+
+  /**
+   * Where a shot at the point you're aiming would land: a face (headshot), someone's body, or
+   * nothing. The Flick key (no aim) goes at the body. Behind a wall, it all hits the wall.
+   */
+  aimZone(): AimZone {
+    const a = this.aim;
+    this.pending = null;
+    if (!a) {
+      this.pending = null;
+      return 'body';
+    }
+    const s = this.getState();
+    if (!this.people.length || wallUp(s)) {
+      this.pending = { x: a.x, y: a.y, zone: 'body', person: 0 };
+      return 'body';
+    }
+    let best: { zone: AimZone; person: number; d: number } = { zone: 'miss', person: 0, d: Infinity };
+    for (const h of this.heads()) {
+      const dx = (a.x - h.x) / h.rx;
+      const dy = (a.y - h.y) / h.ry;
+      const d = dx * dx + dy * dy;
+      // Hidden behind the cubicle wall: nothing to hit there.
+      if (a.y > WALL_TOP) continue;
+      if (d <= 1 && d < best.d) best = { zone: 'head', person: h.i, d };
+      else if (best.zone !== 'head' && a.y > h.y + h.ry * 0.7 && Math.abs(a.x - h.x) < 80 * h.sl.scale && h.y < WALL_TOP) best = { zone: 'body', person: h.i, d };
+    }
+    this.pending = { x: a.x, y: a.y, zone: best.zone, person: best.person };
+    return best.zone;
+  }
+
+  /** The aimed point for the shot that's just been fired (once). */
+  private takePending() {
+    const p = this.pending;
+    this.pending = null;
+    return p;
+  }
+
+  /** A welt where it landed on their face, sometimes a band left stuck, and the band on the pile. */
+  private markHit(at: { x: number; y: number; zone: AimZone; person: number }, power: number) {
+    const slots = targetSlots(Math.max(1, this.people.length));
+    const sl = slots[at.person] ?? slots[0];
+    const marks = this.peopleLayer.querySelector<SVGGElement>(`[data-marks="${at.person}"]`);
+    // Into their own coordinates (so the mark moves with them).
+    const lx = (at.x - this.swayX - sl.x) / sl.scale;
+    const ly = (at.y - 70) / sl.scale;
+    if (marks && at.zone === 'head') {
+      const r = 3.2 + power * 1.4;
+      const welt = `<g class="welt"><ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="${(r * 1.3).toFixed(1)}" ry="${r.toFixed(1)}" fill="#e2524a" opacity="0.55"/><ellipse cx="${(lx - r * 0.3).toFixed(1)}" cy="${(ly - r * 0.3).toFixed(1)}" rx="${(r * 0.5).toFixed(1)}" ry="${(r * 0.35).toFixed(1)}" fill="#ff9d8f" opacity="0.6"/></g>`;
+      marks.insertAdjacentHTML('beforeend', welt);
+      const welts = marks.querySelectorAll('.welt');
+      if (welts.length > 12) welts[0].remove();
+      // Now and then the band stays, tangled in their hair.
+      if (Math.random() < 0.22 + 0.12 * power && marks.querySelectorAll('.stuck').length < 5) {
+        const sx = 32 + Math.random() * 56;
+        const sy = 18 + Math.random() * 14;
+        const rot = Math.round((Math.random() - 0.5) * 80);
+        marks.insertAdjacentHTML('beforeend', `<g class="stuck" transform="translate(${sx.toFixed(1)} ${sy.toFixed(1)}) rotate(${rot})"><ellipse rx="7" ry="3.2" fill="none" stroke="#2b2018" stroke-width="2.6"/><ellipse rx="7" ry="3.2" fill="none" stroke="#d9b783" stroke-width="1.4"/></g>`);
+      }
+    }
+    // The spent band drops onto the top of their wall (up to a good pile).
+    if (this.piled < 60) {
+      this.piled++;
+      const px = Math.max(160, Math.min(640, at.x + (Math.random() - 0.5) * 70));
+      const layer = Math.floor(this.piled / 14);
+      const py = WALL_TOP - 3 - layer * 2.4 - Math.random() * 1.5;
+      const rot = Math.round((Math.random() - 0.5) * 160);
+      const tint = ['#d9b783', '#c9a46d', '#e3c492', '#b88f5c'][this.piled % 4];
+      this.pileLayer.insertAdjacentHTML('beforeend', `<g transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${rot})"><ellipse rx="6.5" ry="2.4" fill="none" stroke="#2b2018" stroke-width="2.4"/><ellipse rx="6.5" ry="2.4" fill="none" stroke="${tint}" stroke-width="1.3"/></g>`);
+    }
+  }
+
+  /** As their Resolve runs down: a band-aid at half, another at a quarter. */
+  private patchUp(ratio: number) {
+    const want = ratio < 0.25 ? 2 : ratio < 0.5 ? 1 : 0;
+    if (want <= this.aids) return;
+    const spots: [number, number, number][] = [
+      [40, 46, -30],
+      [84, 74, 25],
+    ];
+    for (let k = this.aids; k < want; k++) {
+      const [x, y, rot] = spots[k];
+      this.peopleLayer.querySelectorAll('.marks').forEach((m) =>
+        m.insertAdjacentHTML(
+          'beforeend',
+          `<g class="aid" transform="translate(${x} ${y}) rotate(${rot})"><rect x="-11" y="-3.6" width="22" height="7.2" rx="3.6" fill="#f0c9a0" stroke="#7a5236" stroke-width="1.2"/><rect x="-3.6" y="-3.6" width="7.2" height="7.2" fill="#e8b88a"/><circle cx="-7" cy="-1" r="0.6" fill="#b08458"/><circle cx="7" cy="1" r="0.6" fill="#b08458"/></g>`,
+        ),
+      );
+    }
+    this.aids = want;
+  }
+
   /** Your fingertip, converted into scene coordinates. */
   private fromHand() {
     const tip = this.hooks.handTip();
@@ -458,7 +602,7 @@ export class Scene {
     const sl = slots[Math.floor(Math.random() * slots.length)];
     const h = headPos(sl);
     const ducked = performance.now() < this.duckUntil;
-    return { x: h.x + (Math.random() - 0.5) * 20, y: ducked ? WALL_TOP - 8 : h.y };
+    return { x: h.x + this.swayX + (Math.random() - 0.5) * 20, y: ducked ? WALL_TOP - 8 : h.y };
   }
 
   private allyHead(id?: string) {
@@ -629,6 +773,15 @@ export class Scene {
       this.meetingKey = mk;
       this.allyLayer.querySelectorAll<SVGGElement>('.ally').forEach((g) => g.classList.toggle('away', meeting && mk.split(',').includes(g.dataset.ally ?? '')));
     }
+    // They sway from side to side while you fight them (stepped, like the bob, to keep it cheap).
+    if (t && !reduced()) {
+      const sway = Math.round((14 * Math.sin(now / 1150) + 5 * Math.sin(now / 470)) * 2) / 2;
+      if (Math.abs(sway - this.swayX) >= 0.5) {
+        this.swayX = sway;
+        this.swayLayer.setAttribute('transform', `translate(${sway} 0)`);
+      }
+    }
+    if (t) this.patchUp(s.targetResolve / t.resolve);
     const ducking = now < this.duckUntil || now - this.enterAt < 350;
     this.duckLayer.classList.toggle('ducked', ducking || !t);
     this.drawPeople();
@@ -735,6 +888,7 @@ export class Scene {
 
   /** The point your hand aims at: the middle of the target's heads, or the wall top when they duck. */
   handAim() {
+    if (this.aim) return this.aim;
     const n = this.people.length;
     if (!n) return { x: 400, y: 180 };
     const slots = targetSlots(n);
@@ -747,7 +901,7 @@ export class Scene {
   floaterOrigin() {
     const sl = targetSlots(Math.max(1, this.people.length));
     const h = headPos(sl[Math.floor(Math.random() * sl.length)]);
-    return this.pct(h.x, h.y - 18);
+    return this.pct(h.x + this.swayX, h.y - 18);
   }
 }
 

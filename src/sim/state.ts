@@ -298,6 +298,8 @@ export interface GameState {
     snoops: number;
     officeCaught: number;
     dodges: number;
+    misses: number;
+    headshots: number;
     perfectDodges: number;
     thrownHit: number;
     planes: number;
@@ -379,7 +381,8 @@ export function newWar(): WarState {
 }
 
 export type GameEvent =
-  | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId; charge?: number; perfect?: boolean }
+  | { type: 'shot'; damage: number; by: 'you' | 'ally'; allyId?: CoworkerId; charge?: number; perfect?: boolean; head?: boolean }
+  | { type: 'miss'; charge: number; perfect: boolean }
   | { type: 'snap' }
   | { type: 'capture'; targetId: string }
   | { type: 'caught'; writeUps: number; confiscated: WeaponId | null; lostBands: number; regrouped: number }
@@ -669,6 +672,8 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
       snoops: 0,
       officeCaught: 0,
       dodges: 0,
+      misses: 0,
+      headshots: 0,
       perfectDodges: 0,
       thrownHit: 0,
       planes: 0,

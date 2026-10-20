@@ -269,7 +269,7 @@ function fire(
   by: 'you' | 'ally',
   powerMult: number,
   allyId?: CoworkerId,
-  shot: { charge: number; perfect: boolean; free?: boolean } = { charge: 0, perfect: false },
+  shot: { charge: number; perfect: boolean; free?: boolean; head?: boolean } = { charge: 0, perfect: false },
 ): boolean {
   const t = currentTarget(s);
   if (!t) return false;
@@ -287,7 +287,7 @@ function fire(
   s.lastShotAt = s.time;
   s.stats.shots++;
   s.stats.damage += dmg;
-  s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect });
+  s.events.push({ type: 'shot', damage: dmg, by, allyId, charge: shot.charge, perfect: shot.perfect, head: shot.head });
   // An Objection upstairs: your own bands bounce back as paperclips.
   if (by === 'you' && !shot.free) ricochet(s, w.burst);
   // (A free hit, like a Ricochet, makes no extra noise.)
@@ -555,11 +555,15 @@ export function canFlick(s: GameState): ActionResult {
   return ok;
 }
 
+/** Where your shot is going: their face (a headshot), their body, or past them. */
+export type AimZone = 'head' | 'body' | 'miss';
+
 /**
  * Fire your weapon. `charge` (0 to 1) is how far you stretched the band by
- * holding; `perfect` means you let go in the sweet spot at full stretch.
+ * holding; `perfect` means you let go in the sweet spot at full stretch; `zone` is
+ * where you aimed (the Flick key aims at the body).
  */
-export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
+export function flick(s: GameState, charge = 0, perfect = false, zone: AimZone = 'body'): ActionResult {
   if (!currentTarget(s)) return no('There is no one left to flick. For now.');
   if (s.lookBusy) return no('You are at your computer. Press Esc to get back to the war.');
   if (s.time < s.flickLockUntil) return no('You are on a written warning. No flicking for a bit.');
@@ -574,11 +578,24 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
+  // A miss: the band sails past. It still costs a band and makes noise, and it breaks your streaks.
+  if (zone === 'miss') {
+    s.bands -= w.burst;
+    s.stats.misses = (s.stats.misses ?? 0) + 1;
+    s.perfectChain = 0;
+    streakEnd(s);
+    s.lastShotAt = s.time;
+    s.events.push({ type: 'miss', charge: c, perfect: p });
+    addSuspicion(s, shotNoise(s, 'you', c));
+    return ok;
+  }
   // Perfects in a row hit harder and harder; anything else breaks the chain.
   s.perfectChain = p ? Math.min(CHARGE.chainMax, (s.perfectChain ?? 0) + 1) : 0;
+  const head = zone === 'head';
+  if (head) s.stats.headshots = (s.stats.headshots ?? 0) + 1;
   const before = s.stats.damage;
-  const power = chargeMult(c, p, s.perfectChain) * weakMult(s) * streakMult(s) * hackFlick(s, p) * paybackMult(s);
-  fire(s, 'you', power, undefined, { charge: c, perfect: p });
+  const power = chargeMult(c, p, s.perfectChain) * (head ? CHARGE.headshot : 1) * weakMult(s) * streakMult(s) * hackFlick(s, p) * paybackMult(s);
+  fire(s, 'you', power, undefined, { charge: c, perfect: p, head });
   if (s.stats.damage > before) {
     paybackUsed(s);
     streakHit(s);

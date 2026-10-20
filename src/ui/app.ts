@@ -156,7 +156,10 @@ export class UI {
         return r.ok;
       },
       fire: (charge, perfect) => {
-        this.act((s) => flick(s, charge, perfect));
+        // Aimed at the office: a headshot, a body hit or a miss. The Flick key aims at the body.
+        const zone = this.scene.aimZone();
+        this.act((s) => flick(s, charge, perfect, zone));
+        this.scene.setAim(null);
         this.pressKey();
         // A little buzz on phones that can (bigger for a stretched shot, a double for a Perfect).
         try {
@@ -607,8 +610,14 @@ export class UI {
         } catch {
           /* capture is a nicety */
         }
+        // Pressing on the office aims there; the Flick key aims at the body.
+        this.scene.setAim(el.id === 'scene' ? { x: e.clientX, y: e.clientY } : null);
         this.launcher.start();
       });
+      if (el.id === 'scene')
+        el.addEventListener('pointermove', (e) => {
+          if (this.launcher.isHolding) this.scene.setAim({ x: e.clientX, y: e.clientY });
+        });
       el.addEventListener('pointerup', () => this.launcher.release());
       el.addEventListener('pointercancel', () => this.launcher.cancel());
     }
@@ -750,6 +759,7 @@ export class UI {
     }
     if (k === 'f') {
       this.drawer.close();
+      this.scene.setAim(null);
       this.launcher.start();
     }
     else if (k === 's') this.doScrounge();
@@ -917,12 +927,18 @@ export class UI {
       if (idle && e.type === 'shot' && e.by !== 'you') continue;
       this.scene.handle(e);
       if (e.type === 'shot') {
-        this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false, e.charge ?? 0);
+        this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false, e.charge ?? 0, e.head ?? false);
         if (e.by === 'you') {
           this.sound.flick(e.charge ?? 0, e.perfect ?? false);
           if (e.perfect) this.shake();
           else if ((e.charge ?? 0) > 0.6) this.shake(true);
         } else this.sound.ally();
+      } else if (e.type === 'miss') {
+        this.sound.flick(e.charge, false);
+        this.sound.whiff();
+        this.floatWord('Miss');
+        const last = $('floaters').lastElementChild;
+        last?.classList.replace('perfect', 'miss');
       } else if (e.type === 'barrage') {
         this.sound.barrage();
         this.onBarrage(e);
@@ -1159,7 +1175,7 @@ export class UI {
     moneyBurst(from, to, coinsFor(e.amount) + Math.min(3, Math.max(0, (e.combo ?? 0) - 1)), 0, hop);
   }
 
-  private onShot(damage: number, by: 'you' | 'ally', perfect: boolean, charge = 0) {
+  private onShot(damage: number, by: 'you' | 'ally', perfect: boolean, charge = 0, head = false) {
     // Your own shots always get their number; your team's are capped so a volley isn't a blur.
     if (reducedMotion() || (by === 'ally' && this.shotsThisFrame > 3)) return;
     this.shotsThisFrame++;
@@ -1176,7 +1192,9 @@ export class UI {
     // Decimals only while the numbers are small; big ones round (and get commas).
     const n = damage < 100 && damage % 1 !== 0 ? damage.toFixed(1) : fmt(Math.round(damage));
     const chain = this.s.perfectChain ?? 0;
-    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain}!` : 'Perfect!'} −${n}` : `−${n}`;
+    const hs = head ? 'Headshot! ' : '';
+    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain}!` : 'Perfect!'} ${hs}−${n}` : `${hs}−${n}`;
+    if (head && by === 'you') f.classList.add('head');
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;

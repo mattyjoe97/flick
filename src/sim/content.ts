@@ -828,6 +828,7 @@ export const CHARGE = {
   perfectMult: 8, // damage multiplier for a Perfect release
   chainStep: 1, // every Perfect in a row adds this much more
   chainMax: 5, // up to the 5th in a row (×12)
+  headshot: 2, // aimed at the face: this much harder
   noisePerCharge: 0.6, // a full stretch makes 1.6x the noise of a tap
   snapNoise: 3,
 };
