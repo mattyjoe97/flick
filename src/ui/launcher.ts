@@ -9,13 +9,14 @@
 
 import { attr, setFill } from './fill';
 import { CHARGE, type WeaponId } from '../sim/content';
-import { SPRITES, type LauncherSprite, type BandRig } from './art';
+import { SPRITES, BAND_SNAPPED, type LauncherSprite, type BandRig } from './art';
 import flickEmpty from '../assets/art/flick-empty.webp';
 import rulerEmpty from '../assets/art/ruler-empty.webp';
 import clothespinEmpty from '../assets/art/clothespin-empty.webp';
 import repeaterEmpty from '../assets/art/repeater-empty.webp';
 // The Gatling's spool is painted loaded (it has no bands for the game to draw).
 import gatlingLoaded from '../assets/art/gatling-loaded.webp';
+import bandSnapped from '../assets/art/band-snapped.webp';
 
 const ART: Record<WeaponId, { sprite: LauncherSprite; art: string }> = {
   flick: { sprite: SPRITES.flick, art: flickEmpty },
@@ -44,9 +45,10 @@ const RELEASE_MS = 80;
 const LOAD_DELAY = 110;
 const LOAD_MS = 300;
 const STAGGER = 70;
+const SNAP_RELOAD = 650;
 
-/** The timing ring (scene units): the target circle, and how far out the closing one starts. */
-const RING = { target: 18, start: 72 };
+/** The band in the Perfect window: gold. */
+const BAND_GOLD = '#ffd23f';
 
 const BAND_INK = '#2b2018';
 const BAND_TAN = '#d9b783';
@@ -97,15 +99,13 @@ export class Launcher {
   private aimG!: SVGGElement;
   private pullG!: SVGGElement;
   private spriteG!: SVGGElement;
-  /** The timing ring at your fingertip: it closes in as you stretch; let go when it's gold. */
-  private ringG!: SVGGElement;
-  private ringClose!: SVGCircleElement;
   private bands: BandEls[] = [];
   /** When the last band was fired, when the next one starts loading, and when one snapped. */
   private releaseAt = -1e9;
   private loadAt = -1e9;
   /** When the current launcher was put in your hand (it slides up into view). */
   private enterAt = -1e9;
+  private fxG!: SVGGElement;
   private dropped: Dropped[] = [];
   private angle = -150;
   private lastFrame = performance.now();
@@ -178,12 +178,12 @@ export class Launcher {
     // Outlines for every band first, then the tan on top, so overlapping strands merge cleanly.
     const outlines = sp.bands.map(() => `<g class="b-out">${ellipse(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}</g>`).join('');
     const inners = sp.bands.map(() => `<g class="b-in">${ellipse(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}</g>`).join('');
-    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite"><image href="${art}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/><g transform="translate(${-sp.wrist[0]} ${-sp.wrist[1]})">${outlines}${inners}</g></g><g class="launch-ring" visibility="hidden"><circle class="ring-target" r="${RING.target}"/><circle class="ring-close" r="${RING.target}"/></g></g></g><g class="launch-fx"></g>`;
+    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite"><image href="${art}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/><g transform="translate(${-sp.wrist[0]} ${-sp.wrist[1]})">${outlines}${inners}</g></g></g></g><g class="launch-fx"></g>`;
     this.aimG = this.layer.querySelector('.launch-aim')!;
     this.pullG = this.layer.querySelector('.launch-pull')!;
     this.spriteG = this.layer.querySelector('.launch-sprite')!;
-    this.ringG = this.layer.querySelector('.launch-ring')!;
-    this.ringClose = this.layer.querySelector('.ring-close')!;
+    this.fxG = this.layer.querySelector('.launch-fx')!;
+    this.layer.dataset.state = 'idle';
     const outs = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-out'));
     const ins = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-in'));
     this.bands = sp.bands.map((rig, i) => {
@@ -246,7 +246,7 @@ export class Launcher {
 
   /** Work out where each band is in its fire / reload cycle and draw it. */
   private animateBands(now: number, charge: number, state: 'idle' | 'stretch' | 'perfect' | 'over', reduced: boolean) {
-    const color = state === 'over' ? '#e8a07a' : mix(BAND_TAN, BAND_TAUT, charge);
+    const color = state === 'over' ? '#e8a07a' : state === 'perfect' ? BAND_GOLD : mix(BAND_TAN, BAND_TAUT, charge);
     const width = 1 - 0.38 * charge;
     const quiver = reduced ? 0 : state === 'over' ? (Math.random() - 0.5) * 5 : state === 'perfect' ? (Math.random() - 0.5) * 1.6 : 0;
     this.bands.forEach((b, i) => {
@@ -301,6 +301,34 @@ export class Launcher {
   }
 
 
+  /** The snapped band falls off the launcher and drops out of view. */
+  private dropBand() {
+    const ctm = this.spriteG?.getCTM();
+    if (!ctm || !this.fxG) return;
+    const sp = this.sprite;
+    const x = sp.band[0] - sp.wrist[0];
+    const y = sp.band[1] - sp.wrist[1];
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    const w = 46;
+    const h = (w * BAND_SNAPPED.h) / BAND_SNAPPED.w;
+    el.setAttribute('href', bandSnapped);
+    el.setAttribute('x', String(-w / 2));
+    el.setAttribute('y', String(-h / 2));
+    el.setAttribute('width', String(w));
+    el.setAttribute('height', String(h));
+    this.fxG.appendChild(el);
+    this.dropped.push({
+      el,
+      x: ctm.a * x + ctm.c * y + ctm.e,
+      y: ctm.b * x + ctm.d * y + ctm.f,
+      vx: 40 + Math.random() * 40,
+      vy: -120,
+      rot: 0,
+      spin: 260 + Math.random() * 200,
+      t0: performance.now(),
+    });
+  }
+
   /** Call every frame with the weapon and the point (in scene units) to aim at. */
   /** `shift`: how far left of the corner your wrist sits (a narrow view crops the right side). */
   update(w: WeaponId, aim: { x: number; y: number }, reduced: boolean, shift = 0) {
@@ -315,15 +343,17 @@ export class Launcher {
       const r = this.read(now);
       charge = r.charge;
       state = r.perfect ? 'perfect' : r.overheld ? 'over' : 'stretch';
-      // Still holding past the Perfect window: it lets go at full stretch on its own and starts
-      // the next stretch, so holding Flick keeps firing full-stretch shots (no more snapping).
-      if (r.overheld) {
-        this.hooks.fire(1, false);
-        this.shot(now);
-        this.holdStart = now;
+      // Held too long: the band shakes for a moment, then snaps and drops. Let go and press again.
+      if (r.held >= CHARGE.snapAfter) {
+        this.holding = false;
+        this.snappedAt = now;
+        this.hooks.stretchSound(null);
+        this.hooks.snap();
+        if (!reduced) this.dropBand();
+        this.releaseAt = -1e9;
+        this.loadAt = now + SNAP_RELOAD;
         charge = 0;
-        state = 'stretch';
-        this.hooks.stretchSound(0);
+        state = 'idle';
       } else this.hooks.stretchSound(charge);
     }
 
@@ -359,17 +389,8 @@ export class Launcher {
     const along = forward * (-22 * charge + kick + shake);
     attr(this.pullG, 'transform', `translate(${along.toFixed(1)} ${(shake * 0.6).toFixed(1)})`);
 
-    // The timing ring sits on the fingertip (or muzzle) and closes in as you stretch.
-    if (state === 'idle' || state === 'over') attr(this.ringG, 'visibility', 'hidden');
-    else {
-      const tx = (sp.tip[0] - sp.wrist[0]) * (left ? unit : -unit);
-      const ty = (sp.tip[1] - sp.wrist[1]) * unit;
-      attr(this.ringG, 'visibility', 'visible');
-      attr(this.ringG, 'transform', `translate(${tx.toFixed(1)} ${ty.toFixed(1)})`);
-      attr(this.ringG, 'data-state', state);
-      const r = state === 'perfect' ? RING.target : RING.target + (RING.start - RING.target) * (1 - charge);
-      attr(this.ringClose, 'r', r.toFixed(1));
-    }
+    // The band glows gold in the Perfect window (CSS keys off this).
+    if (this.layer.dataset.state !== state) this.layer.dataset.state = state;
 
     // The band(s): fired, reloaded, stretched.
     const sinceSnap = now - this.snappedAt;
@@ -398,7 +419,7 @@ export class Launcher {
       state === 'perfect'
         ? `Let go! Perfect ×${this.hooks.perfectMult()}`
         : state === 'over'
-          ? 'Too late'
+          ? 'Let go! It’s going to snap'
           : charge > 0
             ? `×${(1 + (CHARGE.maxMult - 1) * charge).toFixed(1)}`
             : sinceSnap < 900

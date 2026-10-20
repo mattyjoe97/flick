@@ -747,7 +747,7 @@ export class Scene {
   floaterOrigin() {
     const sl = targetSlots(Math.max(1, this.people.length));
     const h = headPos(sl[Math.floor(Math.random() * sl.length)]);
-    return this.pct(h.x, h.y - 40);
+    return this.pct(h.x, h.y - 18);
   }
 }
 

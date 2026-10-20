@@ -168,7 +168,7 @@ export class UI {
       snap: () => {
         snapBand(this.s);
         this.sound.snap();
-        this.say('The band snapped. Let go when the meter says Perfect.');
+        this.say('The band snapped. Let go when it glows gold for a Perfect, then press again.');
       },
       stretchSound: (c) => this.sound.stretch(c),
       perfectMult: () => chargeMult(1, true, (this.s.perfectChain ?? 0) + 1),
@@ -1176,7 +1176,7 @@ export class UI {
     // Decimals only while the numbers are small; big ones round (and get commas).
     const n = damage < 100 && damage % 1 !== 0 ? damage.toFixed(1) : fmt(Math.round(damage));
     const chain = this.s.perfectChain ?? 0;
-    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain} in a row!` : 'Perfect!'} −${n}` : `−${n}`;
+    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain}!` : 'Perfect!'} −${n}` : `−${n}`;
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
@@ -2239,7 +2239,7 @@ function coachHint(s: GameState): string {
     return `Mr. Feeney’s drawer has ${Math.floor(s.feeney.seized).toLocaleString('en-US')} of your bands. Sneak into his office while he’s out (E, or List on a phone) and take them back.`;
   // Noise is what limits you now: full stretches get three times the damage out of the same Suspicion.
   if (s.suspicion >= 70 && s.stats.shots > 50 && s.stats.charged < s.stats.shots * 0.3)
-    return 'Hold Flick instead of tapping: it keeps firing full stretches on its own, 5× the damage for barely more noise.';
+    return 'Stretch your shots instead of tapping: hold Flick and let go when the band glows gold. 8× the damage for barely more noise.';
   if (s.suspicion >= 70 && fightingHr(s)) return 'HR hears everything. Send a Team-Building memo (Memos, on your computer) for two minutes of silent shots.';
   if (s.suspicion >= 70) return 'Suspicion is high. Get on your computer (Esc) and do some work until it cools.';
   if (!s.ownedWeapons.includes('ruler')) {

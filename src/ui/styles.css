@@ -4769,9 +4769,14 @@ body.at-computer .desk-box.bulk {
   pointer-events: none;
 }
 
-.floaters,
 .bubble {
   z-index: 2;
+}
+
+/* Damage numbers float over everything on the office picture (the Resolve bar, signs, pills, bubbles). */
+.floaters {
+  z-index: 9;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -8248,7 +8253,7 @@ body.in-closet .desk-box {
 }
 
 .floater.mine.perfect {
-  font-size: max(30px, 5.6cqw);
+  font-size: max(24px, 4.4cqw);
   color: #ffd23f;
   -webkit-text-stroke: 2px #7a3b00;
   text-shadow: 0 0 14px rgba(255, 200, 60, 0.9), 0 3px 0 rgba(0, 0, 0, 0.4);
@@ -8272,7 +8277,7 @@ body.in-closet .desk-box {
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -54px) scale(0.95);
+    transform: translate(-50%, -34px) scale(0.95);
   }
 }
 
@@ -8382,33 +8387,9 @@ body.in-closet .desk-box {
   }
 }
 
-/* The timing ring at your fingertip. */
-.launch-ring circle {
-  fill: none;
-}
-
-.launch-ring .ring-target {
-  stroke: rgba(255, 255, 255, 0.55);
-  stroke-width: 3;
-  stroke-dasharray: 4 4;
-}
-
-.launch-ring .ring-close {
-  stroke: #fff;
-  stroke-width: 4;
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
-}
-
-.launch-ring[data-state='perfect'] .ring-target {
-  stroke: #ffd23f;
-  stroke-width: 6;
-  stroke-dasharray: none;
-  filter: drop-shadow(0 0 6px #ffd23f);
-}
-
-.launch-ring[data-state='perfect'] .ring-close {
-  stroke: #fff6c8;
-  stroke-width: 3;
+/* The Perfect window: the band glows gold. */
+[data-state='perfect'] .b-in {
+  filter: drop-shadow(0 0 3px #ffd23f) drop-shadow(0 0 6px rgba(255, 210, 63, 0.8));
 }
 
 @media (prefers-reduced-motion: reduce) {
