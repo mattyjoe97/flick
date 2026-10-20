@@ -45,6 +45,9 @@ const LOAD_DELAY = 110;
 const LOAD_MS = 300;
 const STAGGER = 70;
 
+/** The timing ring (scene units): the target circle, and how far out the closing one starts. */
+const RING = { target: 18, start: 72 };
+
 const BAND_INK = '#2b2018';
 const BAND_TAN = '#d9b783';
 const BAND_TAUT = '#f1dcb0';
@@ -70,6 +73,8 @@ export interface LauncherHooks {
   fire(charge: number, perfect: boolean): void;
   snap(): void;
   stretchSound(charge: number | null): void;
+  /** What the next Perfect would be worth (it grows with Perfects in a row). */
+  perfectMult(): number;
 }
 
 interface Dropped {
@@ -92,6 +97,9 @@ export class Launcher {
   private aimG!: SVGGElement;
   private pullG!: SVGGElement;
   private spriteG!: SVGGElement;
+  /** The timing ring at your fingertip: it closes in as you stretch; let go when it's gold. */
+  private ringG!: SVGGElement;
+  private ringClose!: SVGCircleElement;
   private bands: BandEls[] = [];
   /** When the last band was fired, when the next one starts loading, and when one snapped. */
   private releaseAt = -1e9;
@@ -170,10 +178,12 @@ export class Launcher {
     // Outlines for every band first, then the tan on top, so overlapping strands merge cleanly.
     const outlines = sp.bands.map(() => `<g class="b-out">${ellipse(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}${path(BAND_INK, OUTLINE_W)}</g>`).join('');
     const inners = sp.bands.map(() => `<g class="b-in">${ellipse(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}${path(BAND_TAN, INNER_W)}</g>`).join('');
-    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite"><image href="${art}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/><g transform="translate(${-sp.wrist[0]} ${-sp.wrist[1]})">${outlines}${inners}</g></g></g></g><g class="launch-fx"></g>`;
+    this.layer.innerHTML = `<g class="launch-aim"><g class="launch-pull"><g class="launch-sprite"><image href="${art}" x="${-sp.wrist[0]}" y="${-sp.wrist[1]}" width="${sp.w}" height="${sp.h}" preserveAspectRatio="none"/><g transform="translate(${-sp.wrist[0]} ${-sp.wrist[1]})">${outlines}${inners}</g></g><g class="launch-ring" visibility="hidden"><circle class="ring-target" r="${RING.target}"/><circle class="ring-close" r="${RING.target}"/></g></g></g><g class="launch-fx"></g>`;
     this.aimG = this.layer.querySelector('.launch-aim')!;
     this.pullG = this.layer.querySelector('.launch-pull')!;
     this.spriteG = this.layer.querySelector('.launch-sprite')!;
+    this.ringG = this.layer.querySelector('.launch-ring')!;
+    this.ringClose = this.layer.querySelector('.ring-close')!;
     const outs = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-out'));
     const ins = Array.from(this.layer.querySelectorAll<SVGGElement>('.b-in'));
     this.bands = sp.bands.map((rig, i) => {
@@ -349,6 +359,18 @@ export class Launcher {
     const along = forward * (-22 * charge + kick + shake);
     attr(this.pullG, 'transform', `translate(${along.toFixed(1)} ${(shake * 0.6).toFixed(1)})`);
 
+    // The timing ring sits on the fingertip (or muzzle) and closes in as you stretch.
+    if (state === 'idle' || state === 'over') attr(this.ringG, 'visibility', 'hidden');
+    else {
+      const tx = (sp.tip[0] - sp.wrist[0]) * (left ? unit : -unit);
+      const ty = (sp.tip[1] - sp.wrist[1]) * unit;
+      attr(this.ringG, 'visibility', 'visible');
+      attr(this.ringG, 'transform', `translate(${tx.toFixed(1)} ${ty.toFixed(1)})`);
+      attr(this.ringG, 'data-state', state);
+      const r = state === 'perfect' ? RING.target : RING.target + (RING.start - RING.target) * (1 - charge);
+      attr(this.ringClose, 'r', r.toFixed(1));
+    }
+
     // The band(s): fired, reloaded, stretched.
     const sinceSnap = now - this.snappedAt;
     this.animateBands(now, charge, state, reduced);
@@ -374,9 +396,9 @@ export class Launcher {
     attr(this.meter, 'data-state', state);
     const text =
       state === 'perfect'
-        ? `Perfect! ×${CHARGE.perfectMult}`
+        ? `Let go! Perfect ×${this.hooks.perfectMult()}`
         : state === 'over'
-          ? 'Let go!'
+          ? 'Too late'
           : charge > 0
             ? `×${(1 + (CHARGE.maxMult - 1) * charge).toFixed(1)}`
             : sinceSnap < 900

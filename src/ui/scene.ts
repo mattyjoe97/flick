@@ -96,7 +96,8 @@ function headPos(slot: Slot) {
 
 export interface SceneHooks {
   footstep(): void;
-  hit(): void;
+  /** A band of yours landed: 0 a tap, 1 a stretched shot, 2 a Perfect. */
+  hit(power: number): void;
   /** Your fingertip in page coordinates, if the hand is on screen. */
   handTip(): { x: number; y: number } | null;
 }
@@ -337,8 +338,17 @@ export class Scene {
       const big = e.by === 'you' && ((e.charge ?? 0) > 0.6 || e.perfect);
       const dur = e.by === 'you' ? 260 - 90 * (e.charge ?? 0) : 340;
       this.launch(from, head, dur, () => {
-        this.burst(head.x + (Math.random() - 0.5) * 50, head.y + (Math.random() - 0.5) * 30, big);
-        if (e.by === 'you') this.hooks.hit();
+        const bx = head.x + (Math.random() - 0.5) * 50;
+        const by = head.y + (Math.random() - 0.5) * 30;
+        this.burst(bx, by, big);
+        if (e.by === 'you') {
+          const power = e.perfect ? 2 : big ? 1 : 0;
+          this.hooks.hit(power);
+          if (!walled) {
+            this.debris(bx, by, 3 + power * 3);
+            this.jolt(power);
+          }
+        }
         // Bands that hit the wall just clang off the cabinets.
         if (walled) return;
         this.hitUntil = performance.now() + 260;
@@ -415,7 +425,7 @@ export class Scene {
     setTimeout(() => {
       this.hitUntil = performance.now() + 600;
       this.duckUntil = performance.now() + 1400;
-      this.hooks.hit();
+      this.hooks.hit(1);
       if (!reduced()) {
         this.root.classList.remove('quake');
         void this.root.offsetWidth;
@@ -504,6 +514,35 @@ export class Scene {
     b.style.top = `${at.top}%`;
     this.fx.appendChild(b);
     setTimeout(() => b.remove(), 320);
+  }
+
+  /** Bits of band flying off where a shot of yours lands. */
+  private debris(x: number, y: number, n: number) {
+    if (reduced()) return;
+    const at = this.pct(x, y);
+    for (let i = 0; i < n; i++) {
+      const d = document.createElement('span');
+      d.className = 'debris';
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 40 + Math.random() * 60;
+      d.style.left = `${at.left}%`;
+      d.style.top = `${at.top}%`;
+      d.style.setProperty('--dx', `${(Math.cos(ang) * dist).toFixed(0)}px`);
+      d.style.setProperty('--dy', `${(Math.sin(ang) * dist - 20).toFixed(0)}px`);
+      d.style.setProperty('--r', `${Math.round((Math.random() - 0.5) * 720)}deg`);
+      this.fx.appendChild(d);
+      setTimeout(() => d.remove(), 520);
+    }
+  }
+
+  /** Whoever you hit jolts back (harder for a stretched shot, a Perfect most of all). */
+  private jolt(power: number) {
+    if (reduced()) return;
+    const g = this.peopleLayer as unknown as HTMLElement;
+    const cls = `jolt${power}`;
+    g.classList.remove('jolt0', 'jolt1', 'jolt2');
+    void g.getBoundingClientRect();
+    g.classList.add(cls);
   }
 
   private stepProjectiles(now: number) {

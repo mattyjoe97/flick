@@ -7,7 +7,7 @@ import { addReview, promote, reviewNeed, reviewReady, TOP_RANK } from '../src/si
 import { hire, leadName, rename, seatCost, staffPayPerMin, teamPerMin, train, trainCost } from '../src/sim/staff';
 import { baileyHowl, canHowl, claimMoment, nextTrick, petBailey } from '../src/sim/office';
 import { goalProgress, GOAL_DEFS } from '../src/sim/goals';
-import { BAILEY, BALL, BARRAGE, GOALS, MOMENTS, REMATCH } from '../src/sim/content';
+import { BAILEY, BALL, CHARGE, BARRAGE, GOALS, MOMENTS, REMATCH } from '../src/sim/content';
 import { rematchStats } from '../src/sim/rematch';
 import { ballDamageMult, ballLayers, ballSize, ballUnlocked, wind, windAmount } from '../src/sim/ball';
 import { addSuspicion, applyOffline, barrage, barrageSize, canFlick, buyBack, buyBackPrice, buyUpgrade, buyWeapon, daleSells, flick, openBox, orderSupplies, passDeal, priceOf, recruit, scrounge, setLookBusy, step, takeDeal } from '../src/sim/engine';
@@ -1403,9 +1403,23 @@ describe('hold to charge', () => {
     flick(s, 1, true);
     const perfect = mid2 - s.targetResolve;
     expect(full / tap).toBeCloseTo(5);
-    expect(perfect / tap).toBeCloseTo(6);
+    expect(perfect / tap).toBeCloseTo(CHARGE.perfectMult);
     expect(s.bands).toBe(7); // three shots, three bands
     expect(s.stats.perfect).toBe(1);
+    // Perfects in a row hit harder each time (up to the 5th); anything else breaks the chain.
+    s.bands = 100;
+    const perfects: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      step(s, TUNING.stepSeconds);
+      s.streak.n = 0;
+      const r = s.targetResolve;
+      flick(s, 1, true);
+      perfects.push((r - s.targetResolve) / tap);
+    }
+    expect(perfects.map((x) => Math.round(x))).toEqual([9, 10, 11, 12, 12, 12]);
+    step(s, TUNING.stepSeconds);
+    flick(s, 1, false);
+    expect(s.perfectChain).toBe(0);
   });
 
   it('holding too long snaps the band', async () => {

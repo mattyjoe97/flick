@@ -1,4 +1,4 @@
-import { BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, LADDER, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
+import { chargeMult, BARRAGE, COWORKERS, DEPARTMENTS, HR_DIRECTOR, LADDER, MEMOS, POLITICS, PROMOTION, ROLES, ROOMS, SIEGE, TARGETS, TEAMS, TUNING, WEAPONS, rolesFor, type CoworkerId, type Role } from '../sim/content';
 import { setFill } from './fill';
 import { co, setCompany } from './co';
 import { repDamage, startNewJob } from '../sim/job';
@@ -145,7 +145,7 @@ export class UI {
   constructor(private host: GameHost) {
     this.scene = new Scene(() => this.s, {
       footstep: () => this.sound.footstep(),
-      hit: () => this.sound.hit(),
+      hit: (power) => this.sound.hit(power),
       handTip: () => this.launcher?.tipClientPoint() ?? null,
     });
     this.launcher = new Launcher(
@@ -158,6 +158,12 @@ export class UI {
       fire: (charge, perfect) => {
         this.act((s) => flick(s, charge, perfect));
         this.pressKey();
+        // A little buzz on phones that can (bigger for a stretched shot, a double for a Perfect).
+        try {
+          navigator.vibrate?.(perfect && charge >= 1 ? [12, 40, 22] : charge > 0.6 ? 16 : 7);
+        } catch {
+          /* no vibration here */
+        }
       },
       snap: () => {
         snapBand(this.s);
@@ -165,6 +171,7 @@ export class UI {
         this.say('The band snapped. Let go when the meter says Perfect.');
       },
       stretchSound: (c) => this.sound.stretch(c),
+      perfectMult: () => chargeMult(1, true, (this.s.perfectChain ?? 0) + 1),
       },
       this.scene.handLayer,
     );
@@ -910,10 +917,12 @@ export class UI {
       if (idle && e.type === 'shot' && e.by !== 'you') continue;
       this.scene.handle(e);
       if (e.type === 'shot') {
-        this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false);
-        if (e.by === 'you') this.sound.flick(e.charge ?? 0, e.perfect ?? false);
-        if (e.by === 'you' && e.perfect) this.shake();
-        else this.sound.ally();
+        this.onShot(e.damage * toughness(this.s), e.by, e.perfect ?? false, e.charge ?? 0);
+        if (e.by === 'you') {
+          this.sound.flick(e.charge ?? 0, e.perfect ?? false);
+          if (e.perfect) this.shake();
+          else if ((e.charge ?? 0) > 0.6) this.shake(true);
+        } else this.sound.ally();
       } else if (e.type === 'barrage') {
         this.sound.barrage();
         this.onBarrage(e);
@@ -1150,8 +1159,9 @@ export class UI {
     moneyBurst(from, to, coinsFor(e.amount) + Math.min(3, Math.max(0, (e.combo ?? 0) - 1)), 0, hop);
   }
 
-  private onShot(damage: number, by: 'you' | 'ally', perfect: boolean) {
-    if (reducedMotion() || this.shotsThisFrame > 3) return;
+  private onShot(damage: number, by: 'you' | 'ally', perfect: boolean, charge = 0) {
+    // Your own shots always get their number; your team's are capped so a volley isn't a blur.
+    if (reducedMotion() || (by === 'ally' && this.shotsThisFrame > 3)) return;
     this.shotsThisFrame++;
     const plate = $('nameplate');
     plate.classList.remove('hit');
@@ -1162,10 +1172,11 @@ export class UI {
     const f = document.createElement('span');
     // An Objection upstairs: nothing lands, and your own bands bounce back.
     if (damage <= 0 && by === 'ally') return;
-    f.className = damage <= 0 ? 'floater blocked' : by === 'ally' ? 'floater ally' : perfect ? 'floater perfect' : 'floater';
+    f.className = damage <= 0 ? 'floater blocked' : by === 'ally' ? 'floater ally' : perfect ? 'floater mine perfect' : charge > 0.6 ? 'floater mine big' : 'floater mine';
     // Decimals only while the numbers are small; big ones round (and get commas).
     const n = damage < 100 && damage % 1 !== 0 ? damage.toFixed(1) : fmt(Math.round(damage));
-    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `Perfect! −${n}` : `−${n}`;
+    const chain = this.s.perfectChain ?? 0;
+    f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain} in a row!` : 'Perfect!'} −${n}` : `−${n}`;
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
@@ -1898,13 +1909,13 @@ export class UI {
 
   private popTimer = 0;
 
-  private shake() {
+  private shake(small = false) {
     if (reducedMotion()) return;
     const wrap = document.querySelector('.scene-wrap');
     if (!wrap) return;
-    wrap.classList.remove('shake');
+    wrap.classList.remove('shake', 'shake-sm');
     void (wrap as HTMLElement).offsetWidth;
-    wrap.classList.add('shake');
+    wrap.classList.add(small ? 'shake-sm' : 'shake');
   }
 
   /** Stage 6: Hargrove's Objections, Dr. Gleam's floss and Disruptr's funding, on the office picture. */

@@ -173,6 +173,8 @@ export interface GameState {
   breakroom: BreakState;
   feeney: FeeneyState;
   fightback: FightbackState;
+  /** Perfect releases in a row (0 once the chain breaks). */
+  perfectChain: number;
 
   /**
    * After the first war: who's back for a rematch (an index into REMATCH.order), which
@@ -569,6 +571,7 @@ export function newGame(seed = Date.now() % 2147483647): GameState {
     breakroom: newBreak(),
     feeney: newFeeney(),
     fightback: newFightback(),
+    perfectChain: 0,
     rematch: null,
     war: newWar(),
     asks: { current: null, nextAt: 0, used: [], boosts: [], watchUntil: -999 },

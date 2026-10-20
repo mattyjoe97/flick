@@ -825,13 +825,16 @@ export const CHARGE = {
   perfectWindow: 0.35, // seconds at full stretch where a release counts as Perfect
   snapAfter: 1.7, // total seconds of holding before the band snaps on you
   maxMult: 5, // damage multiplier at full stretch
-  perfectMult: 6, // damage multiplier for a Perfect release
+  perfectMult: 8, // damage multiplier for a Perfect release
+  chainStep: 1, // every Perfect in a row adds this much more
+  chainMax: 5, // up to the 5th in a row (×12)
   noisePerCharge: 0.6, // a full stretch makes 1.6x the noise of a tap
   snapNoise: 3,
 };
 
-export function chargeMult(charge: number, perfect: boolean) {
-  if (perfect) return CHARGE.perfectMult;
+/** `chain`: how many Perfects in a row this one makes (1 for the first). */
+export function chargeMult(charge: number, perfect: boolean, chain = 1) {
+  if (perfect) return CHARGE.perfectMult + CHARGE.chainStep * (Math.min(CHARGE.chainMax, Math.max(1, chain)) - 1);
   return 1 + (CHARGE.maxMult - 1) * Math.min(1, Math.max(0, charge));
 }
 

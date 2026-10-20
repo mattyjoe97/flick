@@ -100,15 +100,17 @@ export class Sound {
     src.stop(t + dur + 0.02);
   }
 
-  /** Release: a stretched band twangs lower and louder; a Perfect adds a bright ping. */
+  /** Release: a rubbery twang (deeper and longer the further you stretched) and a snap. */
   flick(charge = 0, perfect = false) {
     if (!this.ok('flick', 40)) return;
-    this.tone('triangle', 520 - 160 * charge, 150 - 50 * charge, 0.1 + 0.08 * charge, 0.22 + 0.12 * charge);
-    this.noise(2600, 2, 0.03, 0.12 + 0.1 * charge);
-    if (perfect) {
-      this.tone('sine', 1320, 1320, 0.12, 0.12, 0.03);
-      this.tone('sine', 1760, 1760, 0.16, 0.1, 0.09);
-    }
+    // The snap of the band leaving.
+    this.noise(4200, 2.5, 0.025, 0.16 + 0.12 * charge);
+    // The twang: a quick wobbling drop in pitch.
+    const f = 330 - 120 * charge;
+    this.tone('triangle', f * 1.6, f, 0.07, 0.2 + 0.12 * charge);
+    this.tone('triangle', f, f * 0.7, 0.12 + 0.1 * charge, 0.14 + 0.1 * charge, 0.04);
+    this.tone('sine', f * 0.5, f * 0.35, 0.1 + 0.08 * charge, 0.08 + 0.08 * charge, 0.02);
+    if (perfect) this.tone('sine', 1320, 1320, 0.1, 0.08, 0.02);
   }
 
   private stretchOsc: OscillatorNode | null = null;
@@ -164,10 +166,18 @@ export class Sound {
     this.tone('triangle', 640, 230, 0.07, 0.08);
   }
 
-  hit() {
-    if (!this.ok('hit', 60)) return;
-    this.noise(900, 1.4, 0.07, 0.28);
-    this.tone('sine', 160, 70, 0.09, 0.2);
+  /** A band landing: a slap and a thump (0 a tap, 1 a stretched shot, 2 a Perfect, with a ding). */
+  hit(power = 0) {
+    if (!this.ok('hit', 55)) return;
+    // The slap on skin.
+    this.noise(2400, 1.2, 0.035, 0.22 + 0.08 * power);
+    this.noise(800, 1.1, 0.07 + 0.03 * power, 0.26 + 0.12 * power);
+    // The thump you feel.
+    this.tone('sine', 150 + 25 * power, 48, 0.1 + 0.05 * power, 0.32 + 0.14 * power);
+    if (power >= 2) {
+      this.tone('sine', 1320, 1320, 0.14, 0.12, 0.02);
+      this.tone('sine', 1760, 1760, 0.2, 0.1, 0.09);
+    }
   }
 
   incoming() {

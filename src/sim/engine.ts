@@ -574,8 +574,10 @@ export function flick(s: GameState, charge = 0, perfect = false): ActionResult {
   const p = perfect && c >= 1;
   if (c > 0.05) s.stats.charged++;
   if (p) s.stats.perfect++;
+  // Perfects in a row hit harder and harder; anything else breaks the chain.
+  s.perfectChain = p ? Math.min(CHARGE.chainMax, (s.perfectChain ?? 0) + 1) : 0;
   const before = s.stats.damage;
-  const power = chargeMult(c, p) * weakMult(s) * streakMult(s) * hackFlick(s, p) * paybackMult(s);
+  const power = chargeMult(c, p, s.perfectChain) * weakMult(s) * streakMult(s) * hackFlick(s, p) * paybackMult(s);
   fire(s, 'you', power, undefined, { charge: c, perfect: p });
   if (s.stats.damage > before) {
     paybackUsed(s);

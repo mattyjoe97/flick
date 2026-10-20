@@ -8227,3 +8227,199 @@ body.in-closet .desk-box {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------- flick feel */
+
+/* Your own numbers: big, white and punchy; bigger for a stretched shot; gold for a Perfect. */
+.floater.mine {
+  font-size: max(20px, 3.6cqw);
+  color: #fff;
+  -webkit-text-stroke: 1.5px #3a2414;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  animation: float-pop 0.95s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.floater.mine.big {
+  font-size: max(26px, 4.8cqw);
+  color: #ffe36e;
+  -webkit-text-stroke: 2px #6b3d10;
+}
+
+.floater.mine.perfect {
+  font-size: max(30px, 5.6cqw);
+  color: #ffd23f;
+  -webkit-text-stroke: 2px #7a3b00;
+  text-shadow: 0 0 14px rgba(255, 200, 60, 0.9), 0 3px 0 rgba(0, 0, 0, 0.4);
+  z-index: 3;
+}
+
+@keyframes float-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.4) rotate(-6deg);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1.35) rotate(3deg);
+  }
+  28% {
+    transform: translate(-50%, -10px) scale(1) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -54px) scale(0.95);
+  }
+}
+
+/* A bigger band in the air. */
+.proj {
+  width: max(24px, 4.6cqw);
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+}
+
+.proj.big {
+  width: max(32px, 6.2cqw);
+}
+
+/* The flash where it lands. */
+.burst {
+  width: max(26px, 6cqw);
+  height: max(26px, 6cqw);
+  background: #fff;
+  filter: drop-shadow(0 0 4px #ffe36e);
+}
+
+.burst.big {
+  width: max(40px, 10cqw) !important;
+  height: max(40px, 10cqw) !important;
+  background: #fff3a6;
+}
+
+/* Bits of band flying off. */
+.debris {
+  position: absolute;
+  width: max(8px, 1.4cqw);
+  height: max(3px, 0.45cqw);
+  border-radius: 2px;
+  background: #d9b783;
+  box-shadow: 0 0 0 1px #2b2018;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: debris 0.5s cubic-bezier(0.15, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes debris {
+  from {
+    transform: translate(-50%, -50%) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 30px)) rotate(var(--r));
+    opacity: 0;
+  }
+}
+
+/* Whoever you hit jolts back: a quick squash and snap back. */
+#people {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+#people.jolt0 {
+  animation: jolt0 0.16s ease-out;
+}
+
+#people.jolt1 {
+  animation: jolt1 0.24s ease-out;
+}
+
+#people.jolt2 {
+  animation: jolt2 0.34s ease-out;
+}
+
+@keyframes jolt0 {
+  40% {
+    transform: translate(0, 2px) scale(1.01, 0.985);
+  }
+}
+
+@keyframes jolt1 {
+  30% {
+    transform: translate(-3px, 5px) scale(1.03, 0.96) rotate(-1.5deg);
+  }
+  65% {
+    transform: translate(1px, -1px) scale(0.99, 1.01) rotate(0.5deg);
+  }
+}
+
+@keyframes jolt2 {
+  20% {
+    transform: translate(-6px, 8px) scale(1.06, 0.92) rotate(-3deg);
+  }
+  50% {
+    transform: translate(3px, -3px) scale(0.97, 1.03) rotate(1.5deg);
+  }
+  75% {
+    transform: translate(-1px, 1px) rotate(-0.5deg);
+  }
+}
+
+.scene-wrap.shake-sm {
+  animation: scene-shake-sm 0.18s ease-out;
+}
+
+@keyframes scene-shake-sm {
+  30% {
+    transform: translate(-2px, 1px);
+  }
+  60% {
+    transform: translate(2px, -1px);
+  }
+}
+
+/* The timing ring at your fingertip. */
+.launch-ring circle {
+  fill: none;
+}
+
+.launch-ring .ring-target {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 3;
+  stroke-dasharray: 4 4;
+}
+
+.launch-ring .ring-close {
+  stroke: #fff;
+  stroke-width: 4;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+}
+
+.launch-ring[data-state='perfect'] .ring-target {
+  stroke: #ffd23f;
+  stroke-width: 6;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 6px #ffd23f);
+}
+
+.launch-ring[data-state='perfect'] .ring-close {
+  stroke: #fff6c8;
+  stroke-width: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .debris,
+  #people.jolt0,
+  #people.jolt1,
+  #people.jolt2,
+  .scene-wrap.shake-sm {
+    animation: none;
+  }
+  .floater.mine {
+    animation: none;
+  }
+}
