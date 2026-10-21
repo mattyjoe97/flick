@@ -8425,3 +8425,145 @@ body.in-closet .desk-box {
 #scene {
   cursor: crosshair;
 }
+
+/* ---------------------------------------------------------------- crunchier shots */
+
+/* The streak a fast band leaves behind it. */
+.speed {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: max(3px, 0.5cqw);
+  transform-origin: 0 50%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 246, 214, 0.85));
+  pointer-events: none;
+  animation: speed 0.24s ease-out forwards;
+}
+
+.speed.big {
+  height: max(5px, 0.8cqw);
+  background: linear-gradient(90deg, rgba(255, 230, 140, 0), rgba(255, 236, 160, 0.95));
+}
+
+@keyframes speed {
+  0% {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  25% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+/* A hit-stop: everything on the office picture holds still for a moment. */
+.scene.hitstop *,
+.scene.hitstop {
+  animation-play-state: paused !important;
+}
+
+/* A Perfect headshot: the camera punches in. */
+#scene > svg.punch {
+  animation: punch 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes punch {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------- your damage adding up */
+
+.resolve-track {
+  position: relative;
+}
+
+.resolve-fill {
+  position: relative;
+  z-index: 1;
+}
+
+.resolve-ghost {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  background: #ffe58a;
+}
+
+.resolve.chunk .resolve-ghost {
+  animation: ghost-flash 0.35s ease-out;
+}
+
+@keyframes ghost-flash {
+  from {
+    background: #fff;
+    box-shadow: 0 0 8px #fff3a6;
+  }
+  to {
+    background: #ffe58a;
+  }
+}
+
+.tally {
+  position: absolute;
+  left: 50%;
+  top: 13.5%;
+  z-index: 9;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  transform: translateX(-50%);
+  padding: 2px 12px 3px;
+  border-radius: 999px;
+  background: rgba(30, 40, 51, 0.78);
+  color: #fff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tally small {
+  font-size: max(10px, 1.5cqw);
+  opacity: 0.85;
+}
+
+.tally b {
+  font-family: var(--font-hand);
+  font-size: max(17px, 2.8cqw);
+  color: #ffe36e;
+}
+
+.tally.bump b {
+  animation: tally-bump 0.25s ease-out;
+}
+
+.tally.done {
+  transition: opacity 0.6s;
+  opacity: 0;
+}
+
+@keyframes tally-bump {
+  40% {
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tally.bump b,
+  .resolve.chunk .resolve-ghost,
+  #scene > svg.punch {
+    animation: none;
+  }
+}

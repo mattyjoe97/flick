@@ -1136,6 +1136,10 @@ export class UI {
   }
 
   private shotsThisFrame = 0;
+  /** The Resolve bar's chunk: where it was a moment ago, catching up to where it is. */
+  private ghost = { key: '', share: 1, holdUntil: 0 };
+  /** Your hits adding up: the running total while you keep landing them. */
+  private tally = { sum: 0, hits: 0, lastAt: 0 };
   private fightbackTold = false;
   private incomingFrom = -1;
 
@@ -1195,14 +1199,62 @@ export class UI {
     const hs = head ? 'Headshot! ' : '';
     f.textContent = damage <= 0 ? 'Bounced back!' : perfect ? `${chain > 1 ? `Perfect ×${chain}!` : 'Perfect!'} ${hs}−${n}` : `${hs}−${n}`;
     if (head && by === 'you') f.classList.add('head');
+    if (by === 'you' && damage > 0) setTimeout(() => this.addTally(damage), 130);
     const o = this.scene.floaterOrigin();
     f.style.left = `${o.left + (Math.random() - 0.5) * 24}%`;
     f.style.top = `${o.top + (Math.random() - 0.5) * 8}%`;
     // Numbers appear when the band lands, not when it leaves your hand.
-    f.style.animationDelay = by === 'you' ? '0.24s' : '0.32s';
+    f.style.animationDelay = by === 'you' ? '0.13s' : '0.32s';
     box.appendChild(f);
     setTimeout(() => f.remove(), 1300);
   }
+
+  /** The Resolve bar's chunk: what just came off shows in pale yellow, then drains away. */
+  private renderGhost(key: string, share: number) {
+    const g = this.ghost;
+    const now = performance.now();
+    if (key !== g.key || share > g.share) {
+      g.key = key;
+      g.share = share;
+    } else if (share < g.share - 0.0005) {
+      if (now < g.holdUntil) {
+        /* hold it a moment so you see the chunk */
+      } else g.share = Math.max(share, g.share - Math.max(0.004, (g.share - share) * 0.06));
+    }
+    setFill($('resolve-ghost'), g.share);
+  }
+
+  /** One of your hits landed: add it to the running total (shown under the Resolve bar). */
+  private addTally(damage: number) {
+    const now = performance.now();
+    const t = this.tally;
+    if (now - t.lastAt > 3000) {
+      t.sum = 0;
+      t.hits = 0;
+    }
+    t.sum += damage;
+    t.hits++;
+    t.lastAt = now;
+    this.ghost.holdUntil = now + 450;
+    const box = $('tally');
+    $('tally-sum').textContent = `−${fmt(Math.round(t.sum))}`;
+    $('tally-n').textContent = t.hits > 1 ? `${t.hits} hits` : 'your hit';
+    box.hidden = false;
+    box.classList.remove('bump', 'done');
+    void box.offsetWidth;
+    box.classList.add('bump');
+    const rb = $('resolve-box');
+    rb.classList.remove('chunk');
+    void rb.offsetWidth;
+    rb.classList.add('chunk');
+    clearTimeout(this.tallyTimer);
+    this.tallyTimer = window.setTimeout(() => {
+      box.classList.add('done');
+      this.tallyTimer = window.setTimeout(() => (box.hidden = true), 700);
+    }, 3000);
+  }
+
+  private tallyTimer = 0;
 
   /** A word floating up off the boss (a hack going off). */
   private floatWord(word: string) {
@@ -1643,6 +1695,7 @@ export class UI {
       const k = toughness(s);
       this.set('resolve-num', `${fmt(Math.ceil(r * k))} / ${fmt(Math.round(max * k))}`);
       setFill($('resolve-fill'), r / max);
+      this.renderGhost(t.id + String(walled), r / max);
       const tw = $('twist');
       // A rematch says what it's worth (and keeps its old twist, like Gary's fan).
       const twist = fd

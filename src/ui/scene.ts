@@ -109,6 +109,9 @@ export class Scene {
   /** Whoever you're fighting sways from side to side (so aiming takes a little skill). */
   private swayLayer!: SVGGElement;
   private swayX = 0;
+  /** A hit-stop: nothing on the office picture moves until then. */
+  private stopUntil = 0;
+  private stopTimer = 0;
   /** Spent bands on the top of their cubicle wall. */
   private pileLayer!: SVGGElement;
   private piled = 0;
@@ -354,7 +357,9 @@ export class Scene {
       const from = e.by === 'you' ? this.fromHand() : this.allyHead(e.allyId);
       if (e.by === 'ally' && e.allyId) this.recoil(e.allyId);
       const big = e.by === 'you' && ((e.charge ?? 0) > 0.6 || e.perfect);
-      const dur = e.by === 'you' ? 260 - 90 * (e.charge ?? 0) : 340;
+      // Yours snap in fast and nearly straight, with a speed streak behind them.
+      const dur = e.by === 'you' ? 150 - 50 * (e.charge ?? 0) : 340;
+      if (e.by === 'you') this.streakLine(from, head, !!big);
       this.launch(from, head, dur, () => {
         const bx = mine ? head.x : head.x + (Math.random() - 0.5) * 50;
         const by = mine ? head.y : head.y + (Math.random() - 0.5) * 30;
@@ -364,7 +369,13 @@ export class Scene {
           this.hooks.hit(power);
           if (!walled) {
             this.debris(bx, by, 3 + power * 3);
-            this.jolt(power);
+            // A split-second freeze as it lands (longer for a Perfect), then they jolt back.
+            const stop = power >= 2 ? 110 : power >= 1 ? 70 : 0;
+            this.hitStop(stop);
+            if (stop) setTimeout(() => this.jolt(power), stop);
+            else this.jolt(power);
+            // A Perfect headshot: the camera punches in on it.
+            if (e.perfect && e.head) this.punchIn(bx, by);
             // Your hits leave their mark: welts where they land on a face, now and then a band
             // stuck in their hair, and the spent band drops onto the top of their wall.
             if (mine) this.markHit(mine, power);
@@ -378,7 +389,7 @@ export class Scene {
           if (l) this.say(l, 1400);
         }
         if (big) this.duckUntil = performance.now() + 500;
-      }, big);
+      }, big, e.by === 'you');
     } else if (e.type === 'miss') {
       // A miss: the band sails past where you aimed and drops out of sight.
       const mine = this.takePending();
@@ -622,7 +633,7 @@ export class Scene {
 
   // ---------------------------------------------------------------- projectiles
 
-  private launch(from: { x: number; y: number }, to: { x: number; y: number }, dur: number, done: () => void, big = false) {
+  private launch(from: { x: number; y: number }, to: { x: number; y: number }, dur: number, done: () => void, big = false, straight = false) {
     if (reduced()) {
       done();
       return;
@@ -640,8 +651,8 @@ export class Scene {
       y0: from.y,
       x1: to.x,
       y1: to.y,
-      cx: (from.x + to.x) / 2 + (Math.random() - 0.5) * 80,
-      cy: Math.min(from.y, to.y) - 60 - Math.random() * 40,
+      cx: (from.x + to.x) / 2 + (straight ? 0 : (Math.random() - 0.5) * 80),
+      cy: straight ? (from.y + to.y) / 2 - 12 : Math.min(from.y, to.y) - 60 - Math.random() * 40,
       t0: performance.now(),
       dur,
       spin: (Math.random() < 0.5 ? -1 : 1) * (700 + Math.random() * 500),
@@ -677,6 +688,44 @@ export class Scene {
       this.fx.appendChild(d);
       setTimeout(() => d.remove(), 520);
     }
+  }
+
+  /** The streak a fast band leaves in the air, from your hand to where it's going. */
+  private streakLine(from: { x: number; y: number }, to: { x: number; y: number }, big: boolean) {
+    if (reduced()) return;
+    const a = this.pct(from.x, from.y);
+    const b = this.pct(to.x, to.y);
+    const ax = (a.left / 100) * this.box.w;
+    const ay = (a.top / 100) * this.box.h;
+    const bx = (b.left / 100) * this.box.w;
+    const by = (b.top / 100) * this.box.h;
+    const len = Math.hypot(bx - ax, by - ay);
+    const el = document.createElement('span');
+    el.className = big ? 'speed big' : 'speed';
+    el.style.width = `${len.toFixed(0)}px`;
+    el.style.transform = `translate(${ax.toFixed(1)}px, ${ay.toFixed(1)}px) rotate(${Math.atan2(by - ay, bx - ax).toFixed(4)}rad)`;
+    this.fx.appendChild(el);
+    setTimeout(() => el.remove(), 260);
+  }
+
+  /** Everything on the office picture holds still for a moment (a hit-stop). */
+  private hitStop(ms: number) {
+    if (!ms || reduced()) return;
+    this.stopUntil = performance.now() + ms;
+    this.root.classList.add('hitstop');
+    clearTimeout(this.stopTimer);
+    this.stopTimer = window.setTimeout(() => this.root.classList.remove('hitstop'), ms);
+  }
+
+  /** A quick zoom in on a spot and back (a Perfect headshot). */
+  private punchIn(x: number, y: number) {
+    if (reduced()) return;
+    const at = this.pct(x, y);
+    const svg = this.svg as unknown as HTMLElement;
+    svg.style.transformOrigin = `${at.left.toFixed(1)}% ${at.top.toFixed(1)}%`;
+    svg.classList.remove('punch');
+    void svg.getBoundingClientRect();
+    svg.classList.add('punch');
   }
 
   /** Whoever you hit jolts back (harder for a stretched shot, a Perfect most of all). */
@@ -774,7 +823,7 @@ export class Scene {
       this.allyLayer.querySelectorAll<SVGGElement>('.ally').forEach((g) => g.classList.toggle('away', meeting && mk.split(',').includes(g.dataset.ally ?? '')));
     }
     // They sway from side to side while you fight them (stepped, like the bob, to keep it cheap).
-    if (t && !reduced()) {
+    if (t && !reduced() && now >= this.stopUntil) {
       const sway = Math.round((14 * Math.sin(now / 1150) + 5 * Math.sin(now / 470)) * 2) / 2;
       if (Math.abs(sway - this.swayX) >= 0.5) {
         this.swayX = sway;
